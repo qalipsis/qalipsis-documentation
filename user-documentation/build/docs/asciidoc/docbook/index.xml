@@ -1,0 +1,1331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?asciidoc-toc maxdepth="2"?>
+<?asciidoc-numbered?>
+<book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
+<info>
+<title>Qalipsis - User guide</title>
+<date>2021-05-21</date>
+</info>
+<preface>
+<title></title>
+<simpara><?asciidoc-pagebreak?></simpara>
+</preface>
+<chapter xml:id="_introduction">
+<title>Introduction</title>
+<simpara>QALIPSIS is an open-source, enterprise-grade load and performance-testing tool especially designed for distributed systems.</simpara>
+<simpara>It can also run on standalone systems enabling users get the best from both worlds – simplicity and scalability.</simpara>
+<simpara>Boasting a high degree of flexibility, QALIPSIS allows users to configure action paces and repetitions for seamless load-test campaigns.</simpara>
+<simpara>To achieve this, QALIPSIS brings different core concepts together:</simpara>
+<itemizedlist>
+<listitem>
+<simpara>Scenarios: QALIPSIS’ scenarios are the single largest components a developer has to put in place in order to run a load test. They contain the steps with a detailed description of all the operations to accomplish, their dependencies, as well as the assertions to ensure everything performs as expected.</simpara>
+</listitem>
+<listitem>
+<simpara>Steps: Steps are the central components for working with QALIPSIS and can be developed in Kotlin, Groovy or Java, using either JUnit-like classes or the fluent API. Steps, to a large degree, are dependent on data sources, results of other steps or assertions to execute or use their data.</simpara>
+</listitem>
+<listitem>
+<simpara>Assertions: Assertions make it easy to perform cross-checks of data and durations from different sources. Validating data persistence, message exchanges or requests to remote systems has never been so easy. Durations can also be set and tested in order to verify the overall responsiveness of the system.</simpara>
+</listitem>
+<listitem>
+<simpara>Minions: QALIPSIS can simulate website users, IoT devices or other systems. They are handled by a minion, which performs a complete scenario. You can even create millions of minions. Unlike other load-testing tools, due to the very low memory footprint, you can perform these tasks on a standard computer.</simpara>
+</listitem>
+<listitem>
+<simpara>Head: QALIPSIS doesn’t only test distributed systems, but also runs as one. When a user needs to perform load tests at scale, or from different geographical locations, the user needs only to set up a cluster. The head component is only responsible for orchestration and reporting.</simpara>
+</listitem>
+<listitem>
+<simpara>Factories: In an QALIPSIS cluster, the factories are the distributed components which host the minions to execute the load tests and assertions. Testers can even change the number of factories on-the-fly so as to optimize the load and cost of the testing infrastructure.</simpara>
+</listitem>
+</itemizedlist>
+<simpara>Now you can imagine all the incredible things you can achieve with QALIPSIS, create your first scenario and verify your sofware is working as you expect!</simpara>
+<simpara><?asciidoc-pagebreak?></simpara>
+</chapter>
+<chapter xml:id="_whats-new">
+<title>What&#8217;s new</title>
+<simpara>Well, actually everything is new in QALIPSIS.</simpara>
+<simpara>Major changes of releases will be visible here.</simpara>
+<simpara>With the current draft version (0.2.0-SNAPSHOT), you can create scenarios with different branches, even running with a lot of minions.</simpara>
+<simpara>Many core steps and plugins will help you to fire load on your systems and feed QALIPSIS with data to verify.</simpara>
+<simpara>QALIPSIS runs standalone, history of events and metrics can be either logged or saved in Elasticsearch.</simpara>
+<simpara>Next evolutions will bring you much more plugins, steps for statistics and QALIPSIS as a cluster. Stay tune!</simpara>
+<simpara><?asciidoc-pagebreak?></simpara>
+</chapter>
+<chapter xml:id="_quickstart">
+<title>Quickstart</title>
+<simpara>The following sections will bring you through the successive steps to create your first "Hello World" scenario.</simpara>
+<simpara>Before you get further, ensure you have installed Java 11 or above SDK.
+While you can develop a complete scenario with a text editor, we encourage you to use a suitable IDE such as IntelliJ or Eclipse.</simpara>
+<section xml:id="_create-a-project-with-gradle-kotlin-dsl">
+<title>Create a project with Gradle - Kotlin DSL</title>
+<simpara>Create a new project for Gradle with your IDE, using the Kotlin DSL.</simpara>
+<programlisting language="kotlin" linenumbering="numbered">import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    application
+    kotlin("jvm")
+    kotlin("kapt")
+    id("com.github.johnrengelman.shadow") version "6.0.0" // &lt;1&gt;
+}
+
+description = "Qalipsis Quickstart" // &lt;2&gt;
+
+// Configure both compileKotlin and compileTestKotlin.
+tasks.withType&lt;KotlinCompile&gt;().configureEach {
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_11.majorVersion
+        javaParameters = true
+    }
+}
+
+dependencies {
+    implementation(kotlin("stdlib")) // &lt;3&gt;
+    implementation("io.qalipsis:api-dsl:0.2.0-SNAPSHOT") // &lt;4&gt;
+
+    implementation("com.willowtreeapps.assertk:assertk:2.0.3") // &lt;5&gt;
+    implementation("com.willowtreeapps.assertk:assertk-jvm:2.0.3") // &lt;5&gt;
+
+
+    runtimeOnly("io.qalipsis:runtime:0.2.0-SNAPSHOT") // &lt;6&gt;
+
+    kapt("io.qalipsis:api-processors:0.2.0-SNAPSHOT") // &lt;7&gt;
+}
+
+application { // &lt;8&gt;
+    mainClassName = "io.qalipsis.runtime.Qalipsis"
+    applicationDefaultJvmArgs = listOf("-noverify", "-XX:TieredStopAtLevel=1", "-Dcom.sun.management.jmxremote",
+            "-Dmicronaut.env.deduction=false")
+    this.ext["workingDir"] = projectDir
+}
+
+tasks { // &lt;9&gt;
+    named&lt;ShadowJar&gt;("shadowJar") {
+        mergeServiceFiles()
+        archiveClassifier.set("qalipsis")
+    }
+}
+
+tasks { // &lt;10&gt;
+    build {
+        dependsOn(shadowJar)
+    }
+}</programlisting>
+<calloutlist>
+<callout arearefs="">
+<para>The executable file is packaged as a "fat JAR" using the shadow plugin, containing all the dependencies required to run QALIPSIS and your scenario. The file is bigger but portable.</para>
+</callout>
+<callout arearefs="">
+<para>Update the description to customize your project</para>
+</callout>
+<callout arearefs="">
+<para>Dependencies required to develop scenarios with Kotlin</para>
+</callout>
+<callout arearefs="">
+<para>Dependencies required to develop scenarios for QALIPSIS, whatever the language is</para>
+</callout>
+<callout arearefs="">
+<para>When verifying the data in a scenario, you might like to use a test or assertion library you are familiar with, feel free to use JUnit, AssertJ or AssertK, Hamcrest or any other.</para>
+</callout>
+<callout arearefs="">
+<para>Dependencies to execute QALIPSIS, either as a head or factory.</para>
+</callout>
+<callout arearefs="">
+<para>Dependencies to perform the annotation processing at compile time. It is very important to prepare the later execution.</para>
+</callout>
+<callout arearefs="">
+<para>Default configuration or the application, if you ever want to test it locally. This is optional, but often helpful.</para>
+</callout>
+<callout arearefs="">
+<para>When the "fat JAR" will be packaged, we want to add a classifier on the artefact to distinguish it from the "normal JAR".</para>
+</callout>
+<callout arearefs="">
+<para>Include the creation of the "fat JAR" in the standard build workflow.</para>
+</callout>
+</calloutlist>
+<note>
+<simpara>If you are using a snapshot version of QALIPSIS, add <literal><link xl:href="https://oss.sonatype.org/content/repositories/snapshots">https://oss.sonatype.org/content/repositories/snapshots</link></literal> as a dependency repository.</simpara>
+</note>
+</section>
+<section xml:id="_setting-up-your-ide">
+<title>Setting up your IDE</title>
+<simpara>QALIPSIS relies on annotation processing at compile time to prepare the executable code and list the scenarios to later execute.</simpara>
+<simpara>Furthermore, QALIPSIS relies on Micronaut IoC framework, which requires the following setup.</simpara>
+<section xml:id="_intellij">
+<title>IntelliJ</title>
+<simpara>Please follow the instructions provided by Micronaut&#8217;s team in <link xl:href="https://docs.micronaut.io/latest/guide/index.html#ideaSetup">section for IntelliJ</link>.</simpara>
+</section>
+<section xml:id="_eclipse">
+<title>Eclipse</title>
+<simpara>Please follow the instructions provided by Micronaut&#8217;s team in <link xl:href="https://docs.micronaut.io/latest/guide/index.html#eclipseSetup">section for Eclipse</link>.</simpara>
+</section>
+<section xml:id="_visual-studio-code">
+<title>Visual studio code</title>
+<simpara>Please follow the instructions provided by Micronaut&#8217;s team in <link xl:href="https://docs.micronaut.io/latest/guide/index.html#vsCodeSetup">section for Visual Studio Code</link>.</simpara>
+</section>
+</section>
+<section xml:id="_create-a-scenario">
+<title>Create a scenario</title>
+<simpara>in the following sections, we will learn how to create a scenario specifications that simulates minions starting with a ramp-up, write a message on the console and stop.</simpara>
+<simpara>Scenarios can be created in classes or Kotlin objects or as a Kotlin function. Names do not matter, the only important thing is to annotate the method:</simpara>
+<programlisting language="kotlin" linenumbering="numbered">package my.example
+
+import io.qalipsis.api.annotations.Scenario
+
+class HelloWorldScenario {
+
+    @Scenario
+    fun myScenario() {
+
+    }
+
+}</programlisting>
+<important>
+<simpara>Due to the incremental compilation not yet fully taken into account in QALIPSIS annotation processor, you should clean the output / build directory when you delete or rename the package or class containing a scenario method. The risk is to have a scenario listed to be executed at runtime, which no longer exists.</simpara>
+</important>
+<note>
+<simpara>You can create several methods with the <literal>@Scenario</literal> annotation in the same class / object.</simpara>
+</note>
+<simpara>It is now time to develop the scenario.
+In the annotated method, create a new scenario and configure it:</simpara>
+<programlisting language="kotlin" linenumbering="numbered">@Scenario
+fun myScenario() {
+    scenario("hello-world") { <co xml:id="CO2-1"/>
+        minionsCount = 1000 <co xml:id="CO2-2"/>
+        rampUp {
+            regular(1000, 50) <co xml:id="CO2-3"/>
+        }
+    }
+}</programlisting>
+<calloutlist>
+<callout arearefs="CO2-1">
+<para>Creates a new scenario called "hello-world" (see <xref linkend="Scenario"/> for more details)</para>
+</callout>
+<callout arearefs="CO2-2">
+<para>Defines the default number of minions to execute, which you can change at runtime (see <xref linkend="_runtime-configuration"/> for more details), they are the number of simulated users or systems that generate load: the more the minions, the more the load</para>
+</callout>
+<callout arearefs="CO2-3">
+<para>Defines the strategy to start the minion, which you can make faster or slower at runtime (see <xref linkend="_runtime-configuration"/> for more details)</para>
+</callout>
+</calloutlist>
+</section>
+<section xml:id="_specify-where-the-load-should-be-injected">
+<title>Specify where the load should be injected</title>
+<simpara>If you consider the scenario as a directed graph joining the steps / actions to execute, you will see that it is possible to have:</simpara>
+<itemizedlist>
+<listitem>
+<simpara>several roots</simpara>
+</listitem>
+<listitem>
+<simpara>two branches joining the same step (like a Y)</simpara>
+</listitem>
+<listitem>
+<simpara>one step distributing two branches (like a ⅄)</simpara>
+</listitem>
+</itemizedlist>
+<simpara>In all those branches, you will have to identify when the load should be injected.</simpara>
+<programlisting language="kotlin" linenumbering="numbered">@Scenario
+fun myScenario() {
+    val myScenario = scenario("hello-world") {
+        minionsCount = 1000
+        rampUp {
+            regular(1000, 50)
+        }
+    }
+    .start() <co xml:id="CO3-1"/>
+}</programlisting>
+<calloutlist>
+<callout arearefs="CO3-1">
+<para>The <literal>start()</literal> statement locates the root of the tree, receiving the load of all the minions at runtime.</para>
+</callout>
+</calloutlist>
+</section>
+<section xml:id="_add-steps-to-your-scenario">
+<title>Add steps to your scenario</title>
+<simpara>Now you can add all the steps you want!
+Let&#8217;s go further in our "hello world" scenario.</simpara>
+<programlisting language="kotlin" linenumbering="numbered">@Scenario
+fun myScenario() {
+    val myScenario = scenario("hello-world") {
+        minionsCount = 1000
+        rampUp {
+            regular(1000, 50)
+        }
+    }
+    .start()
+    .returns&lt;String&gt; { context -&gt; <co xml:id="CO4-1"/>
+        "Hello World! I'm the minion ${context.minionId}"
+    }
+    .shelve { mapOf("started at" to System.currentTimeMillis()) } <co xml:id="CO4-2"/>
+    .map { str -&gt; str!!.toUpperCase() } <co xml:id="CO4-3"/>
+    .unshelve&lt;String, Long&gt;("started at") <co xml:id="CO4-4"/>
+    .verify { <co xml:id="CO4-5"/>
+        assertThat(it).all {
+            prop(Pair&lt;String, Long?&gt;::first).startsWith("HELLO")
+            prop(Pair&lt;String, Long?&gt;::second).isNotNull().isPositive()
+        }
+    }
+    .execute&lt;Pair&lt;String, Long?&gt;, Unit&gt; { ctx -&gt; <co xml:id="CO4-6"/>
+        val input = ctx.receive()
+        println("${input.first} and finished after ${input.second!! - start} ms")
+    }
+    .configure {
+        iterate(2, 1000) <co xml:id="CO4-7"/>
+    }
+}</programlisting>
+<calloutlist>
+<callout arearefs="CO4-1">
+<para>You declare the first step as root of the tree on the scenario, and is generally responsible for generating data to be used in the rest of the tree.</para>
+</callout>
+<callout arearefs="CO4-2">
+<para>Data can be cached for later use.</para>
+</callout>
+<callout arearefs="CO4-3">
+<para>Transforms the record.</para>
+</callout>
+<callout arearefs="CO4-4">
+<para>Retrieves a value previously added to the cache.</para>
+</callout>
+<callout arearefs="CO4-5">
+<para>Verifies the records using your assertion library of choice, here assertk.</para>
+</callout>
+<callout arearefs="CO4-6">
+<para>Executes a totally free operation on the step context: you can do whatever you want here, such as printing the "Hello world" message in the console with the start time.</para>
+</callout>
+<callout arearefs="CO4-7">
+<para>And if you like it, you can repeat it several times with an interval.</para>
+</callout>
+</calloutlist>
+<simpara>Et voila! You&#8217;ve just created your first scenario. It is not really useful, but you went through the most important concepts of creating a scenario.</simpara>
+<simpara>Now you are ready to go further in the documentation and create scenarios that are really relevant for your system.</simpara>
+<simpara><?asciidoc-pagebreak?></simpara>
+</section>
+</chapter>
+<chapter xml:id="_scenario-specification">
+<title>Scenario specification</title>
+<section xml:id="_what-is-a-scenario-specification">
+<title>What is a scenario specification?</title>
+<simpara>In order to provide the maximum flexibility to configure a scenario and the best performance while executing it, we decided to split its configuration from its execution.</simpara>
+<simpara>We call the configuration phase "specification".
+Specifications for scenarios and steps are the elements you develop using QALIPSIS' DSL.</simpara>
+</section>
+<section xml:id="_configuring-a-scenario-specification">
+<title>Configuring a scenario specification</title>
+<section xml:id="_a-word-about-operators">
+<title>A word about operators</title>
+<simpara>So that you can create a scenario, QALIPSIS provides operators to either create or configure a scenario or a step.
+QALIPSIS provides some operators for the common use cases, and plugins bring others to extend the scope of the features you can use, such as <literal>scenario</literal>, <literal>configure</literal>, <literal>map</literal>, <literal>delay</literal> and many others.</simpara>
+<simpara>You will discover a certain numbers of operators in the next sections, but the list is actually infinite, because you can create yours.
+See <xref linkend="_create-your-own-plugin"/> for more details.</simpara>
+</section>
+<section xml:id="_creating-a-scenario">
+<title>Creating a scenario</title>
+<simpara>A scenario specification is made of several parts:</simpara>
+<programlisting language="kotlin" linenumbering="numbered">@Scenario
+fun myScenario() {
+    val myScenario = scenario("hello-world") { <co xml:id="CO5-1"/>
+        <co xml:id="CO5-2"/>
+    }
+    .start() <co xml:id="CO5-3"/>
+    .returns { <co xml:id="CO5-4"/>
+
+    }
+}</programlisting>
+<calloutlist>
+<callout arearefs="CO5-1">
+<para>Call to the scenario function, which instantiate a new scenario specification with the provided name.</para>
+</callout>
+<callout arearefs="CO5-2">
+<para>Default configuration of the scenario, see <xref linkend="_default-configuration-of-the-scenario"/> for more details.</para>
+</callout>
+<callout arearefs="CO5-3">
+<para>Identification of the root of the tree receiving the load of all the minions: there is only one per scenario, see <xref linkend="_load-injected-tree"/> for more details.</para>
+</callout>
+<callout arearefs="CO5-4">
+<para>Addition of the step specifications to the tree.</para>
+</callout>
+</calloutlist>
+</section>
+<section xml:id="_default-configuration-of-the-scenario">
+<title>Default configuration of the scenario</title>
+<section xml:id="_number-of-minions">
+<title>Number of minions</title>
+<simpara><emphasis role="strong">Optional, default to 1</emphasis></simpara>
+<simpara>Whether you want to simulate users, IoT devices or third-party systems, you will identify each of them to a unique minion.
+The more minions, the more load.
+They execute concurrently and through the all trees.
+You can specify their default number:</simpara>
+<programlisting language="kotlin" linenumbering="numbered">@Scenario
+fun myScenario() {
+    val myScenario = scenario("hello-world") {
+        minionsCount = 1000 <co xml:id="CO6-1"/>
+    }
+}</programlisting>
+<calloutlist>
+<callout arearefs="CO6-1">
+<para>1000 simulated users, IoT devices or third-party systems will execute the scenario concurrently.</para>
+</callout>
+</calloutlist>
+<note>
+<simpara>While <xref linkend="_load-injected-tree"/>s will be visited by the number of minions you specified, the others will get only one.</simpara>
+</note>
+</section>
+<section xml:id="_ramp-up">
+<title>Ramp-up</title>
+<simpara><emphasis role="strong">Mandatory</emphasis></simpara>
+<simpara>Once you specified the number of minions you want to inject in your scenario, you need to specify how they will start to be active.</simpara>
+<simpara>You can use different strategies out-of-the-box or your own implementation.</simpara>
+</section>
+</section>
+<section xml:id="_accelerating">
+<title>Accelerating</title>
+<simpara>The following example starts 10 minions every 2000 ms, then (2000 / 1.5) ms, then (2000 / 1.5 / 1.5) ms&#8230;&#8203; until the interval reaches 200 ms.
+From that point, 10 minions are started every 200 ms, until they all are active.</simpara>
+<programlisting language="kotlin" linenumbering="numbered">@Scenario
+fun myScenario() {
+    val myScenario = scenario("hello-world") {
+        rampUp {
+            faster(2000, 1.5, 200, 10)
+        }
+    }
+}</programlisting>
+<simpara>The speed-factor at runtime will be applied to the multiplication factor: a speed factor of 2 will reduce the interval twice faster.</simpara>
+</section>
+<section xml:id="_increasing-the-volume-of-minions">
+<title>Increasing the volume of minions</title>
+<simpara>The following example starts minions every 200 ms: first 10, then 20 minions after 200 ms, 40 new minions after 200 ms, to the limit of 1000 minions every 200ms until they all are active.</simpara>
+<programlisting language="kotlin" linenumbering="numbered">@Scenario
+fun myScenario() {
+    val myScenario = scenario("hello-world") {
+        rampUp {
+            more(200, 10, 2.0, 1000)
+        }
+    }
+}</programlisting>
+<simpara>The speed-factor at runtime will be applied to the multiplication factor: a speed factor of 2 will increase the number of minions at each shot twice faster.</simpara>
+</section>
+<section xml:id="_regular-ramp-up">
+<title>Regular ramp-up</title>
+<simpara>The following example starts 10 minions every 200 ms.</simpara>
+<programlisting language="kotlin" linenumbering="numbered">@Scenario
+fun myScenario() {
+    val myScenario = scenario("hello-world") {
+        rampUp {
+            regular(200, 10)
+        }
+    }
+}</programlisting>
+<simpara>The speed-factor at runtime will be applied to the interval: a speed factor of 2 will divide the interval by 2.</simpara>
+</section>
+<section xml:id="_time-frame">
+<title>Time frame</title>
+<simpara>The following example starts an equal number of minions every 20 ms, so that they all are active after 40000 ms.</simpara>
+<programlisting language="kotlin" linenumbering="numbered">@Scenario
+fun myScenario() {
+    val myScenario = scenario("hello-world") {
+        rampUp {
+            timeframe(20, 40000)
+        }
+    }
+}</programlisting>
+<simpara>The speed-factor at runtime will be applied to the interval: a speed factor of 2 will divide the interval by 2.</simpara>
+</section>
+<section xml:id="_user-defined">
+<title>User defined</title>
+<simpara>This strategy is totally open to your creativity or needs and consists of returning a <literal>MinionsStartingLine</literal> considering the previous period in milliseconds, the total number of minions to start and the speed factor to apply.</simpara>
+<simpara>The following example first release 100th of all the minions after 1000 ms, then apply different rules depending on the past interval:</simpara>
+<itemizedlist>
+<listitem>
+<simpara>If the previous interval was longer than 2 seconds, 100th of all the minions are released after 100ms;</simpara>
+</listitem>
+<listitem>
+<simpara>Otherwise, a random interval is calculated applying the speed factor to reduce it, in order to start 10th of all the minions.</simpara>
+</listitem>
+</itemizedlist>
+<simpara>Whatever the definition you choose, no more minions than the total number can be launched.
+Generating a negative interval results in an immediate start.</simpara>
+<programlisting language="kotlin" linenumbering="numbered">@Scenario
+fun myScenario() {
+    val myScenario = scenario("hello-world") {
+        rampUp {
+            define { pastPeriodMs, totalMinions, speedFactor -&gt;
+                when {
+                    pastPeriodMs == 0L -&gt; MinionsStartingLine(totalMinions / 100, 1000)
+                    pastPeriodMs &gt; 2000 -&gt; MinionsStartingLine(totalMinions / 10, 100)
+                    else -&gt; MinionsStartingLine(totalMinions / 10,
+                        ((1000 + pastPeriodMs * Math.random()) / speedFactor).toLong().coerceAtLeast(200))
+                }
+            }
+        }
+    }
+}</programlisting>
+<note>
+<simpara>When calling the first iteration of the user-defined strategy, the initial value of <literal>pastPeriodMs</literal> is 0. However, you can use your own variable to verify if this is the first iteration or not.</simpara>
+</note>
+<section xml:id="_retry-policy">
+<title>Retry policy</title>
+<simpara><emphasis role="strong">Optional, default set to no retry</emphasis></simpara>
+<simpara>Execution of steps can failed for different reasons: unreachable remote host, invalid data&#8230;&#8203;</simpara>
+<simpara>When a step execution throws an exception, it can be retried considering the context.
+Once all the attempts were executed, the step execution context is marked as exhausted and only the <xref linkend="_error-processing-steps"/> are then performed.</simpara>
+<simpara>While you can specify the retry policy individually for each step, it is also possible to define a default policy to avoid redundant statements in the steps specifications.</simpara>
+<note>
+<simpara>There is no provided <literal>RetryPolicy</literal> in QALIPSIS for the moment.
+You can create your own implementation to match your need, basic are to come soon.</simpara>
+</note>
+<programlisting language="kotlin" linenumbering="numbered">@Scenario
+fun myScenario() {
+    val myScenario = scenario("hello-world") {
+        retryPolicy(instanceOfRetryPolicy)
+    }
+}</programlisting>
+</section>
+</section>
+</section>
+<section xml:id="_load-injected-tree">
+<title>Load-injected tree</title>
+<simpara>A scenario is a combination of directed acyclic graphs containing, joined by steps.</simpara>
+<simpara>There might be several graphs starting concurrently at the scenario root, but only one is visited by all the minions generating the load.
+Others are considered as "side-trees" to provide data to verify, for later joins or similar.</simpara>
+<simpara>You can identify which graph is the root receiving the load with <literal>start()</literal>:</simpara>
+<programlisting language="kotlin" linenumbering="numbered">@Scenario
+fun myScenario() {
+    val myScenario = scenario("hello-world") {
+        minionsCount = 1000
+        rampUp {
+            regular(1000, 50)
+        }
+    }
+
+    myScenario.start() <co xml:id="CO7-1"/>
+        .returns&lt;String&gt;{ "My input" }
+
+    myScenario <co xml:id="CO7-2"/>
+        .returns&lt;String&gt;{ "My other input" }
+}</programlisting>
+<calloutlist>
+<callout arearefs="CO7-1">
+<para>The <literal>start()</literal> statement locates the root of the tree, receiving the load of all the minions at runtime.</para>
+</callout>
+<callout arearefs="CO7-2">
+<para>The second branch is visited by a unique minion and generally consists of iterative operations (polling of datasources&#8230;&#8203;).</para>
+</callout>
+</calloutlist>
+<simpara>Note that only one use of <literal>start()</literal> is permitted, as well as only one step after it.</simpara>
+<simpara>If you ever need to create two branches with the load injected, you can do the following:</simpara>
+<programlisting language="kotlin" linenumbering="numbered">@Scenario
+fun myScenario() {
+    val myScenario = scenario("hello-world") {
+        //
+    }
+    .start()
+    .tube() <co xml:id="CO8-1"/>
+    .split { <co xml:id="CO8-2"/>
+        execute{ <co xml:id="CO8-3"/>
+            // ...
+        }
+        .map {
+
+        }
+
+        flatten() <co xml:id="CO8-4"/>
+        .filterNotNull()
+
+    }
+}</programlisting>
+<calloutlist>
+<callout arearefs="CO8-1">
+<para><literal>tube()</literal> is a no-operation step, that simply forwards the input to the output.</para>
+</callout>
+<callout arearefs="CO8-2">
+<para><literal>split {}</literal> can be used to provide the output of a unique step to several ones, see <xref linkend="_fan-out"/> for more details.</para>
+</callout>
+<callout arearefs="CO8-3 CO8-4">
+<para>After <literal>tube()</literal>, two branches are diverging: one with the steps <literal>execute{}.map{}</literal> and a second with <literal>flatten().filterNotNull()</literal>.
+They both are run concurrently after each execution of <literal>tube()</literal>.</para>
+</callout>
+</calloutlist>
+</section>
+<section xml:id="_singleton-step-vs-non-singleton-step">
+<title>Singleton step vs. non-singleton step</title>
+<section xml:id="_what-is-a-singleton-step">
+<title>What is a singleton step?</title>
+<simpara>A singleton step is designed to be executed once and only once.
+Its operation is not to simulate the load of minions but to provide them data they can use to feed other steps or verify that things were done expectedly in the tested system.</simpara>
+<simpara>A good example of a singleton step is a database poller, a message consumer.</simpara>
+<simpara>While the singleton step is executed only once, it actually provides data to all the minions going through.</simpara>
+</section>
+<section xml:id="_want-more-details">
+<title>Want more details?</title>
+<simpara>A singleton step does not defer from other steps.
+It is executed using a minion, which looks like any other.
+But, even if it is created on a branch where the load is injected, it remains aside and is proxied.</simpara>
+<simpara>The proxy will be executed by all the minions going through the branch, while the singleton step will only have its own one, only aiming at triggering its operation: polling, reading a file, starting a message consumer&#8230;&#8203;</simpara>
+<simpara>The singleton step and its proxy are connected by a topic, which actually defines the way the polled / read / consumed records are provided to the minions.</simpara>
+</section>
+<section xml:id="_distributing-data-from-the-singleton-to-the-load-minions">
+<title>Distributing data from the singleton to the load minions</title>
+<simpara>For convenience purpose, QALIPSIS proposes three different modes of distributing records out of a singleton step.</simpara>
+<note>
+<simpara>If you plan to develop your own singleton step, read carefully <xref linkend="_create-your-own-plugin"/>, where you will find how to achieve it without any effort.
+QALIPSIS provides all the required statements how of the box.</simpara>
+</note>
+<simpara><emphasis role="strong">Loop</emphasis></simpara>
+<simpara>When the number of records emitted by the singleton step is finite (such as a file), you might want to loop in the whole set of data to be sure there will always be data for your minions.</simpara>
+<simpara><inlinemediaobject>
+<imageobject>
+<imagedata fileref="./images/singleton/loop.svg"/>
+</imageobject>
+<textobject><phrase>singleton-loop</phrase></textobject>
+</inlinemediaobject></simpara>
+<simpara>All minions receive all the records.
+When there is no more data for a minion, it receives the same data again from the beginning and loops on the whole set of records as long as it needs new ones.</simpara>
+<simpara><emphasis role="strong">Unicast / Forward once</emphasis></simpara>
+<simpara>Each minion receives the next unused record emitted from the step. Once there are no more record to provide, all the minion will remain in the step.</simpara>
+<simpara><inlinemediaobject>
+<imageobject>
+<imagedata fileref="./images/singleton/unicast.svg"/>
+</imageobject>
+<textobject><phrase>singleton-unicast</phrase></textobject>
+</inlinemediaobject></simpara>
+<simpara>In the example, each of the 3 minions receives a record fairly: the first asking is served. However, since the buffer
+is only 2, the first records are just lost, keeping only a buffer of 2 until the first minion requests a value.</simpara>
+<simpara><emphasis role="strong">Broadcast</emphasis></simpara>
+<simpara>All the minions receives all the records from the beginning. Once there are no more record to provide, all the minion having already received
+all the records will remain in the step.</simpara>
+<simpara>If the size of the buffer is limited, minions landing in the step for the first time will not receive everything from the beginning
+but only from the size of the buffer.</simpara>
+<simpara><inlinemediaobject>
+<imageobject>
+<imagedata fileref="./images/singleton/broadcast.svg"/>
+</imageobject>
+<textobject><phrase>singleton-broadcast</phrase></textobject>
+</inlinemediaobject></simpara>
+<simpara>In the example, the all 3 minions receive all the records in the correct order. However, since the buffer
+is only 2, each newly requesting minion can only receive two records in the past at the earliest.</simpara>
+<simpara><?asciidoc-pagebreak?></simpara>
+</section>
+</section>
+</chapter>
+<chapter xml:id="_steps-specifications">
+<title>Steps specifications</title>
+<section xml:id="_configuring-a-step-specification">
+<title>Configuring a step specification</title>
+<simpara>Depending on their nature, you can define steps specifications as root of a scenario or successor of another step specification.</simpara>
+<programlisting language="kotlin" linenumbering="numbered">scenario("hello-netty-udp-world") {
+        minionsCount = 100
+        rampUp {
+            // Starts all at once.
+            regular(100, minionsCount)
+        }
+    }
+    .start()
+    .netty()
+
+    .tcp { <co xml:id="CO9-1"/>
+        name = "my-tcp"
+        connect {
+            address("localhost", availableTcpPort)
+            noDelay = true
+        }
+        request { tcpRequest1 }
+        metrics { connectTime = true }
+        events { connection = true }
+    }
+
+    .reuseTcp("my-tcp") { <co xml:id="CO9-2"/>
+        name = "reuse-tcp"
+        iterate(20, Duration.ofMillis(100))
+        request { tcpRequest2 }
+    }</programlisting>
+<calloutlist>
+<callout arearefs="CO9-1">
+<para>The <literal>tcp</literal> step is defined as first step of the graph, differently said as root - hence, it expects <literal>Unit</literal> as input</para>
+</callout>
+<callout arearefs="CO9-2">
+<para>The <literal>reuseTcp</literal> step is defined as successor of <literal>tcp</literal> and receives its output as input.</para>
+</callout>
+</calloutlist>
+<simpara>There are two ways of configuring a step specification.
+Some receive the configuration closure as parameter like the <literal>tcp step above</literal>.
+Generally, you can also call <literal>configure</literal>
+after a step to configure it:</simpara>
+<programlisting language="kotlin" linenumbering="numbered">    reuseTcp("my-tcp") {
+        request { tcpRequest2 }
+    }.configure {
+        name = "reuse-tcp" <co xml:id="CO10-1"/>
+        iterate(20, Duration.ofMillis(100)) <co xml:id="CO10-2"/>
+        retryPolicy(instanceOfRetryPolicy) <co xml:id="CO10-3"/>
+        timeout(2000) <co xml:id="CO10-4"/>
+    }</programlisting>
+<calloutlist>
+<callout arearefs="CO10-1">
+<para>Set a name to your step: this is convenient for analysis of events, successes, failures - the same name can be used in several scenario specifications, which helps for cross-analysis and reusability.</para>
+</callout>
+<callout arearefs="CO10-2">
+<para>Repeat the step 20 times with an interval of 100 ms between one execution and the next one.</para>
+</callout>
+<callout arearefs="CO10-3">
+<para>Step-own retry policy, see <xref linkend="_retry-policy"/> for more details.</para>
+</callout>
+<callout arearefs="CO10-4">
+<para>Timeout to complete the step execution, in ms.
+Note that if a retry policy is set that allows another attempt, a timeout error will lead to a new execution.</para>
+</callout>
+</calloutlist>
+</section>
+<section xml:id="_fan-out">
+<title>Fan-out</title>
+<simpara>When you want to split a branch and add two concurrent steps as successors, you can use the <literal>split</literal>:</simpara>
+<programlisting language="kotlin" linenumbering="numbered">    execute { }
+        .split { <co xml:id="CO11-1"/>
+            map { ... } <co xml:id="CO11-2"/>
+                .validate{ ... }
+
+            flatten() <co xml:id="CO11-3"/>
+                .filterNotNull()
+
+        }</programlisting>
+<calloutlist>
+<callout arearefs="CO11-1">
+<para><literal>split</literal> takes a closure with the step <literal>anyStep</literal> as receiver.</para>
+</callout>
+<callout arearefs="CO11-2">
+<para>The first branch receives the output of <literal>anyStep</literal> as input.</para>
+</callout>
+<callout arearefs="CO11-3">
+<para>The second branch also receives the output of <literal>anyStep</literal> as input but does something different with.</para>
+</callout>
+</calloutlist>
+<simpara>Here is the graphical representation:</simpara>
+<figure xml:id="fan-out">
+<title>Fan-out</title>
+<mediaobject>
+<imageobject>
+<imagedata fileref="./images/fan-out.png"/>
+</imageobject>
+<textobject><phrase>fan out</phrase></textobject>
+</mediaobject>
+</figure>
+<note>
+<simpara>Both branches run concurrently, their no defined execution order.</simpara>
+</note>
+<warning>
+<simpara>If the entity returned by <literal>anyStep</literal> is mutable, take care of not altering it in one branch, because this would have side-effects on the other.
+Prefer creating deep clones.</simpara>
+</warning>
+</section>
+<section xml:id="_fan-in-joins">
+<title>Fan-in / Joins</title>
+<simpara>Because you split a scenario into different branches or want to verify data from different sources, you often need to join them.
+You can either do it using the name of a concurrent step:</simpara>
+<programlisting language="kotlin" linenumbering="numbered">    execute { } <co xml:id="CO12-1"/>
+        .innerJoin&lt;EntityWithKey, EntityWithId&gt;(
+            on = { "${it.key}" }, <co xml:id="CO12-2"/>
+            with = "my-datasource-poll-step", <co xml:id="CO12-3"/>
+            having = { it.id } <co xml:id="CO12-4"/>
+        )
+        .map { } <co xml:id="CO12-5"/></programlisting>
+<calloutlist>
+<callout arearefs="CO12-1">
+<para><literal>execute</literal> provides an output of type <literal>EntityWithKey</literal>, with a field <literal>key</literal> being an Int.
+We call this step the "left" step.</para>
+</callout>
+<callout arearefs="CO12-2">
+<para>We provide a calculation of the key from the left side and decide to convert it as a String.</para>
+</callout>
+<callout arearefs="CO12-3">
+<para>The step called <literal>my-datasource-poll-step</literal> is declared in a parallel branch (or earlier in the same branch) and provides an output of type <literal>EntityWithId</literal> with a field <literal>id</literal> being a String.</para>
+</callout>
+<callout arearefs="CO12-4">
+<para>Closure to extract the key from the right side, being already a String.</para>
+</callout>
+<callout arearefs="CO12-5">
+<para>The result is a <literal>Pair&lt;EntityWithKey, EntityWithId&gt;</literal> where string representation of <literal>key</literal> of the <literal>EntityWithKey</literal> equals to the field <literal>id</literal> of the <literal>EntityWithId</literal>.</para>
+</callout>
+</calloutlist>
+<simpara>Records coming from the right side are kept in a cache until one comes from the left side with the same key.
+Once used, they are evicted from the cache.</simpara>
+<simpara>When a flow comes from the left side but has no corresponding record yet coming from the right, it waits until the defined timeout on the step.
+See <xref linkend="_configuring-a-step-specification"/> for more details.</simpara>
+<simpara>The step context after the join inherits from the one coming from the left.</simpara>
+<simpara>Here is the graphical representation:</simpara>
+<simpara><inlinemediaobject>
+<imageobject>
+<imagedata fileref="./images/operators/innerJoin.svg"/>
+</imageobject>
+<textobject><phrase>operators-inner-join</phrase></textobject>
+</inlinemediaobject></simpara>
+<simpara>You can also create a step directly in the join:</simpara>
+<programlisting language="kotlin" linenumbering="numbered">    execute { }
+        .innerJoin&lt;EntityWithKey, EntityWithId&gt;(
+            on = { "${it.key}" },
+            with = { <co xml:id="CO13-1"/>
+                r2dbc().poll{
+                    // ...
+                }
+            },
+            having = { it.id }
+        )
+        .map {}</programlisting>
+<calloutlist>
+<callout arearefs="CO13-1">
+<para>Things are working exactly the same as in the first example, but the step is directly created here.
+The receiver of the <literal>with</literal> is the scenario.</para>
+</callout>
+</calloutlist>
+</section>
+<section xml:id="_error-processing-steps">
+<title>Error processing steps</title>
+<simpara>When an error occurs when executing a step, after all the potential retries, the step context being carried from top to bottom is marked as "exhausted".</simpara>
+<simpara>From that point of the process, only the steps relevant for error processing are executed, the others are simply bypassed.</simpara>
+<simpara>Those steps from the core are:</simpara>
+<itemizedlist>
+<listitem>
+<simpara><literal>catchError</literal>: takes the collection of errors as parameter to process them.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>catchExhaustedContext</literal>: takes the full exhausted step context as parameter, where you can also set the <literal>isExhausted</literal> flag to <literal>false</literal> in order execute next steps.</simpara>
+</listitem>
+</itemizedlist>
+</section>
+<section xml:id="_core-operators">
+<title>Core operators</title>
+<simpara>QALIPSIS provides default operators to tweak the execution of your scenario, that do not require the addition of plugins to your classpath.</simpara>
+<simpara>While you already know some of them described just above, others are available to let you transform, filter, verify the data, alter the behavior&#8230;&#8203;</simpara>
+<section xml:id="_timing-operators">
+<title>Timing operators</title>
+<section xml:id="_delay">
+<title>delay</title>
+<simpara>Adds a constant delay before executing the next step, keeping the same execution pace as previous step.</simpara>
+<simpara><inlinemediaobject>
+<imageobject>
+<imagedata fileref="./images/operators/delay.svg"/>
+</imageobject>
+<textobject><phrase>operators-delay</phrase></textobject>
+</inlinemediaobject></simpara>
+</section>
+<section xml:id="_pace">
+<title>pace</title>
+<simpara>Ensures that the next step is executed at an expected pace, whatever the one of the input is. The calculation applies
+independently to each minion.</simpara>
+</section>
+<section xml:id="_acceleratingpace">
+<title>acceleratingPace</title>
+<simpara>Like pace, but reducing the waiting interval at each iteration.
+Too slow down the pace, you can simply use an accelerator lower than 1.</simpara>
+<simpara><inlinemediaobject>
+<imageobject>
+<imagedata fileref="./images/operators/acceleratingPace.svg"/>
+</imageobject>
+<textobject><phrase>operators-acceleratingPace</phrase></textobject>
+</inlinemediaobject></simpara>
+</section>
+<section xml:id="_constantpace">
+<title>constantPace</title>
+<simpara>Applies a constant pace to execute the step after.</simpara>
+<simpara><inlinemediaobject>
+<imageobject>
+<imagedata fileref="./images/operators/constantPace.svg"/>
+</imageobject>
+<textobject><phrase>operators-constantPace</phrase></textobject>
+</inlinemediaobject></simpara>
+</section>
+</section>
+<section xml:id="_filter-operators">
+<title>Filter operators</title>
+<section xml:id="_filter">
+<title>filter</title>
+<simpara>Removes the step contexts having an input not matching the filter specification.
+It can be seen as a silent equivalent of validate, because it does neither generate any error, nor mark the step context as exhausted.</simpara>
+<simpara><inlinemediaobject>
+<imageobject>
+<imagedata fileref="./images/operators/filter.svg"/>
+</imageobject>
+<textobject><phrase>operators-filter</phrase></textobject>
+</inlinemediaobject></simpara>
+</section>
+<section xml:id="_validate">
+<title>validate</title>
+<simpara>Validates the input. When errors are returned, the step context is marked as exausted and can then only be processed by error processing steps.</simpara>
+<simpara><inlinemediaobject>
+<imageobject>
+<imagedata fileref="./images/operators/validate.svg"/>
+</imageobject>
+<textobject><phrase>operators-validate</phrase></textobject>
+</inlinemediaobject></simpara>
+</section>
+<section xml:id="_verify">
+<title>verify</title>
+<simpara>Exactly like validate, but meant to be used for assertions instead of data quality / safety.</simpara>
+<simpara><inlinemediaobject>
+<imageobject>
+<imagedata fileref="./images/operators/verify.svg"/>
+</imageobject>
+<textobject><phrase>operators-verify</phrase></textobject>
+</inlinemediaobject></simpara>
+</section>
+</section>
+<section xml:id="_transformation-operators">
+<title>Transformation operators</title>
+<section xml:id="_flatmap">
+<title>flatMap</title>
+<simpara>Converts a collective input into single element in the output, using the user-defined strategy.</simpara>
+<simpara><inlinemediaobject>
+<imageobject>
+<imagedata fileref="./images/operators/flatMap.svg"/>
+</imageobject>
+<textobject><phrase>operators-flatMap</phrase></textobject>
+</inlinemediaobject></simpara>
+</section>
+<section xml:id="_flatten">
+<title>flatten</title>
+<simpara>Converts a collective input into single element in the output, for a known collective type (array, iterable).</simpara>
+<simpara><inlinemediaobject>
+<imageobject>
+<imagedata fileref="./images/operators/flatten.svg"/>
+</imageobject>
+<textobject><phrase>operators-flatten</phrase></textobject>
+</inlinemediaobject></simpara>
+</section>
+<section xml:id="_map">
+<title>map</title>
+<simpara>Converts each element into another in the output.
+<literal>mapWithContext</literal> provides the same capability with the step context as additional argument.</simpara>
+<simpara><inlinemediaobject>
+<imageobject>
+<imagedata fileref="./images/operators/map.svg"/>
+</imageobject>
+<textobject><phrase>operators-map</phrase></textobject>
+</inlinemediaobject></simpara>
+</section>
+<section xml:id="_oneach">
+<title>onEach</title>
+<simpara>Executes one or several statements on each element of the input, and forwards them unchanged to the output.</simpara>
+<simpara><inlinemediaobject>
+<imageobject>
+<imagedata fileref="./images/operators/onEach.svg"/>
+</imageobject>
+<textobject><phrase>operators-onEach</phrase></textobject>
+</inlinemediaobject></simpara>
+</section>
+</section>
+<section xml:id="_caching-operators">
+<title>Caching operators</title>
+<section xml:id="_shelve">
+<title>shelve</title>
+<simpara>Caches the provided values in a shared cache.When using a distributed architecture, make sure the cached value
+can be serialized by the used implementation of shared state registry.The ID of the minion is automatically added to
+the key to avoid collusion.</simpara>
+</section>
+<section xml:id="_unshelve">
+<title>unshelve</title>
+<simpara>Fetches one or more record from the shared state registry, previously shelved with the provided keys for the same minion.</simpara>
+</section>
+</section>
+<section xml:id="_utility-operators">
+<title>Utility operators</title>
+<section xml:id="_tube">
+<title>tube</title>
+<simpara>Simply forwards the input to the output.</simpara>
+<simpara><inlinemediaobject>
+<imageobject>
+<imagedata fileref="./images/operators/tube.svg"/>
+</imageobject>
+<textobject><phrase>operators-tube</phrase></textobject>
+</inlinemediaobject></simpara>
+</section>
+<section xml:id="_blackhole">
+<title>blackHole</title>
+<simpara>Consumes the input and provides no output.</simpara>
+<simpara><inlinemediaobject>
+<imageobject>
+<imagedata fileref="./images/operators/blackHole.svg"/>
+</imageobject>
+<textobject><phrase>operators-blackHole</phrase></textobject>
+</inlinemediaobject></simpara>
+</section>
+<section xml:id="_stage">
+<title>stage</title>
+<simpara>Groups a linear graph of steps.
+Stages are not mandatory in a scenario, but provide a convenient way to iterate, waiting for the last step to be completed before looping back.</simpara>
+<programlisting language="kotlin" linenumbering="numbered">    stage("my-stage") {
+        map { it * 3 }.map { arrayOf(it, it + 100) }.flatten() <co xml:id="CO14-1"/>
+    }.configure { <co xml:id="CO14-2"/>
+        iterate(5)
+    }</programlisting>
+<calloutlist>
+<callout arearefs="CO14-1">
+<para>Create a chain of steps, where no <literal>split()</literal> is allowed.</para>
+</callout>
+<callout arearefs="CO14-2">
+<para>You can configure the whole stage to repeat from its beginning only once the tail step is completed</para>
+</callout>
+</calloutlist>
+</section>
+</section>
+<section xml:id="_combining-operators">
+<title>Combining operators</title>
+<section xml:id="_collect">
+<title>collect</title>
+<simpara>Collects inputs across all the minions and releases them as a list, within the latest received step context.
+This operator can be seen as the opposite of the <literal>flatten</literal>.</simpara>
+<simpara><inlinemediaobject>
+<imageobject>
+<imagedata fileref="./images/operators/collect.svg"/>
+</imageobject>
+<textobject><phrase>operators-collect</phrase></textobject>
+</inlinemediaobject></simpara>
+<simpara><?asciidoc-pagebreak?></simpara>
+</section>
+</section>
+</section>
+</chapter>
+<chapter xml:id="_configuration">
+<title>Configuration</title>
+<section xml:id="_starting-qalipsis-in-different-modes">
+<title>Starting QALIPSIS in different modes</title>
+<simpara>Only few modes are supported for now, where head and factories are starting in the same instance of QALIPSIS.</simpara>
+<section xml:id="_interactive">
+<title>Interactive</title>
+<simpara>Execute QALIPSIS with the option <literal>--prompt</literal> or <literal>-p</literal> to be prompted to enter the main configuration:</simpara>
+<formalpara>
+<title>Starting QALIPSIS in interactive mode</title>
+<para>
+<programlisting language="bash" linenumbering="unnumbered">java -jar my-scenario-qalipsis.jar --prompt</programlisting>
+</para>
+</formalpara>
+<simpara>You will be asked to enter the load factor, speed factor and so on.</simpara>
+</section>
+<section xml:id="_select-the-scenarios-to-execute">
+<title>Select the scenarios to execute</title>
+<simpara>You can pass selectors for the scenarios to execute, using the option <literal>--scenarios</literal> or <literal>-s</literal>.
+The value is a comma-separated list of exact values or patterns of the scenarios to include.
+The pattern can contain the wildcards <literal>*</literal> to match zero or more signs or <literal>?</literal> to match exactly one sign.</simpara>
+<formalpara>
+<title>Select the scenarios to run</title>
+<para>
+<programlisting language="bash" linenumbering="unnumbered">java -jar my-scenario-qalipsis.jar --scenarios "my-first-scenario, ?y-*-s*n?rio"</programlisting>
+</para>
+</formalpara>
+</section>
+</section>
+<section xml:id="_runtime-configuration">
+<title>Runtime configuration</title>
+<section xml:id="_command-line-arguments">
+<title>Command-line arguments</title>
+<formalpara>
+<title>Number of minions by scenario</title>
+<para><literal>campaign.minions-count-per-scenario</literal>, integer, default is the number as described in <xref linkend="_configuring-a-scenario-specification"/>.</para>
+</formalpara>
+<simpara>Defines how many minions should be used in the load-injected tree.
+No compliant with <literal>campaign.minions-factor</literal>.</simpara>
+<formalpara>
+<title>Load factor</title>
+<para><literal>campaign.minions-factor</literal>, double, default to 1</para>
+</formalpara>
+<simpara>Multiplies the default number of minions of each scenario by the provided value.
+Can be between 0 and 1 to reduce the default value.
+No compliant with <literal>campaign.minions-count-per-scenario</literal>.</simpara>
+<formalpara>
+<title>Speed factor</title>
+<para><literal>campaign.speed-factor</literal>, double, default to 1</para>
+</formalpara>
+<simpara>Applies on the ramp-up to accelerate or slow down the pace of the minions to be started.</simpara>
+<simpara>All the command-line arguments can also be provided in a file, as explained in next section.</simpara>
+</section>
+<section xml:id="_external-property-sources">
+<title>External property sources</title>
+<simpara>QALIPSIS uses Micronaut&#8217;s runtime underneath.
+Hence, you can use its mechanism of <link xl:href="https://docs.micronaut.io/latest/guide/index.html#propertySource">externalized configuration with property sources</link>.</simpara>
+<simpara>You can overwrite the default configuration and add your own properties creating a file <literal>application-config.yml</literal> either in the class path or in the working directory.</simpara>
+<simpara>For your convenience, you can also specified additional environments using the parameter <literal>--environments</literal> (shorthand <literal>-e</literal>) and the required list:</simpara>
+<programlisting language="bash" linenumbering="unnumbered">java -jar my-scenario-qalipsis.jar -e my-scenario,production</programlisting>
+<simpara>When doing such, the configuration files <literal>application-my-scenario.{extension}</literal> and <literal>application-production.{extension}</literal> will be applied, where <literal>{extension}</literal> can be <literal>.properties</literal>, <literal>.json</literal> or <literal>.yml</literal>.</simpara>
+</section>
+</section>
+<section xml:id="_injecting-configuration-in-a-scenario">
+<title>Injecting configuration in a scenario</title>
+<simpara>You can inject values into your scenario or its declaring class using the annotation <literal>@io.qalipsis.api.annotations.Property</literal>.</simpara>
+<programlisting language="kotlin" linenumbering="unnumbered">class EcommercePurchase(@Property("ecommerce-purchase.load") private val numberOfMinions: Int) {
+
+    @Scenario
+    fun fromLoginToCheckout(@Property("ecommerce-purchase.action-pace") actionPaceDuration: Duration) {
+        scenario("login-select-and-checkout"){
+            minionsCount = numberOfMinions
+        }
+        .constantPace(actionPaceDuration.toMillis())
+        // ...
+    }
+}</programlisting>
+<simpara><?asciidoc-pagebreak?></simpara>
+</section>
+</chapter>
+<chapter xml:id="_dependencies-injection">
+<title>Dependencies injection</title>
+<simpara>QALIPSIS relies on the <link xl:href="https://docs.micronaut.io/latest/guide/index.html#ioc">dependency injection framework from Micronaut</link> and supports the injection of dependencies in the constructors of the scenario declaring classes as well as in the methods annotated with <literal>@Scenario</literal>.</simpara>
+<warning>
+<simpara>Ensure you have the following dependency in the project where your beans or factories are compiled: <literal>kapt("io.qalipsis:api-processors:0.2.0-SNAPSHOT")</literal></simpara>
+</warning>
+<section xml:id="_injection-of-a-singleton-bean">
+<title>Injection of a singleton bean</title>
+<simpara>You can declare a singleton bean using the annotation <literal>@jakarta.inject.Singleton</literal> on a type, or <link xl:href="https://docs.micronaut.io/latest/guide/index.html#factories">use a Micronaut factory</link>.</simpara>
+<formalpara>
+<title>Creation of beans</title>
+<para>
+<programlisting language="kotlin" linenumbering="unnumbered">import jakarta.inject.Singleton
+
+@Singleton <co xml:id="CO15-1"/>
+class NoRetry : RetryPolicy {
+
+    suspend fun &lt;I, O&gt; execute(context: StepContext&lt;I, O&gt;, executable: suspend (StepContext&lt;I, O&gt;) -&gt; Unit){
+        executable(context)
+    }
+}
+
+@Factory
+class ExecutorFactory {
+
+    @Singleton <co xml:id="CO15-2"/>
+    fun simpleExecutor(retryPolicy: RetryPolicy): Executor { <co xml:id="CO15-3"/>
+        return SimpleExecutor(retryPolicy)
+    }
+}</programlisting>
+</para>
+</formalpara>
+<calloutlist>
+<callout arearefs="CO15-1">
+<para>The annotation <literal>@jakarta.inject.Singleton</literal> can be added to a class to automatically create a bean and declare it as singleton</para>
+</callout>
+<callout arearefs="CO15-2">
+<para>The annotation <literal>@jakarta.inject.Singleton</literal> added to a method declares the returned bean as a singleton</para>
+</callout>
+<callout arearefs="CO15-3">
+<para>The retry policy is automatically injected into the factory method</para>
+</callout>
+</calloutlist>
+<simpara>Once beans are created, you can inject them in the constructor or the scenario method:</simpara>
+<formalpara>
+<title>Injection of beans</title>
+<para>
+<programlisting language="kotlin" linenumbering="unnumbered">class EcommercePurchase(private val retryPolicy: RetryPolicy) { <co xml:id="CO16-1"/>
+
+    @Scenario
+    fun fromLoginToCheckout(executor: Executor) {  <co xml:id="CO16-2"/>
+        scenario("login-select-and-checkout"){
+            retryPolicy(retryPolicy)
+        }
+        // ...
+    }
+}</programlisting>
+</para>
+</formalpara>
+<calloutlist>
+<callout arearefs="CO16-1">
+<para>The previously created bean of type <literal>RetryPolicy</literal> is injected in the constructor of the scenario declaring class.</para>
+</callout>
+<callout arearefs="CO16-2">
+<para>The previously created bean of type <literal>Executor</literal> is injected in the scenario declaring method.</para>
+</callout>
+</calloutlist>
+</section>
+<section xml:id="_qualifying-the-bean-to-inject">
+<title>Qualifying the bean to inject</title>
+<simpara>When several beans exist for the same type, you might want to select the one to inject.
+QALIPSIS supports named injection:</simpara>
+<formalpara>
+<title>Injection of a named bean</title>
+<para>
+<programlisting language="kotlin" linenumbering="unnumbered">import jakarta.inject.Named
+
+class EcommercePurchase(@param:Named("default") private val retryPolicy: RetryPolicy) {  <co xml:id="CO17-1"/>
+
+    @Scenario
+    fun fromLoginToCheckout(@Named("simple") executor: Executor) { <co xml:id="CO17-2"/>
+        scenario("login-select-and-checkout"){
+            retryPolicy(retryPolicy)
+        }
+        // ...
+    }
+}</programlisting>
+</para>
+</formalpara>
+<calloutlist>
+<callout arearefs="CO17-1">
+<para>When the constructor parameter is a property, precise the target of the annotation.</para>
+</callout>
+<callout arearefs="CO17-2">
+<para>The annotation <literal>@Named</literal> selects the bean of type <literal>Executor</literal> qualified by the name "simple" for the injection.</para>
+</callout>
+</calloutlist>
+<simpara>While QALIPSIS only supports name qualifiers, you can read more about other qualifiers on <link xl:href="https://docs.micronaut.io/latest/guide/index.html#qualifiers">Micronaut documentation</link>.</simpara>
+</section>
+<section xml:id="_inject-a-property-value">
+<title>Inject a property value</title>
+<simpara>Properties for the runtime property sources are also injectable in scenario declaring classes constructors and methods.</simpara>
+<formalpara>
+<title>Injection of a property</title>
+<para>
+<programlisting language="kotlin" linenumbering="unnumbered">import io.qalipsis.api.annotations.Property
+
+class EcommercePurchase {
+
+    @Scenario
+    fun fromLoginToCheckout(@Property(name = "ecommerce-purchase.action-pace", orElse = "10s") actionPaceDuration: Duration) { <co xml:id="CO18-1"/>
+        scenario("login-select-and-checkout"){
+            // ...
+        }
+        .constantPace(actionPaceDuration.toMillis())
+        // ...
+    }
+}</programlisting>
+</para>
+</formalpara>
+<simpara>The default value set in <literal>orElse</literal> is optional.</simpara>
+<simpara>More about the property sources on <link xl:href="https://docs.micronaut.io/latest/guide/index.html#propertySource">Micronaut documentation</link>.</simpara>
+</section>
+<section xml:id="_injectable-container-types">
+<title>Injectable container types</title>
+<simpara>QALIPSIS supports the injection of a single instance of beans as shown above, as well as an <literal>Iterable</literal> or any of its subtypes - <literal>Collection</literal>, <literal>List</literal>, <literal>Set</literal> and their derivatives and <literal>Optional</literal> - also for properties.</simpara>
+<formalpara>
+<title>Injection of <literal>Iterable</literal> and <literal>Optional</literal></title>
+<para>
+<programlisting language="kotlin" linenumbering="unnumbered">class EcommercePurchase(private val retryPolicies: List&lt;RetryPolicy&gt;) {
+
+    @Scenario
+    fun fromLoginToCheckout(@Property("startDelay") executor: Optional&lt;Duration&gt;) {
+
+        // ...
+    }
+}</programlisting>
+</para>
+</formalpara>
+</section>
+<section xml:id="_summary">
+<title>Summary</title>
+<simpara>The following sample of code shows all the supported methods of injection for beans and properties.</simpara>
+<simpara>The example only shows for a scenario method, but this can only be used for the constructor of a class declaring scenarios.</simpara>
+<formalpara>
+<title>All supported injection mechanisms</title>
+<para>
+<programlisting language="kotlin" linenumbering="unnumbered">    @Scenario
+    fun fromLoginToCheckout(
+        classToInject: ClassToInject, <co xml:id="CO18-2"/>
+        mayBeOtherClassToInject: Optional&lt;OtherClassToInject&gt;,  <co xml:id="CO18-3"/>
+        @Named("myInjectable") namedInterfaceToInject: InterfaceToInject, <co xml:id="CO18-4"/>
+        injectables: List&lt;InterfaceToInject&gt;, <co xml:id="CO18-5"/>
+        @Named("myInjectable") namedInjectables: List&lt;InterfaceToInject&gt;, <co xml:id="CO18-6"/>
+        @Property(name = "this-is-a-test") property: Duration, <co xml:id="CO18-7"/>
+        @Property(name = "this-is-another-test", orElse = "10") propertyWithDefaultValue: Int, <co xml:id="CO18-8"/>
+        @Property(name = "this-is-yet-another-test") mayBeProperty: Optional&lt;String&gt; <co xml:id="CO18-9"/>
+    ) {
+
+    }</programlisting>
+</para>
+</formalpara>
+<calloutlist>
+<callout arearefs="CO18-1 CO18-2">
+<para>An instance of <literal>ClassToInject</literal> is injected, failing if missing</para>
+</callout>
+<callout arearefs="CO18-3">
+<para>An instance of <literal>Optional&lt;OtherClassToInject&gt;</literal> is injected, replaced by an empty optional if missing</para>
+</callout>
+<callout arearefs="CO18-4">
+<para>An instance of <literal>InterfaceToInject</literal> qualified by the name <literal>myInjectable</literal> is injected, failing if missing</para>
+</callout>
+<callout arearefs="CO18-5">
+<para>A <literal>List</literal> of all the instances of classes inheriting from <literal>InterfaceToInject</literal> is injected</para>
+</callout>
+<callout arearefs="CO18-6">
+<para>A <literal>List</literal> of all the instances of classes inheriting from <literal>InterfaceToInject</literal> and qualified by the name <literal>myInjectable</literal> is injected</para>
+</callout>
+<callout arearefs="CO18-7">
+<para>The value of the property <literal>this-is-a-test</literal> is injected after its conversion to a <literal>Duration</literal>, failing if missing</para>
+</callout>
+<callout arearefs="CO18-8">
+<para>The value of the property <literal>this-is-another-test</literal> is injected after its conversion to a <literal>Int</literal>, replace by 10 as Int if missing</para>
+</callout>
+<callout arearefs="CO18-9">
+<para>The value of the property <literal>this-is-yet-another-test</literal> is injected after its conversion to a <literal>String</literal>, replaced by an empty optional if missing</para>
+</callout>
+</calloutlist>
+<simpara><?asciidoc-pagebreak?></simpara>
+</section>
+</chapter>
+<chapter xml:id="_plugins">
+<title>Plugins</title>
+<section xml:id="_what-is-a-plugin">
+<title>What is a plugin?</title>
+<section xml:id="_introduction-2">
+<title>Introduction</title>
+<simpara>A plugin is a technical extension designed to extend the core capabilities of the tools.</simpara>
+<simpara>The plugin mechanism tackles the complexity implied by the multiplicity of technologies and use cases to support in the tool, and reduce the coupling between the technical elements, keeping them safer and easier to maintain.</simpara>
+<simpara>The main advantages of a plugin strategy for extension are the drastic reduction of the weight of the required libraries to run a scenario and a better user / developer experience, letting them focus on what is absolutely relevant to them. Among other user / developer experience benefits, we can list smaller list of proposal when using auto-completion, faster compilation time, faster start time, smaller artefacts to store, transport and share.</simpara>
+<simpara>By nature, a plugin is an optional component of the tool. You only include what you need, ignoring components and libraries that do not serve your needs your present critical concerns.</simpara>
+<simpara>While a certain number of plugins are proposed by the community to cover the most common use cases and technologies, a plugin can also be an extension only for yourself and remain private.</simpara>
+</section>
+<section xml:id="_what-does-a-plugin-can-do">
+<title>What does a plugin can do?</title>
+<simpara>A plugin contains one or several technical functionalities of the software, that are not part of the core. Or at least not as such. The most common functionalities a plugin might implement are:</simpara>
+<itemizedlist>
+<listitem>
+<simpara>A step to perform actions, like:</simpara>
+<itemizedlist>
+<listitem>
+<simpara>executing requests on an remote system using a specific protocol</simpara>
+</listitem>
+<listitem>
+<simpara>polling data from a source</simpara>
+</listitem>
+<listitem>
+<simpara>transforming data</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+<listitem>
+<simpara>Events logger</simpara>
+</listitem>
+<listitem>
+<simpara>Metrics registry to a datastore</simpara>
+</listitem>
+<listitem>
+<simpara>Cache storage</simpara>
+</listitem>
+<listitem>
+<simpara>Messaging platform or protocol</simpara>
+</listitem>
+</itemizedlist>
+<simpara>All those functionalities are already implemented in the core with default implementations, which might not suit productive testing or constant monitoring. Plugins improve the coverage of the different technologies by providing related implementations.</simpara>
+</section>
+<section xml:id="_how-and-when-is-a-plugin-integrated-to-my-deployment">
+<title>How and when is a plugin integrated to my deployment?</title>
+<simpara>To create a test scenario, a tiny Gradle/Maven project is required. The plugin is simply added as a dependency to the class path of the project. You can read more about it in the documentation to create a scenario.</simpara>
+<simpara>If the development of a scenario requires the plugin to compile - like when using a step - the dependency to the plugin artefact has to be added to the implementation dependencies.</simpara>
+<simpara>If the plugin delivers functionalities you only need at runtime, add it to the runtimeOnly dependencies.</simpara>
+<simpara>In case of doubt, you can still add to the implementation dependencies - api if the relationship between the executable project and the dependency is transitive.</simpara>
+</section>
+<section xml:id="_do-i-always-need-a-plugin">
+<title>Do I always need a plugin?</title>
+<simpara>While plugins provide best practices and a convention to perform recurrent operations, they might not be always necessary. One-time show case or simple actions do not require to develop a plugin: the source code you create and need is directly part of your scenario project source and packaged into the executable archive.</simpara>
+</section>
+</section>
+<section xml:id="_use-a-qalipsis-plugin">
+<title>Use a QALIPSIS plugin</title>
+<simpara>QALIPSIS provides a bunch of plugins targeting different technologies, systems and protocols.</simpara>
+<simpara>To use a plugin, just add the related dependency to your project.</simpara>
+<simpara>Gradle - Groovy DSL:</simpara>
+<programlisting language="groovy" linenumbering="unnumbered">implementation group:'io.qalipsis', name: 'plugin-XXX', version: '0.2.0-SNAPSHOT'</programlisting>
+<simpara>Gradle - Kotlin DSL:</simpara>
+<programlisting language="kotlin" linenumbering="unnumbered">implementation("io.qalipsis:plugin-XXX:0.2.0-SNAPSHOT")</programlisting>
+<simpara>Maven:</simpara>
+<programlisting language="xml" linenumbering="unnumbered">&lt;dependency&gt;
+    &lt;groupId&gt;io.qalipsis&lt;/groupId&gt;
+    &lt;artifactId&gt;plugin-XXX&lt;/artifactId&gt;
+    &lt;version&gt;0.2.0-SNAPSHOT&lt;/version&gt;
+&lt;/dependency&gt;</programlisting>
+<simpara>You can find the list of available plugins and their related documentation on the dedicated site.</simpara>
+</section>
+<section xml:id="_create-your-own-plugin">
+<title>Create your own plugin</title>
+<simpara>TO DO</simpara>
+</section>
+</chapter>
+</book>

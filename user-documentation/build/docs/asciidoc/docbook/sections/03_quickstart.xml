@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?asciidoc-toc maxdepth="2"?>
+<?asciidoc-numbered?>
+<book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
+<info>
+<title>Quickstart</title>
+<date>2021-05-21</date>
+</info>
+<chapter xml:id="_quickstart">
+<title>Quickstart</title>
+<simpara>The following sections will bring you through the successive steps to create your first "Hello World" scenario.</simpara>
+<simpara>Before you get further, ensure you have installed Java 11 or above SDK.
+While you can develop a complete scenario with a text editor, we encourage you to use a suitable IDE such as IntelliJ or Eclipse.</simpara>
+<section xml:id="_create-a-project-with-gradle-kotlin-dsl">
+<title>Create a project with Gradle - Kotlin DSL</title>
+<simpara>Create a new project for Gradle with your IDE, using the Kotlin DSL.</simpara>
+<programlisting language="kotlin" linenumbering="numbered">import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    application
+    kotlin("jvm")
+    kotlin("kapt")
+    id("com.github.johnrengelman.shadow") version "6.0.0" // &lt;1&gt;
+}
+
+description = "Qalipsis Quickstart" // &lt;2&gt;
+
+// Configure both compileKotlin and compileTestKotlin.
+tasks.withType&lt;KotlinCompile&gt;().configureEach {
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_11.majorVersion
+        javaParameters = true
+    }
+}
+
+dependencies {
+    implementation(kotlin("stdlib")) // &lt;3&gt;
+    implementation("io.qalipsis:api-dsl:0.2.0-SNAPSHOT") // &lt;4&gt;
+
+    implementation("com.willowtreeapps.assertk:assertk:2.0.3") // &lt;5&gt;
+    implementation("com.willowtreeapps.assertk:assertk-jvm:2.0.3") // &lt;5&gt;
+
+
+    runtimeOnly("io.qalipsis:runtime:0.2.0-SNAPSHOT") // &lt;6&gt;
+
+    kapt("io.qalipsis:api-processors:0.2.0-SNAPSHOT") // &lt;7&gt;
+}
+
+application { // &lt;8&gt;
+    mainClassName = "io.qalipsis.runtime.Qalipsis"
+    applicationDefaultJvmArgs = listOf("-noverify", "-XX:TieredStopAtLevel=1", "-Dcom.sun.management.jmxremote",
+            "-Dmicronaut.env.deduction=false")
+    this.ext["workingDir"] = projectDir
+}
+
+tasks { // &lt;9&gt;
+    named&lt;ShadowJar&gt;("shadowJar") {
+        mergeServiceFiles()
+        archiveClassifier.set("qalipsis")
+    }
+}
+
+tasks { // &lt;10&gt;
+    build {
+        dependsOn(shadowJar)
+    }
+}</programlisting>
+<calloutlist>
+<callout arearefs="">
+<para>The executable file is packaged as a "fat JAR" using the shadow plugin, containing all the dependencies required to run QALIPSIS and your scenario. The file is bigger but portable.</para>
+</callout>
+<callout arearefs="">
+<para>Update the description to customize your project</para>
+</callout>
+<callout arearefs="">
+<para>Dependencies required to develop scenarios with Kotlin</para>
+</callout>
+<callout arearefs="">
+<para>Dependencies required to develop scenarios for QALIPSIS, whatever the language is</para>
+</callout>
+<callout arearefs="">
+<para>When verifying the data in a scenario, you might like to use a test or assertion library you are familiar with, feel free to use JUnit, AssertJ or AssertK, Hamcrest or any other.</para>
+</callout>
+<callout arearefs="">
+<para>Dependencies to execute QALIPSIS, either as a head or factory.</para>
+</callout>
+<callout arearefs="">
+<para>Dependencies to perform the annotation processing at compile time. It is very important to prepare the later execution.</para>
+</callout>
+<callout arearefs="">
+<para>Default configuration or the application, if you ever want to test it locally. This is optional, but often helpful.</para>
+</callout>
+<callout arearefs="">
+<para>When the "fat JAR" will be packaged, we want to add a classifier on the artefact to distinguish it from the "normal JAR".</para>
+</callout>
+<callout arearefs="">
+<para>Include the creation of the "fat JAR" in the standard build workflow.</para>
+</callout>
+</calloutlist>
+<note>
+<simpara>If you are using a snapshot version of QALIPSIS, add <literal><link xl:href="https://oss.sonatype.org/content/repositories/snapshots">https://oss.sonatype.org/content/repositories/snapshots</link></literal> as a dependency repository.</simpara>
+</note>
+</section>
+<section xml:id="_setting-up-your-ide">
+<title>Setting up your IDE</title>
+<simpara>QALIPSIS relies on annotation processing at compile time to prepare the executable code and list the scenarios to later execute.</simpara>
+<simpara>Furthermore, QALIPSIS relies on Micronaut IoC framework, which requires the following setup.</simpara>
+<section xml:id="_intellij">
+<title>IntelliJ</title>
+<simpara>Please follow the instructions provided by Micronaut&#8217;s team in <link xl:href="https://docs.micronaut.io/latest/guide/index.html#ideaSetup">section for IntelliJ</link>.</simpara>
+</section>
+<section xml:id="_eclipse">
+<title>Eclipse</title>
+<simpara>Please follow the instructions provided by Micronaut&#8217;s team in <link xl:href="https://docs.micronaut.io/latest/guide/index.html#eclipseSetup">section for Eclipse</link>.</simpara>
+</section>
+<section xml:id="_visual-studio-code">
+<title>Visual studio code</title>
+<simpara>Please follow the instructions provided by Micronaut&#8217;s team in <link xl:href="https://docs.micronaut.io/latest/guide/index.html#vsCodeSetup">section for Visual Studio Code</link>.</simpara>
+</section>
+</section>
+<section xml:id="_create-a-scenario">
+<title>Create a scenario</title>
+<simpara>in the following sections, we will learn how to create a scenario specifications that simulates minions starting with a ramp-up, write a message on the console and stop.</simpara>
+<simpara>Scenarios can be created in classes or Kotlin objects or as a Kotlin function. Names do not matter, the only important thing is to annotate the method:</simpara>
+<programlisting language="kotlin" linenumbering="numbered">package my.example
+
+import io.qalipsis.api.annotations.Scenario
+
+class HelloWorldScenario {
+
+    @Scenario
+    fun myScenario() {
+
+    }
+
+}</programlisting>
+<important>
+<simpara>Due to the incremental compilation not yet fully taken into account in QALIPSIS annotation processor, you should clean the output / build directory when you delete or rename the package or class containing a scenario method. The risk is to have a scenario listed to be executed at runtime, which no longer exists.</simpara>
+</important>
+<note>
+<simpara>You can create several methods with the <literal>@Scenario</literal> annotation in the same class / object.</simpara>
+</note>
+<simpara>It is now time to develop the scenario.
+In the annotated method, create a new scenario and configure it:</simpara>
+<programlisting language="kotlin" linenumbering="numbered">@Scenario
+fun myScenario() {
+    scenario("hello-world") { <co xml:id="CO2-1"/>
+        minionsCount = 1000 <co xml:id="CO2-2"/>
+        rampUp {
+            regular(1000, 50) <co xml:id="CO2-3"/>
+        }
+    }
+}</programlisting>
+<calloutlist>
+<callout arearefs="CO2-1">
+<para>Creates a new scenario called "hello-world" (see <xref linkend="Scenario"/> for more details)</para>
+</callout>
+<callout arearefs="CO2-2">
+<para>Defines the default number of minions to execute, which you can change at runtime (see <xref linkend="Runtime configuration"/> for more details), they are the number of simulated users or systems that generate load: the more the minions, the more the load</para>
+</callout>
+<callout arearefs="CO2-3">
+<para>Defines the strategy to start the minion, which you can make faster or slower at runtime (see <xref linkend="Runtime configuration"/> for more details)</para>
+</callout>
+</calloutlist>
+</section>
+<section xml:id="_specify-where-the-load-should-be-injected">
+<title>Specify where the load should be injected</title>
+<simpara>If you consider the scenario as a directed graph joining the steps / actions to execute, you will see that it is possible to have:</simpara>
+<itemizedlist>
+<listitem>
+<simpara>several roots</simpara>
+</listitem>
+<listitem>
+<simpara>two branches joining the same step (like a Y)</simpara>
+</listitem>
+<listitem>
+<simpara>one step distributing two branches (like a ⅄)</simpara>
+</listitem>
+</itemizedlist>
+<simpara>In all those branches, you will have to identify when the load should be injected.</simpara>
+<programlisting language="kotlin" linenumbering="numbered">@Scenario
+fun myScenario() {
+    val myScenario = scenario("hello-world") {
+        minionsCount = 1000
+        rampUp {
+            regular(1000, 50)
+        }
+    }
+    .start() <co xml:id="CO3-1"/>
+}</programlisting>
+<calloutlist>
+<callout arearefs="CO3-1">
+<para>The <literal>start()</literal> statement locates the root of the tree, receiving the load of all the minions at runtime.</para>
+</callout>
+</calloutlist>
+</section>
+<section xml:id="_add-steps-to-your-scenario">
+<title>Add steps to your scenario</title>
+<simpara>Now you can add all the steps you want!
+Let&#8217;s go further in our "hello world" scenario.</simpara>
+<programlisting language="kotlin" linenumbering="numbered">@Scenario
+fun myScenario() {
+    val myScenario = scenario("hello-world") {
+        minionsCount = 1000
+        rampUp {
+            regular(1000, 50)
+        }
+    }
+    .start()
+    .returns&lt;String&gt; { context -&gt; <co xml:id="CO4-1"/>
+        "Hello World! I'm the minion ${context.minionId}"
+    }
+    .shelve { mapOf("started at" to System.currentTimeMillis()) } <co xml:id="CO4-2"/>
+    .map { str -&gt; str!!.toUpperCase() } <co xml:id="CO4-3"/>
+    .unshelve&lt;String, Long&gt;("started at") <co xml:id="CO4-4"/>
+    .verify { <co xml:id="CO4-5"/>
+        assertThat(it).all {
+            prop(Pair&lt;String, Long?&gt;::first).startsWith("HELLO")
+            prop(Pair&lt;String, Long?&gt;::second).isNotNull().isPositive()
+        }
+    }
+    .execute&lt;Pair&lt;String, Long?&gt;, Unit&gt; { ctx -&gt; <co xml:id="CO4-6"/>
+        val input = ctx.receive()
+        println("${input.first} and finished after ${input.second!! - start} ms")
+    }
+    .configure {
+        iterate(2, 1000) <co xml:id="CO4-7"/>
+    }
+}</programlisting>
+<calloutlist>
+<callout arearefs="CO4-1">
+<para>You declare the first step as root of the tree on the scenario, and is generally responsible for generating data to be used in the rest of the tree.</para>
+</callout>
+<callout arearefs="CO4-2">
+<para>Data can be cached for later use.</para>
+</callout>
+<callout arearefs="CO4-3">
+<para>Transforms the record.</para>
+</callout>
+<callout arearefs="CO4-4">
+<para>Retrieves a value previously added to the cache.</para>
+</callout>
+<callout arearefs="CO4-5">
+<para>Verifies the records using your assertion library of choice, here assertk.</para>
+</callout>
+<callout arearefs="CO4-6">
+<para>Executes a totally free operation on the step context: you can do whatever you want here, such as printing the "Hello world" message in the console with the start time.</para>
+</callout>
+<callout arearefs="CO4-7">
+<para>And if you like it, you can repeat it several times with an interval.</para>
+</callout>
+</calloutlist>
+<simpara>Et voila! You&#8217;ve just created your first scenario. It is not really useful, but you went through the most important concepts of creating a scenario.</simpara>
+<simpara>Now you are ready to go further in the documentation and create scenarios that are really relevant for your system.</simpara>
+</section>
+</chapter>
+</book>
