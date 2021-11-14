@@ -1,13 +1,17 @@
-== What's new
+== In this Release
 
-Well, actually everything is new in QALIPSIS.
+QALIPSIS {version} is the initial release of the product.   
 
-Major changes of releases will be visible here.
+QALIPSIS {version}:
 
-With the current draft version ({revnumber}), you can create scenarios with different branches, even running with a lot of minions.
+*Allows the user to create scenarios with different branches and running with a lot??? of minions.
 
-Many core steps and plugins will help you to fire load on your systems and feed QALIPSIS with data to verify.
+*Includes many core steps and plugins to enable the usrer to fire load on their system and feed QALIPSIS with data to verify load strength??.
 
-QALIPSIS runs standalone, history of events and metrics can be either logged or saved in Elasticsearch.
+*Runs standalone. A history of events and metrics can be logged or saved in Elasticsearch.
 
-Next evolutions will bring you much more plugins, steps for statistics and QALIPSIS as a cluster. Stay tune!
+
+Future releases of QALIPSIS  will include more plugins, steps for statistics, and QALIPSIS as a cluster. 
+
+Feedback on this release, incluidng bugs?? and suggested enhancements are welcome and may be sent to the QALIPSIS  team  at {email}.
+
