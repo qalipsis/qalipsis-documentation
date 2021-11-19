@@ -1,0 +1,7 @@
+== Glossary
+[cols=(1,1)]
+
+|===
+
+|scenario |scenario definiton
+|IDE    | definiton     

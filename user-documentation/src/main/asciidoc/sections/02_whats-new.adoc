@@ -1,17 +1,18 @@
-== In this Release
-
-QALIPSIS {version} is the initial release of the product.   
-
-QALIPSIS {version}:
-
-*Allows the user to create scenarios with different branches and running with a lot??? of minions.
-
-*Includes many core steps and plugins to enable the usrer to fire load on their system and feed QALIPSIS with data to verify load strength??.
-
-*Runs standalone. A history of events and metrics can be logged or saved in Elasticsearch.
+== What's New
+Welcome to the Initial Resease of QALIPSIS Load Tester!
 
 
-Future releases of QALIPSIS  will include more plugins, steps for statistics, and QALIPSIS as a cluster. 
+We have designed QALIPSIS with the scaleablility and simplicity to perform on both distributed systems and stand-alone systems
 
-Feedback on this release, incluidng bugs?? and suggested enhancements are welcome and may be sent to the QALIPSIS  team  at {email}.
+With QALIPSIS 1.0:
+
+*You are able to create scenarios with different branches and running with many minions.
+
+*You can use its many core steps and plugins to fire load on your system and feed QALIPSIS with data to verify load strength.
+
+QALIPSIS 1.0 runs standalone. A history of events and metrics can be logged or saved in Elasticsearch.
+
+Future releases of QALIPSIS will include more plugins, more steps for statistics, and QALIPSIS as a cluster. 
+
+Feedback on this release, includng bugs and suggested enhancements, are welcome and may be sent to the QALIPSIS  team  at {email}.
 

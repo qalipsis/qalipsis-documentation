@@ -2,7 +2,7 @@
 
 The following sections will bring you through the successive steps to create your first "Hello World" scenario.
 
-Before you get further, ensure you have installed Java 11 or above SDK.
+Before you go  further, ensure you have installed Java 11 or above SDK.
 While you can develop a complete scenario with a text editor, we encourage you to use a suitable IDE such as IntelliJ or Eclipse.
 
 === Create a project with Gradle - Kotlin DSL
