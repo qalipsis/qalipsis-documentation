@@ -1,0 +1,101 @@
+== QALIPSIS Concepts
+efore congiguring QALIPSIS to run on your stystem, it is important to understand the core concepts of the tool.
+
+
+=== Scenario
+
+A QALIPSIS scenario is the single largest component of a load test. It contains the steps with a detailed description of all the operations to accomplish, their dependencies, as well as the assertions to ensure everything performs as expected.
+
+
+Common Scenario parameters are listed in the following table. 
+[cols="1,1,2"]
+|===
+|Name 
+| val
+| fun myScenario() {
+val myScenario = scenario("hello-world") {//}
+
+
+|Duration 
+|
+|
+
+|Iterations
+|
+|
+
+|Minion Count
+|
+|
+
+|Rampup
+|
+|
+
+|Load Injected Tree
+|
+|
+
+|Steps
+|
+|
+|===
+
+
+=== Step
+
+Steps are the central components for working with QALIPSIS and can be developed in Kotlin, Groovy or Java, using either JUnit-like classes or the fluent API. Steps depend on data sources, results of other steps or assertions to execute or use their data.
+
+Step  parameters include: 
+
+ 
+
+=== Assertion???
+An Assertion makes it easy to perform cross-checks of  data  and  durations from different sources. Assertions allow Validation of data persistence, message exchanges or requests to remote systems. 
+
+There are several types of assertions, the most common being:
+*  A precondition assertion that is placed at the beginning of a section of code and determines the set of states under which the programmer expects the code to execute.
+
+* A postcondition assertion tht is placed at the end of a section of code and describes the expected state at the end of execution. 
+
+* A static assertion???
+
+
+Assertion parameters include: 
+
+ * Duration  - set and tested in order to verify the overall responsiveness of the system.
+
+
+
+
+
+
+
+
+
+* 
+
+
+
+
+
+=== Assertion parameters
+ 
+=== Minion
+A minion is a simulations of a website user, IoT device, or other system. Each minion performs a complete scenario.   Any number of minions can act on a  scenario.  
+
+==== Minion Configuration parameters
+
+=== Node
+A node is a redistribution point or a communication endpoint within a QALIPSIS cluster. QALIPSIS nodes are designated as either a Head node or a Factory node.
+
+* Head Node: The node of a QALIPSIS cluster that is responsible for orchestration and reporting.
+
+* Factory Node: The nodes of a QALIPSIS cluster that hosts the minions to execute the load tests and assertions. 
+==== Minion Configuration parameters
+
+=== Campaign
+
+A QALIPSIS campaign is the execution of one or more scenarios on a target system.
+
+Insert drawing here of a simple campaign... 

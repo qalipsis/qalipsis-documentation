@@ -1,8 +1,9 @@
-== What's New
-Welcome to the Initial Resease of QALIPSIS Load Tester!
+== In this Release
+QALIPSIS 1.0 is the initial product release.
 
 
-We have designed QALIPSIS with the scaleablility and simplicity to perform on both distributed systems and stand-alone systems
+
+QALIPSIS 1.0 is designed with the scaleablility and simplicity required to perform load-tests and performance verification on both distributed  and stand-alone systems
 
 With QALIPSIS 1.0:
 

@@ -1,8 +1,10 @@
 == Quickstart
 
-The following sections will bring you through the successive steps to create your first "Hello World" scenario.
 
-Before you go  further, ensure you have installed Java 11 or above SDK.
+The sections will guide you through the creation of your first "Hello World" scenario.
+
+Before you proceed, ensure you have installed Java 11 or above SDK on your syestem.
+
 While you can develop a complete scenario with a text editor, we encourage you to use a suitable IDE such as IntelliJ or Eclipse.
 
 === Create a project with Gradle - Kotlin DSL
@@ -63,7 +65,7 @@ tasks { // <10>
         dependsOn(shadowJar)
     }
 }
-----
+
 <1> The executable file is packaged as a "fat JAR" using the shadow plugin, containing all the dependencies required to run QALIPSIS and your scenario. The file is bigger but portable.
 <2> Update the description to customize your project
 <3> Dependencies required to develop scenarios with Kotlin
@@ -74,9 +76,9 @@ tasks { // <10>
 <8> Default configuration or the application, if you ever want to test it locally. This is optional, but often helpful.
 <9> When the "fat JAR" will be packaged, we want to add a classifier on the artefact to distinguish it from the "normal JAR".
 <10> Include the creation of the "fat JAR" in the standard build workflow.
-
+----
 NOTE: If you are using a snapshot version of QALIPSIS, add `https://oss.sonatype.org/content/repositories/snapshots` as a dependency repository.
-
+----
 === Setting up your IDE
 
 QALIPSIS relies on annotation processing at compile time to prepare the executable code and list the scenarios to later execute.
@@ -209,7 +211,7 @@ fun myScenario() {
 <5> Verifies the records using your assertion library of choice, here assertk.
 <6> Executes a totally free operation on the step context: you can do whatever you want here, such as printing the "Hello world" message in the console with the start time.
 <7> And if you like it, you can repeat it several times with an interval.
-
+----
 Et voila! You've just created your first scenario. It is not really useful, but you went through the most important concepts of creating a scenario.
 
 Now you are ready to go further in the documentation and create scenarios that are really relevant for your system.
