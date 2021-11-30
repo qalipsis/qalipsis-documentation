@@ -2,7 +2,7 @@
 
 QALIPSIS is an open-source, enterprise-grade load and performance-testing tool especially designed for distributed systems.
 
-QALIPSIS is a step above other load test applications  that merely evaluate your system internally.
+QALIPSIS is a step above other load test applications that merely evaluate your system internally.
 
 * QALIPSIS is developer-centric with a low learning curve that makes it easy to use and extremeley efficient.
 
