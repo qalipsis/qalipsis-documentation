@@ -12,7 +12,7 @@ QALIPSIS is a step above other load test applications that merely evaluate your 
 
 * QALIPSIS is designed to test the performance of  distributed and non-distributed systems.
 
-* QALIPSIS collects data from operating systens, databases and monitoring tools.
+* QALIPSIS collects data from operating systems, databases and monitoring tools.
 
 * QALIPSIS cross-checks system metrics and performs data verification to ensure that your systems is performing as expected. 
 
