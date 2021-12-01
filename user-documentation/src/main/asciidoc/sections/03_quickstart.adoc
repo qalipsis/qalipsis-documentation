@@ -3,16 +3,17 @@
 
 The sections will guide you through the creation of your first "Hello World" scenario.
 
-Before you proceed, ensure you have installed Java 11 or above SDK on your syestem.
+NOTE: Before getting started, confirm that you have Java 11 (or above) SDK installed on your workstation.
 
-While you can develop a complete scenario with a text editor, we encourage you to use a suitable IDE such as IntelliJ or Eclipse.
+While it is possible to develop a complete scenario with a text editor, we encourage you to use a suitable IDE such as IntelliJ or Eclipse.
 
 === Create a project with Gradle - Kotlin DSL
 
-Create a new project for Gradle with your IDE, using the Kotlin DSL.
+The first step is to create a new project for Gradle with your IDE, using the Kotlin DSL.
+----
 
 [source,kotlin,linenumbers,subs="normal"]
-----
+
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -78,16 +79,16 @@ tasks { // <10>
 <10> Include the creation of the "fat JAR" in the standard build workflow.
 ----
 NOTE: If you are using a snapshot version of QALIPSIS, add `https://oss.sonatype.org/content/repositories/snapshots` as a dependency repository.
-----
+
 === Setting up your IDE
 
 QALIPSIS relies on annotation processing at compile time to prepare the executable code and list the scenarios to later execute.
 
-Furthermore, QALIPSIS relies on Micronaut IoC framework, which requires the following setup.
+Furthermore, QALIPSIS relies on the Micronaut IoC framework, which requires the following setup???
 
 ==== IntelliJ
 
-Please follow the instructions provided by Micronaut's team in https://docs.micronaut.io/latest/guide/index.html#ideaSetup[section for IntelliJ].
+Jollow the instructions provided by Micronaut's team in https://docs.micronaut.io/latest/guide/index.html#ideaSetup[section for IntelliJ].
 
 ==== Eclipse
 

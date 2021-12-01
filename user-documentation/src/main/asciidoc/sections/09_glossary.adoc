@@ -7,7 +7,7 @@
 
 
 |Assertion
-|An error processing step  included within a scenario that determines the state of the minion going forward.  
+|An error processing step included within a scenario that determines the state of the minion going forward.  
 
 |Batch
 |A collection of values, as opposed to a single value.
@@ -17,7 +17,7 @@
 |A single execution of a collection of scenarios, starting at a set time and running for a set period.
 
 |Cluster
-|A set of pieces/nodes of the software that are executed in different locations or on different machines. Clusters allow the factory nodes to verify outputs?????? 
+|A set of pieces/nodes of the software that are executed in different locations or on different machines. Clusters allow the factory nodes to verify outputs. 
 
 
 |Dependentcy Injection
@@ -28,8 +28,7 @@ Dependency injection involves four objects each having a different role:
  * The service object that is injected into a client.
 
  * The client object that recieves the injected service.
- 
-   
+    
  * The interface object that defines how the client  uses the service.
 
 * The injector object that constructs the services  and injects them into the client.

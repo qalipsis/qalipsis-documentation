@@ -63,8 +63,7 @@ QALIPSIS empowers developers to:
 
 * Choose their own testing tools and preferred programming language for writing load-test scenarios.
 
-* Cross-verify data from different sources: send requests and then 
-check responses, analyze infrastructure metrics, process middleware events, and view  database records and response time in a single operation.
+* Cross-verify data from different sources: bring responses to requests, infrastructure metrics, middleware events and database records in the same port to compare them and verify that they match your expectations.
 
 * Unlock the full power of the Java ecosystem by making use of any library, protocol or system.
 
@@ -88,7 +87,7 @@ QALIPSIS provides IT Operations teams solutions to:
 * Identify issues before users and customers do by verifying the size and configuration of the system's infrastructure.
 * Examine how the system performs during normal and peak loads by running load tests from different geographic locations at varying times.
 * Generate exceptional results on virtual engines, containers and conventional development machines.
-* Allow for implementation and integration of  verifications in their standard DevOps workflow.
+* Allow for implementation and integration of verifications in their standard DevOps workflow.
 
 
 
