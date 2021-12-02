@@ -20,7 +20,7 @@
 |A set of pieces/nodes of the software that are executed in different locations or on different machines. 
 
 
-|Dependentcy Injection
+|Dependency Injection
 a|A technique in which an object receives other objects that it depends on, called dependencies.
 
 Dependency injection involves four objects each having a different role:
@@ -36,7 +36,7 @@ Dependency injection involves four objects each having a different role:
 
 
 |Directed Acyclic Graph (DAG)
-a|A subpart of a scenario made up of a single continuous sequence of steps, having in commom to be executed in the same location by the same minions. 
+a|A subpart of a scenario made up of a single continuous sequence of steps, to be executed in the same location by the same minions. 
 
  * Root DAG: A DAG starting immediately under a scenario
 * Frontend DAG: A DAG whose followers execute on a different factory.
@@ -55,7 +55,7 @@ the time to respond, the status of the response, the size of the payload to send
 
 
 |Feedback
-|The factory reply to a directive; the feedack provides staus of the directive's progression and/or the result of the expected action.
+|The factory reply to a directive; the feedback provides status of the directive's progression and/or the result of the expected action.
 
 
 |Input
@@ -63,12 +63,12 @@ the time to respond, the status of the response, the size of the payload to send
 
 |Meter/Step Meter
 
-a|A meter is a value aggregating step of the performance over a ahort period of tmee  across all the minions.
+a|A meter is a value aggregating step of the performance over a short period of time across all the minions.
 
-A step meter is a unique value representing the performance of a unique execution of a step by a minion (e.g., time to response, volume of data saved...)
+A step meter is a unique value representing the performance of a unique execution of a step by a minion (e.g., time to response or volume of data saved, etc.)
 
  |Minion
-|A virtual actor simulating a website users, IoT device, or other system that interacts with the test system to inject load and verify behavior performance.
+|A virtual actor simulating a website user, an IoT device, or another system that interacts with the test system to inject load and verify performance.
 
 
 |Monitoring/Time-series data
@@ -94,12 +94,12 @@ a| * Step report: A consolidated view of the executions of a step.
 
 |Result
 |The record returned by a step when executed by a minion.
-The result conatins values (e.g., records fetched from a database or a response to a request) and the step meters of the execution.
+The result contains values (e.g., records fetched from a database or a response to a request) and the step meters of the execution.
 The result is dispatched as output of the step context to the followers.
 
 
 |Runner
-|A component in charge of triggering and orchestrating the flow of data from one step to the next.  The runner is responsible for ensuring that output data from each step is provided as input to the next step as appropriate. Each runner task is assigned to the minion that simulates the user or device actually executing it.
+|A component in charge of triggering and orchestrating the flow of data from one step to the next.  The runner is responsible for ensuring that output data from each step is provided as input to the next step as appropriate. Each runner task is assigned to the minion that simulates the user or device executing it.
 
 
 |Scenario
@@ -107,7 +107,7 @@ The result is dispatched as output of the step context to the followers.
 
 
 |Selector
-|The Key/Value pair attached to a step to locate its excution in a factory owning the same pair.
+|The Key/Value pair attached to a step to locate its execution in a factory owning the same pair.
 
 |Specification 
 |The configuration of a step or a scenario that describes the actions to perform and the sequence in which they are to be performed.
@@ -117,13 +117,13 @@ a|The central atomic components within each scenario.
 
  * Error Processing step: A step within a scenario that contains information for handling a failed assertion or execution.
 
-* Proxy step: A step acting as a middle-man to forward the step execution to a follower, using convenient strategies.
+* Proxy step: A step acting as a middle man to forward the step execution to a follower, using convenient strategies.
 
 
 |Step context
 a| * Execution: A set of fields and values representing the single execution of a single minion on a single step.
 
-* Exhausted: After an execution failure, a step context is marked as exhausted and this state is propagated to its descendents.
+* Exhausted: After an execution failure, a step context is marked as exhausted, and this state is propagated to its descendants.
 
  * Tail: A step context that represents the last one in the execution workflow of a single minion.
 

@@ -4,16 +4,16 @@ QALIPSIS is an open-source, enterprise-grade load and performance-testing tool e
 
 QALIPSIS is a step above other load test applications that merely evaluate your system internally.
 
-* QALIPSIS is developer-centric with a low learning curve that makes it easy to use and extremeley efficient.
+* QALIPSIS is developer-centric with a low learning curve that makes it easy to use and extremely efficient.
 
 * QALIPSIS is developed in Kotlin to gain the benefits of the Java ecosystem and provide seamless system performance.
 
-* QALIPSIS's open source version is completely free of charge.
-(Plugins, the cloud-based application, and other premium extensions are not included in the open source vesion.)
+* QALIPSIS's open-source version is completely free of charge.
+(Plugins, the cloud-based application, and other premium extensions are not included in the open-source version.)
 
 * QALIPSIS is designed to test the performance of distributed and monolith systems.
 
-* QALIPSIS collects data from operating systems, databases and monitoring tools.
+* QALIPSIS collects data from operating systems, databases, and monitoring tools.
 
 * QALIPSIS cross-checks system metrics and performs data verification to ensure that your systems is performing as expected. 
 
@@ -22,7 +22,7 @@ QALIPSIS is a step above other load test applications that merely evaluate your 
 
 ==== User-friendly Interface
   
-The QALIPSIS Graphical User Interface (GUI) allows users to drive straightforward test runs: start and stop, change the load distribution and increase or decrease the number of simulated users.
+The QALIPSIS Graphical User Interface (GUI) allows users to drive straight forward test runs: start and stop, change the load distribution, and increase or decrease the number of simulated users.
 
 
 ==== Automation Friendly Performance Verification
