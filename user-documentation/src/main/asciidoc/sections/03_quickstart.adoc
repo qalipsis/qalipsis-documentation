@@ -1,130 +1,174 @@
 == Quickstart
 
 
-The sections will guide you through the creation of your first "Hello World" scenario.
+This section will guide you through:
 
-NOTE: Before getting started, confirm that you have Java 11 (or above) SDK installed on your workstation.
+* Downloading and installing QALIPSIS 1.0 on your system.
+* Creating a new project.
+* Settiing up your IDE.
+* Creating and configuring a QALIPSIS scenario.
+* Specifing the load injection point 
+* Adding steps to your scenario
+* Running yours Scenario
 
-While it is possible to develop a complete scenario with a text editor, we encourage you to use a suitable IDE such as IntelliJ or Eclipse.
 
-=== Create a project with Gradle - Kotlin DSL
+NOTE: Before getting started, confirm that you have Java 11 (or above) SDK installed on your workstation. 
 
-The first step is to create a new project for Gradle with your IDE, using the Kotlin DSL.
+=== Downloading and Installing QALIPSIS to your system.
+
+The first step, of course,  is to download and unpack the current version of QALIPSIS.
+
+
+=== Creating a Project
+
+Once Qalipsis is installed on your system,  create a project for Gradle with your IDE, using the Kotlin DSL.
+
+
+Import the QALIPSIS executable file:
+[source,kotlin,linenumbers]
 ----
-
-[source,kotlin,linenumbers,subs="normal"]
-
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar 
+//The QALIPSIS executable file  is packaged as a "fat JAR'; it uses the shadow plugin and contains all all of the dependencies required to run QALIPSIS and your scenario.//
+----
+Import the Kotlin Compiler:
+[source,kotlin,linenumbers]
+----
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile //Kotlin Compiler//
+----
+Import QUALIPSIS plugins:
+[source,kotlin,linenumbers]
+----
 plugins {
-    application
-    kotlin("jvm")
-    kotlin("kapt")
-    id("com.github.johnrengelman.shadow") version "6.0.0" // <1>
+    application //provide description//
+    kotlin("jvm") //provide description//
+    kotlin("kapt") //provide description//
+    id("com.github.johnrengelman.shadow") version "6.0.0" //provide description//
 }
-
-description = "Qalipsis Quickstart" // <2>
-
-// Configure both compileKotlin and compileTestKotlin.
+----
+Assign your project a name:
+[source,kotlin,linenumbers]
+----
+description = "QALIPSIS  Quickstart" 
+// replace _QALIPSIS Quickstart_ with "your project name"//
+----
+Configure compileKotlin and compileTestKotlin:
+[source,kotlin,linenumbers]
+----
 tasks.withType<KotlinCompile>().configureEach {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_11.majorVersion
         javaParameters = true
     }
 }
-
+----
+Call Scenario  dependencies:
+[source,kotlin,linenumbers]
+----
 dependencies {
-    implementation(kotlin("stdlib")) // <3>
-    implementation("io.qalipsis:api-dsl:{revnumber}") // <4>
+    implementation(kotlin("stdlib")) 
+    //required to develop scenarios with Kotlin//
+   
+    implementation("io.qalipsis:api-dsl:{revnumber}") 
+    //required to develop scenarios for QALIPSIS, indepenent of language//
 
-    implementation("com.willowtreeapps.assertk:assertk:2.0.3") // <5>
-    implementation("com.willowtreeapps.assertk:assertk-jvm:2.0.3") // <5>
+    implementation("com.willowtreeapps.assertk:assertk:2.0.3") 
+    implementation("com.willowtreeapps.assertk:assertk-jvm:2.0.3") 
+    //assertion libraries required to verify data in a scenarion; use JUnit, AssertJ or AssertK, Hamcrest, or any other library you are familiar with.//
 
 
-    runtimeOnly("io.qalipsis:runtime:{revnumber}") // <6>
+    runtimeOnly("io.qalipsis:runtime:{revnumber}") 
+    //required to execute QALIPSIS, either as a head or factory.//
 
-    kapt("io.qalipsis:api-processors:{revnumber}") // <7>
+    kapt("io.qalipsis:api-processors:{revnumber}") 
+    //required to perform the annotation processing at compile time.//
 }
+----
 
-application { // <8>
-    mainClassName = "io.qalipsis.runtime.Qalipsis"
+Optionally, import the default configuration of the application (requuired to test locally): 
+
+[source,kotlin,linenumbers]
+----
+application { 
+    
+       mainClassName = "io.qalipsis.runtime.Qalipsis"
     applicationDefaultJvmArgs = listOf("-noverify", "-XX:TieredStopAtLevel=1", "-Dcom.sun.management.jmxremote",
             "-Dmicronaut.env.deduction=false")
-    this.ext["workingDir"] = projectDir
+    this.ext["workingDir"] = projectDir 
+    
 }
+----
 
-tasks { // <9>
+Add a classifier to distinguish the "fat JAR" package froma a "normal JAR":
+[source,kotlin,linenumbers]
+----
+tasks { 
+    
     named<ShadowJar>("shadowJar") {
         mergeServiceFiles()
         archiveClassifier.set("qalipsis")
     }
 }
-
-tasks { // <10>
+----
+Include the creation of the "fat JAR" in the standard build workflow:
+[source,kotlin,linenumbers]
+----
+tasks { 
+    
     build {
         dependsOn(shadowJar)
     }
 }
-
-<1> The executable file is packaged as a "fat JAR" using the shadow plugin, containing all the dependencies required to run QALIPSIS and your scenario. The file is bigger but portable.
-<2> Update the description to customize your project
-<3> Dependencies required to develop scenarios with Kotlin
-<4> Dependencies required to develop scenarios for QALIPSIS, whatever the language is
-<5> When verifying the data in a scenario, you might like to use a test or assertion library you are familiar with, feel free to use JUnit, AssertJ or AssertK, Hamcrest or any other.
-<6> Dependencies to execute QALIPSIS, either as a head or factory.
-<7> Dependencies to perform the annotation processing at compile time. It is very important to prepare the later execution.
-<8> Default configuration or the application, if you ever want to test it locally. This is optional, but often helpful.
-<9> When the "fat JAR" will be packaged, we want to add a classifier on the artefact to distinguish it from the "normal JAR".
-<10> Include the creation of the "fat JAR" in the standard build workflow.
 ----
-NOTE: If you are using a snapshot version of QALIPSIS, add `https://oss.sonatype.org/content/repositories/snapshots` as a dependency repository.
+If you are using a snapshot version of QALIPSIS, add `https://oss.sonatype.org/content/repositories/snapshots` as a dependency repository.
 
-=== Setting up your IDE
+=== Setting Up Your IDE
+NOTE: While it is possible to develop a complete scenario with a text editor, it is recommended that you use a suitable IDE such as IntelliJ or Eclipse.
 
-QALIPSIS relies on annotation processing at compile time to prepare the executable code and list the scenarios to later execute.
+QALIPSIS relies on annotation processing at compile time to prepare the executable code and to list the scenarios to later execute.
 
-Furthermore, QALIPSIS relies on the Micronaut IoC framework, which requires the following setup???
+Furthermore, QALIPSIS relies on the Micronaut IoC framework, which requires that you setup your IDE following the instrutions provided in the https://docs.micronaut.io/latest/guide/index.html[Micronaut User Guide].
 
 ==== IntelliJ
 
-Jollow the instructions provided by Micronaut's team in https://docs.micronaut.io/latest/guide/index.html#ideaSetup[section for IntelliJ].
+Follow the instructions provided in the https://docs.micronaut.io/latest/guide/index.html#ideaSetup[IntelliJ IDEA] section of the Micronaut User Guide.
 
 ==== Eclipse
 
-Please follow the instructions provided by Micronaut's team in https://docs.micronaut.io/latest/guide/index.html#eclipseSetup[section for Eclipse].
+Follow the instructions provided in the https://docs.micronaut.io/latest/guide/index.html#eclipseSetup[Eclipse] section of the Micronaut User Guide.
 
-==== Visual studio code
 
-Please follow the instructions provided by Micronaut's team in https://docs.micronaut.io/latest/guide/index.html#vsCodeSetup[section for Visual Studio Code].
+==== Visual Studio Code
 
-=== Create a scenario
+Follow the instructions provided in the https://docs.micronaut.io/latest/guide/index.html#vsCodeSetup[Visual Studio Code] section of the Micronaut User Guide.
 
-in the following sections, we will learn how to create a scenario specifications that simulates minions starting with a ramp-up, write a message on the console and stop.
 
-Scenarios can be created in classes or Kotlin objects or as a Kotlin function. Names do not matter, the only important thing is to annotate the method:
+=== Creating a scenario
+
+In this sections, you will create a simple scenario specification that injects 1000 minions, 50 msec aparts, to write a message on the console.
+
+Scenarios can be created in classes or as Kotlin objects or as a Kotlin function.  The name you give the scenario does not matter; however, it is necessary to annotate the creation method (i.e., class, Kotlin object, or Kotlin function). 
 
 [source,kotlin,linenumbers]
 ----
-package my.example
+package my.example //???//
 
-import io.qalipsis.api.annotations.Scenario
+import io.qalipsis.api.annotations.Scenario//import the Qalipsis plug-in for scenario creation methods//
 
 class HelloWorldScenario {
-
+//creation method is class, scenario nane is HelloWorld//
     @Scenario
     fun myScenario() {
-
+//the sceanrio will be configured and devloped here (refer to <Configuring a Scenario>//
     }
 
 }
 ----
+=== Configuring the Scenaerio
+IMPORTANT: Due to the incremental compilation not yet fully taken into account in QALIPSIS annotation processor, you should clean the output/build directory when you delete or rename the package or class containing a scenario method. The risk is to have a scenario listed to be executed at runtime, which no longer exists.
 
-IMPORTANT: Due to the incremental compilation not yet fully taken into account in QALIPSIS annotation processor, you should clean the output / build directory when you delete or rename the package or class containing a scenario method. The risk is to have a scenario listed to be executed at runtime, which no longer exists.
+NOTE: You can create several methods with the `@Scenario` annotation in the same class/object.
 
-NOTE: You can create several methods with the `@Scenario` annotation in the same class / object.
 
-It is now time to develop the scenario.
 In the annotated method, create a new scenario and configure it:
 
 [source,kotlin,linenumbers]
@@ -145,13 +189,13 @@ fun myScenario() {
 
 === Specify where the load should be injected
 
-If you consider the scenario as a directed graph joining the steps / actions to execute, you will see that it is possible to have:
+Consider the scenario as a directed graph joining the steps/actions to execute. Within the scenario, it is possible to have:
 
 * several roots
 * two branches joining the same step (like a Y)
 * one step distributing two branches (like a ⅄)
 
-In all those branches, you will have to identify when the load should be injected.
+In eack of the branches, you will need to identify when the load should be injected.
 
 [source,kotlin,linenumbers]
 ----
@@ -212,7 +256,7 @@ fun myScenario() {
 <5> Verifies the records using your assertion library of choice, here assertk.
 <6> Executes a totally free operation on the step context: you can do whatever you want here, such as printing the "Hello world" message in the console with the start time.
 <7> And if you like it, you can repeat it several times with an interval.
-----
+
 Et voila! You've just created your first scenario. It is not really useful, but you went through the most important concepts of creating a scenario.
 
 Now you are ready to go further in the documentation and create scenarios that are really relevant for your system.

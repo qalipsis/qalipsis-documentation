@@ -86,6 +86,9 @@ a|A software entity of a QALIPSIS cluster. Nodes communicate with each other to 
 |Output
 |Any data that a step generates, which may be used to verify behavior or generate further load.
 
+|Plugin
+|A technical extension designed to extend the core capabilities of QALIPSIS.
+
 
 |Report
 a| * Step report: A consolidated view of the executions of a step.

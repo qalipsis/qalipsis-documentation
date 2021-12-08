@@ -59,15 +59,6 @@ Gradle - Kotlin DSL:
 implementation("io.qalipsis:plugin-XXX:{revnumber}")
 ----
 
-Maven:
-[source,xml,subs="normal"]
-----
-<dependency>
-    <groupId>io.qalipsis</groupId>
-    <artifactId>plugin-XXX</artifactId>
-    <version>{revnumber}</version>
-</dependency>
-----
 
 You can find the list of available plugins and their related documentation on the dedicated site.
 

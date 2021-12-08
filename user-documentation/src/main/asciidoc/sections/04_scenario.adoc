@@ -34,7 +34,7 @@ fun myScenario() {
     }
 }
 ----
-<1> Call to the scenario function, which instantiate a new scenario specification with the provided name.
+<1> Call to the scenario function, which initiatesa new scenario specification with the provided name.
 <2> Default configuration of the scenario, see <<Default configuration of the scenario>> for more details.
 <3> Identification of the root of the tree receiving the load of all the minions: there is only one per scenario, see <<Load-injected tree>> for more details.
 <4> Addition of the step specifications to the tree.
