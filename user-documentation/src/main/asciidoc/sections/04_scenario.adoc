@@ -2,9 +2,9 @@
 
 === What is a scenario specification?
 
-In order to provide the maximum flexibility to configure a scenario and the best performance while executing it, we decided to split its configuration from its execution.
+In order to provide the maximum flexibility to configure a scenario and the best performance while executing it, QALIPSIS splits its configuration from its execution.
 
-We call the configuration phase "specification".
+In the configuration or "specification" phase, you use develop 
 Specifications for scenarios and steps are the elements you develop using QALIPSIS' DSL.
 
 === Configuring a scenario specification
@@ -19,14 +19,13 @@ See <<Create your own plugin>> for more details.
 
 ==== Creating a scenario
 
-A scenario specification is made of several parts:
+The first step in creating a scenario is to call the scenario function which initiates a new scenario specification with the provided name:
 
 [source,kotlin,linenumbers]
 ----
 @Scenario
 fun myScenario() {
-    val myScenario = scenario("hello-world") { // <1>
-        // <2>
+    val myScenario = scenario("hello-world") { //Scenario defaualt 
     }
     .start() // <3>
     .returns { // <4>

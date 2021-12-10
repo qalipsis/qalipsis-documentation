@@ -1,40 +1,83 @@
 == QALIPSIS Concepts
-efore congiguring QALIPSIS to run on your stystem, it is important to understand the core concepts of the tool.
+Before configuring QALIPSIS to run on your stystem, it is important to understand the core concepts of the tool.
+
 
 
 === Scenario
 
 A QALIPSIS scenario is the single largest component of a load test. It contains the steps with a detailed description of all the operations to accomplish, their dependencies, as well as the assertions to ensure everything performs as expected.
 
-
-Common Scenario parameters are listed in the following table. 
-[cols="1,1,2"]
+The first step in creating a scenario is to call the Scenario 
+Common Scenario actions/parameters are listed in the following table. 
+[cols="1,2,1,2,1,4"]
 |===
-|Name 
-| val
-| fun myScenario() {
-val myScenario = scenario("hello-world") {//}
+
+|*Action/Parameter*
+|*Description*
+|*M/O **
+|*Value Range*
+|*Default Value*
+|*Sample Code*
+
+|@Scenario
+|Call to the scenario funtion 
+|M
+|N/A
+|N/A
+|_@Scenario_
 
 
-|Duration 
+|val myScenario
+|Scenario name
+|M
+|alphanumeric string
+|-
+|_val myScenario = scenario("hello-world")_
+
+|minion count 
+|total # of minions to be executed
+|O
+|numeric string; min=0
+|1
+|_minionsCount = 1000_
+
+
+|duration 
+|
+|
+|
 |
 |
 
 |Iterations
 |
 |
+|
+|
+|
 
 |Minion Count
+|
+|
+|
 |
 |
 
 |Rampup
 |
 |
+|
+|
+|
 
 |Load Injected Tree
 |
 |
+|
+|
+|
+|
+
 
 |Steps
 |
