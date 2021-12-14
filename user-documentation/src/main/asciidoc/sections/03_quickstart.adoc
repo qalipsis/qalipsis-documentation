@@ -1,9 +1,9 @@
-== Quickstart
+== Quick Start
 
 
 This section will guide you through:
 
-* Downloading and installing QALIPSIS 1.0 on your system.
+* Downloading required QALIPSIS files to your system.
 * Creating a new project.
 * Setting up your IDE.
 * Creating and configuring a QALIPSIS scenario.
@@ -14,39 +14,40 @@ This section will guide you through:
 
 NOTE: Before getting started, confirm that you have Java 11 (or above) SDK installed on your workstation. 
 
-=== Downloading and Installing QALIPSIS to your system.
+=== Downloading required QALIPSIS files to your system.
 
-The first step, of course,  is to download and unpack the current version of QALIPSIS.
-*_Instructions needed here_*
+The first step is to confirm that you have configured and downloaded a project skeleton from the _QALIPSIS Launch_ website. Follow the instructions located at <https:\\QALIPSIS.com>
+
 
 
 === Creating a Project
 
 In order to create a project for Gradle with your IDE, using the Kotlin DSL, you need to take the following steps:
 
-
 . Import the QALIPSIS executable file:
 [source,kotlin,linenumbers]
 +
 ----
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar 
-//The QALIPSIS executable file  is packaged as a "fat JAR'; it uses the shadow plugin and contains all of the dependencies required to run QALIPSIS and your scenario.//
+//The QALIPSIS executable file  is packaged as a "fat JAR"; it uses the shadow plugin and contains all of the dependencies required to run QALIPSIS and your scenario.//
 ----
 . Import the Kotlin Compiler:
 +
 [source,kotlin,linenumbers]
 ----
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile //Kotlin Compiler//
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile 
 ----
-. Import QUALIPSIS plugins:
+. Call the following plugins:
 +
 [source,kotlin,linenumbers]
 ----
 plugins {
-    application //provide description//
-    kotlin("jvm") //Java plugin//
-    kotlin("kapt") //Maven plugin//
-    id("com.github.johnrengelman.shadow") version "6.0.0" //QALIPSIS Shadow JAR plugin//
+    application 
+    //prepares JARs tp execute the application locally//
+    kotlin("jvm") 
+    //kotlin for the JAVA Virtual machines//
+    kotlin("kapt") //Kotlin Annotation Processor Tool//
+    id("com.github.johnrengelman.shadow") version "6.0.0" // creates the Jar that includes everything to setup the classpath//
 }
 ----
 . Give your project a name:
@@ -54,7 +55,7 @@ plugins {
 [source,kotlin,linenumbers]
 ----
 description = "QALIPSIS  Quickstart" 
-// replace _QALIPSIS Quickstart_ with "your project name"//
+// replace "QALIPSIS Quickstart" with your project name//
 ----
 . Configure compileKotlin and compileTestKotlin:
 +
@@ -73,25 +74,25 @@ tasks.withType<KotlinCompile>().configureEach {
 ----
 dependencies {
     implementation(kotlin("stdlib")) 
-    //required to develop scenarios with Kotlin//
+    //the required kotlin components in the compilation and execution classpaths//
    
     implementation("io.qalipsis:api-dsl:{revnumber}") 
-    //required to develop scenarios for QALIPSIS, indepenent of language//
+    //the kotlin DSL library required to develop scenarios for QALIPSIS//
 
     implementation("com.willowtreeapps.assertk:assertk:2.0.3") 
     implementation("com.willowtreeapps.assertk:assertk-jvm:2.0.3") 
-    //assertion libraries required to verify data in a scenarion; use JUnit, AssertJ or AssertK, Hamcrest, or any other library you are familiar with.//
+    //assertion libraries required to verify data in a scenario; use JUnit, AssertJ or AssertK, Hamcrest, or any other library you are familiar with//
 
 
     runtimeOnly("io.qalipsis:runtime:{revnumber}") 
-    //required to execute QALIPSIS, either as a head or factory.//
+    //required to execute QALIPSIS, either as a head or factory//
 
     kapt("io.qalipsis:api-processors:{revnumber}") 
-    //required to perform the annotation processing at compile time.//
+    //required to perform the annotation processing at compile time//
 }
 ----
 
-. Optionally, import the default configuration of the application (requuired to test locally): 
+. Optionally, import the default configuration of the application (required to test locally): 
 +
 
 [source,kotlin,linenumbers]
@@ -136,7 +137,7 @@ NOTE: While it is possible to develop a complete scenario with a text editor, it
 
 QALIPSIS relies on annotation processing at compile time to prepare the executable code and to list the scenarios to later execute.
 
-Furthermore, QALIPSIS relies on the Micronaut IoC framework, which requires that you setup your IDE following the instrutions provided in the https://docs.micronaut.io/latest/guide/index.html[Micronaut User Guide].
+QALIPSIS also relies on the Micronaut IoC framework, which requires that you setup your IDE following the instructions provided in the https://docs.micronaut.io/latest/guide/index.html[Micronaut User Guide].
 
 ==== IntelliJ
 
@@ -154,11 +155,11 @@ Follow the instructions provided in the https://docs.micronaut.io/latest/guide/i
 
 === Creating  a Scenario
 
-Scenarios can be created in classes or as Kotlin objects or as a Kotlin function.  The name you give the scenario does not matter; however, it is necessary to annotate the creation method (i.e., class, Kotlin object, or Kotlin function). 
+Scenarios can be created in classes or as Kotlin objects or as a Kotlin function.  The name you give the scenario does not matter; however, it is necessary to annotate the creation method (i.e., class, object, or fun). 
 
-In this section, you will create and configure a simple scenario that injects 1000 minions, 50 msec apart, to write a message on the console and then stop.
+In this section, you will create and configure a simple scenario that injects 500 minions, 35 ms apart, to write a message on the console and then stop.
 
-. Import the package to be used:
+. Declare the package/directory where the scenario can be found:
 +
 [source,kotlin,linenumbers]
 ----
@@ -170,32 +171,32 @@ package my.example
 ----
 import io.qalipsis.api.annotations.Scenario
 ----
-. Annotate the scenario as _class_ and name it _HelloWorld_:
+. Declare the name for the Scenario class as _HelloWorldScenario_:
 +
 [source,kotlin,linenumbers]
 ----
 class HelloWorldScenario {}
 ----
-. Configuring the Scenario
+. Configure the Scenario
 +
 
-IMPORTANT: Due to the incremental compilation not yet fully taken into account in QALIPSIS annotation processor, you should clean the output/build directory when you delete or rename the package or class containing a scenario method. The risk is to have a scenario listed to be executed at runtime, which no longer exists.
+IMPORTANT: Due to the incremental compilation not yet fully taken into account in the QALIPSIS annotation processor, you should clean the output/build directory when you delete or rename the package or class containing a scenario method. The risk is to have a scenario listed to be executed at runtime, which no longer exists.
 
 NOTE: You can create several methods with the `@Scenario` annotation in the same class/object.
 
 
-Using the _fun_ method, create a new scenario named "hello-world" and configure it with a default minions cout of 1000:
+Using the _fun_ method, create a new scenario named "hello-world" and configure it with a default minions count of 500:
 
 [source,kotlin,linenumbers]
 ----
 @Scenario
 fun myScenario()// {
     scenario("hello-world") { 
-        //creates a new scenario and names it _hello-world_>//
-        minionsCount = 1000 
-        //sets the default minion count to 1000//
-        rampUp {
-            regular(1000, 50) //defines the strategy for injecting minions:  to 1 every 50 ms until 1000 have benn injected//
+        minionsCount = 500 
+                rampUp {
+            regular(35, 50) 
+            //defines the strategy to inject 50 minions
+            every 35 ms until 500 minions have been injected//
         }
     }
 }
@@ -208,70 +209,84 @@ Consider the scenario as a directed graph joining the steps/actions to execute. 
 
 * several roots
 * two branches joining the same step (like a Y)
-* one step distributing two branches (like a ⅄)
+* one step distributing to two branches (like a ⅄)
 
-In eack of the branches, you will need to identify when the load should be injected.
-
-[source,kotlin,linenumbers]
-----
-@Scenario
-fun myScenario() {
-    val myScenario = scenario("hello-world") {
-        minionsCount = 1000
-        rampUp {
-            regular(1000, 50)
-        }
-    }
-    .start() // <1>
-}
-----
-<1> The `start()` statement locates the root of the tree, receiving the load of all the minions at runtime.
-
-=== Add steps to your scenario
-
-Now you can add all the steps you want!
-Let's go further in our "hello world" scenario.
+In each of the branches, you will need to identify when the load should be injected.
 
 [source,kotlin,linenumbers]
 ----
 @Scenario
 fun myScenario() {
-    val myScenario = scenario("hello-world") {
-        minionsCount = 1000
+    val myScenario = scenario("hello-world") 
+    {minionsCount = 500
         rampUp {
-            regular(1000, 50)
+            regular(35, 50)
         }
     }
+.start() //Sets the root of the tree to receive
+     the load of all the minions at runtime//
+     
+----
+
+----
+    
+----
+
+=== Adding steps to your scenario
+You can now add steps to your scenario.
+[source,kotlin,linenumbers]
+----
+@Scenario
+fun myScenario() {
+    val myScenario = scenario("hello-world") {
+        minionsCount = 500
+        rampUp {
+            regular(35, 50)
+        }
+    }
+    //Add steps here//
+----
+. Declare the first step as the root of the tree:
+[source,kotlin,linenumbers]
++
+----
     .start()
-    .returns<String> { context -> // <1>
+----
+
+. Add a step to generate data to be used in the rest of the tree:
+[source,kotlin,linenumbers]
++
+----
+    .returns<String> { context -> 
         "Hello World! I'm the minion ${context.minionId}"
     }
-    .shelve { mapOf("started at" to System.currentTimeMillis()) } // <2>
-    .map { str -> str!!.toUpperCase() } // <3>
-    .unshelve<String, Long>("started at") // <4>
-    .verify { // <5>
+----
+. Add a step to indicate where data is cached for later use:
+[source,kotlin,linenumbers]
+----
+    .shelve { mapOf("started at" to System.currentTimeMillis()) } 
+----
+    .map { str -> str!!.toUpperCase() } 
+    // transforms the record//
+    .unshelve<String, Long>("started at") 
+    // Retrieves a value previously added to the cache.//
+    .verify { // Verifies the records using your assertion library of choice, assertk in this scenario//
         assertThat(it).all {
             prop(Pair<String, Long?>::first).startsWith("HELLO")
             prop(Pair<String, Long?>::second).isNotNull().isPositive()
         }
     }
-    .execute<Pair<String, Long?>, Unit> { ctx -> // <6>
+    .execute<Pair<String, Long?>, Unit> { ctx -> // executes a totally free operation on the step context: you can do whatever you want here, such as printing the "Hello world" message in the console with the start time.//
         val input = ctx.receive()
         println("${input.first} and finished after ${input.second!! - start} ms")
     }
     .configure {
-        iterate(2, 1000) // <7>
+        iterate(2, 1000) // repeat the execution every 2 msec,1000 times//
     }
 }
 ----
-<1> You declare the first step as root of the tree on the scenario, and is generally responsible for generating data to be used in the rest of the tree.
-<2> Data can be cached for later use.
-<3> Transforms the record.
-<4> Retrieves a value previously added to the cache.
-<5> Verifies the records using your assertion library of choice, here assertk.
-<6> Executes a totally free operation on the step context: you can do whatever you want here, such as printing the "Hello world" message in the console with the start time.
-<7> And if you like it, you can repeat it several times with an interval.
 
-Et voila! You've just created your first scenario. It is not really useful, but you went through the most important concepts of creating a scenario.
 
-Now you are ready to go further in the documentation and create scenarios that are really relevant for your system.
+ You've just created your first scenario. 
+
+Now you are ready to create scenarios that are relevant for your system.

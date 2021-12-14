@@ -2,7 +2,7 @@
 
 === Starting QALIPSIS in different modes
 
-Only few modes are supported for now, where head and factories are starting in the same instance of QALIPSIS.
+The modes that are supported for now, where head and factories are starting in the same instance of QALIPSIS.
 
 ==== Interactive
 
