@@ -13,7 +13,7 @@ By nature, a plugin is an optional component of the tool. You only include what 
 
 While a certain number of plugins are proposed by the community to cover the most common use cases and technologies, a plugin can also be an extension only for yourself and remain private.
 
-==== What does a plugin can do?
+==== What does a plugin do?
 A plugin contains one or several technical functionalities of the software, that are not part of the core. Or at least not as such. The most common functionalities a plugin might implement are:
 
 * A step to perform actions, like:

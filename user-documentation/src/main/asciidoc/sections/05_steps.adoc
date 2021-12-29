@@ -1,6 +1,6 @@
 == Steps specifications
 
-=== Configuring a step specification
+=== Configuring a Step Specification
 
 Depending on their nature, you can define steps specifications as root of a scenario or successor of another step specification.
 
@@ -36,7 +36,7 @@ scenario("hello-netty-udp-world") {
 <1> The `tcp` step is defined as first step of the graph, differently said as root - hence, it expects `Unit` as input
 <1> The `reuseTcp` step is defined as successor of `tcp` and receives its output as input.
 
-There are two ways of configuring a step specification.
+There are two ways to configure a step specification.
 Some receive the configuration closure as parameter like the `tcp step above`.
 Generally, you can also call `configure`
 after a step to configure it:
@@ -133,10 +133,9 @@ Records coming from the right side are kept in a cache until one comes from the 
 Once used, they are evicted from the cache.
 
 When a flow comes from the left side but has no corresponding record yet coming from the right, it waits until the defined timeout on the step.
-See <<Configuring a step specification>> for more details.
+Refer to <<Configuring a Step Specification>> for more details.
 
 The step context after the join inherits from the one coming from the left.
-
 Here is the graphical representation:
 
 image:operators/innerJoin.svg[operators-inner-join]

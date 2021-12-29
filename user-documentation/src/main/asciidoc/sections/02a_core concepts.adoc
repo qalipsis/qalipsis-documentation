@@ -1,105 +1,101 @@
-== QALIPSIS Concepts
-Before configuring QALIPSIS to run on your stystem, it is important to understand the core concepts of the tool.
 
+== QALIPSIS Core Concepts
+The aim of QALIPSIS is to execute actions that inject load into IT systems to monitor and validate their behaviors, including:
 
+* Latency
+* Failure Rates
+* Availability
+* Data Consistency
 
-=== Scenario
+The actions are performed by minions that are injected into a system and then run through a preconfigured scenario consisting of steps and assertions.
 
-A QALIPSIS scenario is the single largest component of a load test. It contains the steps with a detailed description of all the operations to accomplish, their dependencies, as well as the assertions to ensure everything performs as expected.
+Before attempting to configure QALIPSIS to run on your system, it is important to understand the core concepts of the tool:
 
-The first step in creating a scenario is to call the Scenario 
-Common Scenario actions/parameters are listed in the following table. 
-[cols="1,2,1,2,1,4"]
+* Scenarios
+* Steps
+* Assertions
+* Minions
+* Head
+* Factory
+ 
+
+=== Minions
+Minions are simulations of website users, IoT devices, or other systems. They each perform a complete scenario.
+
+Any number of minions can act on a scenario. The minion count for a scenario is set during scenario configuration (refer to _<Scenario Configuration>_ or at runtime (refer to _<QALIPSIS Configuration>_.  If the minion count is set at runtime, that count overrides the minion count set during scenario configuration.
+   
+
+=== Scenarios
+
+A QALIPSIS scenario is the single largest component of a load test. It contains steps with a detailed description of all the operations to accomplish, their dependencies, as well as assertions to ensure everything performs as expected.
+
+Common Scenario actions/parameters are listed in the table below. 
+
+[cols="4,1,2,4"]
 |===
 
 |*Action/Parameter*
-|*Description*
-|*M/O **
+|*M/O**
 |*Value Range*
-|*Default Value*
-|*Sample Code*
+|*QALIPSIS Signature*
 
-|@Scenario
-|Call to the scenario funtion 
+|Call to the scenario function 
 |M
-|N/A
 |N/A
 |_@Scenario_
 
 
-|val myScenario
-|Scenario name
+|Assign the scenario a name
 |M
 |alphanumeric string
-|-
-|_val myScenario = scenario("hello-world")_
+|_val myScenario = scenario("scenario name")_
 
-|minion count 
-|total # of minions to be executed
+|Define the total # of minions to be executed
 |O
 |numeric string; min=0
-|1
-|_minionsCount = 1000_
+|_minionsCount = xxxxx_
 
 
-|duration 
-|
-|
-|
-|
-|
 
-|Iterations
-|
-|
-|
-|
-|
 
-|Minion Count
-|
-|
-|
-|
-|
 
-|Rampup
-|
-|
-|
-|
-|
+
+
+
+|Define the ramp-up strategy
+|M
+|Assigned strategy(ms, )
+|_rampUP {faster(2000, 1.5, 200, 10)}_
+
+
 
 |Load Injected Tree
 |
 |
 |
-|
-|
-|
 
-
-|Steps
-|
-|
 |===
 
-
-=== Step
+=== Steps
 
 Steps are the central components for working with QALIPSIS and can be developed in Kotlin, Groovy or Java, using either JUnit-like classes or the fluent API. Steps depend on data sources, results of other steps or assertions to execute or use their data.
 
-Step  parameters include: 
+There are two ways of configuring a step specification: 
+
+* The step receives the configuration closure as a parameter. 
+* You can call configure after a step to configure it:
+ 
 
  
 
-=== Assertion???
-An Assertion makes it easy to perform cross-checks of  data  and  durations from different sources. Assertions allow Validation of data persistence, message exchanges or requests to remote systems. 
+=== Assertion
+An Assertion makes it easy to perform cross-checks of  data  and  durations from different sources. Assertions allow validation of data persistence, message exchanges or requests to remote systems. 
 
 There are several types of assertions, the most common being:
-*  A precondition assertion that is placed at the beginning of a section of code and determines the set of states under which the programmer expects the code to execute.
 
-* A postcondition assertion tht is placed at the end of a section of code and describes the expected state at the end of execution. 
+* A precondition assertion that is placed at the beginning of a section of code and determines the set of states under which the programmer expects the code to execute.
+
+* A postcondition assertion that is placed at the end of a section of code and describes the expected state at the end of execution. 
 
 * A static assertion???
 
@@ -107,6 +103,8 @@ There are several types of assertions, the most common being:
 Assertion parameters include: 
 
  * Duration  - set and tested in order to verify the overall responsiveness of the system.
+
+ *
 
 
 
@@ -122,23 +120,20 @@ Assertion parameters include:
 
 
 
-=== Assertion parameters
- 
-=== Minion
-A minion is a simulations of a website user, IoT device, or other system. Each minion performs a complete scenario.   Any number of minions can act on a  scenario.  
 
-==== Minion Configuration parameters
+ 
+
 
 === Node
-A node is a redistribution point or a communication endpoint within a QALIPSIS cluster. QALIPSIS nodes are designated as either a Head node or a Factory node.
+A node is a redistribution point or a communication endpoint within a QALIPSIS cluster. QALIPSIS nodes are designated as either a Head or a Factory.
 
-* Head Node: The node of a QALIPSIS cluster that is responsible for orchestration and reporting.
+* Head: A node of a QALIPSIS cluster that is responsible for orchestration and reporting.
 
-* Factory Node: The nodes of a QALIPSIS cluster that hosts the minions to execute the load tests and assertions. 
-==== Minion Configuration parameters
+* Factory: A node of a QALIPSIS cluster that hosts the minions to execute the load tests and assertions. 
 
 === Campaign
 
 A QALIPSIS campaign is the execution of one or more scenarios on a target system.
 
-Insert drawing here of a simple campaign... 
+_Insert drawing here of a simple campaign_
+

@@ -1,5 +1,6 @@
 == Dependencies injection
 
+
 QALIPSIS relies on the https://docs.micronaut.io/latest/guide/index.html#ioc[dependency injection framework from Micronaut] and supports the injection of dependencies in the constructors of the scenario declaring classes as well as in the methods annotated with `@Scenario`.
 
 WARNING: Ensure you have the following dependency in the project where your beans or factories are compiled: `kapt("io.qalipsis:api-processors:{revnumber}")`

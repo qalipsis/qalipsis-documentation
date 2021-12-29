@@ -4,18 +4,18 @@
 
 In order to provide the maximum flexibility to configure a scenario and the best performance while executing it, QALIPSIS splits its configuration from its execution.
 
-In the configuration or "specification" phase, you use develop 
-Specifications for scenarios and steps are the elements you develop using QALIPSIS' DSL.
+In the configuration or "specification" phase, you develop specifications for scenarios. Steps are the elements you develop using QALIPSIS' DSL.
 
 === Configuring a scenario specification
 
-==== A word about operators
+==== Understanding the role of Operators
 
 So that you can create a scenario, QALIPSIS provides operators to either create or configure a scenario or a step.
-QALIPSIS provides some operators for the common use cases, and plugins bring others to extend the scope of the features you can use, such as `scenario`, `configure`, `map`, `delay` and many others.
+QALIPSIS provides some operators for common use cases, and plugins bring others to extend the scope of the features you can use, such as `scenario`, `configure`, `map`, `delay` and others. 
 
-You will discover a certain numbers of operators in the next sections, but the list is actually infinite, because you can create yours.
+You will discover a certain number of operators in the next sections, but the list is actually infinite, because you can create your own.
 See <<Create your own plugin>> for more details.
+Refer to <<Qalipsis Operators>>.
 
 ==== Creating a scenario
 
@@ -60,7 +60,7 @@ fun myScenario() {
 ----
 <1> 1000 simulated users, IoT devices or third-party systems will execute the scenario concurrently.
 
-NOTE: While <<Load-injected tree>>s will be visited by the number of minions you specified, the others will get only one.
+NOTE: While <<Load-injected trees>> will be visited by the number of minions you specified, the others will get only one.
 
 ===== Ramp-up
 
@@ -109,7 +109,7 @@ The speed-factor at runtime will be applied to the multiplication factor: a spee
 
 ==== Regular ramp-up
 
-The following example starts 10 minions every 200 ms.
+The following example sets the execution of 200 minions every 10 ms.
 
 [source,kotlin,linenumbers]
 ----
@@ -147,7 +147,7 @@ The speed-factor at runtime will be applied to the interval: a speed factor of 2
 
 This strategy is totally open to your creativity or needs and consists of returning a `MinionsStartingLine` considering the previous period in milliseconds, the total number of minions to start and the speed factor to apply.
 
-The following example first release 100th of all the minions after 1000 ms, then apply different rules depending on the past interval:
+The following example first releases 1/100th of all the minions after 1000 ms, then apply different rules depending on the past interval:
 
 * If the previous interval was longer than 2 seconds, 100th of all the minions are released after 100ms;
 * Otherwise, a random interval is calculated applying the speed factor to reduce it, in order to start 10th of all the minions.
@@ -199,10 +199,11 @@ fun myScenario() {
     }
 }
 ----
+Go to <<Load-injected tree>>
 
 === Load-injected tree
 
-A scenario is a combination of directed acyclic graphs containing, joined by steps.
+A scenario is a combination of directed acyclic graphs, joined by steps.
 
 There might be several graphs starting concurrently at the scenario root, but only one is visited by all the minions generating the load.
 Others are considered as "side-trees" to provide data to verify, for later joins or similar.
@@ -220,19 +221,19 @@ fun myScenario() {
         }
     }
 
-    myScenario.start() // <1>
+    myScenario.start() //The `start()` statement locates the root of the tree, receiving the load of all the minions at runtime.
+
         .returns<String>{ "My input" }
 
-    myScenario // <2>
+    myScenario //The second branch is visited by a unique minion and generally consists of iterative operations such as polling of datasources, etc.
+
         .returns<String>{ "My other input" }
 }
 ----
-<1> The `start()` statement locates the root of the tree, receiving the load of all the minions at runtime.
-<2> The second branch is visited by a unique minion and generally consists of iterative operations (polling of datasources...).
 
 Note that only one use of `start()` is permitted, as well as only one step after it.
 
-If you ever need to create two branches with the load injected, you can do the following:
+To create two branches with the load injected, you can do the following:
 
 [source,kotlin,linenumbers]
 ----

@@ -108,6 +108,6 @@ To achieve this, QALIPSIS brings the following core concepts together:
 
 * Factories - The distributed components of a cluster which host the minions to execute the load tests and assertions. 
  
-These concepts are discussed in detail in the Qalipsis Core Concepts Section. Add a link!!!!
+These concepts are discussed in detail in the xref:02a_core concepts#section-a[Qalipsis Core Concepts] Section. 
 
 Once you have a minimal understanding of the core concepts, you will be ready to create a QALIPSIS "Hello World" scenario to  verify that your software is performing as expected.

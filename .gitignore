@@ -1,2 +1,4 @@
 .DS_Store
 .gradle
+user-documentation/src/main/asciidoc/sections/.vscode/settings.json
+user-documentation/src/main/asciidoc/sections/.vscode/spellright.dict
