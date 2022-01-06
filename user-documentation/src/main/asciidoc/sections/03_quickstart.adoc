@@ -10,8 +10,45 @@ This section will guide you through:
 * Adding steps to your scenario.
 * Executing your scenario.
 
-
 NOTE: Before getting started, confirm that you have Java 11 (or above) SDK installed on your workstation. 
+
+=== QALIPSIS Workflow
+
+
+NOTE: This workflow assumes that you have a general understanding of the QALIPSIS Core concepts and that you have Java 11 or above SDK installed on your workstation.
+
+. Create a project
+.. Download the executable file from QALIPSIS
+.. Call the dependencies
+.. Activate necessary plugins
+.. Give your project a name
+.. Import the Kotlin Compiler
+. Set up your IDE
+. Create a scenario
+.. Call the Scenario function (initiates a new scenario)
+.. Assign the scenario a name.
+.. Declare the package (directory) where the scenario will
+be stored.
+.. Import the QALIPSIS annotation processor.
+
+. Configure the Scenario Specification
+.. Declare the root of the tree
+.. Declare the # of minions (Optional, default = 1)
+.. Declare the rampup strategy
+
+. Add Steps to your Scenario
+.. Configure steps depending on their function.
+.. Add step specifications as applicable
+
+. Start QALIPSIS  
+.. Select scenarios to run
+.. Enter load factor for each scenario
+.. Enter speed factor for each scenario
+.. Enter minion count for each scenario
+. Monitor the results
+
+\\Insert workflow diagram here.
+
 
  
 

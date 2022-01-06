@@ -2,79 +2,134 @@
 
 === What is a scenario specification?
 
-In order to provide the maximum flexibility to configure a scenario and the best performance while executing it, QALIPSIS splits its configuration from its execution.
+In order to provide maximum flexibility for configuring a scenario and the best performance while executing it, QALIPSIS splits its configuration from its execution.
+
 
 In the configuration or "specification" phase, you develop specifications for scenarios. Steps are the elements you develop using QALIPSIS' DSL.
+In the execution phase, you set the run-time parameters for the scenario(s) you are executing.
+
+This section provides details for configuring the scenario specification.  Details for executing the scenario are provided in the QALIPSIS Configuration section of the document.
 
 === Configuring a scenario specification
 
 ==== Understanding the role of Operators
 
-So that you can create a scenario, QALIPSIS provides operators to either create or configure a scenario or a step.
-QALIPSIS provides some operators for common use cases, and plugins bring others to extend the scope of the features you can use, such as `scenario`, `configure`, `map`, `delay` and others. 
+QALIPSIS provides operators to facilitate the creation and configuration of a scenario or a step.
+QALIPSIS provides some operators for common use cases; plugins provide other operators to extend the scope of QALIPSIS features.
 
-You will discover a certain number of operators in the next sections, but the list is actually infinite, because you can create your own.
-See <<Create your own plugin>> for more details.
-Refer to <<Qalipsis Operators>>.
+Some common operators will be used throughout this section, but the list of available operators is actually infinite as you can create your own.
+
+Refer to  <<Create your own plugin>> and <<Operators>> in <<QALIPSIS Core Concepts and Operators>> for more details.
+
+
 
 ==== Creating a scenario
 
-The first step in creating a scenario is to call the scenario function which initiates a new scenario specification with the provided name:
+A scenario specification is made up of several parts.
+
+. Call to the Scenario function:
++
+[source,kotlin,linenumbers]
+----
+@Scenario
+fun myScenario()
+----
+. Assigning the scenario a name (_hello world_):
++
+
+[source,kotlin,linenumbers]
+----
+val myScenario = scenario("hello-world")
+----
+. Assume the default configuration parameters: 
+
++
+
+[source,kotlin,linenumbers]
+----
+ { //Scenario default configuration
+    }
+   
+----
+Note that you can set the following parameters here rather than assume the default parameters: 
+* Number of minions, default = 1
+* RampUp strategy
+* Retry Policy; default set to no retry.
+
+. Identification of the root of the (load-injected) tree receiving all the minions.
++
+
+[source,kotlin,linenumbers]
+----
+.(start)
+----
+. Addition of the step specifications to the tree:
+
+[source,kotlin,linenumbers]
+----
+.returns {//add step specifications hear.}
+----
+A look at the scenario creation without commentary:
 
 [source,kotlin,linenumbers]
 ----
 @Scenario
 fun myScenario() {
-    val myScenario = scenario("hello-world") { //Scenario defaualt 
-    }
-    .start() // <3>
-    .returns { // <4>
+    val myScenario = scenario("hello-world"){
 
+ { 
+  start ()
+  .returns   }
     }
 }
-----
-<1> Call to the scenario function, which initiates a new scenario specification with the provided name.
-<2> Default configuration of the scenario, see <<Default configuration of the scenario>> for more details.
-<3> Identification of the root of the tree receiving the load of all the minions: there is only one per scenario, see <<Load-injected tree>> for more details.
-<4> Addition of the step specifications to the tree.
+---- 
 
-==== Default configuration of the scenario
 
-===== Number of minions
 
-*Optional, default to 1*
+===== Default configuration of the scenario
 
-Whether you want to simulate users, IoT devices or third-party systems, you will identify each of them to a unique minion.
+====== Number of minions
+
+* Optional
+* Default to 1*
+
+Whether you want to simulate users, IoT devices or third-party systems, each simulation is identified with a unique minion.
 The more minions, the more load.
-They execute concurrently and through the all trees.
-You can specify their default number:
+Minions  execute concurrently and through all trees.
+You can specify their default number (1000 in the following example ):
 
 [source,kotlin,linenumbers]
 ----
 @Scenario
 fun myScenario() {
     val myScenario = scenario("hello-world") {
-        minionsCount = 1000 // <1>
+        minionsCount = 1000 
     }
 }
 ----
-<1> 1000 simulated users, IoT devices or third-party systems will execute the scenario concurrently.
-
-NOTE: While <<Load-injected trees>> will be visited by the number of minions you specified, the others will get only one.
+Load-injected trees receive all the minions; non-load injected trees receive only one minion. 
 
 ===== Ramp-up
 
-*Mandatory*
+* Mandatory
+* There is no default
 
-Once you specified the number of minions you want to inject in your scenario, you need to specify how they will start to be active.
+Once you have specified the number of minions to be injected into your scenario, you need to specify how they will be injected.
 
-You can use different strategies out-of-the-box or your own implementation.
+You can use an out-of-the-box strategy or create your own.
 
-==== Accelerating
+In the following sections we will explain how to use a few of the out-of-the-box ramp-up strategies. 
 
-The following example starts 10 minions every 2000 ms, then (2000 / 1.5) ms, then (2000 / 1.5 / 1.5) ms... until the interval reaches 200 ms.
-From that point, 10 minions are started every 200 ms, until they all are active.
-
+. Accelerating:   
++
+An accelerating rampUp strategy injects either a set number of minions at an accelerated pace or an accelerated number of minions at a set pace.
++
+.. Minions injected at an accelerated pace:
++
+The following example injects 10 minions every 2000 ms, then 10 minions every 1333 (2000 / 1.5) ms, then 10 minions every 888 (2000 / 1.5 / 1.5) ms, continuing until the interval reaches 200 ms.
++
+At that point, 10 minions are started every 200 ms, until they all are active.
++
 [source,kotlin,linenumbers]
 ----
 @Scenario
@@ -86,13 +141,13 @@ fun myScenario() {
     }
 }
 ----
-
++
 The speed-factor at runtime will be applied to the multiplication factor: a speed factor of 2 will reduce the interval twice faster.
 
-==== Increasing the volume of minions
-
+. Increasing the volume of minions
++
 The following example starts minions every 200 ms: first 10, then 20 minions after 200 ms, 40 new minions after 200 ms, to the limit of 1000 minions every 200ms until they all are active.
-
++
 [source,kotlin,linenumbers]
 ----
 @Scenario
@@ -104,13 +159,15 @@ fun myScenario() {
     }
 }
 ----
-
++
 The speed-factor at runtime will be applied to the multiplication factor: a speed factor of 2 will increase the number of minions at each shot twice faster.
 
-==== Regular ramp-up
-
+. Regular ramp-up
++
+A regular rampup strategy sets the injection of a set amount of minions at a set pace.
++
 The following example sets the execution of 200 minions every 10 ms.
-
++
 [source,kotlin,linenumbers]
 ----
 @Scenario
@@ -122,13 +179,15 @@ fun myScenario() {
     }
 }
 ----
-
++
 The speed-factor at runtime will be applied to the interval: a speed factor of 2 will divide the interval by 2.
 
-==== Time frame
-
+. Time frame
++
+A time frame rampup strategy injects an equal number of minions at an equal interval within a set timeframe.
++
 The following example starts an equal number of minions every 20 ms, so that they all are active after 40000 ms.
-
++
 [source,kotlin,linenumbers]
 ----
 @Scenario
@@ -140,21 +199,20 @@ fun myScenario() {
     }
 }
 ----
-
++
 The speed-factor at runtime will be applied to the interval: a speed factor of 2 will divide the interval by 2.
 
-==== User defined
-
-This strategy is totally open to your creativity or needs and consists of returning a `MinionsStartingLine` considering the previous period in milliseconds, the total number of minions to start and the speed factor to apply.
-
+. User defined
++
+A user-defined rampup strategy totally open the developer's  creativity or needs. It consists of of returning a `MinionsStartingLine` considering the previous period in milliseconds, the total number of minions to start and the speed factor to apply.
++
 The following example first releases 1/100th of all the minions after 1000 ms, then apply different rules depending on the past interval:
 
 * If the previous interval was longer than 2 seconds, 100th of all the minions are released after 100ms;
 * Otherwise, a random interval is calculated applying the speed factor to reduce it, in order to start 10th of all the minions.
-
-Whatever the definition you choose, no more minions than the total number can be launched.
-Generating a negative interval results in an immediate start.
-
++
+Whatever the definition you choose, no more minions than the total number can be launched. Generating a negative interval results in an immediate start.
++
 [source,kotlin,linenumbers]
 ----
 @Scenario
@@ -173,16 +231,21 @@ fun myScenario() {
     }
 }
 ----
-
-NOTE: When calling the first iteration of the user-defined strategy, the initial value of `pastPeriodMs` is 0. However, you can use your own variable to verify if this is the first iteration or not.
++
+When calling the first iteration of the user-defined strategy, the initial value of `pastPeriodMs` is 0. However, you can use your own variable to verify if this is the first iteration or not.
 
 ===== Retry policy
 
-*Optional, default set to no retry*
+* Optional
+* Default set to no retry
 
-Execution of steps can failed for different reasons: unreachable remote host, invalid data...
 
-When a step execution throws an exception, it can be retried considering the context.
+Execution of steps can fail for different reasons: unreachable remote host, invalid data, etc. A retry policy can be set as part of the scenario specification ow within each step context.
+
+ 
+
+When a step execution throws an exception, it may be retried if a retry policy has been det.
+  the context.
 Once all the attempts were executed, the step execution context is marked as exhausted and only the <<Error processing steps>> are then performed.
 
 While you can specify the retry policy individually for each step, it is also possible to define a default policy to avoid redundant statements in the steps specifications.
@@ -199,14 +262,16 @@ fun myScenario() {
     }
 }
 ----
-Go to <<Load-injected tree>>
+
 
 === Load-injected tree
 
 A scenario is a combination of directed acyclic graphs, joined by steps.
 
-There might be several graphs starting concurrently at the scenario root, but only one is visited by all the minions generating the load.
-Others are considered as "side-trees" to provide data to verify, for later joins or similar.
+There might be several graphs starting concurrently at the scenario root, but only one grapph  (the specified load-injected branch) is visited by all the minions injected into the scenario.
+
+Other graphs are considered non-injected or "side-trees" and perform data verification for when the branches rejoin.
+
 
 You can identify which graph is the root receiving the load with `start()`:
 

@@ -7,21 +7,16 @@
 
 
 |Assertion
-|A statement within a step that verifies that the output of the previous step matches expectations. 
+|A step within a scenario that perform cross-checks of data and durations from different sources. 
 
 |Batch
 |A collection of values, as opposed to a single value.
 
-
 |Campaign
-|A single execution of a collection of scenarios, starting at a set time and running for a set period.
+|A single execution of one or a collection of scenarios, starting at a set time and running for a set period.
 
 |Cluster
 a|A set of pieces/nodes of the software that are executed in different locations or on different machines. 
-
- * A light cluster...
- * An intermediate cluster...
- * A high performance cluster....
 
 
 |Dependency Injection
@@ -33,7 +28,7 @@ Dependency injection involves four objects each having a different role:
 
  * The client object that receives the injected service.
     
- * The interface object that defines how the client  uses the service.
+ * The interface object that defines how the client uses the service.
 
 * The injector object that constructs the services and injects them into the client.
 
@@ -63,10 +58,10 @@ the time to respond, the status of the response, the size of the payload to send
 
 
 |Input
-|The value set in a step context that is used by a step execution.
-
+|The output of the previous step that is used in the current step's execution.
+ 
 |Load-injected tree
-|
+|A branch of a scenario that receives load from  all of the minions.
 
 
 |Meter/Step Meter
@@ -91,7 +86,7 @@ a|A software entity of a QALIPSIS cluster. Nodes communicate with each other to 
 * Factory: Node of a QALIPSIS cluster that executes the scenario to generate load to a target system and verify its behavior.
 
 | Operator
-|
+|A command that allows you create or configure a scenario or a step.
 
 |Output
 |Any data that a step generates, which may be used to verify behavior or generate further load.
@@ -99,13 +94,13 @@ a|A software entity of a QALIPSIS cluster. Nodes communicate with each other to 
 |Plugin
 |A technical extension designed to extend the core capabilities of QALIPSIS.
 
-|Rampup
-a|An operator that defines the pace that the minions are injected into the system.
+|Ramp-up
+a|An operator that defines the pace that the minions are injected into the system. QALIPSIS out of the box ramp up operators include:
+
 * Timeframe
-* more
-* faster
-* regular
-* user-developed
+* More
+* Faster
+* Regular
 
 |Report
 a| * Step report: A consolidated view of the executions of a step.
@@ -135,15 +130,20 @@ The result is dispatched as output of the step context to the followers.
 |The configuration of a step or a scenario that describes the actions to perform and the sequence in which they are to be performed.
 
 |Step  
-a|The central atomic components within each scenario.
+a|The central atomic components within each scenario. Steps are the challenges minions must complete in order to continue in the scenario.
+Each step has purpose.  There are several step types within QALIPSIS:
 
- * Error Processing step: A step within a scenario that contains information for handling a failed assertion or execution.
+ * Error Processing steps that contains information for handling a failed assertion or execution.
 
-* Proxy step: A step acting as a middle man to forward the step execution to a follower, using convenient strategies.
+* Proxy steps that act as a middle man to forward the step execution to a follower, using convenient strategies.
+Operator steps that act on its data input or output before releasing it to the next step,
+
+* Assertion steps that validate incoming or outgoing data.
 
 
 |Step context
-a| * Execution: A set of fields and values representing the single execution of a single minion on a single step.
+a|A single execution of a single step by a single minion.
+minion  * Execution: A set of fields and values representing the single execution of a single minion on a single step.
 
 * Exhausted: After an execution failure, a step context is marked as exhausted, and this state is propagated to its descendants.
 
