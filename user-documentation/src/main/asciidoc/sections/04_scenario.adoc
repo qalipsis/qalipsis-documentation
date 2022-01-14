@@ -1,33 +1,28 @@
 == Scenario specification
 
-=== What is a scenario specification?
+=== What is a Scenario Specification?
+
+A scenario specification is the total of all of the dependencies and steps required to configure the scenario and to execute it at run-time.
 
 In order to provide maximum flexibility for configuring a scenario and the best performance while executing it, QALIPSIS splits its configuration from its execution.
 
-
-In the configuration or "specification" phase, you develop specifications for scenarios. Steps are the elements you develop using QALIPSIS' DSL.
+In the configuration phase, you develop specifications for the scenario.
 In the execution phase, you set the run-time parameters for the scenario(s) you are executing.
 
-This section provides details for configuring the scenario specification.  Details for executing the scenario are provided in the QALIPSIS Configuration section of the document.
+In order to provide maximum flexibility for configuring a scenario and the best performance while executing it, QALIPSIS splits its configuration from its execution.
 
-=== Configuring a scenario specification
+In the configuration phase you develop specifications for the scenario. 
+In the execution phase, you set the run-time parameters for the scenario(s) you are executing.
 
-==== Understanding the role of Operators
-
-QALIPSIS provides operators to facilitate the creation and configuration of a scenario or a step.
-QALIPSIS provides some operators for common use cases; plugins provide other operators to extend the scope of QALIPSIS features.
-
-Some common operators will be used throughout this section, but the list of available operators is actually infinite as you can create your own.
-
-Refer to  <<Create your own plugin>> and <<Operators>> in <<QALIPSIS Core Concepts and Operators>> for more details.
+This section focuses on scenario configuration.  Details on scenario execution is provided in <<QALIPSIS Configuration>>. 
 
 
 
-==== Creating a scenario
+=== Configuring a Scenario Specification
 
 A scenario specification is made up of several parts.
 
-. Call to the Scenario function:
+. Calling to the Scenario function:
 +
 [source,kotlin,linenumbers]
 ----
@@ -41,7 +36,9 @@ fun myScenario()
 ----
 val myScenario = scenario("hello-world")
 ----
-. Assume the default configuration parameters: 
+. Configuring the scenario.
+
+Assume the default configuration parameters: 
 
 +
 
@@ -86,9 +83,11 @@ fun myScenario() {
 
 
 
-===== Default configuration of the scenario
+==== Default Configuration of a Scenario
 
-====== Number of minions
+Every scenario has a default configuratopn 
+
+===== Number of Minions
 
 * Optional
 * Default to 1*
@@ -109,7 +108,7 @@ fun myScenario() {
 ----
 Load-injected trees receive all the minions; non-load injected trees receive only one minion. 
 
-===== Ramp-up
+==== Ramp-up
 
 * Mandatory
 * There is no default
@@ -204,7 +203,7 @@ The speed-factor at runtime will be applied to the interval: a speed factor of 2
 
 . User defined
 +
-A user-defined rampup strategy totally open the developer's  creativity or needs. It consists of of returning a `MinionsStartingLine` considering the previous period in milliseconds, the total number of minions to start and the speed factor to apply.
+A user-defined rampup strategy is totally open to the developer's creativity or needs. It consists of of returning a `MinionsStartingLine` considering the previous period in milliseconds, the total number of minions to start and the speed factor to apply.
 +
 The following example first releases 1/100th of all the minions after 1000 ms, then apply different rules depending on the past interval:
 
@@ -234,7 +233,7 @@ fun myScenario() {
 +
 When calling the first iteration of the user-defined strategy, the initial value of `pastPeriodMs` is 0. However, you can use your own variable to verify if this is the first iteration or not.
 
-===== Retry policy
+==== Retry policy
 
 * Optional
 * Default set to no retry
@@ -250,8 +249,7 @@ Once all the attempts were executed, the step execution context is marked as exh
 
 While you can specify the retry policy individually for each step, it is also possible to define a default policy to avoid redundant statements in the steps specifications.
 
-NOTE: There is no provided `RetryPolicy` in QALIPSIS for the moment.
-You can create your own implementation to match your need, basic are to come soon.
+NOTE: There is no provided `RetryPolicy` in QALIPSIS in the current version of QALIPSIS; however, You can create your own implementation to match your needs.
 
 [source,kotlin,linenumbers]
 ----
@@ -268,12 +266,14 @@ fun myScenario() {
 
 A scenario is a combination of directed acyclic graphs, joined by steps.
 
-There might be several graphs starting concurrently at the scenario root, but only one grapph  (the specified load-injected branch) is visited by all the minions injected into the scenario.
+There might be several graphs starting concurrently at the scenario root, but only one graph  (the specified load-injected branch) is visited by all the minions injected into the scenario.
 
 Other graphs are considered non-injected or "side-trees" and perform data verification for when the branches rejoin.
 
 
-You can identify which graph is the root receiving the load with `start()`:
+_myScenariostart()_ identifies which graph is the root receiving the load of all the minions at runtime.
+
+_myScenario_ identifies a second graph visited by a unique minion and generally consisting of iterative operations such as polling of datasources, etc.
 
 [source,kotlin,linenumbers]
 ----
@@ -286,81 +286,91 @@ fun myScenario() {
         }
     }
 
-    myScenario.start() //The `start()` statement locates the root of the tree, receiving the load of all the minions at runtime.
+    myScenario.start() //Root branch receiving all minions.
 
         .returns<String>{ "My input" }
 
-    myScenario //The second branch is visited by a unique minion and generally consists of iterative operations such as polling of datasources, etc.
+    myScenario //Second branch visited by a unique minion.
 
         .returns<String>{ "My other input" }
 }
 ----
 
-Note that only one use of `start()` is permitted, as well as only one step after it.
+Note that only one use of _start()_ is permitted, as well as only one step after it.
 
-To create two branches with the load injected, you can do the following:
+To create two load-injected branches, you can use the _.tube()_ and _.split_ commands.
+
+* _.tube()_`  is non-operation step that simply forwards the input to the output.
+* _.split_ provides the output of a unique step to several steps.by initiating the divergence of two load-injected branches, both running concurrently and receiving all the minions. 
+
+In the following example, two branches are diverging: one with the steps _execute{}.map{}_ and a second with _flatten().filterNotNull()_. Both run concurrently after each execution of _tube()_.
 
 [source,kotlin,linenumbers]
 ----
+
 @Scenario
 fun myScenario() {
     val myScenario = scenario("hello-world") {
         //
     }
     .start()
-    .tube() // <1>
-    .split { // <2>
-        execute{ // <3>
-            // ...
+    .tube() 
+    .split { 
+        execute{ 
+            
         }
         .map {
 
         }
 
-        flatten() // <3>
-        .filterNotNull()
+        flatten()
+        .filterNotNull() 
 
     }
 }
 ----
-<1> `tube()` is a no-operation step, that simply forwards the input to the output.
-<2> `split {}` can be used to provide the output of a unique step to several ones, see <<Fan-out>> for more details.
-<3> After `tube()`, two branches are diverging: one with the steps `execute{}.map{}` and a second with `flatten().filterNotNull()`.
-They both are run concurrently after each execution of `tube()`.
 
-=== Singleton step vs. non-singleton step
 
-==== What is a singleton step?
 
-A singleton step is designed to be executed once and only once.
-Its operation is not to simulate the load of minions but to provide them data they can use to feed other steps or verify that things were done expectedly in the tested system.
 
-A good example of a singleton step is a database poller, a message consumer.
+=== Singleton Step
 
-While the singleton step is executed only once, it actually provides data to all the minions going through.
+A singleton step is a step that is designed to be executed once and only once.
 
-==== Want more details?
+It does not simulate the load of minions but provides them data they can use to feed other steps or verify expected results in the tested system.
 
-A singleton step does not defer from other steps.
-It is executed using a minion, which looks like any other.
-But, even if it is created on a branch where the load is injected, it remains aside and is proxied.
+Examples of a singleton step include:
+
+* A database poller.
+* A message consumer.
+
+While the singleton step is executed only once, it actually provides data to all the minions passing through it.
+
+
+A singleton step does not defer from other steps. It is executed using one minion, which looks like any other minion.
+Even if the singleton step is created on a load-injected branch, it remains aside and is proxied.
 
 The proxy will be executed by all the minions going through the branch, while the singleton step will only have its own one, only aiming at triggering its operation: polling, reading a file, starting a message consumer...
 
-The singleton step and its proxy are connected by a topic, which actually defines the way the polled / read / consumed records are provided to the minions.
+The singleton step and its proxy are connected by a topic, which actually defines the way the polled/read/ consumed records are provided to the minions.
 
 ==== Distributing data from the singleton to the load minions
 
-For convenience purpose, QALIPSIS proposes three different modes of distributing records out of a singleton step.
+For convenience purpose, QALIPSIS proposes three different modes of distributing records out of a singleton step:
 
-NOTE: If you plan to develop your own singleton step, read carefully <<Create your own plugin>>, where you will find how to achieve it without any effort.
-QALIPSIS provides all the required statements how of the box.
+* Loop
+* Unicast/Forward Once
+* Broadcast
+
+NOTE: You can develop your own singleton step, by creating a plugin for it;  refer to <<Create your own plugin>> for details.
+QALIPSIS provides all required statements out-of-the-box.
 
 *Loop*
 
 When the number of records emitted by the singleton step is finite (such as a file), you might want to loop in the whole set of data to be sure there will always be data for your minions.
 
-image:singleton/loop.svg[singleton-loop]
+[example]
+insert singleton loop graphic here
 
 All minions receive all the records.
 When there is no more data for a minion, it receives the same data again from the beginning and loops on the whole set of records as long as it needs new ones.
@@ -369,20 +379,21 @@ When there is no more data for a minion, it receives the same data again from th
 
 Each minion receives the next unused record emitted from the step. Once there are no more record to provide, all the minion will remain in the step.
 
-image:singleton/unicast.svg[singleton-unicast]
+[example]
+insert singleton-unicast graphic here
 
 In the example, each of the 3 minions receives a record fairly: the first asking is served. However, since the buffer
 is only 2, the first records are just lost, keeping only a buffer of 2 until the first minion requests a value.
 
 *Broadcast*
 
-All the minions receives all the records from the beginning. Once there are no more record to provide, all the minion having already received
-all the records will remain in the step.
+All the minions receives all the records from the beginning. Once there are no more records to provide, all the minionn, having already received
+all the records, will remain in the step.
 
-If the size of the buffer is limited, minions landing in the step for the first time will not receive everything from the beginning
-but only from the size of the buffer.
+If the size of the buffer is limited, minions landing in the step for the first time will not receive everything from the beginning, but only from the size of the buffer.
 
-image:singleton/broadcast.svg[singleton-broadcast]
+[example]
+insert broadcast graphic here
 
 In the example, the all 3 minions receive all the records in the correct order. However, since the buffer
 is only 2, each newly requesting minion can only receive two records in the past at the earliest.

@@ -14,7 +14,6 @@ NOTE: Before getting started, confirm that you have Java 11 (or above) SDK insta
 
 === QALIPSIS Workflow
 
-
 NOTE: This workflow assumes that you have a general understanding of the QALIPSIS Core concepts and that you have Java 11 or above SDK installed on your workstation.
 
 . Create a project
@@ -57,6 +56,7 @@ be stored.
 We are going to download a ready-to-use project from the _QALIPSIS Launch_ website and complete it in your IDE, using the Kotlin DSL.
 
 . Download the following executable file from the _QALIPSIS Launch_ website:
+[source,kotlin,linenumbers]
 +
 ----
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar 
@@ -215,7 +215,6 @@ NOTE: You can create several methods with the `@Scenario` annotation in the same
 
 
 Using the _fun_ keyword, create a function that declares a new scenario named "hello-world" and configure it with a default minions count of 500:
-
 [source,kotlin,linenumbers]
 ----
 @Scenario
@@ -236,9 +235,9 @@ fun myScenario() {
 
 Consider the scenario as a directed graph joining the steps/actions to execute. Within the scenario, it is possible to have:
 
-* several roots
-* two branches joining the same step (like a Y)
-* one step distributing to two branches (like a ⅄)
+* Several roots.
+* Two branches joining the same step (like a Y)
+* One step distributing to two branches (like a ⅄)
 
 You need to identify the branch that is to receive the load using the _(start ()_ operator.
 
@@ -288,6 +287,7 @@ fun myScenario() {
     }
 ----
 . Add a step to indicate where data is cached for later use:
++
 [source,kotlin,linenumbers]
 ----
     .shelve { mapOf("started at" to System.currentTimeMillis()) } 
@@ -317,8 +317,6 @@ fun myScenario() {
     }
 }
 ----
-
-
- You've just created your first scenario. 
+You've just created your first scenario. 
 
 Now you are ready to create scenarios that are relevant for your system.

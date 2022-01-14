@@ -90,24 +90,3 @@ QALIPSIS provides IT Operations teams solutions to:
 * Allow for implementation and integration of verifications in their standard DevOps workflow.
 
 
-
-=== Core Concepts
-Boasting a high degree of flexibility, QALIPSIS allows users to configure and execute seamless campaigns that test specific features of their system. 
-
-To achieve this, QALIPSIS brings the following core concepts together: 
-
-* Scenarios - The single largest components of a QALIPSIS load test.
-
-* Steps - The central atomic components within each scenario. 
-
-* Assertions - Steps that perform cross-checks of data, execution states and durations from different sources. 
-
-* Minions - Virtual actors simulating website users, IoT devices, or other systems that interact with the test system to inject load and verify behavior performance.
- 
-* Head - The component of a cluster that is responsible for orchestration and reporting.
-
-* Factories - The distributed components of a cluster which host the minions to execute the load tests and assertions. 
- 
-These concepts are discussed in detail in the xref:02a_core concepts#section-a[Qalipsis Core Concepts] Section. 
-
-Once you have a minimal understanding of the core concepts, you will be ready to create a QALIPSIS "Hello World" scenario to  verify that your software is performing as expected.

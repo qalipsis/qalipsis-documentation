@@ -1,4 +1,4 @@
-== In this Release
+== What's New
 QALIPSIS 1.0 is the initial product release.
 
 QALIPSIS 1.0 is designed with the scalability and simplicity required to perform load-tests and performance verification on both distributed and stand-alone systems
@@ -7,7 +7,7 @@ With QALIPSIS 1.0:
 
 * You can create scenarios with different branches and running with many minions.
 
-* You can use its many native steps and plugins to fire load on your system and feed QALIPSIS with data to verify load strength.
+* You can use its many out-of-the-box steps and plugins to fire load on your system and feed QALIPSIS with data to verify load strength.
 
 QALIPSIS 1.0 runs standalone and distributed. A history of events and metrics can be logged or saved in Elasticsearch, TimescaleDB and InfluxDB. Plugins for other tools will be available in future releases.
 
