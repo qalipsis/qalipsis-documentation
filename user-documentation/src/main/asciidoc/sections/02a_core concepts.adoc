@@ -33,41 +33,41 @@ A simple scenario configuration includes the following:
 . Call to the scenario function.
 
 ** Mandatory
-** QALIPSIS Signature: @Scenario
+** QALIPSIS Signature: `@Scenario`
 
 . Assign the scenario a name.
 ** Mandatory
 ** Value: alphanumeric string
-** QALIPSIS Signature: _val myScenario = scenario("scenario name")_
+** QALIPSIS Signature: `val myScenario = scenario("scenario name")`
 
 . Define the total # of minions to be executed.
 ** Optional
 ** Value: positive number
 ** Default = 1; Minimum = 0
-** QALIPSIS Signature: _minionsCount = xxxxx_
+** QALIPSIS Signature: `minionsCount = xxxxx`
 . Define the ramp-up strategy.
 ** Mandatory
-** QALIPSIS Signature: _rampUP {strategy( )}_
+** QALIPSIS Signature: `rampUP {strategy( )}`
 
 . Define the tree where the load will be injected.
 ** Mandatory
-** QALIPSIS Signature: _start()_
+** QALIPSIS Signature: `start()`
 
 . Call Scenario dependencies.
 ** Mandatory
 ** QALIPSIS Signature:
 +
-_import com.github.jengelman.gradle.plugins.shadow.tasks ShadowJar
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile_
+`import com.github.jengelman.gradle.plugins.shadow.tasks ShadowJar
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile`
 
 . Call Scenario plugins.
 ** Mandatory
 ** QALIPSIS Signature: 
 +
-plugins {
-_application kotlin("jvm") kotlin("kapt")
+`plugins {
+ application kotlin("jvm") kotlin("kapt")
 id("com.github.johnrengelman.shadow") version "6.0.0"
- }_
+ }`
 
 . Add steps to your scenario.
 
@@ -82,9 +82,14 @@ Steps depend on data sources, results of other steps or assertions to execute or
 There are two ways of configuring a step specification: 
 
 * The step receives the configuration closure as a parameter. 
-* You can call configure after a step to configure it:
+* `.configure` is called after the step parameters are set.
+
+Refer to <Steps-> Configuring Step Specifications> for more details.  
+
  
-Each step has a unique configuration depending on the purpose of the step. Steps are configured using core operators:
+Each step has a unique configuration depending on the purpose of the step:
+
+Steps are configured using core operators:
 
 * Assertions
 * Timing

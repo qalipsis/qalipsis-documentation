@@ -9,7 +9,7 @@ A step's specification is defined, depending on their nature and function, as ei
 or
 * The successor of a previous step.
 
-In the example below, `*_my-tcp_*` is the root step; `*_reuse-tcp_*` is a successor step.
+In the example below, `my-tcp` is the root step; `reuse-tcp` is a successor step.
 
 [source,kotlin,linenumbers]
 
@@ -45,10 +45,11 @@ scenario("hello-netty-udp-world") {
 
 A step's specification is configured so that either:
 
-* The step receives the configuration closure {} as a parameter (as in `*_.tcp_*` and `*_.reuse-tcp_*` in the example above).
+* The step receives the configuration closure {} as a parameter (as in ``.tcp`` and `.reuse-tcp` in the example above).
 +
 or
-* `*_configure_*` is called after the step (as in the example below):
++
+`.configure` is called after the step (as in the example below):
 
 
 [source,kotlin,linenumbers]
@@ -63,13 +64,12 @@ or
 
         timeout(2000) 
     }
-
 ----
 === Step Context
 
-A step's context:
+A step's context is the mechanism by which:
 
-* Transports the data received from the previous step as its input and passes the data through the current step to its output to be forwarded to the next step.
+* Data received from the previous step is transported as  input to the current step and passes through the current step as its output to be forwarded to the next step.
 
 * Transports prior errors through the step.
 
@@ -78,16 +78,16 @@ A step's context:
 
 ==== Fan-out
 
-When you want to split a branch and add two concurrent steps as successors, you can execute a `*_.split_*`.
+To split a branch and add two concurrent steps as successors, execute a `.split`.
 
-In the example below, `*_execute_*` receives the output of the previous step and provides it as input to both the _map_ and the _flatten_ steps which each do something different with the data.
+In the example below, `execute` receives the output of the previous step and provides it as input to both the _map_ and the _flatten_ steps which each do something different with the data.
 
 [source,kotlin,linenumbers]
 ----
 
     execute { }
         .split { 
-            map { ... } // <2>
+            map { ... } 
                 .validate{ ... }
 
             flatten() // <3>
@@ -96,19 +96,19 @@ In the example below, `*_execute_*` receives the output of the previous step and
         }
 ----
 
-Here is the graphical representation:
+A graphical representation of the above example is shown below.
+
+Note that both branches run concurrently, in no defined execution order.
+
 [example]
-include fan-out graphic here
+create and include fan-out distribution graphic here-> more like a flowchart
 
 
-NOTE: Both branches run concurrently, in no defined execution order.
-
-WARNING: If the entity returned by `anyStep` is mutable, take care of not altering it in one branch, because this would have side-effects on the other.
-Prefer creating deep clones.
+WARNING: If the entity returned by the step providing the data before the `.split` (`execute()` in the example) is liable to change, do not change it in one branch, as this would have side-effects on the other branch. Consider creating a deep clone of the record that is to be changed to avoid this issue. 
 
 ==== Fan-in / Joins
 
-Because you split a scenario into different branches or you want to verify data from different sources, you may need to join the branches.
+Fan-in/Join functions allow the user to re-join split branches of a scenario or to verify data from different sources.
 
 You can join the branches in one of two ways:
 
@@ -120,9 +120,9 @@ The following example uses the name of a concurrent step:
 [source,kotlin,linenumbers]
 ----
 
-    execute { } //Provides an output of type `EntityWithKey`, with a field `key` being an Integer
+    execute { } 
         .innerJoin<EntityWithKey, EntityWithId>(
-            on = { "${it.key}" }, //The calculation of the key from the left side is converted to a string.
+            on = { "${it.key}" }, 
             with = "my-datasource-poll-step", //The step `my-datasource-poll-step` is declared in a parallel branch (or earlier in the same branch) and provides an output of type `EntityWithId` with a field `id` being a string.>
             having = { it.id } //Closure to extract the key from the right side, which is a string.
         )
@@ -176,94 +176,109 @@ The steps relevant for error processing include:
 
 QALIPSIS provides default operators to tweak the execution of your scenario, that do not require the addition of plugins to your classpath.
 
-The list of operaters available for QALIPSIS steps is infinite.  Some of them let you transform the data, filter the data, verify the data, alter the behavior of the data, etc. You can also define your own operators.
+Out-of-the-box QALIPSIS operators perform a variety of functions including data transformation, data filtering, data verification, altering the behavior of the data, etc. Together  with user-defined operators the list of operators is infinite.
 
 Some of the commonly used operators are defined in this section.
 
 ==== Timing operators
+This section provides an explanation and examples  of the `delay`, `pace`, `acceleratingPace`, and `constantPace` timing operators.
 
-* `*delay*` adds a constant delay before executing the next step, keeping the same execution pace as previous step.
-
-[example]
-insert delay graphic here
-
-* `*pace*` ensures that the next step is executed at an expected pace, whatever the pace of the input is. The calculation applies independently to each minion.
-
-* `*acceleratingPace*` reduces the waiting interval for at each iteration; to slow down the pace, use an accelerator lower than 1.
-
+* `delay` adds a constant delay before executing the next step, keeping the same execution pace as previous step.
 
 [example]
-insert acceleratingPace graphic here
+insert example and create and insert delay graphic here
 
-* `*constantPace*` applies a constant pace to execute the step after.
+* `pace` ensures that the next step is executed at an expected pace, whatever the pace of the input is. The calculation applies independently to each minion.
+
+* `acceleratingPace` reduces the waiting interval for  each iteration; to slow down the pace, use an accelerator lower than 1.
+
 
 [example]
-insert constantPace graphic here
+insert example and create and insert acceleratingPace graphic here
+
+* `constantPace` applies a constant pace to execute the following step.
+
+[example]
+insert example and create and insert constantPace graphic here
 
 === Filter operators
 
-* `*_filter_*` removes the step contexts having an input not matching the filter specification. Filter is a silent equivalent of validate; it does not generate an error and does not mark the step context as exhausted.
+This section provides an explanation and examples  of the `filter`, `validate`, and `verify` filter operators.
+
+* `filter` removes the step contexts having an input not matching the filter specification. Filter is a silent equivalent of validate; it does not generate an error and does not mark the step context as exhausted.
 
 [example]
-insert `*_filter(is even)_*` graphic here
+provide and example and insert `filter(is even)` graphic here
 
 
-* `*_validate_*` validates the input. When errors are returned, the step context is marked as exhausted and can then only be processed by error processing steps.
-
-[example]
-insert `*_validate(is even)_*` graphic here
-
-* `*_verify_*` validates assertions rather than the input data quality/safety validated by _validate_.
+* `validate` validates the input. If errors are returned, the step context is marked as exhausted and can then only be processed by error processing steps.
 
 [example]
-insert verify(assetThat(it).isEven()) graphic here
+Provide an example and insert `validate(is even)` graphic here
+
+* `verify` validates assertions rather than the input data quality/safety that is validated by `validate`.
+
+[example]
+Provide an example and insert `verify(assetThat(it).isEven())` graphic here
 
 
 === Transformation operators
 
-* `*_flatMap_*` converts a collective input into single element in the output, using a user-defined strategy.
+This section provides an explanation and examples  of the `flatMap`, `flatten`, `map`, `mapWitContext`, and `onEach` transformation operators.
+
+
+* `flatMap` converts a collective input into a single element in the output, with a user-defined strategy.
 
 [example]
-insert verify(assetThat(it).isEven()) graphic here
+provide an example and insert verify(assetThat(it).isEven()) graphic here
 
-* _flatten_ converts a collective input into single element in the output, for a known collective type (array, iterable).
+* `flatten` converts a collective input into a single element in the output for a known collective type (array, iterable, etc.).
 
 [example]
-insert verify(assetThat(it).isEven()) graphic here
+Provide an example and insert verify(assetThat(it).isEven()) graphic here
 
-* _map_ converts each element into another in the output.
+* `map` converts each element into another element in the output.
 
-* _mapWithContext_ provides the same capability as _map_ with the step context as an additional argument.
+* `mapWithContext`  provides the same capability as `map` but  with the step context as an additional argument.
 
-image:operators/map.svg[operators-map]
+[example]
+Provide an example of `map` and `mapWithContext`  and insert a graphic here
 
-* _onEach_ executes one or several statements on each element of the input, and forwards them unchanged to the output.
+* `onEach` executes one or several statements on each element of the input and forwards them unchanged to the output.
 
-image:operators/onEach.svg[operators-onEach]
+[example]
+Provide an example of `onEach` and insert a graphic here
 
 === Caching operators
+This section provides an explanation and examples of the `shelve` and `unshelve` caching operators.
 
-* _shelve_ caches the provided values in a shared cache.
+* `shelve` caches the provided values in a shared cache.
 +
-When using a distributed architecture, make sure the cached value
-can be serialized by the used implementation of shared state registry.The ID of the minion is automatically added to
-the key to avoid collusion.
+When using a distributed architecture, make sure the cached value can be serialized by the used implementation of shared state registry. The ID of the minion is automatically added to the key to avoid collusion.
+[example]
+Provide an example of `shelve` and insert a graphic here
 
 * _unshelve_ fetches one or more records from the shared state registry, previously shelved with the provided keys for the same minion.
 
+[example]
+Provide an example of `unshelve` and insert a graphic here
+
 === Utility operators
+This section provides an explanation and examples of the `tube`, `blackHole`, and `stage` utility operators.
 
-* _tube_ simply forwards the input to the output.
+* `tube` simply forwards the input to the output.
 
-image:operators/tube.svg[operators-tube]
+[example]
+Provide an example of `tube` and insert a graphic here
 
-* _blackHole_ consumes the input and provides no output.
+* `blackHole` consumes the input and provides no output.
+[example]
+Provide an example of `tube` and insert a graphic here
 
-image:operators/blackHole.svg[operators-blackHole]
 
 * _stage_ groups a linear graph of steps.
 +
-Stages are not mandatory in a scenario, but provide a convenient way to iterate, waiting for the last step to be completed before looping back as in the following example:
+Stages are not mandatory in a scenario, but provide a convenient way to iterate steps. In the example below,  after `map` is completed it repeats 5 times:
 
 [source,kotlin,linenumbers]
 ----
@@ -274,12 +289,15 @@ Stages are not mandatory in a scenario, but provide a convenient way to iterate,
         iterate(5)
     }
 ----
+[example]
+ insert a graphic here if helpful
 
 === Combining operators
+The most often used combining operator is `collect`.
 
-* _collect_ collects inputs across all the minions and releases them as a list, within the latest received step context.
-This operator can be seen as the opposite of the `flatten`.
+* `collect` collects inputs across all the minions and releases them as a list within the latest received step context.
 
-image:operators/collect.svg[operators-collect]
-
+This operator's function is the opposite of `flatten`.
+[example]
+ insert an example and a graphic here if helpful
 

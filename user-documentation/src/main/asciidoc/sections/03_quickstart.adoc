@@ -1,6 +1,5 @@
 == Quick Start
 
-
 This section will guide you through:
 
 * Creating a project.
@@ -289,6 +288,7 @@ fun myScenario() {
 . Add a step to indicate where data is cached for later use:
 +
 [source,kotlin,linenumbers]
+
 ----
     .shelve { mapOf("started at" to System.currentTimeMillis()) } 
 
@@ -303,6 +303,7 @@ fun myScenario() {
         }
     }
 ----
+`
 
 === Configuring the Scenario Execution
 [source,kotlin,linenumbers]

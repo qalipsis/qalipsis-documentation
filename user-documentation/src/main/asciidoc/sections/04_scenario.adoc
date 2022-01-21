@@ -6,23 +6,19 @@ A scenario specification is the total of all of the dependencies and steps requi
 
 In order to provide maximum flexibility for configuring a scenario and the best performance while executing it, QALIPSIS splits its configuration from its execution.
 
-In the configuration phase, you develop specifications for the scenario.
-In the execution phase, you set the run-time parameters for the scenario(s) you are executing.
+* In the configuration phase, you develop specifications for the scenario.
 
-In order to provide maximum flexibility for configuring a scenario and the best performance while executing it, QALIPSIS splits its configuration from its execution.
+* In the execution phase, you set the run-time parameters for the scenario(s) you are executing.
 
-In the configuration phase you develop specifications for the scenario. 
-In the execution phase, you set the run-time parameters for the scenario(s) you are executing.
 
-This section focuses on scenario configuration.  Details on scenario execution is provided in <<QALIPSIS Configuration>>. 
+This section focuses on scenario configuration.  Details on scenario execution are provided in <<QALIPSIS Configuration>>. 
 
 
 
 === Configuring a Scenario Specification
+minionsCount = A scenario specification is made up of several parts.
 
-A scenario specification is made up of several parts.
-
-. Calling to the Scenario function:
+. Calling the Scenario function:
 +
 [source,kotlin,linenumbers]
 ----
@@ -34,58 +30,77 @@ fun myScenario()
 
 [source,kotlin,linenumbers]
 ----
+@Scenario
+fun myScenario(){
 val myScenario = scenario("hello-world")
 ----
 . Configuring the scenario.
 
-Assume the default configuration parameters: 
-
+.. Assume the default configuration parameters: 
 +
-
-[source,kotlin,linenumbers]
-----
- { //Scenario default configuration
-    }
-   
-----
-Note that you can set the following parameters here rather than assume the default parameters: 
-* Number of minions, default = 1
-* RampUp strategy
-* Retry Policy; default set to no retry.
-
-. Identification of the root of the (load-injected) tree receiving all the minions.
-+
-
-[source,kotlin,linenumbers]
-----
-.(start)
-----
-. Addition of the step specifications to the tree:
-
-[source,kotlin,linenumbers]
-----
-.returns {//add step specifications hear.}
-----
-A look at the scenario creation without commentary:
 
 [source,kotlin,linenumbers]
 ----
 @Scenario
-fun myScenario() {
-    val myScenario = scenario("hello-world"){
+fun myScenario()
+ val myScenario = scenario("hello-world"){ //Scenario default parameter values
+    }
+----
+The default parameters include:
+* minionCount = 1
+* retryPolicy = no retry
 
- { 
-  start ()
-  .returns   }
+..  Include a defined parameters within the configuration, as in the following example: 
++
+
+[source,kotlin,linenumbers]
+----
+@Scenario
+fun myScenario(){
+ val myScenario = scenario("hello-world"){ 
+    minionsCount = 1000
+     retryPolicy(instanceOfRetryPolicy)
+     rampUp {
+        regular(1000, 50)
     }
 }
----- 
+----
+. Identifying the root of the (load-injected) tree receiving all the minions.
++
 
+[source,kotlin,linenumbers]
+----
+@Scenario
+fun myScenario(){
+ val myScenario = scenario("hello-world"){ 
+    minionsCount = 1000
+     retryPolicy(instanceOfRetryPolicy)
+     rampUp {
+        regular(1000, 50)
+    }
+}
+.start()\\Root of the load injected tree.
+----
+. Adding step specifications to the tree:
 
+[source,kotlin,linenumbers]
+----
+@Scenario
+fun myScenario(){
+ val myScenario = scenario("hello-world"){ 
+    minionsCount = 1000
+     retryPolicy(instanceOfRetryPolicy)
+     rampUp {
+        regular(1000, 50)
+    }
+}
+.start()
+.returns {//add step specifications here.}
+----
 
 ==== Default Configuration of a Scenario
 
-Every scenario has a default configuratopn 
+Every scenario has a default configuration.
 
 ===== Number of Minions
 
@@ -108,7 +123,7 @@ fun myScenario() {
 ----
 Load-injected trees receive all the minions; non-load injected trees receive only one minion. 
 
-==== Ramp-up
+==== Ramp-up Strategy
 
 * Mandatory
 * There is no default
@@ -119,11 +134,11 @@ You can use an out-of-the-box strategy or create your own.
 
 In the following sections we will explain how to use a few of the out-of-the-box ramp-up strategies. 
 
-. Accelerating:   
+* Accelerated RampUp Strategies
 +
 An accelerating rampUp strategy injects either a set number of minions at an accelerated pace or an accelerated number of minions at a set pace.
 +
-.. Minions injected at an accelerated pace:
+. Accelerated pace using `faster`.
 +
 The following example injects 10 minions every 2000 ms, then 10 minions every 1333 (2000 / 1.5) ms, then 10 minions every 888 (2000 / 1.5 / 1.5) ms, continuing until the interval reaches 200 ms.
 +
@@ -143,7 +158,7 @@ fun myScenario() {
 +
 The speed-factor at runtime will be applied to the multiplication factor: a speed factor of 2 will reduce the interval twice faster.
 
-. Increasing the volume of minions
+. Accelerated number of minions using `more`.
 +
 The following example starts minions every 200 ms: first 10, then 20 minions after 200 ms, 40 new minions after 200 ms, to the limit of 1000 minions every 200ms until they all are active.
 +
@@ -161,7 +176,7 @@ fun myScenario() {
 +
 The speed-factor at runtime will be applied to the multiplication factor: a speed factor of 2 will increase the number of minions at each shot twice faster.
 
-. Regular ramp-up
+* `regular` rampUp Strategy
 +
 A regular rampup strategy sets the injection of a set amount of minions at a set pace.
 +
@@ -181,7 +196,7 @@ fun myScenario() {
 +
 The speed-factor at runtime will be applied to the interval: a speed factor of 2 will divide the interval by 2.
 
-. Time frame
+* `Timeframe` rampUp Strategy
 +
 A time frame rampup strategy injects an equal number of minions at an equal interval within a set timeframe.
 +
@@ -210,8 +225,7 @@ The following example first releases 1/100th of all the minions after 1000 ms, t
 * If the previous interval was longer than 2 seconds, 100th of all the minions are released after 100ms;
 * Otherwise, a random interval is calculated applying the speed factor to reduce it, in order to start 10th of all the minions.
 +
-Whatever the definition you choose, no more minions than the total number can be launched. Generating a negative interval results in an immediate start.
-+
+
 [source,kotlin,linenumbers]
 ----
 @Scenario
@@ -231,25 +245,25 @@ fun myScenario() {
 }
 ----
 +
-When calling the first iteration of the user-defined strategy, the initial value of `pastPeriodMs` is 0. However, you can use your own variable to verify if this is the first iteration or not.
+Whatever definition you choose: 
++
+* The maximum number of minions launched cannot be more than the `totalMinions`.
+*  Generating a negative interval results in an immediate start.
++
+* When calling the first iteration of a user-defined strategy, the initial value of `pastPeriodMs` is 0. However, you can use your own variable to verify if this is the first iteration or not.
 
 ==== Retry policy
 
 * Optional
-* Default set to no retry
+* Default = no retry
 
 
-Execution of steps can fail for different reasons: unreachable remote host, invalid data, etc. A retry policy can be set as part of the scenario specification ow within each step context.
+Execution of steps can fail for a variety of reasons, including, but not limited to, an unreachable remote host or invalid data. 
 
- 
+When a step execution fails, it may be retried if a retry policy has been set within the scenario configuration or the step configuration.
 
-When a step execution throws an exception, it may be retried if a retry policy has been det.
-  the context.
-Once all the attempts were executed, the step execution context is marked as exhausted and only the <<Error processing steps>> are then performed.
+Once all attempts are executed per the defined `retryPolicy`, the step execution context is marked as exhausted and only <<Error processing steps>> are executed.
 
-While you can specify the retry policy individually for each step, it is also possible to define a default policy to avoid redundant statements in the steps specifications.
-
-NOTE: There is no provided `RetryPolicy` in QALIPSIS in the current version of QALIPSIS; however, You can create your own implementation to match your needs.
 
 [source,kotlin,linenumbers]
 ----
@@ -260,9 +274,10 @@ fun myScenario() {
     }
 }
 ----
+NOTE that there is no provided `RetryPolicy` in the current version of QALIPSIS; however, you can create your own implementation to match your needs.
++
 
-
-=== Load-injected tree
+=== Load-injected Tree
 
 A scenario is a combination of directed acyclic graphs, joined by steps.
 
@@ -273,7 +288,7 @@ Other graphs are considered non-injected or "side-trees" and perform data verifi
 
 _myScenariostart()_ identifies which graph is the root receiving the load of all the minions at runtime.
 
-_myScenario_ identifies a second graph visited by a unique minion and generally consisting of iterative operations such as polling of datasources, etc.
+_myScenario_ identifies a second graph visited by a unique minion and generally consisting of iterative operations such as polling of datasources.
 
 [source,kotlin,linenumbers]
 ----
@@ -296,14 +311,14 @@ fun myScenario() {
 }
 ----
 
-Note that only one use of _start()_ is permitted, as well as only one step after it.
+Note that only one use of `.start()`  is permitted  and only one step after it.
+ 
+To create two load-injected branches, you can use the `.tube()` and `.split` commands.
 
-To create two load-injected branches, you can use the _.tube()_ and _.split_ commands.
+* `.tube()`  is non-operation step that simply forwards the its input to its  output.
+* `.split` provides the output of a unique step to several steps by initiating the divergence of two load-injected branches, both running concurrently and receiving all the minions. 
 
-* _.tube()_`  is non-operation step that simply forwards the input to the output.
-* _.split_ provides the output of a unique step to several steps.by initiating the divergence of two load-injected branches, both running concurrently and receiving all the minions. 
-
-In the following example, two branches are diverging: one with the steps _execute{}.map{}_ and a second with _flatten().filterNotNull()_. Both run concurrently after each execution of _tube()_.
+In the following example, two branches are diverging: one with the steps `execute{}.map{}` and a second with `flatten().filterNotNull()`. Both run concurrently after each execution of _tube()_.
 
 [source,kotlin,linenumbers]
 ----
@@ -331,20 +346,16 @@ fun myScenario() {
 ----
 
 
-
-
 === Singleton Step
 
-A singleton step is a step that is designed to be executed once and only once.
-
-It does not simulate the load of minions but provides them data they can use to feed other steps or verify expected results in the tested system.
+A singleton step is designed to be executed only once by one minion. Its purpose is to gather data to provide to the other minions as they pass through it.  The minions can use the data to feed other steps or verify expected results in the tested system.
 
 Examples of a singleton step include:
 
 * A database poller.
 * A message consumer.
 
-While the singleton step is executed only once, it actually provides data to all the minions passing through it.
+While the singleton step is executed only once, it provides provides data to all the minions passing through it.
 
 
 A singleton step does not defer from other steps. It is executed using one minion, which looks like any other minion.
@@ -367,20 +378,20 @@ QALIPSIS provides all required statements out-of-the-box.
 
 *Loop*
 
-When the number of records emitted by the singleton step is finite (such as a file), you might want to loop in the whole set of data to be sure there will always be data for your minions.
+When the number of records emitted by the singleton step is finite (such as a file), you might want to loop in the whole set of data to be sure there will always be data for the minions.
 
 [example]
-insert singleton loop graphic here
+Create and insert singleton loop graphic here
 
 All minions receive all the records.
 When there is no more data for a minion, it receives the same data again from the beginning and loops on the whole set of records as long as it needs new ones.
 
-*Unicast / Forward once*
+*Unicast/Forward once*
 
-Each minion receives the next unused record emitted from the step. Once there are no more record to provide, all the minion will remain in the step.
+Each minion receives the next unused record emitted from the step. Once there are no more records to provide, all the  minions remain in the step.
 
 [example]
-insert singleton-unicast graphic here
+Create and insert singleton-unicast graphic here
 
 In the example, each of the 3 minions receives a record fairly: the first asking is served. However, since the buffer
 is only 2, the first records are just lost, keeping only a buffer of 2 until the first minion requests a value.
@@ -393,7 +404,7 @@ all the records, will remain in the step.
 If the size of the buffer is limited, minions landing in the step for the first time will not receive everything from the beginning, but only from the size of the buffer.
 
 [example]
-insert broadcast graphic here
+Create and insert broadcast graphic here
 
 In the example, the all 3 minions receive all the records in the correct order. However, since the buffer
 is only 2, each newly requesting minion can only receive two records in the past at the earliest.
