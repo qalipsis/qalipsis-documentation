@@ -6,12 +6,11 @@ QALIPSIS 1.0 is designed with the scalability and simplicity required to perform
 With QALIPSIS 1.0:
 
 * You can create scenarios with different branches and running with many minions.
-
-* You can use its many out-of-the-box steps and plugins to fire load on your system and feed QALIPSIS with data to verify load strength.
+* You can use its many native steps and plugins to fire load on your system and feed QALIPSIS with data to verify load strength.
 
 QALIPSIS 1.0 runs standalone and distributed. A history of events and metrics can be logged or saved in Elasticsearch, TimescaleDB and InfluxDB. Plugins for other tools will be available in future releases.
 
-Future releases of QALIPSIS will include more plugins, more steps for load injection and verifications and other improvements. 
+Future releases of QALIPSIS will include more plugins, more steps for load injection and verifications as well as other improvements. 
 
-Feedback on this release, including bugs and suggested enhancements, are welcome and may be sent to the QALIPSIS  team  at {link to the Github issues pages}.
+Feedback on this release, including bugs and suggested enhancements, is welcome and may be sent to the QALIPSIS  team at {link to the GitHub issues pages}.
 

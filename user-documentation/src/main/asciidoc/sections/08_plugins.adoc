@@ -1,35 +1,42 @@
 == Plugins
 
-=== What is a plugin?
-==== Introduction
+=== Introduction
+A plugin is a technical extension designed to extend the core capabilities of a tool.
 
-A plugin is a technical extension designed to extend the core capabilities of the tools.
+Plugins: 
 
-The plugin mechanism tackles the complexity implied by the multiplicity of technologies and use cases to support in the tool, and reduce the coupling between the technical elements, keeping them safer and easier to maintain.
+*  Tackle the complexity implied by the multiplicity of technologies and use cases to support in the tool.
+ * Reduce the coupling between the technical elements, keeping them safer and easier to maintain.
 
-The main advantages of a plugin strategy for extension are the drastic reduction of the weight of the required libraries to run a scenario and a better user / developer experience, letting them focus on what is absolutely relevant to them. Among other user / developer experience benefits, we can list smaller list of proposal when using auto-completion, faster compilation time, faster start time, smaller artefacts to store, transport and share.
+The main advantages of using plugins are:
 
-By nature, a plugin is an optional component of the tool. You only include what you need, ignoring components and libraries that do not serve your needs your present critical concerns.
+* A drastic reduction in the footprint of required libraries to run a scenario.
+* A better user/developer experience, including:
+**  The ability to focus on what is absolutely relevant to the user/developer.
+** Having a smaller list of proposals when using auto-completion.
+** Faster compilation and start times.
+** Smaller artifacts to store, transport and share.
+
+By nature, a plugin is an optional component of the tool. You only include what you need, ignoring components and libraries that do not serve your needs or your present critical concerns.
 
 While a certain number of plugins are proposed by the community to cover the most common use cases and technologies, a plugin can also be an extension only for yourself and remain private.
 
-==== What does a plugin do?
-A plugin contains one or several technical functionalities of the software, that are not part of the core. Or at least not as such. The most common functionalities a plugin might implement are:
+=== Plugin Functionality
+A plugin contains one or several technical functionalities of the software that are not part of the core. The most common functionalities a plugin might implement are:
 
-* A step to perform actions, like:
-** executing requests on an remote system using a specific protocol
-** polling data from a source
-** transforming data
-* Events logger
-* Metrics registry to a datastore
-* Cache storage
-* Messaging platform or protocol
+* A step to perform actions, such as
+** Executing requests on a remote system using a specific protocol.
+** Polling data from a source.
+** Transforming data.
+* An events logger.
+* A metrics registry to a datastore.
+* Cache storage.
+* A messaging platform or protocol.
+ 
+Default implementations of the above functionalities are part of the QALIPSIS core. in the QALIPSIS core with default implementations. , which might not suit productive testing or constant monitoring. Plugins improve the coverage of the different technologies by providing related implementations.
 
-All those functionalities are already implemented in the core with default implementations, which might not suit productive testing or constant monitoring. Plugins improve the coverage of the different technologies by providing related implementations.
-
-==== How and when is a plugin integrated to my deployment?
-
-To create a test scenario, a tiny Gradle/Maven project is required. The plugin is simply added as a dependency to the class path of the project. You can read more about it in the documentation to create a scenario.
+=== Plugin Integration
+To create a test scenario, a tiny Gradle/Maven project is required. The plugin is simply added as a dependency to the class path of the project. You can read more about it in <<Creating a Scenario>> within <<Quickstart>>.
 
 If the development of a scenario requires the plugin to compile - like when using a step - the dependency to the plugin artefact has to be added to the implementation dependencies.
 
@@ -37,32 +44,25 @@ If the plugin delivers functionalities you only need at runtime, add it to the r
 
 In case of doubt, you can still add to the implementation dependencies - api if the relationship between the executable project and the dependency is transitive.
 
-==== Do I always need a plugin?
-
 While plugins provide best practices and a convention to perform recurrent operations, they might not be always necessary. One-time show case or simple actions do not require to develop a plugin: the source code you create and need is directly part of your scenario project source and packaged into the executable archive.
 
-=== Use a QALIPSIS plugin
+=== Using QALIPSIS Plugins
+QALIPSIS provides several plugins targeting different technologies, systems and protocols.
 
-QALIPSIS provides a bunch of plugins targeting different technologies, systems and protocols.
-
-To use a plugin, just add the related dependency to your project.
+To use a plugin, just add the related dependency to your project:
 
 Gradle - Groovy DSL:
 [source,groovy,subs="normal"]
 ----
 implementation group:'io.qalipsis', name: 'plugin-XXX', version: '{revnumber}'
 ----
-
 Gradle - Kotlin DSL:
 [source,kotlin,subs="normal"]
 ----
 implementation("io.qalipsis:plugin-XXX:{revnumber}")
 ----
 
+You can find the list of available plugins and their related documentation on the <<QALIPSIS Plugins>> site.
 
-You can find the list of available plugins and their related documentation on the dedicated site.
-
-
-=== Create your own plugin
-
+=== Creating Your Own Plugin
 TO DO

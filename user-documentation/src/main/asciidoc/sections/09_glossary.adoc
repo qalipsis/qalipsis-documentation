@@ -16,7 +16,7 @@
 |A single execution of one or a collection of scenarios, starting at a set time and running for a set period.
 
 |Cluster
-a|A set of pieces/nodes of the software that are executed in different locations or on different machines. 
+|A set of pieces/nodes of the software that are executed in different locations or on different machines. 
 
 
 |Dependency Injection
@@ -66,7 +66,7 @@ the time to respond, the status of the response, the size of the payload to send
 
 |Meter/Step Meter
 
-a|A meter is a value aggregating step of the performance over a short period of time across all the minions.
+|A meter is a value aggregating step of the performance over a short period of time across all the minions.
 
 A step meter is a unique value representing the performance of a unique execution of a step by a minion (e.g., time to response or volume of data saved, etc.)
 
@@ -95,7 +95,7 @@ a|A software entity of a QALIPSIS cluster. Nodes communicate with each other to 
 |A technical extension designed to extend the core capabilities of QALIPSIS.
 
 |Ramp-up
-a|An operator that defines the pace that the minions are injected into the system. QALIPSIS out of the box ramp up operators include:
+a|An operator that defines the pace that the minions are injected into the system. QALIPSIS out of the box ramping operators include:
 
 * Timeframe
 * More

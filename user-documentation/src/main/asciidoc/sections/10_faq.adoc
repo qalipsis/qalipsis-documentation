@@ -1,9 +1,11 @@
 == Frequently Asked Questions
-Q. 
+. *How do I implement a plugin in a Scenario?*
++
+Answer text here
 
-A.
+. *How do I change the ramping strategy for a scenario?*
++
+Answer text here
 
 
-Q.
 
-A.
