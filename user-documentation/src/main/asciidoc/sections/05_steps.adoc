@@ -1,297 +1,255 @@
-== Steps specifications
+== Step specifications
 
-=== Configuring a step specification
+=== Defining and Configuring a Step Specification
+A step specification is defined, depending on the step nature and function, as either: 
 
-Depending on their nature, you can define steps specifications as root of a scenario or successor of another step specification.
+* The root of a scenario (the first step after .start()).
++
+or
+* The successor of a previous step.
 
+In the example below, `my-tcp` is the root step; `reuse-tcp` is a successor step.
 [source,kotlin,linenumbers]
 ----
 scenario("hello-netty-udp-world") {
         minionsCount = 100
         rampUp {
-            // Starts all at once.
-            regular(100, minionsCount)
+            
+            regular(100, minionsCount) // Start all at once.
         }
     }
     .start()
     .netty()
 
-    .tcp { // <1>
+    .tcp { // This step is the root of the scenario.
         name = "my-tcp"
         connect {
-            address("localhost", availableTcpPort)
+            address("localhost", 3000) // 3000 is the port used
             noDelay = true
         }
         request { tcpRequest1 }
         metrics { connectTime = true }
-        events { connection = true }
     }
-
-    .reuseTcp("my-tcp") { // <2>
-        name = "reuse-tcp"
+    .reuseTcp("my-tcp") {
+        name = "reuse-tcp" // This step is a successor of the previos step and receives the previos step's output as its input.
         iterate(20, Duration.ofMillis(100))
         request { tcpRequest2 }
     }
 ----
-<1> The `tcp` step is defined as first step of the graph, differently said as root - hence, it expects `Unit` as input
-<1> The `reuseTcp` step is defined as successor of `tcp` and receives its output as input.
+A step specification is configured such that:
 
-There are two ways of configuring a step specification.
-Some receive the configuration closure as parameter like the `tcp step above`.
-Generally, you can also call `configure`
-after a step to configure it:
+* The step receives the configuration closure {} as a parameter (as in ``.tcp`` and `.reuse-tcp` in the example above).
+* `.configure` is called after the step as in the example below:
 
 [source,kotlin,linenumbers]
 ----
-
     reuseTcp("my-tcp") {
         request { tcpRequest2 }
     }.configure {
-        name = "reuse-tcp" // <1>
-        iterate(20, Duration.ofMillis(100)) // <2>
-        retryPolicy(instanceOfRetryPolicy) // <3>
-        timeout(2000) // <4>
+        name = "reuse-tcp" 
+        iterate(20, Duration.ofMillis(100)) 
+        retryPolicy(instanceOfRetryPolicy) 
+        timeout(2000) 
     }
 ----
-<1> Set a name to your step: this is convenient for analysis of events, successes, failures - the same name can be used in several scenario specifications, which helps for cross-analysis and reusability.
-<2> Repeat the step 20 times with an interval of 100 ms between one execution and the next one.
-<3> Step-own retry policy, see <<Retry policy>> for more details.
-<4> Timeout to complete the step execution, in ms.
-Note that if a retry policy is set that allows another attempt, a timeout error will lead to a new execution.
+=== Step Context
+A step context is the mechanism by which:
 
-=== Fan-out
+* Data received from the previous step is transported as input to the current step and passes through the current step as its output to be forwarded to the next step.
 
-When you want to split a branch and add two concurrent steps as successors, you can use the `split`:
+* Transports prior errors through the step.
 
+=== Common Load Distribution Steps
+==== Fan-out
+To split a branch and add two or more concurrent steps as successors, execute a `.split`.
+
+In the example below, `Anystep` receives the output of the previous step as input. `Anystep` does something with the input per its step configuration, and provides its output as input to both the _map_ and the _flatten_ steps which each do something different with the data.
 [source,kotlin,linenumbers]
 ----
-
-    execute { }
-        .split { // <1>
-            map { ... } // <2>
+    Anystep { }
+        .split { 
+            map { ... } 
                 .validate{ ... }
 
-            flatten() // <3>
+            flatten()
                 .filterNotNull()
-
         }
 ----
-<1> `split` takes a closure with the step `anyStep` as receiver.
-<2> The first branch receives the output of `anyStep` as input.
-<3> The second branch also receives the output of `anyStep` as input but does something different with.
+A graphical representation of the above example is shown below. Note that both branches run concurrently, in no defined execution order.
+[example]
+create and include fan-out distribution graphic here-> more like a flowchart
 
-Here is the graphical representation:
+WARNING: If the entity returned by the step providing the data before the `.split` (`execute()` in the example) is liable to change, do not change it in one branch, as this would have side-effects on the other branch. Consider creating a deep clone of the record that is to be changed to avoid this issue. 
 
-[[fan-out]]
-.Fan-out
-[plantuml,fan-out,png]
-....
-digraph fanout {
-  node[shape=record]
-  execute [label="{execute(): step providing the data}"]
-  map [label="{map(): transform the output of execute}"]
-  validate [label="{validate(): validate the transformed\nelements and generate an error\nwhen some constraints do not match}"]
-  flatten [label="{flatten(): do another parallel\ntransformation on execute output}"]
-  filterNotNull [label="{filterNotNull(): only let the not null\ntransformed elements go forward}"]
+==== Fan-in/Joins
+Fan-in/Join functions allow the user to re-join split branches of a scenario or to verify data from different sources.
 
-  execute -> map [label="The exact same instance of object\nis passed from execute() to both map()\nand flatten() concurrently"]
-  execute -> flatten
-  map -> validate [label="Only the output of map is passed here"]
-  flatten -> filterNotNull [label="Only the output of flatten is passed here"]
-}
-....
+You can join the branches in one of two ways:
 
-NOTE: Both branches run concurrently, their no defined execution order.
+* Use the name of a concurrent step.
+* Create a step directly in the join.
 
-WARNING: If the entity returned by `anyStep` is mutable, take care of not altering it in one branch, because this would have side-effects on the other.
-Prefer creating deep clones.
-
-=== Fan-in / Joins
-
-Because you split a scenario into different branches or want to verify data from different sources, you often need to join them.
-You can either do it using the name of a concurrent step:
+The following example uses the name of a concurrent step:
 
 [source,kotlin,linenumbers]
 ----
-
-    execute { } // <1>
+    Anystep { } 
         .innerJoin<EntityWithKey, EntityWithId>(
-            on = { "${it.key}" }, // <2>
-            with = "my-datasource-poll-step", // <3>
-            having = { it.id } // <4>
+            on = { "${it.key}" }, 
+            with = "my-datasource-poll-step", // The step `my-datasource-poll-step` is declared in a parallel branch (or earlier in the same branch) and provides an output of type `EntityWithId` with a field `id` being a string in this example.
+            having = { it.id } // Closure to extract the key from the right side, which should match the left side value. 
         )
-        .map { } // <5>
+        .map { } // The result is a `Pair<EntityWithKey, EntityWithId>` where string representation of `key` of the `EntityWithKey` equals to the field `id` of the `EntityWithId`.
 ----
-<1> `execute` provides an output of type `EntityWithKey`, with a field `key` being an Int.
-We call this step the "left" step.
-<2> We provide a calculation of the key from the left side and decide to convert it as a String.
-<3> The step called `my-datasource-poll-step` is declared in a parallel branch (or earlier in the same branch) and provides an output of type `EntityWithId` with a field `id` being a String.
-<4> Closure to extract the key from the right side, being already a String.
-<5> The result is a `Pair<EntityWithKey, EntityWithId>` where string representation of `key` of the `EntityWithKey` equals to the field `id` of the `EntityWithId`.
-
-Records coming from the right side are kept in a cache until one comes from the left side with the same key.
-Once used, they are evicted from the cache.
+Records coming from the right side are kept in a cache until one comes from the left side with the same key. Once used, they are evicted from the cache.
 
 When a flow comes from the left side but has no corresponding record yet coming from the right, it waits until the defined timeout on the step.
-See <<Configuring a step specification>> for more details.
+Refer to <<Configuring a Step Specification>> for more details.
 
-The step context after the join inherits from the one coming from the left.
+The step context after the join inherits from the one coming from the left. Below is the graphical representation:
 
-Here is the graphical representation:
+[example]
+insert operators-inner-join graphic here
 
-image:operators/innerJoin.svg[operators-inner-join]
-
-You can also create a step directly in the join:
-
+The following example creates a step directly in the join:
 [source,kotlin,linenumbers]
 ----
-
-    execute { }
+    Anystep  { }
         .innerJoin<EntityWithKey, EntityWithId>(
             on = { "${it.key}" },
-            with = { // <1>
+            with = { 
                 r2dbc().poll{
-                    // ...
+                    
                 }
             },
             having = { it.id }
         )
         .map {}
 ----
-<1> Things are working exactly the same as in the first example, but the step is directly created here.
-The receiver of the `with` is the scenario.
+This method is similar to naming a concurrent step except that a step is created in the join. The receiver of the `with` is the scenario.
 
-=== Error processing steps
-
+==== Error Processing Steps
 When an error occurs when executing a step, after all the potential retries, the step context being carried from top to bottom is marked as "exhausted".
 
 From that point of the process, only the steps relevant for error processing are executed, the others are simply bypassed.
 
-Those steps from the core are:
+The steps relevant for error processing include:
 
 * `catchError`: takes the collection of errors as parameter to process them.
 * `catchExhaustedContext`: takes the full exhausted step context as parameter, where you can also set the `isExhausted` flag to `false` in order execute next steps.
 
-=== Core operators
-
+=== Operators
 QALIPSIS provides default operators to tweak the execution of your scenario, that do not require the addition of plugins to your classpath.
 
-While you already know some of them described just above, others are available to let you transform, filter, verify the data, alter the behavior...
+Out-of-the-box QALIPSIS operators perform a variety of functions including data transformation, data filtering, data verification, altering the behavior of the data, etc. Together with user-defined operators the list of operators is infinite.
 
-==== Timing operators
+Some of the commonly used operators are defined in this section.
 
-===== delay
-Adds a constant delay before executing the next step, keeping the same execution pace as previous step.
+==== Timing Operators
+This section provides an explanation and examples  of the `delay`, `pace`, `acceleratingPace`, and `constantPace` timing operators.
 
-image:operators/delay.svg[operators-delay]
+* `delay` adds a constant delay before executing the next step, keeping the same execution pace as previous step.
 
-===== pace
-Ensures that the next step is executed at an expected pace, whatever the one of the input is. The calculation applies
-independently to each minion.
+[example]
+insert example and create and insert delay graphic here
 
-===== acceleratingPace
-Like pace, but reducing the waiting interval at each iteration.
-Too slow down the pace, you can simply use an accelerator lower than 1.
+* `pace` ensures that the next step is executed at an expected pace, whatever the pace of the input is. The calculation applies independently to each minion.
+* `acceleratingPace` reduces the waiting interval for each iteration; to slow down the pace, use an accelerator lower than 1.
 
-image:operators/acceleratingPace.svg[operators-acceleratingPace]
+[example]
+insert example and create and insert acceleratingPace graphic here
 
-===== constantPace
-Applies a constant pace to execute the step after.
+* `constantPace` applies a constant pace to execute the successor steps.
 
-image:operators/constantPace.svg[operators-constantPace]
+[example]
+insert example and create and insert constantPace graphic here
 
-==== Filter operators
+=== Filter Operators
+This section provides an explanation and examples of the `filter`, `validate`, and `verify` filter operators.
 
-===== filter
-Removes the step contexts having an input not matching the filter specification.
-It can be seen as a silent equivalent of validate, because it does neither generate any error, nor mark the step context as exhausted.
+* `filter` removes the step contexts having an input not matching the filter specification. Filter is a silent equivalent of validate; it does not generate an error and does not mark the step context as exhausted.
+[example]
+provide and example and insert `filter(is even)` graphic here
 
-image:operators/filter.svg[operators-filter]
+* `validate` validates the input. If errors are returned, the step context is marked as exhausted and can then only be processed by error processing steps.
+[example]
+Provide an example and insert `validate(is even)` graphic here
+* `verify` validates assertions rather than the input data quality/safety that is validated by `validate`.
+[example]
+Provide an example and insert `verify(assetThat(it).isEven())` graphic here
 
-===== validate
-Validates the input. When errors are returned, the step context is marked as exausted and can then only be processed by error processing steps.
+=== Transformation Operators
+flatThis section provides an explanation and examples  of the `flatMap`, `flatten`, `map`, `mapWithContext`, and `onEach` transformation operators.
 
-image:operators/validate.svg[operators-validate]
+* `flatMap` converts a collective input into a single element in the output, with a user-defined strategy.
 
-===== verify
-Exactly like validate, but meant to be used for assertions instead of data quality / safety.
+[example]
+provide an example and insert `flatMap` graphic here
 
-image:operators/verify.svg[operators-verify]
+* `flatten` converts a collective input into a single element in the output for a known collective type (array, iterable, etc.), keeping each item unchanged.
 
-==== Transformation operators
+[example]
+Provide an example and insert `flatten` graphic here
 
-===== flatMap
-Converts a collective input into single element in the output, using the user-defined strategy.
+* `map` converts each element into another element in the output.
+* `mapWithContext` provides the same capability as `map` but with the step context as an additional argument.
 
-image:operators/flatMap.svg[operators-flatMap]
+[example]
+Provide an example of `map` and `mapWithContext`  and insert a graphic here
 
-===== flatten
+* `onEach` executes one or several statements on each element of the input and forwards them unchanged to the output.
 
-Converts a collective input into single element in the output, for a known collective type (array, iterable).
+[example]
+Provide an example of `onEach` and insert a graphic here
 
-image:operators/flatten.svg[operators-flatten]
+=== Caching operators
+This section provides an explanation and examples of the `shelve` and `unshelve` caching operators.
 
-===== map
+* `shelve` caches the provided values in a shared cache.
++
+When using a distributed architecture, make sure the cached value can be serialized by the used implementation of shared state registry. The ID of the minion is automatically added to the key to avoid collision.
+[example]
+Provide an example of `shelve` and insert a graphic here
 
-Converts each element into another in the output.
-`mapWithContext` provides the same capability with the step context as additional argument.
+* `unshelve` fetches one or more records from the shared state registry, previously shelved with the provided keys for the same minion.
 
-image:operators/map.svg[operators-map]
+[example]
+Provide an example of `unshelve` and insert a graphic here
 
-===== onEach
+=== Utility operators
+This section provides an explanation and examples of the `pipe`, `blackHole`, and `stage` utility operators.
 
-Executes one or several statements on each element of the input, and forwards them unchanged to the output.
+* `pipe` simply forwards the input to the output.
 
-image:operators/onEach.svg[operators-onEach]
+[example]
+Provide an example of `pipe` and insert a graphic here
 
-==== Caching operators
+* `blackHole` consumes the input and provides no output.
+[example]
+Provide an example of `blackhole` and insert a graphic here
 
-===== shelve
-Caches the provided values in a shared cache.When using a distributed architecture, make sure the cached value
-can be serialized by the used implementation of shared state registry.The ID of the minion is automatically added to
-the key to avoid collusion.
-
-===== unshelve
-Fetches one or more record from the shared state registry, previously shelved with the provided keys for the same minion.
-
-==== Utility operators
-
-===== tube
-
-Simply forwards the input to the output.
-
-image:operators/tube.svg[operators-tube]
-
-===== blackHole
-
-Consumes the input and provides no output.
-
-image:operators/blackHole.svg[operators-blackHole]
-
-===== stage
-
-Groups a linear graph of steps.
-Stages are not mandatory in a scenario, but provide a convenient way to iterate, waiting for the last step to be completed before looping back.
-
+* `stage` groups a linear graph of steps.
++
+Stages are not mandatory in a scenario, but provide a convenient way to iterate steps. In the example below, after `flatten()` is completed it repeats 5 times starting at the first map:
 [source,kotlin,linenumbers]
 ----
-
     stage("my-stage") {
-        map { it * 3 }.map { arrayOf(it, it + 100) }.flatten() // <1>
-    }.configure { // <2>
+        map { it * 3 }
+        .map { arrayOf(it, it + 100) }
+        .flatten()
+    }.configure { 
         iterate(5)
     }
 ----
-<1> Create a chain of steps, where no `split()` is allowed.
-<2> You can configure the whole stage to repeat from its beginning only once the tail step is completed
+[example]
+ insert a `stage` graphic here if helpful
 
-==== Combining operators
+=== Combining Operators
+The most often used combining operator is `collect`.
 
-===== collect
+`collect` collects inputs across all the minions and releases them as a list within the latest received step context.
 
-Collects inputs across all the minions and releases them as a list, within the latest received step context.
-This operator can be seen as the opposite of the `flatten`.
-
-image:operators/collect.svg[operators-collect]
-
+This operator's function is the opposite of `flatten`.
+[example]
+ insert a collect example and a graphic here if helpful
 
