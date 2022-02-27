@@ -1,17 +1,17 @@
-== Quick Start
+= Quick Start
 
 This section will guide you through:
 
-* Creating a project.
-* Setting up your IDE.
-* Creating and configuring a QALIPSIS scenario.
-* Specifying the load injection point.
-* Adding steps to your scenario.
-* Executing your scenario.
+* <<Creating a Project>>
+* <<Setting Up an IDE>>
+* <<Creating and Configuring a Scenario>>
+* <<Specifying the Load Injection Point>> 
+* <<Adding Steps to the Scenario>> 
+* <<Configuring the Scenario Execution>> 
 
 NOTE: Before getting started, confirm that you have Java 11 (or above) SDK installed on your workstation. 
 
-=== QALIPSIS Workflow
+== QALIPSIS Workflow
 
 NOTE: This workflow assumes that you have a general understanding of the QALIPSIS Core concepts and that you have Java 11 or above SDK installed on your workstation.
 
@@ -44,7 +44,7 @@ be stored.
 [example]
 Insert Workflow graphic here
 
-=== Creating a Project
+== Creating a Project
 . Import a QALIPSIS skeleton project from the _QALIPSIS Launch_ website:
 [source,kotlin,linenumbers]
 +
@@ -64,45 +64,41 @@ The project skeleton includes a Gradle plugin that generates a "fat JAR" that in
 // Replace "QALIPSIS Quickstart" with your project name.
 ----
 
-=== Setting Up Your IDE
+== Setting Up an IDE
 NOTE: While it is possible to develop a complete scenario with a text editor, it is recommended that you use a suitable IDE such as IntelliJ or Eclipse.
 
 QALIPSIS relies on annotation processing at compile time to prepare the executable code and to list the scenarios to later execute.
 
 QALIPSIS also relies on the Micronaut IoC framework, which requires that you setup your IDE following the instructions provided in the https://docs.micronaut.io/latest/guide/index.html[Micronaut User Guide].
 
-==== IntelliJ
+=== IntelliJ
 Follow the instructions provided in the https://docs.micronaut.io/latest/guide/index.html#ideaSetup[IntelliJ IDEA] section of the Micronaut User Guide.
 
-==== Eclipse
+=== Eclipse
 Follow the instructions provided in the https://docs.micronaut.io/latest/guide/index.html#eclipseSetup[Eclipse] section of the Micronaut User Guide.
 
-==== Visual Studio Code
+=== Visual Studio Code
 Follow the instructions provided in the https://docs.micronaut.io/latest/guide/index.html#vsCodeSetup[Visual Studio Code] section of the Micronaut User Guide.
 
-=== Creating a Scenario
+== Creating and Configuring a Scenario
 Scenarios can be created in classes, as Kotlin objects or as a Kotlin function.  The name you give the class or function does not matter; however, it is necessary to annotate the function that builds the scenario. 
 
 In this section, you will create and configure a simple scenario that injects 500 minions, 35 ms apart, to write a message on the console and then stop.
 
 . Declare the package/directory where the scenario can be found:
 +
-[source,kotlin,linenumbers]
-----
-package my.example 
-----
+`package my.example``
+
 . Import the Qalipsis annotation processor:
 +
-[source,kotlin,linenumbers]
-----
-import io.qalipsis.api.annotations.Scenario
-----
+
+`import io.qalipsis.api.annotations.Scenario`
+
 . Declare the name for the Scenario class as _HelloWorldScenario_:
 +
-[source,kotlin,linenumbers]
-----
-class HelloWorldScenario {}
-----
+
+`class HelloWorldScenario {}`
+
 . Configure the Scenario
 +
 IMPORTANT: Due to the incremental compilation not yet fully taken into account by the QALIPSIS annotation processor, you should clear the output/build directory when you delete or rename the package or class containing a scenario method. The risk of not doing so is to have a scenario listed to be executed at runtime, which no longer exists.
@@ -125,7 +121,7 @@ fun myScenario() {
 }
 ----
 
-=== Specify where the load should be injected
+== Specifying the Load Injection Point
 Consider the scenario as a directed graph joining the steps/actions to execute. Within the scenario, it is possible to have:
 
 * Several roots.
@@ -146,7 +142,7 @@ fun myScenario() {
  .start() // Declares the root of the tree to receive the load of all the minions at runtime.
 ----
 
-=== Adding Steps to Your Scenario
+== Adding Steps to the Scenario
 You can now add steps to your scenario.
 [source,kotlin,linenumbers]
 ----
@@ -186,7 +182,8 @@ fun myScenario() {
         }
     }
 ----
-=== Configuring the Scenario Execution
+
+== Configuring the Scenario Execution
 
 [source,kotlin,linenumbers]
 ----

@@ -1,6 +1,5 @@
-== Scenario specification
+= Scenario specification
 
-=== What is a Scenario Specification?
 A scenario specification is the total of all of the steps required to configure the scenario and to execute it at run-time.
 
 In order to provide maximum flexibility for configuring a scenario and the best performance while executing it, QALIPSIS splits its configuration from its execution.
@@ -10,7 +9,7 @@ In order to provide maximum flexibility for configuring a scenario and the best 
 
 This section focuses on scenario configuration.  Details on scenario execution are provided in <<QALIPSIS Configuration>>. 
 
-=== Configuring a Scenario Specification
+== Configuring a Scenario Specification
 A scenario specification is made up of several parts.
 
 . Calling the Scenario function:
@@ -84,10 +83,10 @@ fun myScenario(){
 }
 .start() // Add step specifications here.
 ----
-==== Default Configuration of a Scenario
+== Default Scenario Configuration
 Every scenario has a default configuration.
 
-===== Number of Minions
+=== Number of Minions
 * Optional
 * Default to 1*
 
@@ -106,7 +105,7 @@ fun myScenario() {
 ----
 Load-injected trees receive all the minions; non-load injected trees receive only one minion. 
 
-==== Ramping Strategies
+=== Ramping Strategies
 * Mandatory
 * There is no default
 
@@ -232,7 +231,7 @@ Whatever definition you choose:
 +
 * When calling the first iteration of a user-defined strategy, the initial value of `pastPeriodMs` is 0. 
 
-==== Retry policy
+=== Retry policy
 * Optional
 * Default = no retry
 
@@ -250,7 +249,7 @@ fun myScenario() {
     }
 }
 ----
-=== Load-injected Tree
+== Load-injected Tree
 A scenario is a combination of directed acyclic graphs, joined by steps.
 
 There might be several graphs starting concurrently at the scenario root, but only one graph (the specified load-injected branch) is visited by all the minions injected into the scenario.
@@ -302,7 +301,7 @@ fun myScenario() {
 }
 ----
 
-=== Singleton Step
+== Singleton Step
 A singleton step is designed to be executed only once by one minion. Its purpose is to gather data to provide to the other minions as they pass through it.  The minions can use the data to feed other steps or verify expected results in the tested system.
 
 Examples of a singleton step include:
@@ -318,7 +317,7 @@ The proxy will be executed by all the minions going through the branch, while th
 
 The singleton step and its proxy are connected by a topic, which actually defines the way the polled/read/ consumed records are provided to the minions.
 
-==== Distributing Data from the Singleton Step to the load Minions
+== Data Distribution from the Singleton Step to the Load Minions
 For convenience purpose, QALIPSIS proposes three different modes of distributing records out of a singleton step:
 
 * Loop
@@ -329,7 +328,7 @@ Note: You can develop your own singleton step by creating a plugin for it; refer
 
 QALIPSIS provides all required statements out-of-the-box.
 
-*Loop*
+=== Loop
 
 When the number of records emitted by the singleton step is finite (such as a file), you might want to loop in the whole set of data to be sure there will always be data for the minions.
 
@@ -339,7 +338,7 @@ Create and insert singleton loop graphic here
 All minions receive all the records.
 When there is no more data for a minion, it receives the same data again from the beginning and loops on the whole set of records as long as it needs new ones.
 
-*Unicast/Forward once*
+=== Unicast/Forward Once
 
 Each minion receives the next unused record emitted from the step. Once there are no more records to provide, all the minions remain blocked in the step.
 
@@ -349,7 +348,7 @@ Create and insert singleton-unicast graphic here
 In the example, each of the 3 minions receives a record fairly: the first asking is served. However, since the buffer
 is only 2, the first records are just lost, keeping only a buffer of 2 until the first minion requests a value.
 
-*Broadcast*
+=== Broadcast
 
 All the minions receive all the records from the beginning. Once there are no more records to provide, all of the minions, having already received all available records, remain blocked in the step.
 

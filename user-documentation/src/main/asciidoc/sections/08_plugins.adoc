@@ -1,6 +1,6 @@
-== Plugins
+= Plugins
 
-=== Introduction
+== Introduction
 A plugin is a technical extension designed to extend the core capabilities of a tool.
 
 Plugins: 
@@ -21,7 +21,7 @@ By nature, a plugin is an optional component of the tool. You only include what 
 
 While a certain number of plugins are proposed by the community to cover the most common use cases and technologies, a plugin can also be an extension only for yourself and remain private.
 
-=== Plugin Functionality
+== Plugin Functionality
 A plugin contains one or several technical functionalities of the software that are not part of the core. The most common functionalities a plugin might implement are:
 
 * A step to perform actions, such as
@@ -35,7 +35,7 @@ A plugin contains one or several technical functionalities of the software that 
  
 Default implementations of the above functionalities are part of the QALIPSIS core. in the QALIPSIS core with default implementations. , which might not suit productive testing or constant monitoring. Plugins improve the coverage of the different technologies by providing related implementations.
 
-=== Plugin Integration
+== Plugin Integration
 To create a test scenario, a tiny Gradle/Maven project is required. The plugin is simply added as a dependency to the class path of the project. You can read more about it in <<Creating a Scenario>> within <<Quickstart>>.
 
 If the development of a scenario requires the plugin to compile - like when using a step - the dependency to the plugin artefact has to be added to the implementation dependencies.
@@ -46,10 +46,10 @@ In case of doubt, you can still add to the implementation dependencies - api if 
 
 While plugins provide best practices and a convention to perform recurrent operations, they might not be always necessary. One-time show case or simple actions do not require to develop a plugin: the source code you create and need is directly part of your scenario project source and packaged into the executable archive.
 
-=== Using QALIPSIS Plugins
+== Using QALIPSIS Plugins
 QALIPSIS provides several plugins targeting different technologies, systems and protocols.
 
-To use a plugin, just add the related dependency to your project:
+To use a plugin, add the related dependency to your project:
 
 Gradle - Groovy DSL:
 [source,groovy,subs="normal"]
@@ -62,7 +62,7 @@ Gradle - Kotlin DSL:
 implementation("io.qalipsis:plugin-XXX:{revnumber}")
 ----
 
-You can find the list of available plugins and their related documentation on the <<QALIPSIS Plugins>> site.
+== Available Plugins
+You can  find all  available plugins and their related documentation in the <<QALIPSIS Plugins Section>> of this manual. 
 
-=== Creating Your Own Plugin
-TO DO
+

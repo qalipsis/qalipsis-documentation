@@ -1,14 +1,13 @@
-== Monitoring a Test Campaign
+= Monitoring a Test Campaign
 
-=== Overview
+== Overview
 QALIPSIS aims at giving insights of the behavior of the tested system, from a performance perspective.
 
 Those insights are provided to the users via dashboards and detailed values describing the performed operations.
 
-=== Definitions
+== Definitions
 
 * Meters
-
 * Steps
 * Step Execution Meters
 

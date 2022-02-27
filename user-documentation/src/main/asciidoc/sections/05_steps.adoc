@@ -1,6 +1,6 @@
-== Step specifications
+= Step specifications
 
-=== Defining and Configuring a Step Specification
+== Defining and Configuring a Step Specification
 A step specification is defined, depending on the step nature and function, as either: 
 
 * The root of a scenario (the first step after .start()).
@@ -24,7 +24,7 @@ scenario("hello-netty-udp-world") {
     .tcp { // This step is the root of the scenario.
         name = "my-tcp"
         connect {
-            address("localhost", 3000) // 3000 is the port used
+            address("localhost", 3000)
             noDelay = true
         }
         request { tcpRequest1 }
@@ -52,36 +52,36 @@ A step specification is configured such that:
         timeout(2000) 
     }
 ----
-=== Step Context
+== Step Context
 A step context is the mechanism by which:
 
-* Data received from the previous step is transported as input to the current step and passes through the current step as its output to be forwarded to the next step.
+* Data received from the previous step is transported as input to the next steps. The next steps transform the data and provides it as output. The output is forwarded to the next steps as input.
 
-* Transports prior errors through the step.
+* Prior errors are transported through a step.
 
-=== Common Load Distribution Steps
-==== Fan-out
+== Common Load Distribution Steps
+=== Fan-out
 To split a branch and add two or more concurrent steps as successors, execute a `.split`.
 
-In the example below, `Anystep` receives the output of the previous step as input. `Anystep` does something with the input per its step configuration, and provides its output as input to both the _map_ and the _flatten_ steps which each do something different with the data.
+In the example below, `Anystep` receives the output of the previous step as input. `Anystep` transforms its input per its step configuration. The transformed data is provided as input to both the _map_ and the _flatten_ steps.   The _map_ and the _flatten_ steps each do something different with the data.
 [source,kotlin,linenumbers]
 ----
     Anystep { }
         .split { 
             map { ... } 
                 .validate{ ... }
-
-            flatten()
-                .filterNotNull()
         }
+        .flatten()
+                .filterNotNull()
+        
 ----
 A graphical representation of the above example is shown below. Note that both branches run concurrently, in no defined execution order.
 [example]
 create and include fan-out distribution graphic here-> more like a flowchart
 
-WARNING: If the entity returned by the step providing the data before the `.split` (`execute()` in the example) is liable to change, do not change it in one branch, as this would have side-effects on the other branch. Consider creating a deep clone of the record that is to be changed to avoid this issue. 
+WARNING: If the entity returned by the step providing the data before the `.split` (`Anystep()` in the example) is liable to change, do not change it in one branch, as this would have side-effects on the other branch. Consider creating a deep clone of the record that is to be changed to avoid this issue. 
 
-==== Fan-in/Joins
+=== Fan-in/Joins
 Fan-in/Join functions allow the user to re-join split branches of a scenario or to verify data from different sources.
 
 You can join the branches in one of two ways:
@@ -128,7 +128,7 @@ The following example creates a step directly in the join:
 ----
 This method is similar to naming a concurrent step except that a step is created in the join. The receiver of the `with` is the scenario.
 
-==== Error Processing Steps
+=== Error Processing Steps
 When an error occurs when executing a step, after all the potential retries, the step context being carried from top to bottom is marked as "exhausted".
 
 From that point of the process, only the steps relevant for error processing are executed, the others are simply bypassed.
@@ -138,14 +138,14 @@ The steps relevant for error processing include:
 * `catchError`: takes the collection of errors as parameter to process them.
 * `catchExhaustedContext`: takes the full exhausted step context as parameter, where you can also set the `isExhausted` flag to `false` in order execute next steps.
 
-=== Operators
+== Operators
 QALIPSIS provides default operators to tweak the execution of your scenario, that do not require the addition of plugins to your classpath.
 
 Out-of-the-box QALIPSIS operators perform a variety of functions including data transformation, data filtering, data verification, altering the behavior of the data, etc. Together with user-defined operators the list of operators is infinite.
 
 Some of the commonly used operators are defined in this section.
 
-==== Timing Operators
+=== Timing Operators
 This section provides an explanation and examples  of the `delay`, `pace`, `acceleratingPace`, and `constantPace` timing operators.
 
 * `delay` adds a constant delay before executing the next step, keeping the same execution pace as previous step.
@@ -202,7 +202,7 @@ Provide an example of `map` and `mapWithContext`  and insert a graphic here
 [example]
 Provide an example of `onEach` and insert a graphic here
 
-=== Caching operators
+=== Caching Operators
 This section provides an explanation and examples of the `shelve` and `unshelve` caching operators.
 
 * `shelve` caches the provided values in a shared cache.
@@ -216,7 +216,7 @@ Provide an example of `shelve` and insert a graphic here
 [example]
 Provide an example of `unshelve` and insert a graphic here
 
-=== Utility operators
+=== Utility Operators
 This section provides an explanation and examples of the `pipe`, `blackHole`, and `stage` utility operators.
 
 * `pipe` simply forwards the input to the output.

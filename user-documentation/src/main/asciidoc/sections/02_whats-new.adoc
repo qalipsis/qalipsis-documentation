@@ -1,4 +1,4 @@
-== What's New
+= What's New
 QALIPSIS 1.0 is the initial product release.
 
 QALIPSIS 1.0 is designed with the scalability and simplicity required to perform load-tests and performance verification on both distributed and stand-alone systems
