@@ -1,0 +1,1143 @@
+= Available Plugins
+
+== Overview
+In this section, documentation is provided for currently available plugins that can be used with your QALIPSIS project.
+
+This section will be updated as more plugins are available.
+
+Note: Before using a plugin, confirm that the related dependency has been added to your project:
+
+* Gradle - Groovy DSL: 
++
+`implementation group:'io.qalipsis', name: 'plugin-XXX', version: '{revnumber}`
+
+* Gradle - Kotlin DSL: 
++ 
+`implementation("io.qalipsis:plugin-XXX:{revnumber}")`
+
+[cols="1,3"]
+|===
+
+|  *Name* 
+|  *Functionality*
+
+Nam|<<r2bc-jasync Plugin>>
+|Connects Qalipsis to MariaDB, MySQL and PostgreSQL using the R2DBC drivers from jasync-sql.
+
+
+|cassandra
+|
+
+|elasticsearch 
+|
+
+|graphite 
+|
+
+|<<influxdb Plugin>>
+|Connects Qalipsis to InfluxDB using InfluxDbClientKotlin with Flux v.2.0
+
+|jackson
+|
+
+|jms 
+|
+
+|kafka
+|
+
+|<<mongodb Plugin>>
+|Connects Qalipsis to MongoDb using the mongodb-driver-sync
+driver from org.mongodb
+
+
+|netty
+|Supports TCP, UDP, HTTP and MQTT using the non blocking Netty plugin
+
+
+
+|r2dbc 
+|
+
+|rabbitmq
+|
+
+|<<redis-lettuce Plugin>>
+|Connects Qalipsis to Redis using the Lettuce client.
+
+|===
+
+== r2bc-jasync Plugin
+
+=== Technologies Addressed
+
+* MariaDB: https://mariadb.org/
+
+* MySQL: https://www.mysql.com
+
+* PostgreSQL: https://www.postgresql.org/
+
+=== Dependency
+
+`_io.qalipsis:plugin-r2dbc-jasync_`
+
+=== Namespace in Scenario
+
+`_r2dbcJasync()_`
+
+=== Client Library
+
+`jasync-sql` is an asynchronous database driver for PostgreSQL and MySQL written in Kotlin; refer to https://github.com/jasync-sql/jasync-sql.
+
+=== Supported Steps
+
+* Poll: Polls newest data periodically.
+* Save: Saves a batch of records generated from the input and step context.
+* Search: Searches records and builds a query from the input and step context.
+
+
+==== Poll Step
+The poll step within the plugin polls the newest records from a database table, respecting a delay between each execution of a select query.
+
+* Ancestor: Scenario or Step.
+
+* Functionality:
+** The poll query is created by the scenario developer once and then used throughout the scenario as called.
+
+** The query requires at least one sorting field (known as SF in the example) to filter only the newest results so as not to fetch the same records repeatedly.
+
+** The last known value for the SF is known as the tiebreaker which filters out the values already received directly from the database.
+
+** Poll uses a strategy of “delivered at least once” that cannot avoid the records at the boundaries (with an  SF equal to the tiebreaker) from being delivered several times.
+
+* Example:
+
+[source,kotlin]
+----
+	r2dbcJasync().poll {
+		protocol(Protocol. POSTGRESQL)
+		connection {
+ 			port = 5432
+ 			username = "dbuser"
+			password = "dbpassword"
+			database = "thedatabase"
+	}
+`
+		query("""select username, "timestamp" from buildingentries where action = ? order by "timestamp"""")
+		tieBreaker("timestamp", true)
+		parameters("ENTERING")
+		pollDelay(Duration.ofSeconds(1))
+		monitoring {
+			events = false
+            meters = true
+            }
+}
+----
+
+* Notable Parameters:
++
+Note: To configure the connection, consult the documentation of jasync-sql:
+https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections].
+
+** query (required): specifies a query respecting the requirements of the target database (MariaDB, MySQL or PostgreSQL)
+
+** tieBreaker (required): repeats the first field used for sorting as well as its strict comparison: true for strict filtering (< or >) and false otherwise (⇐ or >=)
+
+** parameters (optional): binds values to the clauses of the prepared statements
+
+** pollDelay (required): specifies the delay to wait between two executions of the query
+
+* Tip:
++
+Use this step with a join operator when you need to verify the values saved by your tested system in the database.
+
+==== Save Step
+The save step within the plugin persists a batch of records into an SQL table using a prepared statement.
+
+* Ancestor: Step
+* Functionality: 
++
+The input and step context are used to generate the table, the list of columns and their values, which are combined and forwarded to the database.
+
+
+* Example:
++
+[source,kotlin]
+----
+r2dbcJasync().save {
+	protocol(Protocol. POSTGRESQL)
+	connection {
+ 		port = 5432
+ 		username = "dbuser"
+		password = "dbpassword"
+		database = "thedatabase"
+	}
+	tableName{ ctx, input -> "my_table" }
+	columns{ ctx, input -> listOf("firstname", "surname", "registration") }
+	values{ ctx, input -> list(
+                     JasyncSaveRecord("john", "doe", "265edfg2g5"),
+                     JasyncSaveRecord("alice", "foo", "3763gdw8"),
+                     JasyncSaveRecord("bob", "bar", "627twh762")
+              ) }
+
+	monitoring {
+	  events = false
+                meters = true
+            }
+}
+----
+* Notable parameters:
++
+** To configure the connection, consult the documentation of jasync-sql: https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections.
+
+** The step is extremely flexible: table, columns and values might depend on the context and input value received from the previous step
+
+
+* Tip:
++
+Use this step after a collect() step in order to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.
+
+==== Search Step
+
+The search step within the plugin searches records in the database.
+
+* Ancestor: Step
+* Functionality:
++
+The input and step context are used to generate a prepared statement and the values to complete it, the batch of results is then forwarded to the next steps
+
+
+* Example:
++
+[example]
+----
+[source,kotlin]
+----
+r2dbcJasync().search {
+	protocol(Protocol. POSTGRESQL)
+	connection {
+ 		port = 5432
+ 		username = "dbuser"
+		password = "dbpassword"
+		database = "thedatabase"
+	}
+	query { ctx, input -> """select username, "timestamp" from buildingentries where action = ? order by "timestamp"""" }
+	parameters { ctx, input -> listOf("ENTERING") }
+
+	monitoring {
+	  events = false
+                meters = true
+            }
+}
+----
+----
+
+* Notable Parameters:
+** To configure the connection, consult the documentation of jasync-sql: https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections]
+** query generates a prepared statement from the context and input
+** parameters generates a list of values to bind onto the query parameters identified by ?; the order matters.
+
+* Tip:
++
+Use this step after a collect() step in order to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.
+
+
+== influxdb Plugin
+
+=== Technologies Addressed
+** InfluxDB: https://www.influxdata.com/ 
+** Flux: https://docs.influxdata.com/flux/v0.x/  
+
+=== Dependency
+`_io.qalipsis:plugin-influxdb_`
+
+=== Namespace in Scenario
+`_influxdb()_`
+
+
+=== Client Library
+* `_influxdb-client-kotlin_` is an asynchronous database client for InfluxDb written in Kotlin
+https://github.com/influxdata/influxdb-client-java/tree/master/client-kotlin[influxdb-client-java/client-kotlin/]
+
+
+=== Supported steps
+* Poll: poll newest data periodically.
+* Save: saves a batch of records generated from the input and step context.
+* Search: searches records, building a query from the input and step context.
+
+==== Poll
+The Poll step within the plugin polls the newest records from a database table.
+
+* Ancestor
++
+Scenario or Step
+
+* Functionality
++
+** The select query is created once by the scenario developer and used throughout the scenario as called.
+
+** It requires at least one sorting field (known as SF below) to filter the newest results and not fetch the same records repeatedly.
+
+** The latest known value for the SF is known as the tiebreaker which filters out the values already received directly from the database.
+
+** Poll uses a strategy of “delivered at least once” that cannot avoid the records at the boundaries (with an  SF equal to the tiebreaker) from being delivered several time
+
+* Example
++
+[source,kotlin,linenumbers]
+----
+iinfluxdb().poll {
+            name = "poll.in"
+            connect {
+                   server("http://localhost:8080", BUCKET, ORGANIZATION)
+                   basic("user", "passpasspass")
+             }
+            query("from(bucket: \"$BUCKET\") |> range(start: 0) |> filter(fn: (r) => (r[\"tag\"] == \"IN\") |> sort([\”_time\”], desc: false")
+            pollDelay(Duration.ofSeconds(1))
+}
+----
+
+* Notable Parameters
+** To configure the connection, provide the URL, organization name, bucket, and token for this method. Token automatically can be created using your password and username.
+** query (required) specifies a query respecting the requirements of the Flux v.2.0  https://docs.influxdata.com/flux/v0.x/  
+** tieBreaker (required) repeats the first field used for sorting and comparison: <= or >= depends on the ascending or descending order
+** parameters (optional) binds values to the clauses of the prepared query
+** pollDelay (required) specifies the delay to wait between two executions of the query
+
+* Tip
++
+Use this step with a join operator when you need to verify the values saved by your tested system in the database
+
+
+==== Save
+
+The save step within the plugin Persists a batch of records into  the influxdb bucket using a specific Point class.
+
+* Ancestor
++
+Step
+
+*  Functionality
++ 
+The input and step context are used to generate the bucket, the list of Points with their measurement, tags and fields, which are all combined and forwarded to the database
+
+* Example
++
+[source,kotlin,linenumbers]
+----
+influxdb().save {
+          connect {
+                    server(
+                            url = "http://localhost:8080",
+                            bucket = "test", 
+                            org = "testtesttest"
+                            )
+                   basic(
+                             user = "user", 
+                             password  = "passpasspass"
+                             )
+          }
+          query {
+                   bucket = bucketName
+                   organization = orgName
+                   points = pointSupplier
+          }
+          monitoring {
+                   events = true
+                   meters = false
+          }
+}
+----
+
+* Notable Parameters
+
+** To configure the connection, provide the URL, organization name, bucket, and token for this method. Token automatically can be created using your password and username.
+
+** The step is extremely flexible: bucket, tags, measurement and fields might depend on the context and input value received from the previous step.
+
+
+* Tip
++
+Use this step after a collect() step in order to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.
+
+
+==== Search
+
+The search step within the plugin searches records in the database.
+
+* Ancestor
++
+Step
+
+* Functionality
++
+The input and step context are used to generate a Point and the values to complete it; the batch of results is then forwarded to the next steps.
+
+* Example
++
+[source,kotlin,linenumbers]
+
+----
+influxdb().search {
+          connect {
+                    server(
+                            url = "http://localhost:8080",
+                            bucket = "test", 
+                            org = "testtesttest"
+                            )
+                   basic(
+                             user = "user", 
+                             password  = "passpasspass"
+                             )
+          }
+          query {
+                   bucket = bucketName
+                   organization = orgName
+                   points = pointSupplier
+          }
+           parameters { ctx, input -> listOf("ENTERING") }
+          monitoring {
+                   events = true
+                   meters = false
+          }
+}
+----
+
+* Notable Parameters
++
+** To configure the connection, provide the URL, organization name, bucket, and token for this method. 
++
+Note: Token can automatically be created using your password and username.
+
+** query generates Points from the context and input.
+
+** parameters generates a list of values to bind onto the query parameters identified by ?.
+
+* Tip
+Use this step after a collect() step in order to reduce the number of queries executed onto the database and reduce the load the scenario generates on it.
+
+== mongodb Plugin
+
+=== Technology Addressed
+
+MongoDB: https://www.mongodb.com/
+
+=== Dependency
+`_io.qalipsis:plugin-mongodb_`
+
+=== Namespace in Scenario
+`_mongodb()_`
+
+=== Client Library
+mongodb-driver-sync is the synchronous Java driver:
+https://mvnrepository.com/artifact/org.mongodb/mongodb-driver-sync
+
+
+=== Supported steps
+* Poll: polls newest data periodically
+* Save: saves a batch of records generated from the input and step context
+* Search: searches records, building a query from the input and step context
+
+
+==== Poll
+The Poll step within the plugin polls the newest records from a database table, with a delay between each execution
+
+* Ancestor
++
+Step or scenario
+
+* Functionality
+** The select query is created once by the scenario developer used throughout the scenario as called.
+
+** The query requires at least one sorting field (known as SF in the example) to filter the newest results and not fetch the same records repeatedly.
+
+** The latest known value for the SF is known as the tiebreaker which  filters out the values already received directly from the database.
+
+** Poll uses a strategy of “delivered at least once” that cannot avoid the records at the boundaries (with an  SF equal to the tiebreaker) from being delivered several times.
+
+* Example
++
+[source,kotlin,linenumbers]
+----
+mongodb().poll {
+        connect { MongoClients.create("mongodb://localhost:${mongoDbPort}/?streamType=netty") 
+        }
+        search {
+            database = "the-db"
+            collection = "moves"
+            query = Document().append("action", "IN")
+            sort = linkedMapOf("timestamp" to Sorting.ASC)
+            tieBreaker = "timestamp"
+          }
+          pollDelay(Duration.ofSeconds(1))
+}
+----
+
+
+* Notable Parameters
++
+** To configure the connection, provide the port, database name  and collection name.
+** query (required) specifies a Document respecting the requirements of the target database
+** tieBreaker (required) repeats the first field used for sorting
+** parameters (optional) binds values to the clauses of the prepared statements
+** pollDelay (required) specifies the delay to wait between two executions of the query
+
+* Tip
++
+Use this step with a join operator when you need to verify the values saved by your tested system in the database
+
+
+==== Save
+
+The save step within the plugin persists a batch of records into a Mongo DB using a document.
+
+* Ancestor
++
+Step
+
+* Functionality
++
+The input and step context are used to generate the table, the list of columns and their values, which are all combined and forwarded to the database
+
+* Example
++
+[source,kotlin,linenumbers]
+----
+mongodb().save {
+    connect {
+      MongoClients.create()
+    }
+    query {
+      database = databaseName
+      collection = collectionName
+      records = recordSupplier
+    }
+	  monitoring {
+	    events = false
+      meters = true
+    }
+}
+----
+
+* Notable Parameters
+** To configure the connection, provide the port, database name  and collection name.
+** The step is extremely flexible: table, columns and values might depend on the context and input value received from the previous step
+
+* Tip
++
+Use this step after a collect() step in order to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.
+
+==== Search
+The search step within the plugin searches records in the database.
+
+* Ancestor
++
+Step
+
+* Functionality
++
+The input and step context are used to generate a document and the values to complete it; the batch of results is then forwarded to the next steps
+
+* Example
++
+[source,kotlin,linenumbers]
+----
+mongodb().search {
+	connect {
+    MongoClients.create()
+  }
+  search {
+    database = { _, _ -> "db" }
+    collection = { _, _ -> "col" }
+    query = { _, _ -> Document() }
+    sort = { _, _ -> linkedMapOf("asc" to Sorting.ASC, "desc" to Sorting.DESC) }
+  }
+  monitoring {
+	  events = false
+    meters = true
+  }
+}
+----
+
+* Notable Parameters
++
+** To configure the connection, provide the port, database name  and collection name.
+** query (required) specifies a Document respecting the requirements of the target database
+
+* Tip
++
+Use this step after a collect() step in order to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.
+
+== redis-lettuce Plugin
+
+=== Technology Addressed
+Redis: https://redis.io/
+
+=== Dependency
+`_io.qalipsis:plugin-redis-lettuce_`
+
+=== Namespace in Scenario
+`_redisLettuce()_`
+
+=== Client Library
+Lettuce is a scalable Redis client for building non-blocking Reactive application: https://lettuce.io/
+
+=== Supported steps
+* Poll: polls newest data periodically.
+* Save: saves a batch of records generated from the input and step context.
+* Consumer: consumes data from Redis streams
+* Producer: produces messages into Redis stream.
+
+==== Poll
+The Poll step within the plugin Polls the newest records from a Redis key, with a delay between each execution of polling.
+
+* Ancestor
++
+scenario or step
+
+* Functionality
++
+** The select query is created once by the scenario developer and used throughout the scenario as called.
+
+** The developer must provide the key or pattern that is going to be used in the poll and also the command, being valid values: SCAN, SSCAN, HSCAN, ZSCAN.
+
+ ** For each one of them is called the native Redis command through Lettuce using the pattern provided.
+
+* Example
++
+[source,kotlin,linenumbers]
+
+----
+.redisLettuce()
+        .pollHscan {
+          name = "poll.hscanacl"
+          connection {
+            nodes = “localhost:6379”
+            database = 0
+            authPassword = "pass"
+            authUser = "user"
+          }
+          keyOrPattern("hscan-test-acl")
+          pollDelay(Duration.ofSeconds(1))
+          monitoring {
+            events = false
+            meters = false
+          }
+        }
+----
+
+* Notable Parameters
+
+** To configure the connection, please provide the type by using either SINGLE, CLUSTER or SENTINEL. These are the types of connections supported. 
+
+** In the case of SENTINEL, the parameter masterId is necessary, see here for more information: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]
+
+** The step supports different Redis commands: SCAN, SSCAN, HSCAN, ZSCAN.
+
+** keyOrPattern (required): pattern or key that will be polled after each pollDelay.
+
+** pollDelay (required): specifies the delay to wait between two executions of the query.
+
+* Tip
++
+Use this step with a join operator when you need to verify the values saved by your tested system in the database.
+
+
+
+==== Save
+
+The save step within the plugin persists a batch of records into Redis.
+
+* Ancestor
++
+Step
+
+* Functionality
++
+The input and step context are used to generate a valid Redis command and the values to complete it; the batch of results is then forwarded to the next steps
+
+* Example
++
+
+[source,kotlin,linenumbers]
+----
+.redisLettuce().save {
+        name = "save"
+        connection {
+          nodes = “localhost:6379”
+          database = 0
+          redisConnectionType = RedisConnectionType.SINGLE
+          authPassword = "password"
+          authUser = "user"
+       }
+        records { _, _ ->
+          listOf(
+            ValueRecord(
+              key = "key",
+              value = "value"
+          ),
+          HashRecord(
+            key = "hash",
+            value = mapOf("key" to "value")
+          )
+        )
+      }
+      monitoring {
+        events = true
+        meters = true
+      }
+    }
+----
+
+* Notable Parameters
+
+** To configure the connection, please provide the type by using either SINGLE, CLUSTER or SENTINEL. These are the types of connections supported. 
+
+** In the case of SENTINEL, the parameter masterId is necessary, see here for more information: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]
+
+** Records (required): the step supports different Redis commands: SET, SADD, HSET, ZADD and the provided values might depend on the context and input value received from the previous step.
+
+* Tip
++
+Different types of commands can be inserted in the same step.
+
+==== Consumer
+
+The consumer step within the plugin records from Redis streams.
+
+* Ancestor
++
+scenario or step
+
+* Functionality
++
+The developer provides the connection, the consumer group name and the concurrency level to create a consumer group in a Redis stream key.
+
+* Example
++
+[source,kotlin,linenumbers]
+----
+.redisLettuce()
+      .streamsConsume {
+        name = "consumer"
+        connection {
+          nodes = “localhost:6379”
+          database = 0
+          redisConnectionType = RedisConnectionType.CLUSTER
+          authPassword = "password"
+          authUser = "user"
+        }
+        concurrency(5)
+        group("consumer-test-1")
+        streamKey("test")
+        offset(“FROM_BEGINNING”)
+        monitoring {
+          events = false
+          meters = false
+       }
+     }
+----
+
+* Notable Parameters
++
+** To configure the connection, please provide the type by using either SINGLE, CLUSTER or SENTINEL. These are the types of connections supported. 
+** In the case of SENTINEL, the parameter masterId is necessary, see here for more information: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]
+
+** Concurrency will configure the level of coroutines consuming the Redis streams.
+
+** Offset can be FROM_BEGINNING, LAST_CONSUMED or LATEST for each topic and consumer group
+
+==== Producer
+
+The producer step within the plugin produce records into the Redis streams.
+
+* Ancestor
++
+Step
+
+* Functionality
++
+The developer provides the connection, and a batch of records to be produced into one or more Redis streams topics. The values could be provided by previous steps.
+
+* Example
++
+
+[source,kotlin,linenumbers]
+
+----
+.redisLettuce().streamsProduce {
+        name = "producer"
+        connection {
+          nodes = “localhost:6379”
+          database = 0
+          redisConnectionType = RedisConnectionType.CLUSTER
+          authPassword = "password"
+          authUser = "user"
+       }
+        records { _, input ->
+          listOf(
+            LettuceStreamsProduceRecord(
+              key = "producer.test",
+              value = mapOf("test" to input.value.values.first())
+            )
+         )
+      }
+      monitoring {
+        events = true
+        meters = true
+      }
+    }
+----
+
+* Notable Parameters
++
+** To configure the connection, please provide the type by using either SINGLE, CLUSTER or SENTINEL. These are the types of connections supported. 
+
+** In the case of SENTINEL, the parameter masterId is necessary, see here for more information: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]
+
+** Records (required) the combination of key and values to be produce, can be used the values from previous steps.
+
+
+
+== netty Plugin
+
+=== Technologies Addressed
+
+*  HTTP/1.1: https://datatracker.ietf.org/doc/html/rfc2616
+* HTTP/2: https://datatracker.ietf.org/doc/html/rfc7540
+* MQTT: https://mqtt.org/
+* Transmission Control Protocol (TCP): https://datatracker.ietf.org/doc/html/rfc793
+* User Datagram Protocol (UDP): https://datatracker.ietf.org/doc/html/rfc768
+
+=== Dependency
+`_io.qalipsis:plugin-netty_`
+
+=== Namespace in Scenario
+`_netty()_`
+
+=== Client Library
+Netty: https://netty.io/
+
+=== Supported steps
+* HTTP WITH: executes a HTTP request reusing the HTTP connection created by precedent step
+* CLOSE HTTP: closes the HTTP connection created by a precedent step
+* MQTT Publish: to send data to a MQTT server
+* MQTT Subscribe: to consume data from a MQTT server 
+* TCP: client to exchanges data with a TCP server
+* TCP WITH: exchanges data reusing the TCP connection created by precedent step
+* CLOSE TCP: closes the TCP connection created by a precedent step
+* UDP: client to exchanges data with UDP
+
+==== HTTP
+
+The HTTP step within the plugin is a client for HTTP 1.1 and HTTP 2.0
+
+
+* Ancestor: Step or Scenario
+
+* Functionality
++
+An HTTP connection is established with the server using either a pool of connections or an individual connection for each minion. In the latter case, the connection is maintained until the latest execution for the minion was performed, including the ones from related steps HTTP WITH (see below). When the step is kept open without limit, a later step CLOSE HTTP should be executed to properly close the connections and avoid a saturation of the system.
++
+
+Be aware that the number of connections that can be concurrently maintained open depend on the configuration of your operating system. Among others, you should consider adapting the limits for file descriptors.
+
+
+* Example
++
+
+[source,kotlin,linenumbers]
+----
+netty().http {
+   request { context, input -> SimpleHttpRequest(HttpMethod.HEAD, "/head") }
+   connect {
+       url("https://my-website.com:8080/test")
+       connectTimeout = Duration.ofMinutes(1)
+       inflate()
+       charset(Charsets.ISO_8859_1)
+       maxContentLength(123)
+       followRedirections(15)
+       noDelay = false
+       keepConnectionAlive = false
+       tls {
+           disableCertificateVerification = true
+       }
+       proxy {
+           type = HttpProxyType.SOCKS5
+           address("my-proxy", 9876)
+       }
+       followRedirections(5)
+   }
+   pool {
+       size = 143
+       checkHealthBeforeUse = true
+   }
+   monitoring {
+       events = true
+       meters = true
+   }
+}.deserialize(String::class)
+
+----
+
+* Notable Parameters
+
+** request: a factory to create the request to exchange, using the step context and the input as arguments
+** connect: configures the connection to the remote endpoint
+*** version: version of the HTTP protocol to use: HTTP_1_1 or HTTP_2_0, defaults to HTTP_1_1
+*** url: the root URL, the path of the request is appended to it
+connectTimeout: limit duration to fully establish the connection, defaults to 10 seconds
+*** readTimeout: limit duration to receive a response and read it totally after a request, defaults to 10 seconds
+*** shutdownTimeout: limit duration to close a connection, defaults to 10 seconds
+*** sendBufferSize: the size of the buffer used to prepare the data to send, defaults to 1024 bytes
+*** receiveBufferSize: the size of the buffer to receive the data of the response, defaults to 1024 bytes
+*** nettChannelOptions: overwrites the options of the Netty channel, use with care
+*** noDelay: disables the Nagle Algorithm, defaults to true
+*** keepConnectionAlive: when set to true, the HTTP header Connection is set to Keep-Alive and the client connection is kept open until closeHttp() is called
+*** tls: configuration for SSL/TLS
+**** disableCertificationVerification: set it to true when the certificate on server should not be verified (for example for a self-signed certificate)
+**** protocols: supported protocols (defaults to the default ones of Netty for the related HTTP version)
+**** ciphers: supported cipher algorithms (defaults to the default ones of Netty for the related HTTP version)
+*** proxy: configuration to exchange HTTP data via a proxy, defaults to no configuration
+**** address: the host and port of the proxy
+**** type: type of the proxy to use: HTTP, SOCKS5, default to HTTP
+**** authenticate: username and optional password to authenticate to the proxy, if it supports and requires it
+*** charset: character encoding of the HTTP requests, 
+*** maxContentLength: maximal expected size of a request, in bytes, defaults to 1048576, which is the minimum allowed
+*** inflate: enables the acceptance of compressed response. Compression of the request is not supported.
+*** followRedirections: when the server returns a HTTP status 3xx (redirection) in the response, the client will resend the request to the provided location. Otherwise, the response is kept as this. The argument maxRedirections provides the maximal number of redirections to follow and defaults to 10. By default, the redirections are not followed at all. Please note that following a redirections makes the request to be sent there, exactly as it is (same method and content).
+** pool: configuration of the pool of connections (the pool is disabled by default)
+*** size: number of constants connections maintained in the pool
+*** checkHealthBeforeUse: verifies the health of the connection when polled from the pool and before it is used
+** deserialize: specifies the class to use to deserialize the body of the response
+
+
+==== HTTP WITH
+
+The HTTP WITH step within the plugin executes a HTTP request reusing the HTTP connection created by precedent step
+
+
+
+* Ancestor: Step
+
+* Functionality
++
+** The HTTP WITH step is a direct or indirect follower of an HTTP step. HTTP WITH specifies the name of the step that owns the connection, and reuses a connection from that step, as it was created (either from a pool or the connection attached to the minion).
+** HTTP WITH cannot configure the connection differently than the HTTP step.
+
+
+
+
+* Example
++
+
+[source,kotlin,linenumbers]
+----
+nnetty().httpWith("name-of-a-previous-HTTP-step") {
+   request { context, input -> SimpleHttpRequest(HttpMethod.HEAD, "/head") }
+   monitoring { all() }
+}.deserialize(String::class)
+
+----
+
+* Notable Parameters
+
+** request: a factory to create the request to exchange, using the step context and the input as arguments
+** deserialize: specifies the class to use to deserialize the body of the response
+
+
+==== CLOSE HTTP 
+
+The CLOSE HTTP step within the plugin closes the HTTP connection attached to the minion, and created by a direct or indirect ancestor step, when the tail of the minion workflow is received. It is always a best practice to use such a step when reusing a HTTP connection across several steps without pool of connection. 
+
+
+* Ancestor
++
+Step
+
+* Functionality
++
+The CLOSE HTTP step is a direct or indirect follower of an HTTP step, which keeps the connection open.  It simply forwards the input it receives to the next steps.
+
+* Example
++
+[source,kotlin,linenumbers]
+----
+netty().closeHttp("name-of-a-previous-HTTP-step")
+----
+* Notable Parameters
++
+This step only accepts the name of an HTTP step as argument. 
+
+
+==== TCP 
+
+The TCP step is a client for TCP.
+ 
+* Ancestor
++
+Step or Scenario
+
+* Functionality
++
+A TCP connection is established with the server using either a pool of connections or an individual connection for each minion. 
++
+In the latter case, the connection is maintained until the latest execution for the minion was performed, including the ones from related steps TCP WITH (see example below). 
++
+When the step is kept open without limit, a CLOSE TCP step should be executed to properly close the connections and avoid a saturation of the system.
++
+Be aware that the number of connections that can be concurrently maintained open depends on the configuration of your operating system. Consider adapting limits for file descriptors.
+
+
+* Example
++
+[source,kotlin,linenumbers]
+----
+netty().tcp {
+   request { context, input -> input.encodeToByteArray() }
+   connect {
+       address("remote-server.acme.com", 9000)
+       connectTimeout = Duration.ofMinutes(1)
+       noDelay = false
+       keepConnectionAlive = false
+       tls {
+           disableCertificateVerification = true
+       }
+       proxy {
+           type = HttpProxyType.SOCKS5
+           address("my-proxy", 9876)
+       }
+   }
+   pool {
+       size = 143
+       checkHealthBeforeUse = true
+   }
+   monitoring {
+       events = true
+       meters = true
+   }
+}
+----
+* Notable Parameters
++
+** request: a factory to create the request to exchange, using the step context and the input as arguments, the request is an array of bytes
+** connect: configures the connection to the remote endpoint
+*** address: hostname or IP address and port of the remote server
+*** connectTimeout: limit duration to fully establish the connection, defaults to 10 seconds
+*** readTimeout: limit duration to receive a response and read it totally after a request, defaults to 10 seconds
+*** shutdownTimeout: limit duration to close a connection, defaults to 10 seconds
+*** sendBufferSize: the size of the buffer used to prepare the data to send, defaults to 1024 bytes
+*** receiveBufferSize: the size of the buffer to receive the data of the response, defaults to 1024 bytes
+*** nettChannelOptions: overwrites the options of the Netty channel, use with care
+*** noDelay: disables the Nagle Algorithm, defaults to true
+*** tls: configuration for SSL/TLS
+**** disableCertificationVerification: set it to true when the certificate on server should not be verified (for example for a self-signed certificate)
+**** protocols: supported protocols (defaults to the default ones of Netty)
+**** ciphers: supported cipher algorithms (defaults to the default ones of Netty)
+*** proxy: configuration to exchange data via a proxy, defaults to no configuration
+**** address: hostname or IP address and port of the proxy server
+**** type: type of the proxy to use: SOCKS4, SOCKS5, default to SOCKS4
+**** authenticate: username and optional password to authenticate to the proxy, if it supports and requires it
+** pool: configuration of the pool of connections (the pool is disabled by default)
+*** size: number of constants connections maintained in the pool
+*** checkHealthBeforeUse: verifies the health of the connection when polled from the pool and before it is used
+
+==== TCP WITH 
+
+The TCP WITH step within the plugin sends a TCP payload reusing the connection created by a precedent step.
+
+* Ancestor
++
+Step
+
+* Functionality
++
+** The TCP WITH step should be a direct or indirect follower of a TCP  step. TCP WITH accepts the name of the step that owns the connection, and reuses a connection from that step, as it was created: either from a pool or the connection attached to the minion.
+** TCP WITH cannot configure any detail of the connection differently from the TCP step
+
+
+* Example
++
+[source,kotlin,linenumbers]
+----
+netty().tcpWith("name-of-a-previous-HTTP-step") {
+   request { context, input -> input.encodeToByteArray() }
+   monitoring { all() }
+}
+----
+* Notable Parameter
++
+request: a factory to create the request to exchange, using the step context and the input as arguments.
+
+
+==== CLOSE TCP 
+
+The CLOSE TCP step within the plugin closes the TCP connection attached to the minion, and created by a direct or indirect ancestor step, when the tail of the minion workflow is received. 
+
+It is best practice to use such a step when reusing a TCP connection across several steps without pool of connection.
+
+* Ancestor
++
+Step
+
+* Functionality
++
+** The CLOSE TCP step should be a direct or indirect follower of a HTTP step, which keeps the connection open. 
+
+
+* Example
++
+[source,kotlin,linenumbers]
+----
+netty().closeHttp("name-of-a-previous-HTTP-step")
+----
+* Notable Parameter
++
+The CLOSE TCP step only accepts the name of a HTTP step as argument.
+ 
+==== UDP 
+
+The UDP step is a client for UDP.
+
+It is best practice to use such a step when reusing a TCP connection across several steps without pool of connection.
+
+* Ancestors
++
+Step and Scenario
+
+* Functionality
++
+** The UDP step within the plugin creates a UDP Datagram packet from the request and sent to the remote endpoint, waiting for a response.  
+
+* Example
++
+[source,kotlin,linenumbers]
+----
+netty().udp {
+   request { context, input -> input.encodeToByteArray() }
+   connect {
+       address("remote-server.acme.com", 9000)
+       connectTimeout = Duration.ofMinutes(1)
+   }
+   pool {
+       size = 143
+       checkHealthBeforeUse = true
+   }
+   monitoring {
+       events = true
+       meters = true
+   }
+}
+----
+* Notable Parameters
+** request: a factory to create the request to exchange, using the step context and the input as arguments, the request is an array of bytes
+** connect: configures the connection to the remote endpoint
+*** address: hostname or IP address and port of the remote endpoint
+*** connectTimeout: limit duration to fully establish the connection, defaults to 10 seconds
+*** readTimeout: limit duration to receive a response and read it totally after a request, defaults to 10 seconds
+*** shutdownTimeout: limit duration to close a connection, defaults to 10 seconds
+*** sendBufferSize: the size of the buffer used to prepare the data to send, defaults to 1024 bytes
+*** receiveBufferSize: the size of the buffer to receive the data of the response, defaults to 1024 bytes
+*** nettChannelOptions: overwrites the options of the Netty channel, use with care
+
+
