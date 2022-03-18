@@ -1,4 +1,4 @@
-= Configuration
+= QALIPSIS Configuration
 
 == Starting QALIPSIS in Different Modes
 Two modes of QALIPSIS configuration are currently supported:
@@ -10,7 +10,7 @@ Two modes of QALIPSIS configuration are currently supported:
  . Execute QALIPSIS with the option `--prompt` or `-p`.
 as in the following example:
 +
-[source,bash]
+[source,kotlin]
 ----
 java -jar my-scenario-qalipsis.jar --prompt
 ----
@@ -19,7 +19,7 @@ java -jar my-scenario-qalipsis.jar --prompt
 === Scenario Selection
 . Execute QALIPSIS with the `--scenarios` or `-s` as in the following example:
 +
-[source,bash]
+[source,kotlin]
 ----
 java -jar my-scenario-qalipsis.jar --scenarios "my-first-scenario, ?y-*-s*n?rio"
 ----

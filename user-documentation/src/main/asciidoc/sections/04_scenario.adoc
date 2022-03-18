@@ -7,7 +7,7 @@ In order to provide maximum flexibility for configuring a scenario and the best 
 * In the configuration phase, you develop specifications for the scenario.
 * In the execution phase, you set the runtime parameters for the scenario(s) you are executing.
 
-This section focuses on scenario configuration.  Details on scenario execution are provided in <<QALIPSIS Configuration>>. 
+This section focuses on scenario configuration.  Details on scenario execution are provided in link:06_configuration.adoc[QALIPSIS Configuration]. 
 
 == Configuring a Scenario Specification
 A scenario specification is made up of several parts.
@@ -239,7 +239,7 @@ Execution of steps can fail for a variety of reasons, including, but not limited
 
 When a step execution fails, it may be retried if a retry policy has been set within the scenario configuration or the step configuration.
 
-Once all attempts are executed per the defined `retryPolicy`, the step execution context is marked as exhausted and only <<Error processing steps>> are executed.
+Once all attempts are executed per the defined `retryPolicy`, the step execution context is marked as exhausted and only link:05_steps.adoc[Error Processing Steps] are executed.
 [source,kotlin,linenumbers]
 ----
 @Scenario
