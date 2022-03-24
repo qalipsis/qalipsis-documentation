@@ -22,7 +22,7 @@ Note: Before using a plugin, confirm that the related dependency has been added 
 |  *Description*
 
 |<<cassandra Plugin,cassandra>>
-|Waiting on info
+|Cconnects Qalipsis to Cassandra using a `_datastax_` driver, the `_CqlSessionBuilder_` to build sessions, and Cassandra Query Language (CQL) for queries.
 
 |<<elasticsearch Plugin,elasticsearch>>
 |Connects Qalipsis to Elasticsearch using the REST client and a query.
@@ -34,7 +34,7 @@ Note: Before using a plugin, confirm that the related dependency has been added 
 |Connects Qalipsis to InfluxDB using InfluxDbClientKotlin with Flux v.2.0.
 
 |<<jackson Plugin,jackson>>
-|Waiting on info... 
+|Supports reading a file (JSON, XML or CSV), converting the data to an object, and pushing the object to the next step.
 
 |<<jms Plugin,jms>>
 |Connects Qalipsis to ActiveMQ using jms.
@@ -49,9 +49,6 @@ driver from org.mongodb
 |<<netty Plugin,netty>>
 |Supports TCP, UDP, HTTP and MQTT using the non blocking Netty plugin
 
-|<<r2dbc Plugin,r2dbc>>
-|Waiting on info...
-
 |<<rabbitmq Plugin,rabbitmq>>
 |Connects Qalipsis to the RabbitMQ broker.
 
@@ -64,8 +61,155 @@ driver from org.mongodb
 
 
 == cassandra Plugin
-The `cassandra` plugin ......
+The `cassandra` plugin connects Qalipsis to Cassandra using a `_datastax_` driver, the `_CqlSessionBuilder_` to build sessions, and Cassandra Query Language (CQL) for queries.
 
+Technologies Addressed::
+* Cassandra: https://cassandra.apache.org/_/index.html[Apache Cassandra]
+ * Cassandra Query Language: https://cassandra.apache.org/doc/latest/cassandra/cql/index.html[The Cassandra Query Language (CQL)]
+* Datastax Driver: https://docs.datastax.com/[DataStax Docs]
+
+Dependency::
+ `_io.qalipsis:plugin-cassandra_`
+
+Namespace in Scenario::
+ `_cassandra()_`
+
+Client Library::
+ DataStax is a modern, feature-rich and highly tunable Java client library for Apache Cassandra using Cassandra’s binary protocol and Cassandra Query Language.  Refer to https://docs.datastax.com/[DataStax Docs] for more information.
+
+Supported Steps::
+ * `_Poll_`: polls the newest data periodically.
+* `_Save_`: saves records generated from the input and step context
+* `_Search_`: searches records and builds a query from the input and step context.
+
+=== Poll Step (cassandra)
+The `_Poll_` step within the cassandra plugin polls the newest records from a database table.
+ 
+Ancestor::
+ Scenario or Step
+ 
+Functionality::
+ The select query is created by the scenario developer once for all. It requires at least one sorting field (known as SF below) to filter the newest results and not fetch the same records repeatedly.
+The latest known value for the SF is known as the tiebreaker which filters out the values already received directly from the database.
+However, we apply a strategy of “delivered at least once” and cannot avoid the records at the boundaries (having their value of SF equal to the tiebreaker) to be delivered several times.
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+ cassandra().poll {
+   connect {
+       servers = listOf("localhost:7777", "10.42.42.42:7778")
+       keyspace = "test_keyspace"
+       datacenterProfile = DriverProfile.LOCAL
+       datacenterName = "test_datacenter"
+   }
+   query("test")
+   parameters(listOf(1, "two"))
+   tieBreaker {
+       name = "name"
+       type = GenericType.STRING
+   }
+  pollDelay(Duration.ofSeconds(1))
+  monitoring {
+             meters = true
+             events = false
+   }
+   broadcast(123, Duration.ofSeconds(20))
+}
+----
+ 
+Notable Parameters::
+ * To configure the connection, provide the server host:port, keyspace - the top-level database object that controls the replication for the object it contains at each datacenter in the cluster, datacenterProfile - an execution profile to encapsulate a group of settings that can then be associated with  individual queries, datacenter name. Configuring CqlSessionBuilderwith local datacenter means usage of the token aware loading balancing.
+* `_query_` (required): defines the prepared statement to execute when polling.
+* `_tieBreaker_` (required): repeats the first column used for sorting and comparison: <= or >= depends on the ascending or descending order.
+* `_parameters_` (optional):  binds values to the clauses of the prepared query.
+* `_pollDelay_` (required) :specifies the delay to wait between two executions of the query.
+* `_monitoring_`: configures the monitoring of the poll step.
+
+Tip::
+Use this step with a left join operator to verify the values saved by your tested system in the database.
+
+=== Save Step (caassandra)
+The `_save_` step within the `_cassandra_` plugin persists records into cassandra database using the save query with Cassandra Query Language (CQL)` 
+ 
+Ancestor::
+ Step
+ 
+Functionality::
+ The input and step context are used to generate the table, rows and columns. 
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+ cassandra().save {
+  connect {
+       servers = listOf("localhost:7777", "10.42.42.42:7778")
+       keyspace = "test_keyspace"
+       datacenterProfile = DriverProfile.LOCAL
+       datacenterName = "test_datacenter"
+   }
+    tableName = tableName
+    columnsConfig = columns
+    rowsFactory = rowsFactory
+    monitoring {
+             meters = true
+             events = false
+   }
+}
+----
+ 
+Notable Parameters::
+* To configure the connection, provide the server `_host:port_`, `_keyspace_` (the top-level database object that controls the replication for the object it contains at each datacenter in the cluster, `_datacenterProfile_` (an execution profile to encapsulate a group of settings that can then be associated with  individual queries), and datacenter `_name_`. Configuring `_CqlSessionBuilder_` with a local datacenter means usage of the token aware loading balancing.
+* The step is extremely flexible: table, rows, columns might depend on the context and input value received from the previous step
+
+
+Tip::
+Use this step after a `_collect()_` step in order to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.
+
+=== Search Step (cassandra)
+The `_search_` step within the `_cassandra_` plugin searches records in the database using a search querry
+ 
+Ancestor::
+ Step
+ 
+Functionality::
+ The input and step context are used to complete the search; the list  of results is then forwarded to the next steps.
+
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+ cassandra().search {
+connect {
+       servers = listOf("localhost:7777", "10.42.42.42:7778")
+       keyspace = "test_keyspace"
+       datacenterProfile = DriverProfile.LOCAL
+       datacenterName = "test_datacenter"
+   }
+   query("test")
+   parameters(listOf(1, "two"))
+   tieBreaker {
+       name = "name"
+       type = GenericType.STRING
+   }
+  monitoring {
+             meters = true
+             events = false
+   }
+}
+----
+ 
+Notable Parameters::
+* To configure the connection, provide the server host:port, keyspace - the top-level database object that controls the replication for the object it contains at each datacenter in the cluster, datacenterProfile - an execution profile to encapsulate a group of settings that can then be associated with  individual queries, datacenter name. Configuring CqlSessionBuilder with local datacenter means usage of the token aware loading balancing.
+* `_query_` (required): defines the prepared statement to execute when searching; the query may contain ordering clauses.
+* `_parameters_`: (optional): binds values to the clauses of the prepared query.
+* `_monitoring_`: configures the monitoring of the search step.
+
+Tip::
+Use this step after a `_collect()_` step to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.
 
 == elasticsearch Plugin
 The `elasticsearch` plugin connects Qalipsis to Elasticsearch using the REST client and a query.
@@ -374,9 +518,121 @@ Tip::
 Use this step after a collect() step in order to reduce the number of queries executed onto the database and reduce the load the scenario generates on it.
 
 == jackson Plugin
-The `jackson` plugin connects or supports...
+The `jackson` plugin supports reading a file (JSON, XML or CSV), converting the data to an object, and pushing the object to the next step.
+
+Technologies Addressed::
+ jackson-databind:
+http://fasterxml.github.io/jackson-databind/javadoc/2.11/com/fasterxml/jackson/databind/json/JsonMapper.html[Class JsonMapper]
+
+Dependency::
+ `_io.qalipsis:plugin-jackson_`
+
+Namespace in Scenario::
+ `_jackson()_`
+
+Client Library::
+ To configure the mapping, refer to http://fasterxml.github.io/jackson-databind/javadoc/2.11/com/fasterxml/jackson/databind/json/JsonMapper.html[Class JsonMapper].
+
+Supported Steps::
+ * `_csvToObject_`, `_csvToMap_`: reads a CSV file, convert the data to an object (or Map).
+ * `_jsonToObject_`, `_jsonToMap_`: reads a JSON file, convert the data to an object (or Map) 
+ * `_xmlToObject_`: reads an XML file, converts the data to an object,
+
+=== CSVToMap, CSVtoObject (jackson)
+The `_CSVToMap_` and `_CVStoObject_` steps within the jackson plugin read a CSVresource (file, classpath resource, URL) and returns each item as an instance of mappingClass or Map.
+ 
+Ancestor::
+ Step
+ 
+Functionality::
+The `_CSVToMap_` and `_CVStoObject_` step Specification has a `_targetClass_` property to which the output lines should be mapped.
+The step reads a CSV file, convert the data to an object (or Map)  and push the object (or Map) to the next step.
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+ jackson().csvToMap {
+   classpath(file)
+   header {
+       escapeChar('E')
+       quoteChar('"')
+       columnSeparator(';')
+       withHeader()
+       allowComments()
+
+       column("1st value").double()
+       column("2th value").string().array(",")
+       column("3rd value").string(true)
+       column("4th value").string(true)
+   }
+}
+
+jackson().csvToObject(PojoForTest::class) {
+   classpath(file)
+}
+----
+ 
+Notable Parameters::
+ * `_classpath(path)_`: reads the data from a class path resource. The parameter path is the path to the resource, the leading slash is ignored.
+* `_file(path)_`: reads the data from from a plain file on the file system. Parameter path is the path to the file, either absolute or relative to the working directory.a class path resource.
+* `_url(url)_`: reads the data from a URL. Parameter url is the url to access to the data resource.
+* `_mapper_`: configures the JSON Mapper to deserialize the records.
+· `_pollDelay_` (required): specifies the delay between two executions of the query
+
+=== XmlToObject (jackson)
+The `_XmlToObject_` step within the `_jackson_` plugin reads a XML resource (file, classpath resource, URL) and returns each item as an instance of mappingClass.
+
+
+Ancestor::
+ Step
+ 
+Functionality::
+ The `_XmlToObject_` step pecification has a property `_targetClass_` to which the output lines should be mapped.
+The `_XmlToObject_` step reads an XML file, convert the data to an object  and pushes the object to the next step.
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+ jackson().xmlToObject(PojoForTest::class) {
+   classpath(file)
+}
+----
+ 
+Notable Parameters::
+ * `_classpath(path)_`: reads the data from a class path resource. Parameter path is the path to the resource, the leading slash is ignored.
+* `_file(path)_`: reads the data from from a plain file on the file system. The parameter `_path_` is the path to the file, either absolute or relative to the working directory.
+* `_url(url)_`: reads the data from a URL. Parameter url is the url to access to the data resource.
+
+=== JsonToMap, JsonToObject (jackson)
+The `_JsonToMap_` and `_JsonToObject_` steps within the `_jackson_` plugin read a JSON resource (file, classpath resource, URL) and returns each item as an instance of `_mappingClass_` or `_Map_`.
+ 
+Ancestor::
+ Step
+ 
+Functionality::
+ The step specification has aproperty `_targetClass_` to which the output lines should be mapped;  the step reads a JSON file, converts the data to an object (or Map) and pushes the object (or Map) to the next step.
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+ jackson().jsonToObject(PojoForTest::class) {
+   classpath(file)
+}
+jackson().jsonToMap() {
+   classpath(file)
+}
+----
+ 
+Notable Parameters::
+ * `_classpath(path)_`: reads the data from a class path resource. The parameter `_path_` is the path to the resource; the leading slash is ignored.
+* `_file(path)_`: reads the data from from a plain file on the file system. The parameter `_path_` is the path to the file, either absolute or relative to the working directory.
+* `_url(url)_`: reads the data from a URL. The parameter `_url_` is the url to access to the data resource.
 
 == jms Plugin
+
 The `jms` plugin Connects Qalipsis to ActiveMQ using jms.
 
 Technology Addressed::
@@ -405,7 +661,7 @@ Ancestor::
 Scenario or Step
  
 Functionality::
-The developer provides the connection, the consumer and the deserializer for the data
+The developer provides the connection, the consumer and the deserializer for the data.
  
 Example::
 +
@@ -508,9 +764,9 @@ The `consume` step supports multithreading (concurrent consumers) using the `con
  
 Functionality::
  * The topic name or pattern used for subscribtion. 
- * KafkaConsumer start polling loop for client
+ * KafkaConsumer start polling loop for client.
 with the certain groupId. When new records appear, consumer poll them and send to the next step. 
-* After recieving the records consumer Close the polling loop for this certain client
+* After recieving the records consumer Close the polling loop for this certain client.
 
 
 Example::
@@ -1070,9 +1326,6 @@ Notable Parameters::
 ** sendBufferSize: the size of the buffer used to prepare the data to send, defaults to 1024 bytes
 ** receiveBufferSize: the size of the buffer to receive the data of the response, defaults to 1024 bytes
 ** nettChannelOptions: overwrites the options of the Netty channel, use with care
-
-== r2dbc Plugin
-The `r2dbc` plugin connects or supports...
 
 == r2bc-jasync Plugin
 The `r2bc-jasync` plugin connects Qalipsis to MariaDB, MySQL and PostgreSQL using the R2DBC drivers from jasync-sql.
