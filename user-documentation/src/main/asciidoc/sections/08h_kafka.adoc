@@ -1,0 +1,106 @@
+== kafka Plugin
+The `kafka` plugin connects Qalipsis to the Kafka broker.
+ 
+Technology Addressed::
+ Kafka: https://kafka.apache.org/
+
+Dependency::
+ `io.qalipsis:plugin-kafka`
+
+Namespace in Scenario::
+ `kafka()`
+
+Client Library::
+ Kafka is open-source stream-processing software for collecting, processing, storing, and analyzing data. Refer to https://kafka.apache.org/[APACHE KAFKA].
+
+Supported Steps::
+* <<Consume Step (kafka),Consume>>: polls data from topics of an Apache Kafka cluster.
+* <<Produce Step (kafka),Produce>>: pushes data onto topics of a Kafka broker.
+
+=== Consume Step (kafka)
+The `consume` step within the `kafka` plugin polls data from topics of an Apache Kafka cluster and forwards the data to the next step, either in batches or individually.
+
+This step is generally used in conjunction with a left join to assert data or inject data into a workflow.
+
+The `consume` step supports multithreading (concurrent consumers) using the `concurrency` property.
+
+ Ancestor::
+ Scenario or Step.
+ 
+Functionality::
+ * The topic name or pattern used for subscribtion. 
+ * KafkaConsumer start polling loop for client.
+with the certain groupId. When new records appear, consumer poll them and send to the next step. 
+* After recieving the records consumer Close the polling loop for this certain client.
+
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+kafka().consume {
+   name = "kafka-consumer"
+   bootstrap(bootstrap)
+   topics(testProducerTopic)
+   groupId("kafka-left")
+   pollTimeout(100)
+   offsetReset(OffsetResetStrategy.EARLIEST)
+}
+----
+ 
+Notable Parameters::
+ * To configure the consumer, consult the documentation of kafka: 
+ https://kafka.apache.org/[APACHE KAFKA].
+* `bootstrap` configures the bootstrap hosts of the Kafka cluster; defaults to localhost:9092.
+* `topics` defines the list of topics to consume, exclusive with [topicsPattern].
+* `pollTimeout` defines the consumer poll timeout to wait for records; defaults to 1 second.
+* `offset` defines the strategy to apply when the consumer group is not known from the cluster; defaults to [OffsetResetStrategy.LATEST].
+* `maxPolledRecords` defines the maximum number of records returned in a unique poll batch;default value is 500.
+* `groupId` defines the consumer group.
+
+Tip::
+   Use this step with a left join to assert data or inject data into a workflow.
+
+=== Produce Step (kafka)
+The `produce` step within the `_kafka_` plugin pushes data onto topics of the Kafka broker and forwards the input to the next step.
+
+Ancestor::
+ Scenario or Step
+ 
+Functionality::
+ The input and step context are used to generate the values to complete the step. The batch of results or a single result is then forwarded to the next step.
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+kafka().produce(
+   Serdes.ByteArray().serializer(),
+   Serdes.String().serializer()
+) {
+   name = "kafka-producer"
+   bootstrap(bootstrap)
+   clientName("producer")
+   records { _, input ->
+       listOf(
+           KafkaProducerRecord(
+               topic = producerTopic,
+               value = "Produced ${input.record.value!!}"
+           )
+       )
+   }
+       monitoring {
+                   events = true
+                   meters = false
+          }
+}
+----
+ 
+Notable Parameters::
+ * To configure the producer, consult the documentation of kafka: 
+ https://kafka.apache.org/[APACHE KAFKA].
+* `bootstrap` configures the bootstrap hosts of the Kafka cluster; default is set to localhost:9092.
+* `clientName` defines the name of the client used in the kafka client
+* `properties` configures additional properties for the producer, as documented in https://kafka.apache.org/documentation/#producerconfigs[Kafka Producer Configs].
+* `records` defines the records to be published, it receives the context and the output from previous step that can be used when defining the records.
+* `monitoring` configures the monitoring of the produce step.

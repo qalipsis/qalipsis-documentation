@@ -1,0 +1,101 @@
+== jms Plugin
+
+The `jms` plugin Connects Qalipsis to ActiveMQ using jms.
+
+Technology Addressed::
+ActiveMQ: https://activemq.apache.org/components/artemis/documentation/latest/using-jms.html
+
+Dependency::
+io.qalipsis:plugin-jms
+
+Namespace in Scenario::
+ jms()
+ 
+ Client Library::
+ The Java Message Service (JMS) API provides a common way for Java programs to create, send, receive and read an enterprise messaging system's messages.
+Refer to https://docs.oracle.com/javaee/7/api/javax/jms/package-summary.html[Java Interface Summary] for more information.
+
+ 
+Supported Steps::
+* <<Consume Step (jms),Consume>>: consumes data from activeMq  queues and topics
+* <<Produce Step (jms),Produce>>: produces messages into activeMQ
+
+ 
+=== Consume Step (jms)
+The `consume` step within the `jms` plugin consumes records from ActiveMQ.
+ 
+Ancestor::
+Scenario or Step
+ 
+Functionality::
+The developer provides the connection, the consumer and the deserializer for the data.
+ 
+Example::
++
+[source,kotlin,linenumbers]
+----
+.jms()
+            .consume {
+                queues("queue-1")
+                queueConnection { ActiveMQConnectionFactory().createQueueConnection() }
+                monitoring {
+                    events = true
+                    meters = true
+                }
+                metrics {
+                    bytesCount = true
+                    recordsCount = true
+                }
+            }.deserialize(JmsJsonDeserializer(User::class))
+
+----
+ 
+Notable Parameters::
+
+* To configure a connection, provide using the java activeMq connection for either queues (QueueConnection) or topics(TopicConnection)
+
+* If the connection is a queueConnection use queues; oOtherwise use topics.
+* To deserialize a json text use JmsJsonDeserializer and provide the desired class to use in the deserialization. In the case of a deserialize just a string, use JmsStringDeserialize
+ 
+=== Produce Step (jms)
+The `_produce_` step within the jms plugin produces records in ActiveMQ using JMS.
+ 
+Ancestor::
+Step
+ 
+Functionality::
+The developer provides the connection, and a list of records to be produced into one or more JMS destinations. The values could be provided by previous steps.
+ 
+Example::
++
+[source,kotlin,linenumbers]
+----
+.jms().produce {
+                records { ctx, input ->
+                    listOf(
+                        JmsProducerRecord(
+                            destination = ActiveMQQueue().createDestination("queue-1"),
+                            messageType = JmsMessageType.TEXT,
+                            value = "hello-queue"
+                        ),
+                        JmsProducerRecord(
+                            destination = ActiveMQQueue().createDestination("queue-1"),
+                            messageType = JmsMessageType.AUTO,
+                            value = "another message".toByteArray()
+                        )
+                    )
+                }
+               connect { ActiveMQConnectionFactory().createQueueConnection() }
+                monitoring {
+                    events = true
+                    meters = true
+                }
+                metrics {
+                    bytesCount = true
+                    recordsCount = true
+                }
+----
+
+ Notable Parameters::
+* To configure the connection, provide using the java activeMq connection for either queues (QueueConnection) or topics(TopicConnection)
+* JmsMessageType possible values are: TEXT, AUTO, BYTES, OBJECT. Use AUTO if the type of the value is not known, as it will try to infer the type and produce the message

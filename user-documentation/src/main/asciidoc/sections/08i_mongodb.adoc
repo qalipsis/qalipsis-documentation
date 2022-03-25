@@ -1,0 +1,138 @@
+== mongodb Plugin
+The `mongodb` plugin connects Qalipsis to MongoDb using the mongodb-driver-sync
+driver from https://javadoc.io/doc/org.mongodb/mongodb-driver-sync/latest/index.html[mongodb.org].
+
+Technology Addressed::
+MongoDB: https://www.mongodb.com/
+
+
+
+Dependency::
+`_io.qalipsis:plugin-mongodb_`
+
+Namespace in Scenario::
+`_mongodb()_`
+
+Client Library::
+mongodb-driver-sync is the synchronous Java driver:
+https://mvnrepository.com/artifact/org.mongodb/mongodb-driver-sync
+
+
+Supported Steps::
+* <<Poll Step (mongodb),Poll>>: polls newest data periodically
+* <<Save Step (mongodb),Save>>: saves a batch of records generated from the input and step context
+* <<Search Step (mongodb),search>>: searches records, building a query from the input and step context
+
+=== Poll Step (mongodb)
+The `_poll_` step within the `_mongodb_` plugin polls the newest records from a database table, with a delay between each execution.
+
+Ancestor::
+Step or scenario
+
+Functionality::
+* The select query is created once by the scenario developer used throughout the scenario as called.
+* The query requires at least one sorting field (known as SF in the example) to filter the newest results and not fetch the same records repeatedly.
+* The latest known value for the SF is known as the tiebreaker which  filters out the values already received directly from the database.
+* Poll uses a strategy of “delivered at least once” that cannot avoid the records at the boundaries (with an  SF equal to the tiebreaker) from being delivered several times.
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+mongodb().poll {
+        connect { MongoClients.create("mongodb://localhost:${mongoDbPort}/?streamType=netty") 
+        }
+        search {
+            database = "the-db"
+            collection = "moves"
+            query = Document().append("action", "IN")
+            sort = linkedMapOf("timestamp" to Sorting.ASC)
+            tieBreaker = "timestamp"
+          }
+          pollDelay(Duration.ofSeconds(1))
+}
+----
+
+Notable Parameters::
+* To configure the connection, provide the port, database name  and collection name.
+* query (required) specifies a Document respecting the requirements of the target database
+* tieBreaker (required) repeats the first field used for sorting
+* parameters (optional) binds values to the clauses of the prepared statements
+* pollDelay (required) specifies the delay to wait between two executions of the query
+
+Tip::
+Use this step with a join operator when you need to verify the values saved by your tested system in the database
+
+
+=== Save Step (mongodb)
+The `_save_` step within the _mongodb_` plugin persists a batch of records into MongoDB using a document.
+
+Ancestor::
+Step
+
+Functionality::
+The input and step context are used to generate the table, the list of columns and their values, which are all combined and forwarded to the database
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+mongodb().save {
+    connect {
+      MongoClients.create()
+    }
+    query {
+      database = databaseName
+      collection = collectionName
+      records = recordSupplier
+    }
+	  monitoring {
+	    events = false
+      meters = true
+    }
+}
+----
+
+Notable Parameters::
+* To configure the connection, provide the port, database name  and collection name.
+* The step is extremely flexible: table, columns and values might depend on the context and input value received from the previous step
+
+Tip::
+Use this step after a collect() step in order to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.
+
+=== Search Step (mongodb)
+The `_search_` step within the `_mongodb_` plugin searches records in the database.
+
+Ancestor::
+Step
+
+Functionality::
+The input and step context are used to generate a document and the values to complete it; the batch of results is then forwarded to the next steps
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+mongodb().search {
+	connect {
+    MongoClients.create()
+  }
+  search {
+    database = { _, _ -> "db" }
+    collection = { _, _ -> "col" }
+    query = { _, _ -> Document() }
+    sort = { _, _ -> linkedMapOf("asc" to Sorting.ASC, "desc" to Sorting.DESC) }
+  }
+  monitoring {
+	  events = false
+    meters = true
+  }
+}
+----
+
+Notable Parameters::
+* To configure the connection, provide the port, database name  and collection name.
+* query (required) specifies a Document respecting the requirements of the target database
+
+Tip::
+Use this step after a collect() step in order to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.

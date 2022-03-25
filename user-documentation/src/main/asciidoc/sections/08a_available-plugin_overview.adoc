@@ -1,0 +1,65 @@
+= Available Plugins
+
+== Overview
+In this section, documentation is provided for currently available plugins that can be used with your QALIPSIS project.
+
+This section will be updated as more plugins are available.
+
+Note: Before using a plugin, confirm that the related dependency has been added to your project:
+
+* Gradle - Groovy DSL: 
++
+`implementation group:'io.qalipsis', name: 'plugin-XXX', version: '{revnumber}`
+
+* Gradle - Kotlin DSL: 
++ 
+`implementation("io.qalipsis:plugin-XXX:{revnumber}")`
+
+[cols="1,3"]
+|===
+
+|  *Name* 
+|  *Description*
+
+|<<cassandra Plugin,cassandra>>
+|Cconnects Qalipsis to Cassandra using a `_datastax_` driver, the `_CqlSessionBuilder_` to build sessions, and Cassandra Query Language (CQL) for queries.
+
+|<<elasticsearch Plugin,elasticsearch>>
+|Connects Qalipsis to Elasticsearch using the REST client and a query.
+
+|<<graphite Plugin,graphite>>
+|Waiting on info...
+
+|<<influxdb Plugin,influxdb>>
+|Connects Qalipsis to InfluxDB using InfluxDbClientKotlin with Flux v.2.0.
+
+|<<jackson Plugin,jackson>>
+|Supports reading a file (JSON, XML or CSV), converting the data to an object, and pushing the object to the next step.
+
+|<<jms Plugin,jms>>
+|Connects Qalipsis to ActiveMQ using jms.
+
+|<<kafka Plugin,kafka>>
+|Connects Qalipsis to the Kafka broker.
+
+|<<mongodb Plugin,mongodb>>
+|Connects Qalipsis to MongoDb using the mongodb-driver-sync
+driver from org.mongodb
+
+|<<netty Plugin,netty>>
+|Supports TCP, UDP, HTTP and MQTT using the non blocking Netty plugin
+
+|<<rabbitmq Plugin,rabbitmq>>
+|Connects Qalipsis to the RabbitMQ broker.
+
+|<<r2dbc-jasync Plugin,r2dbc-jasync>>
+|Connects Qalipsis to MariaDB, MySQL and PostgreSQL using the R2DBC drivers from jasync-sql.
+
+|<<redis-lettuce Plugin,reddis-lettuce>>
+|Connects Qalipsis to Redis using the Lettuce client.
+|===
+
+
+
+
+
