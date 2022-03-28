@@ -1,6 +1,5 @@
-= Available Plugins
+= Qalipsis Available Plugins
 
-== Overview
 In this section, documentation is provided for currently available plugins that can be used with your QALIPSIS project.
 
 This section will be updated as more plugins are available.
@@ -21,41 +20,40 @@ Note: Before using a plugin, confirm that the related dependency has been added 
 |  *Name* 
 |  *Description*
 
-|<<cassandra Plugin,cassandra>>
+|link:08b_cassandra.adoc[cassandra]
 |Cconnects Qalipsis to Cassandra using a `_datastax_` driver, the `_CqlSessionBuilder_` to build sessions, and Cassandra Query Language (CQL) for queries.
 
-|<<elasticsearch Plugin,elasticsearch>>
+|link:08c_elasticsearch.adoc[elasticsearch]
 |Connects Qalipsis to Elasticsearch using the REST client and a query.
 
-|<<graphite Plugin,graphite>>
+|link:08d_graphite.adoc[graphite]
 |Waiting on info...
 
-|<<influxdb Plugin,influxdb>>
+|link:08e_influxdb.adoc[influxdb]
 |Connects Qalipsis to InfluxDB using InfluxDbClientKotlin with Flux v.2.0.
 
-|<<jackson Plugin,jackson>>
+|link:08f_jackson.adoc[jackson]
 |Supports reading a file (JSON, XML or CSV), converting the data to an object, and pushing the object to the next step.
 
-|<<jms Plugin,jms>>
+|link:08g_jmd.adoc[jms]
 |Connects Qalipsis to ActiveMQ using jms.
 
-|<<kafka Plugin,kafka>>
+|link:08h_kafka.adoc[kafka]
 |Connects Qalipsis to the Kafka broker.
 
-|<<mongodb Plugin,mongodb>>
-|Connects Qalipsis to MongoDb using the mongodb-driver-sync
-driver from org.mongodb
+|link:08i_mongodb.adoc[mongodb]
+|Connects Qalipsis to MongoDb using the mongodb-driver-sync driver from org.mongodb.
 
-|<<netty Plugin,netty>>
+|link:08j_netty.adoc[netty]
 |Supports TCP, UDP, HTTP and MQTT using the non blocking Netty plugin
 
-|<<rabbitmq Plugin,rabbitmq>>
-|Connects Qalipsis to the RabbitMQ broker.
-
-|<<r2dbc-jasync Plugin,r2dbc-jasync>>
+|link:08kl_r2dbc-jasync.adoc[r2dbc-jasync]
 |Connects Qalipsis to MariaDB, MySQL and PostgreSQL using the R2DBC drivers from jasync-sql.
 
-|<<redis-lettuce Plugin,reddis-lettuce>>
+|link:08m_rabbitmq.adoc[rabbitmq]
+|Connects Qalipsis to the RabbitMQ broker.
+
+|link:08n_redis-lettuce.adoc[redis-lettuce]
 |Connects Qalipsis to Redis using the Lettuce client.
 |===
 

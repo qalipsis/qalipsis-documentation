@@ -45,7 +45,7 @@ be stored.
 Insert Workflow graphic here
 
 == Creating a Project
-. Import a QALIPSIS skeleton project from the _QALIPSIS Launch_ website:
+. Import a QALIPSIS skeleton project from the QALIPSIS Launch  website:
 [source,kotlin,linenumbers]
 +
 ----
@@ -88,24 +88,19 @@ In this section, you will create and configure a simple scenario that injects 50
 . Declare the package/directory where the scenario can be found:
 +
 `package my.example``
-
 . Import the Qalipsis annotation processor:
 +
-
 `import io.qalipsis.api.annotations.Scenario`
-
 . Declare the name for the Scenario class as _HelloWorldScenario_:
 +
-
 `class HelloWorldScenario {}`
-
 . Configure the Scenario
 +
 IMPORTANT: Due to the incremental compilation not yet fully taken into account by the QALIPSIS annotation processor, you should clear the output/build directory when you delete or rename the package or class containing a scenario method. The risk of not doing so is to have a scenario listed to be executed at runtime, which no longer exists.
 
 NOTE: You can create several methods with the `@Scenario` annotation in the same class/object.
 
-Using the _fun_ keyword, create a function that declares a new scenario named "hello-world" and configure it with a default minions count of 500:
+Using the _fun_ keyword, create a function that declares a new scenario named "hello-world" and configure it with a default minion count of 500:
 [source,kotlin,linenumbers]
 ----
 @Scenario
@@ -125,8 +120,8 @@ fun myScenario() {
 Consider the scenario as a directed graph joining the steps/actions to execute. Within the scenario, it is possible to have:
 
 * Several roots.
-* Two branches joining the same step (like a Y)
-* One step distributing to two branches (like a ⅄)
+* Two branches joining the same step (like a Y).
+* One step distributing to two branches (like a ⅄).
 
 You need to identify the branch that is to receive the load using the _(start ()_ operator.
 [source,kotlin,linenumbers]

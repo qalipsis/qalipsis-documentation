@@ -1,4 +1,4 @@
-== jackson Plugin
+= jackson Plugin
 The `jackson` plugin supports reading a file (JSON, XML or CSV), converting the data to an object, and pushing the object to the next step.
 
 Technologies Addressed::
@@ -12,14 +12,15 @@ Namespace in Scenario::
  `_jackson()_`
 
 Client Library::
- To configure the mapping, refer to http://fasterxml.github.io/jackson-databind/javadoc/2.11/com/fasterxml/jackson/databind/json/JsonMapper.html[Class JsonMapper].
+ JsonMapper: refer to http://fasterxml.github.io/jackson-databind/javadoc/2.11/com/fasterxml/jackson/databind/json/JsonMapper.html[Class JsonMapper].
 
 Supported Steps::
- * `_csvToObject_`, `_csvToMap_`: reads a CSV file, convert the data to an object (or Map).
- * `_jsonToObject_`, `_jsonToMap_`: reads a JSON file, convert the data to an object (or Map) 
- * `_xmlToObject_`: reads an XML file, converts the data to an object,
+ * link:++ CSVToMap, CSVtoObject++,[CSVToMap, CSVtoObject]
+: reads a CSV file, and converts the data to an object (or Map).
+ * link:++JsonToMap, JsonToObject"++,[JsonToMap, JsonToObject]: reads a JSON file and converts the data to an object (or Map) 
+ * <<XmlToObject,xmlToObject>>: reads an XML file, converts the data to an object,
 
-=== CSVToMap, CSVtoObject (jackson)
+== CSVToMap, CSVtoObject
 The `_CSVToMap_` and `_CVStoObject_` steps within the jackson plugin read a CSVresource (file, classpath resource, URL) and returns each item as an instance of mappingClass or Map.
  
 Ancestor::
@@ -59,11 +60,10 @@ Notable Parameters::
 * `_file(path)_`: reads the data from from a plain file on the file system. Parameter path is the path to the file, either absolute or relative to the working directory.a class path resource.
 * `_url(url)_`: reads the data from a URL. Parameter url is the url to access to the data resource.
 * `_mapper_`: configures the JSON Mapper to deserialize the records.
-· `_pollDelay_` (required): specifies the delay between two executions of the query
+· `_pollDelay_` (required): specifies the delay between two executions of the query.
 
-=== XmlToObject (jackson)
-The `_XmlToObject_` step within the `_jackson_` plugin reads a XML resource (file, classpath resource, URL) and returns each item as an instance of mappingClass.
-
+== XmlToObject
+The `_XmlToObject_` step within the `_jackson_` plugin reads an XML resource (file, classpath resource, URL) and returns each item as an instance of mappingClass.
 
 Ancestor::
  Step
@@ -86,8 +86,8 @@ Notable Parameters::
 * `_file(path)_`: reads the data from from a plain file on the file system. The parameter `_path_` is the path to the file, either absolute or relative to the working directory.
 * `_url(url)_`: reads the data from a URL. Parameter url is the url to access to the data resource.
 
-=== JsonToMap, JsonToObject (jackson)
-The `_JsonToMap_` and `_JsonToObject_` steps within the `_jackson_` plugin read a JSON resource (file, classpath resource, URL) and returns each item as an instance of `_mappingClass_` or `_Map_`.
+== JsonToMap, JsonToObject
+The `_JsonToMap_` and `_JsonToObject_` step within the `_jackson_` plugin reads a JSON resource (file, classpath resource, URL) and returns each item as an instance of `_mappingClass_` or `_Map_`.
  
 Ancestor::
  Step

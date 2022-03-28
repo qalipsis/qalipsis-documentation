@@ -34,7 +34,7 @@ val myScenario = scenario("hello-world")
 ----
 @Scenario
 fun myScenario()
- val myScenario = scenario("hello-world"){ // Scenario default parameter values
+ val myScenario = scenario("hello-world"){// Scenario default parameter values
     }
 ----
 The default parameters include:
@@ -88,12 +88,12 @@ Every scenario has a default configuration.
 
 === Number of Minions
 * Optional
-* Default to 1*
+* Default = 1
 
 Whether you want to simulate users, IoT devices or third-party systems, each simulation is identified with a unique minion.
 The more minions, the more load.
 Minions execute concurrently and through all trees.
-You can specify their default number (1000 in the following example ):
+You can specify a default `_minionsCount_` (1000 in the following example ):
 [source,kotlin,linenumbers]
 ----
 @Scenario
@@ -324,7 +324,7 @@ For convenience purpose, QALIPSIS proposes three different modes of distributing
 * Unicast/Forward Once
 * Broadcast
 
-Note: You can develop your own singleton step by creating a plugin for it; refer to <<Create your own plugin>> for details.
+Note: You can develop your own singleton step by creating a plugin for it. Details for creating your own plugins will be provided in future updates to this documentation.
 
 QALIPSIS provides all required statements out-of-the-box.
 

@@ -1,11 +1,9 @@
-== mongodb Plugin
+= mongodb Plugin
 The `mongodb` plugin connects Qalipsis to MongoDb using the mongodb-driver-sync
 driver from https://javadoc.io/doc/org.mongodb/mongodb-driver-sync/latest/index.html[mongodb.org].
 
 Technology Addressed::
 MongoDB: https://www.mongodb.com/
-
-
 
 Dependency::
 `_io.qalipsis:plugin-mongodb_`
@@ -14,16 +12,17 @@ Namespace in Scenario::
 `_mongodb()_`
 
 Client Library::
-mongodb-driver-sync is the synchronous Java driver:
-https://mvnrepository.com/artifact/org.mongodb/mongodb-driver-sync
-
+Mongodb-driver-sync:  refer to the
+https://mvnrepository.com/artifact/org.mongodb/mongodb-driver-sync[The MongoDB Synchronous Driver] documentation.
++
+Mongodb-driver-sync is the synchronous Java driver.
 
 Supported Steps::
-* <<Poll Step (mongodb),Poll>>: polls newest data periodically
-* <<Save Step (mongodb),Save>>: saves a batch of records generated from the input and step context
-* <<Search Step (mongodb),search>>: searches records, building a query from the input and step context
+* <<Poll Step,Poll>>: polls newest data periodically.
+* <<Save Step,Save>>: saves a batch of records generated from the input and step context.
+* <<Search Step,search>>: searches records, building a query from the input and step context.
 
-=== Poll Step (mongodb)
+== Poll Step
 The `_poll_` step within the `_mongodb_` plugin polls the newest records from a database table, with a delay between each execution.
 
 Ancestor::
@@ -54,24 +53,23 @@ mongodb().poll {
 ----
 
 Notable Parameters::
-* To configure the connection, provide the port, database name  and collection name.
-* query (required) specifies a Document respecting the requirements of the target database
-* tieBreaker (required) repeats the first field used for sorting
-* parameters (optional) binds values to the clauses of the prepared statements
-* pollDelay (required) specifies the delay to wait between two executions of the query
+To configure the connection, provide the port, database name  and collection name.
+* query (required) specifies a Document respecting the requirements of the target database.
+* tieBreaker (required) repeats the first field used for sorting.
+* parameters (optional) binds values to the clauses of the prepared statements.
+* pollDelay (required) specifies the delay to wait between two executions of the query.
 
 Tip::
-Use this step with a join operator when you need to verify the values saved by your tested system in the database
+Use this step with a join operator when you need to verify the values saved by your tested system in the database.
 
-
-=== Save Step (mongodb)
+== Save Step
 The `_save_` step within the _mongodb_` plugin persists a batch of records into MongoDB using a document.
 
 Ancestor::
 Step
 
 Functionality::
-The input and step context are used to generate the table, the list of columns and their values, which are all combined and forwarded to the database
+The input and step context are used to generate the table and the list of columns and their values, which are then combined and forwarded to the database.
 
 Example::
 +
@@ -94,20 +92,21 @@ mongodb().save {
 ----
 
 Notable Parameters::
-* To configure the connection, provide the port, database name  and collection name.
-* The step is extremely flexible: table, columns and values might depend on the context and input value received from the previous step
+To configure the connection, provide the port, database name  and collection name.
++
+The  `_save_` step is extremely flexible; table, columns and values may depend on the context and input value received from the previous step.
 
 Tip::
 Use this step after a collect() step in order to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.
 
-=== Search Step (mongodb)
-The `_search_` step within the `_mongodb_` plugin searches records in the database.
+== Search Step 
+The `_search_` step within the `_mongodb_` plugin searches records in the database using a search query.
 
 Ancestor::
 Step
 
 Functionality::
-The input and step context are used to generate a document and the values to complete it; the batch of results is then forwarded to the next steps
+The search step’s input and step context are used to generate a document and the values to complete it; the batch of results is then forwarded to the next step(s).
 
 Example::
 +
@@ -131,8 +130,8 @@ mongodb().search {
 ----
 
 Notable Parameters::
-* To configure the connection, provide the port, database name  and collection name.
-* query (required) specifies a Document respecting the requirements of the target database
+To configure the connection, provide the port, database name  and collection name.
+* query (required): specifies a Document respecting the requirements of the target database.
 
 Tip::
 Use this step after a collect() step in order to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.

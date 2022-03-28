@@ -51,10 +51,8 @@ class EcommercePurchase(private val retryPolicy: RetryPolicy) { // The previousl
 ----
 
 == Qualifying the Bean to Inject
-
 When several beans exist for the same type, you might want to select the one to inject.
 QALIPSIS supports named injection as in the following example:
-
 [source,kotlin]
 ----
 import jakarta.inject.Named
@@ -71,7 +69,7 @@ class EcommercePurchase(@param:Named("default") private val retryPolicy: RetryPo
 }
 ----
 
-QALIPSIS only supports name qualifiers; however, you can read more about other qualifiers in the https://docs.micronaut.io/latest/guide/index.html#qualifiers[Micronaut documentation].
+QALIPSIS only supports name qualifiers; however, you can read more about other qualifiers in the https://docs.micronaut.io/latest/guide/index.html#qualifiers[Micronaut] documentation.
  
 == Injecting a Property Value
 
@@ -96,11 +94,11 @@ class EcommercePurchase {
 
 The default value set in `orElse` is optional.
 
-More information about property sources is available at https://docs.micronaut.io/latest/guide/index.html#propertySource[Micronaut documentation].
+More information about property sources is available at https://docs.micronaut.io/latest/guide/index.html#propertySource[Micronaut] documentation.
 
 == Injecting Iterable Containers
 
-QALIPSIS supports the injection of a single instance of beans as shown above, as well as an `Iterable` or any of its subtypes - `Collection`, `List`, `Set` and their derivatives and `Optional` - also for properties.
+QALIPSIS supports the injection of a single instance of beans as shown above, as well as an `Iterable` or any of its subtypes `Collection`, `List`, `Set` and their derivatives and `Optional` - also for properties.
 
 .Injection of `Iterable` and `Optional`
 [source,kotlin]
@@ -118,7 +116,6 @@ class EcommercePurchase(private val retryPolicies: List<RetryPolicy>) {
 The sample code below includes all the supported methods of injection for beans and properties.
 
 The example is for a scenario method, but this can only be used for the constructor of a class declaring scenarios.
-
 
 [source,kotlin,linenumbers]
 ----

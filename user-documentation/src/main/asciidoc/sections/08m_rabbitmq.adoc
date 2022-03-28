@@ -1,4 +1,4 @@
-== rabbitmq Plugin
+= rabbitmq Plugin
 The `rabbitmq` plugin connects Qalipsis to the RabbitMQ broker.
 
 Technology Addressed::
@@ -11,29 +11,29 @@ Namespace in Scenario::
  rabbitmq()
 
 Client Library::
- RabbitMQ is lightweight and easy to deploy open source software for collecting, processing, storing, and analyzing data
-https://www.rabbitmq.com/
+RabbitMQ: https://www.rabbitmq.com/ 
++
+RabbitMQ is a lightweight and easy to deploy open-source software for collecting, processing, storing, and analyzing data.
 
 Supported Steps::
-* <<Consume Step (rabbitmq),Consume>>: polls data from a RabbitMQ broker
-* <<Produce Step (rabbitmq),Procuce>>: push data to a RabbitMQ broker
+* <<Consume Step,Consume>>: polls data from a RabbitMQ broker
+* <<Produce Step,Procuce>>: push data to a RabbitMQ broker
  
-=== Consume Step (rabbitmq)
-The `consume` step within the `rabbitmq` plugin consumes data from queues of the RabbitMQ broker and forwards the data to the next step. 
+== Consume Step
+The `consume` step within the `rabbitmq` plugin consumes data from queues of the RabbitMQ broker and forwards the data to the next step.
 
-This step is generally used in conjunction with `join` to assert data or inject data into a workflow. 
+This step is generally used in conjunction with `join` to assert data or inject data into a workflow.
 
-You can learn more on the https://www.rabbitmq.com/#getstarted[RabbitMQ website].
-
-The `consume` step supports multithreading concurrent consumers using  the `concurrency()` property.
-
+This step supports multithreading concurrent consumers using  the `concurrency()` property.
  
+To learn more, visit the https://www.rabbitmq.com/#getstarted[RabbitMQ] website.
+
 Ancestor::
- Step or Scenario
+Step or Scenario
  
 Functionality::
-Rabbitmq Consumer start polling loop for connection with the certain queueName. When new records appear, consumer poll them and send to the next step. After recieving the records consumer close the polling loop for connection.
- 
+The `_consume_` step starts a polling loop for connection to the designated queue.  As new records appear, `_consume_` polls them and sends them to the next step. After receiving the records, `_consume_` closes the polling loop for connection.
+
 Example::
 +
 [source,kotlin,linenumbers]
@@ -53,26 +53,23 @@ rabbitmq().
 ----
  
 Notable Parameters::
-To configure the consumer, consult the https://www.rabbitmq.com/documentation.html[rabbitMQ documentation].
- 
-* `connection` configures the connection to the rabbitMQ broker; defaults to localhost:5672.
-* `queue` defines the name of the queue to consume.
+To configure the consume step, consult the https://www.rabbitmq.com/documentation.html[rabbitMQ] documentation.
+* `connection` configures the connection to the rabbitMQ broker; defaults to `_localhost:5672_`.* `queue` defines the name of the queue to consume.
 * `concurrency` defines the number of concurrent channels producing messages to RabbitMQ; defaults to 1.
-* `prefetchCount` defines the prefetch count value, defaults to 10. 
-For more information, refer to https://www.rabbitmq.com/consumer-prefetch.html)[RabbitMQ Consumer Prefetch].
+* `prefetchCount` defines the prefetch count value; defaults to 10. 
 * `monitoring` configures the monitoring of the producer step.
 
 Tip::
 Use the `consume` step with `join`  to assert data or inject data into a workflow.
 
-=== Produce Step (rabbitmq)
-The `produce` step within the `rabbitmq` plugin provides messages to the RabbitMQ broker using a query and then forwards the messages as input to the next step.
- 
+== Produce Step 
+The `produce` step within the `rabbitmq` plugin provides messages to the RabbitMQ broker using a query; the messages are then forwarded as input to the next step.
+
 Ancestor::
 Scenario or Step
  
 Functionality::
-The input and step context are used to generate the values to complete it; results  are then forwarded to the next steps
+The `_produce_` step's input and step context are used to generate the values to complete the step; results are then forwarded to the next step(s).
 
 Example::
 +
@@ -99,8 +96,8 @@ rabbitmq().
 ----
  
 Notable Parameters::
- To configure the producer, consult the https://www.rabbitmq.com/documentation.html[rabbitMQ documentation].
-* `connection` configure the connection to the rabbitMQ broker; defaults to localhost:5672.
-* `records` generatse a list of RabbitMqProducerRecord
-* `concurrency` defines the number of concurrent channels producing messages to RabbitMQ; defaults to 1.
+ To configure the produc step, consult the https://www.rabbitmq.com/documentation.html[rabbitMQ] documentation.
+* `connection` configure the connection to the rabbitMQ broker; defaults to `_localhost:5672_`.
+* `records` generatse a list of RabbitMqProducerRecord.
+* `concurrency` defines the number of concurrent channels producing messages to RabbitMQ; defaults to `_1_`.
 * `monitoring` configures the monitoring of the `produce` step.

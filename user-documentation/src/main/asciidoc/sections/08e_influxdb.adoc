@@ -1,4 +1,4 @@
-== influxdb Plugin
+= influxdb Plugin
 The `_influxdb_` plugin connects Qalipsis to InfluxDB using InfluxDbClientKotlin with Flux v.2.0.
 
 Technologies Addressed::
@@ -12,23 +12,22 @@ Namespace in Scenario::
 `_influxdb()_`
 
 Client Library::
-`_influxdb-client-kotlin_` is an asynchronous database client for InfluxDb written in Kotlin
-https://github.com/influxdata/influxdb-client-java/tree/master/client-kotlin[influxdb-client-java/client-kotlin/]
+influxdb-client-kotlin: an asynchronous database client for InfluxDb written in Kotlin. Refer to the https://github.com/influxdata/influxdb-client-java/tree/master/client-kotlin[influxdb-client-kotlin] documentation.
 
 Supported Steps::
-* <<Poll Step (influxdb),Poll>>: polls the newest data periodically.
-* <<Save Step (influxdb),Save>>: saves a batch of records generated from the input and step context.
-* <<Search Step (influxdb),Search>>: searches records, building a query from the input and step context.
+* <<Poll Step,Poll>>: polls the newest data periodically.
+* <<Save Step,Save>>: saves a batch of records generated from the input and step context.
+* <<Search Step,Search>>: searches records, building a query from the input and step context.
 
-=== Poll Step (influxdb)
-The `_poll_` step within the `_influxdb()_` plugin polls the newest records from a database table.
+== Poll Step 
+The `_poll_` step within the `_influxdb()_` plugin polls the newest records from the database, with a delay between each execution of a select query.
 
 Ancestor::
 Scenario or Step
 
 Functionality::
-* The select query is created once by the scenario developer and used throughout the scenario as called.
-* It requires at least one sorting field (known as SF below) to filter the newest results and not fetch the same records repeatedly.
+The `_poll_` step is created only once in a scenario; it is used throughout the scenario as called.
+* The query parameter requires at least one sorting field (SF) to filter the newest results and not fetch the same records repeatedly.
 * The latest known value for the SF is known as the tiebreaker which filters out the values already received directly from the database.
 * Poll uses a strategy of “delivered at least once” that cannot avoid the records at the boundaries (with an  SF equal to the tiebreaker) from being delivered several times.
 
@@ -48,8 +47,8 @@ iinfluxdb().poll {
 ----
 
 Notable Parameters::
-* To configure the connection, provide the URL, organization name, bucket, and token for this method. The token can be automatically created using your password and username.
-* query (required) specifies a query respecting the requirements of the Flux v.2.0  https://docs.influxdata.com/flux/v0.x/  
+To configure the connection, provide the URL, organization name, bucket, and token for this method. The token can be automatically created using your password and username.
+* query (required): specifies a query respecting the requirements of the Flux v.2.0. Refer to the https://docs.influxdata.com/flux/v0.x/[Flux Documentation] for more information.  
 * tieBreaker (required) repeats the first field used for sorting and comparison: <= or >= depends on the ascending or descending order
 * parameters (optional) binds values to the clauses of the prepared query
 * pollDelay (required) specifies the delay to wait between two executions of the query
@@ -57,14 +56,14 @@ Notable Parameters::
 Tip::
 Use the poll step with a join operator to verify the values that the tested system saves to the database.
 
-=== Save Step (influxdb)
-The save step within the `_influxdb()_` plugin persists a batch of records into the influxdb bucket using a specific `_points_` class.
+== Save Step
+The `_save_` step within the `_influxdb()_` plugin persists a batch of records into the influxdb bucket using a specific `_points_` class.
 
 Ancestor::
 Step
 
 Functionality::
-The input and step context are used to generate the bucket, the list of Points with their measurement, tags and fields, which are all combined and forwarded to the database
+The input and step context are used to generate the bucket, the list of points with their measurement, and tags and fields, which are combined and forwarded to the database.
 
 Example::
 +
@@ -95,21 +94,21 @@ influxdb().save {
 ----
 
 Notable Parameters::
-* To configure the connection, provide the URL, organization name, bucket, and token for this method. Token automatically can be created using your password and username.
-* The step is extremely flexible: bucket, tags, measurement and fields might depend on the context and input value received from the previous step.
+To configure the connection, provide the URL, organization name, bucket, and token for this method. Token automatically can be created using your password and username.
++
+The step is extremely flexible: bucket, tags, measurement and fields values may depend on the context and input value received from the previous step.
 
 Tip::
 Use this step after a `_collect()_` step to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the tested system.
 
-
-=== Search Step (influxdb)
-The `_search_` step within the `_influxdb_` plugin searches the records in the database.
+== Search Step 
+The `_search_` step within the `_influxdb_` plugin searches records in the database using a search query.
 
 Ancestor::
 Step
 
 Functionality::
-The input and step context are used to generate a Point and the values to complete it; the batch of results is then forwarded to the next steps.
+The `_search_` step’s input and step context are used to generate a Point and the values to complete it; the batch of results is then forwarded to the next step(s).
 
 Example::
 +
@@ -141,7 +140,7 @@ influxdb().search {
 ----
 
 Notable Parameters::
-* To configure the connection, provide the URL, organization name, bucket, and token for this method. The token can automatically be created with your password and username.
+To configure the connection, provide the URL, organization name, bucket, and token for this method. The token can automatically be created with your password and username.
 * query: generates points from the context and input.
 * parameters: generates a list of values to bind onto the query parameters identified.
 

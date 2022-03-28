@@ -1,5 +1,5 @@
 
-== cassandra Plugin
+= cassandra Plugin
 The `cassandra` plugin connects Qalipsis to Cassandra using a `_datastax_` driver, the `_CqlSessionBuilder_` to build sessions, and Cassandra Query Language (CQL) for queries.
 
 Technologies Addressed::
@@ -14,23 +14,29 @@ Namespace in Scenario::
  `_cassandra()_`
 
 Client Library::
- DataStax is a modern, feature-rich and highly tunable Java client library for Apache Cassandra using Cassandra’s binary protocol and Cassandra Query Language.  Refer to https://docs.datastax.com/[DataStax Docs] for more information.
+DataStax: refer to the https://docs.datastax.com/[DataStax] documentation.
++
+Datastax is a modern, feature-rich and highly tunable Java client library for Apache Cassandra using Cassandra’s binary protocol and Cassandra Query Language.
 
 Supported Steps::
- * `_Poll_`: polls the newest data periodically.
-* `_Save_`: saves records generated from the input and step context
-* `_Search_`: searches records and builds a query from the input and step context.
+* <<Poll Step,Poll>>: polls the newest data periodically.
+* <<Save Step,Save>>: saves records generated from the input and step context.
+* <<Search Step,Search>>: searches records and builds a query from the input and step context.
 
-=== Poll Step (cassandra)
-The `_Poll_` step within the cassandra plugin polls the newest records from a database table.
+== Poll Step
+The `_Poll_` step within the cassandra plugin polls the newest records from the database table.
  
 Ancestor::
  Scenario or Step
  
 Functionality::
- The select query is created by the scenario developer once for all. It requires at least one sorting field (known as SF below) to filter the newest results and not fetch the same records repeatedly.
-The latest known value for the SF is known as the tiebreaker which filters out the values already received directly from the database.
-However, we apply a strategy of “delivered at least once” and cannot avoid the records at the boundaries (having their value of SF equal to the tiebreaker) to be delivered several times.
+ The poll step is created only once in a scenario; it is used throughout the scenario as called. 
++
+* The query parameter requires at least one sorting field (SF) to filter the newest results and not fetch the same records repeatedly.
++
+* The latest known value for the SF is known as the tiebreaker which filters out the values already received directly from the database; 
++
+* `_poll_` uses  strategy of “delivered at least once” that cannot avoid the records at the boundaries (with an  SF equal to the tiebreaker) from being delivered several times.
 
 Example::
 +
@@ -59,24 +65,28 @@ Example::
 ----
  
 Notable Parameters::
- * To configure the connection, provide the server host:port, keyspace - the top-level database object that controls the replication for the object it contains at each datacenter in the cluster, datacenterProfile - an execution profile to encapsulate a group of settings that can then be associated with  individual queries, datacenter name. Configuring CqlSessionBuilderwith local datacenter means usage of the token aware loading balancing.
+ * `_connect_` (required): configures the connection.
+* `_servers_` (required): specifies the hosts and ports for the connection.
+* `_keyspace_` (required): sptcifies the top-level database object that controls the replication for the object it contains at each datacenter in the cluster.
+* `_datacenterProfile_` (required): an execution profile to encapsulate a group of settings that can then be associated with  individual queries.
+* `_datacenterName_` (required): the name of the datacenter. Note that configuring CqlSessionBuilder with a local datacenter means usage of the token aware loading balancing.
 * `_query_` (required): defines the prepared statement to execute when polling.
 * `_tieBreaker_` (required): repeats the first column used for sorting and comparison: <= or >= depends on the ascending or descending order.
 * `_parameters_` (optional):  binds values to the clauses of the prepared query.
-* `_pollDelay_` (required) :specifies the delay to wait between two executions of the query.
-* `_monitoring_`: configures the monitoring of the poll step.
+* `_pollDelay_` (required) :specifies the delay between two executions of the query.
+* `_monitoring_`: specifies how the poll step is monitored.
 
 Tip::
 Use this step with a left join operator to verify the values saved by your tested system in the database.
 
-=== Save Step (caassandra)
-The `_save_` step within the `_cassandra_` plugin persists records into cassandra database using the save query with Cassandra Query Language (CQL)` 
+== Save Step 
+The `_save_` step within the `_cassandra_` plugin persists records into a cassandra database using the save query with Cassandra Query Language (CQL).
  
 Ancestor::
  Step
  
 Functionality::
- The input and step context are used to generate the table, rows and columns. 
+ The input and step context are used to generate a table and its rows and columns. 
 
 Example::
 +
@@ -100,22 +110,24 @@ Example::
 ----
  
 Notable Parameters::
-* To configure the connection, provide the server `_host:port_`, `_keyspace_` (the top-level database object that controls the replication for the object it contains at each datacenter in the cluster, `_datacenterProfile_` (an execution profile to encapsulate a group of settings that can then be associated with  individual queries), and datacenter `_name_`. Configuring `_CqlSessionBuilder_` with a local datacenter means usage of the token aware loading balancing.
-* The step is extremely flexible: table, rows, columns might depend on the context and input value received from the previous step
-
+* `_keyspace_`: the top-level database object that controls the replication for the object it contains at each datacenter in the cluster.
+* `_datacenterProfile_`: an execution profile to encapsulate a group of settings that can then be associated with  individual queries.
+ +
+ Configuring `_CqlSessionBuilder_` with a local datacenter uses the token aware load balancing.
++
+The `_save_` step is extremely flexible; table, row, and column values may depend on the context and input value received from the previous step.
 
 Tip::
 Use this step after a `_collect()_` step in order to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.
 
-=== Search Step (cassandra)
-The `_search_` step within the `_cassandra_` plugin searches records in the database using a search querry
+== Search Step
+The `_search_` step within the `_cassandra_` plugin searches records in the database using a search query.
  
 Ancestor::
  Step
  
 Functionality::
- The input and step context are used to complete the search; the list  of results is then forwarded to the next steps.
-
+ The `_search_` step’s input and step context are used to complete the search; the list of results is then forwarded to the next step(s).
 
 Example::
 +
@@ -142,7 +154,10 @@ connect {
 ----
  
 Notable Parameters::
-* To configure the connection, provide the server host:port, keyspace - the top-level database object that controls the replication for the object it contains at each datacenter in the cluster, datacenterProfile - an execution profile to encapsulate a group of settings that can then be associated with  individual queries, datacenter name. Configuring CqlSessionBuilder with local datacenter means usage of the token aware loading balancing.
+* `_keyspace_`: the top-level database object that controls the replication for the object it contains at each datacenter in the cluster.
+* `_datacenterProfile_`: an execution profile to encapsulate a group of settings that can then be associated with  individual queries.
++ 
+Configuring CqlSessionBuilder with local datacenter means usage of the token aware loading balancing.
 * `_query_` (required): defines the prepared statement to execute when searching; the query may contain ordering clauses.
 * `_parameters_`: (optional): binds values to the clauses of the prepared query.
 * `_monitoring_`: configures the monitoring of the search step.

@@ -72,8 +72,7 @@ In the example below, `Anystep` receives the output of the previous step as inpu
                 .validate{ ... }
         }
         .flatten()
-                .filterNotNull()
-        
+                .filterNotNull() 
 ----
 A graphical representation of the above example is shown below. Note that both branches run concurrently, in no defined execution order.
 [example]
@@ -104,7 +103,7 @@ The following example uses the name of a concurrent step:
 Records coming from the right side are kept in a cache until one comes from the left side with the same key. Once used, they are evicted from the cache.
 
 When a flow comes from the left side but has no corresponding record yet coming from the right, it waits until the defined timeout on the step.
-Refer to <<Configuring a Step Specification>> for more details.
+Refer to <<Defining and Configuring a Step Specification>> for more details.
 
 The step context after the join inherits from the one coming from the left. Below is the graphical representation:
 

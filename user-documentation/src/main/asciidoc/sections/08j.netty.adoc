@@ -1,4 +1,4 @@
-== netty Plugin
+= netty Plugin
 The `netty` plugin supports TCP, UDP, HTTP and MQTT using the non blocking Netty plugin.
 
 Technologies Addressed::
@@ -18,17 +18,17 @@ Client Library::
 Netty: https://netty.io/
 
 Supported Steps::
-* <<HTTP Step (netty),HTTP>>: client for HTTP 1.1 and HTTP 2.0.
-* <<HTTP WITH Step (netty),HTTP WITH>>: executes a HTTP request reusing the HTTP connection created by precedent step.
-* <<CLOSE HTTP Step (netty),CLOSE HTTP>>: closes the HTTP connection created by a precedent step.
-* <<MQTT Publish Step (netty),MQTT Publish>>: sends data to an MQTT server.
-* <<MQTT Subscribe Step (netty),MQTT Subscribe>>: consumes data from an MQTT server.
-* <<TCP Step (netty),TCP>>: client to exchanges data with a TCP server
-* <<TCP WITH Step (netty),TCP WITH>>: exchanges data reusing the TCP connection created by precedent step
-* <<CLOSE TCP Step (netty),CLOSE TCP>>: closes the TCP connection created by a precedent step
-* <<UDP Step (netty),UDP>>: client to exchanges data with UDP
+* <<HTTP Step,HTTP>>: client for HTTP 1.1 and HTTP 2.0.
+* <<HTTP WITH Step,HTTP WITH>>: executes a HTTP request reusing the HTTP connection created by precedent step.
+* <<CLOSE HTTP Step,CLOSE HTTP>>: closes the HTTP connection created by a precedent step.
+* <<MQTT Publish Step,MQTT Publish>>: sends data to an MQTT server.
+* <<MQTT Subscribe Step,MQTT Subscribe>>: consumes data from an MQTT server.
+* <<TCP Step,TCP>>: client to exchanges data with a TCP server.
+* <<TCP WITH Step,TCP WITH>>: exchanges data reusing the TCP connection created by precedent step.
+* <<CLOSE TCP Step,CLOSE TCP>>: closes the TCP connection created by a precedent step.
+* <<UDP Step,UDP>>: client to exchanges data with UDP.
 
-=== HTTP Step (netty)
+== HTTP Step
 The `_HTTP_` step within the `_netty_` plugin is a client for HTTP 1.1 and HTTP 2.0
 
 Ancestor::
@@ -39,7 +39,6 @@ Functionality::
 * In the latter case, the connection is maintained until the latest execution for the minion was performed, including the ones from related steps HTTP WITH (see below).
 * When the step is kept open without limit, a later step CLOSE HTTP should be executed to properly close the connections and avoid a saturation of the system.
 +
-
 Be aware that the number of connections that can be concurrently maintained open depend on the configuration of your operating system. Among others, you should consider adapting the limits for file descriptors.
 
 Example::
@@ -79,37 +78,37 @@ netty().http {
 ----
 
 Notable Parameters::
-* request: a factory to create the request to exchange, using the step context and the input as arguments
-* connect: configures the connection to the remote endpoint
-** version: version of the HTTP protocol to use: HTTP_1_1 or HTTP_2_0, defaults to HTTP_1_1
-** url: the root URL, the path of the request is appended to it
-connectTimeout: limit duration to fully establish the connection, defaults to 10 seconds
-** readTimeout: limit duration to receive a response and read it totally after a request, defaults to 10 seconds
-** shutdownTimeout: limit duration to close a connection, defaults to 10 seconds
-** sendBufferSize: the size of the buffer used to prepare the data to send, defaults to 1024 bytes
-** receiveBufferSize: the size of the buffer to receive the data of the response, defaults to 1024 bytes
-** nettChannelOptions: overwrites the options of the Netty channel, use with care
-** noDelay: disables the Nagle Algorithm, defaults to true
-** keepConnectionAlive: when set to true, the HTTP header Connection is set to Keep-Alive and the client connection is kept open until closeHttp() is called
+* `_request_`: a factory to create the request to exchange, using the step context and the input as arguments.
+* connect: configures the connection to the remote endpoint.
+** version: version of the HTTP protocol to use: HTTP_1_1 or HTTP_2_0,; defaults to `_HTTP_1_1_`.
+** url: the root URL, the path of the request is appended to it.
+** connectTimeout: limit duration to fully establish the connection; defaults to 10 seconds.
+** readTimeout: limit duration to receive a response and read it totally after a request; defaults to 10 seconds.
+** shutdownTimeout: limit duration to close a connection; defaults to 10 seconds.
+** sendBufferSize: the size of the buffer used to prepare the data to send; defaults to 1024 bytes.
+** receiveBufferSize: the size of the buffer to receive the data of the response; defaults to 1024 bytes.
+** nettChannelOptions: overwrites the options of the Netty channel, use with care.
+** noDelay: disables the Nagle Algorithm; defaults to true.
+** keepConnectionAlive: when set to true, the HTTP header Connection is set to Keep-Alive and the client connection is kept open until closeHttp() is called.
 ** tls: configuration for SSL/TLS
 *** disableCertificationVerification: set it to true when the certificate on server should not be verified (for example for a self-signed certificate)
-*** protocols: supported protocols (defaults to the default ones of Netty for the related HTTP version)
-*** ciphers: supported cipher algorithms (defaults to the default ones of Netty for the related HTTP version)
-** proxy: configuration to exchange HTTP data via a proxy, defaults to no configuration
-*** address: the host and port of the proxy
-*** type: type of the proxy to use: HTTP, SOCKS5, default to HTTP
-*** authenticate: username and optional password to authenticate to the proxy, if it supports and requires it
+*** protocols: supported protocols; defaults to the Netty default for the related HTTP version.
+*** ciphers: supported cipher algorithms; defaults to the Netty default for the related HTTP version.
+** proxy: configuration to exchange HTTP data via a proxy; defaults to no configuration.
+*** address: the host and port of the proxy.
+*** type: type of the proxy to use: `_HTTP_`, `_SOCKS5_`; defaults to `_HTTP_`.
+*** authenticate: username and optional password to authenticate to the proxy, if it supports and requires it.
 ** charset: character encoding of the HTTP requests, 
-** maxContentLength: maximal expected size of a request, in bytes, defaults to 1048576, which is the minimum allowed
+** maxContentLength: maximal expected size of a request, in bytes, defaults to `_1048576_`, which is the minimum allowed.
 ** inflate: enables the acceptance of compressed response. Compression of the request is not supported.
-** followRedirections: when the server returns a HTTP status 3xx (redirection) in the response, the client will resend the request to the provided location. Otherwise, the response is kept as this. The argument maxRedirections provides the maximal number of redirections to follow and defaults to 10. By default, the redirections are not followed at all. Note that following a redirections makes the request to be sent there, exactly as it is (same method and content).
-* pool: configuration of the pool of connections (the pool is disabled by default)
-** size: number of constants connections maintained in the pool
-** checkHealthBeforeUse: verifies the health of the connection when polled from the pool and before it is used
-* deserialize: specifies the class to use to deserialize the body of the response
+** followRedirections: when the server returns a HTTP status 3xx (redirection) in the response, the client will resend the request to the provided location. Otherwise, the response is kept as this. The argument maxRedirections provides the maximal number of redirections to follow; defaults to 10. By default, the redirections are not followed at all. Note that following a redirections makes the request to be sent there, exactly as it is (same method and content).
+* pool: configuration of the pool of connections; the `_pool_` is disabled by default.
+** size: number of constants connections maintained in the pool.
+** checkHealthBeforeUse: verifies the health of the connection when polled from the pool and before it is used.
+* deserialize: specifies the class to use to deserialize the body of the response.
 
-=== HTTP WITH Step (netty)
-The `_HTTP WITH_` step within the `_netty_` plugin executes an HTTP request reusing the HTTP connection created by precedent step
+== HTTP WITH Step
+The `_HTTP WITH_` step within the `_netty_` plugin executes an HTTP request reusing the HTTP connection created by the precedent step.
 
 Ancestor::
 Step
@@ -128,14 +127,13 @@ nnetty().httpWith("name-of-a-previous-HTTP-step") {
 ----
 
 Notable Parameters::
-* request: a factory to create the request to exchange, using the step context and the input as arguments
-* deserialize: specifies the class to use to deserialize the body of the response
+* request: a factory to create the request to exchange, using the step context and the input as arguments.
+* deserialize: specifies the class to use to deserialize the body of the response.
 
-
-=== CLOSE HTTP Step (netty)
+== CLOSE HTTP Step
 The `_CLOSE HTTP_` step within the `_netty_` plugin closes the HTTP connection attached to the minion, and created by a direct or indirect ancestor step, when the tail of the minion workflow is received. 
 
-It is always a best practice to use such a step when reusing a HTTP connection across several steps without a pool of connections. 
+It is always a best practice to use such a step when reusing an HTTP connection across several steps without a pool of connections. 
 
 
 Ancestor::
@@ -153,7 +151,7 @@ netty().closeHttp("name-of-a-previous-HTTP-step")
 Notable Parameters::
 This step only accepts the name of an HTTP step as argument. 
 
-=== MQTT Publish Step (netty) 
+== MQTT Publish Step 
 The `_MQTT Publish_` step within the `_netty_` plugin sends data to an MQTT server.
 
 Ancestor::
@@ -172,8 +170,8 @@ Notable Parameters::
 Tip::
 tip
 
-=== MQTT Subscribe Step (netty)
-* The `_MQTT Subscribe Step_` within the `_netty_` plugin consumes data from an MQTT.
+== MQTT Subscribe Step 
+* The `_MQTT Subscribe Step_` within the `_netty_` plugin consumes data from an MQTT server.
 
 Ancestor::
  
@@ -190,8 +188,7 @@ Notable Parameters::
  
 Tip::
 
-=== TCP Step (netty)
-
+== TCP Step 
 The `_TCP_` step within the `_netty_` plugin is a client for TCP.
  
 Ancestor::
@@ -241,25 +238,25 @@ Notable Parameters::
 *** `_address_`:hostname or IP address and port of the remote server.
 ** `_connectTimeout_`: limit duration to fully establish the connection; defaults to 10 seconds.
 ** `_readTimeout_`:limit duration to receive and read a response after a request; defaults to 10 seconds.
-** `_shutdownTimeout_`:limit duration to close a connection, defaults to 10 seconds
-** `_sendBufferSize_`: the size of the buffer used to prepare the data to send, defaults to 1024 bytes
-** `_receiveBufferSize_`: the size of the buffer to receive the data of the response, defaults to 1024 bytes
-** `_nettyChannelOptions_`: overwrites the options of the Netty channel, use with care
-** `_noDelay_`: disables the Nagle Algorithm, defaults to true
+** `_shutdownTimeout_`:limit duration to close a connection; defaults to 10 seconds.
+** `_sendBufferSize_`: the size of the buffer used to prepare the data to send; defaults to 1024 bytes.
+** `_receiveBufferSize_`: the size of the buffer to receive the data of the response; defaults to 1024 bytes.
+** `_nettyChannelOptions_`: overwrites the options of the Netty channel, use with care.
+** `_noDelay_`: disables the Nagle Algorithm; defaults to `_true_`.
 ** `_tls_`: configuration for SSL/TLS
 *** `_disableCertificationVerification_`: set to true if the certificate on the server should not be verified (for example for a self-signed certificate).
-*** protocols: supported protocols (defaults to the default ones of Netty)
-*** ciphers: supported cipher algorithms (defaults to the default ones of Netty)
-** proxy: configuration to exchange data via a proxy, defaults to no configuration
-*** address: hostname or IP address and port of the proxy server
-*** type: type of the proxy to use: SOCKS4, SOCKS5, default to SOCKS4
-*** authenticate: username and optional password to authenticate to the proxy, if it supports and requires it
-* pool: configuration of the pool of connections (the pool is disabled by default)
-** size: number of constants connections maintained in the pool
-** checkHealthBeforeUse: verifies the health of the connection when polled from the pool and before it is used
+*** `_protocols_`: supported protocols; defaults to the Netty default. 
+*** `_ciphers_`: supported cipher algorithms; defaults to the Netty default.
+** `_proxy_`: configuration to exchange data via a proxy; defaults to no configuration.
+*** `_address_`: hostname or IP address and port of the proxy server.
+*** `_type_`: type of the proxy to use: SOCKS4, SOCKS5; defaults to `_SOCKS4_`.
+*** `_authenticate_`: username and optional password to authenticate to the proxy, if the proxy supports and requires it.
+* `_pool_`: configuration of the pool of connections; defaults to disabled.
+** `_size_`: number of constants connections maintained in the pool
+** `_checkHealthBeforeUse_`: verifies the health of the connection when polled from the pool and before it is used
 
-=== TCP WITH Step (netty)
-The `_TCP WITH step_` within the `_netty_` plugin sends a TCP payload reusing the connection created by a precedent step.
+== TCP WITH Step 
+The `_TCP WITH step_` within the `_netty_` plugin sends a TCP payload, reusing the connection created by a precedent step.
 
 Ancestor::
 Step
@@ -281,7 +278,7 @@ netty().tcpWith("name-of-a-previous-HTTP-step") {
 Notable Parameter::
 request: a factory to create the request to exchange, using the step context and the input as arguments.
 
-=== CLOSE TCP Step (netty)
+== CLOSE TCP Step 
 The `_CLOSE TCP_` step within the `_netty_` plugin closes the TCP connection, attached to a minion and created by a direct or indirect ancestor step, when the tail of the minion workflow is received. 
 
 It is best practice to use a _CLOSE TCP_` step when reusing a TCP connection across several steps without a pool of connections.
@@ -303,10 +300,10 @@ netty().closeHttp("name-of-a-previous-HTTP-step")
 Notable Parameter::
 The `_CLOSE TCP_` step only accepts the name of an HTTP step as an argument.
  
-=== UDP Step (netty)
+== UDP Step 
 The `_UDP_` step within the `_netty_` plugin is a client for UDP.
 
-It is best practice to use such a step when reusing a TCP connection across several steps without pool of connection.
+It is best practice to use such a step when reusing a TCP connection across several steps without a pool of connections.
 
 Ancestors:
 Step or Scenario
@@ -339,9 +336,9 @@ Notable Parameters::
 * request: a factory to create the request to exchange, using the step context and the input as arguments, the request is an array of bytes
 * connect: configures the connection to the remote endpoint
 ** address: hostname or IP address and port of the remote endpoint
-** connectTimeout: limit duration to fully establish the connection, defaults to 10 seconds
-** readTimeout: limit duration to receive a response and read it totally after a request, defaults to 10 seconds
-** shutdownTimeout: limit duration to close a connection, defaults to 10 seconds
-** sendBufferSize: the size of the buffer used to prepare the data to send, defaults to 1024 bytes
-** receiveBufferSize: the size of the buffer to receive the data of the response, defaults to 1024 bytes
-** nettChannelOptions: overwrites the options of the Netty channel, use with care
+** connectTimeout: limit duration to fully establish the connection; defaults to 10 seconds.
+** readTimeout: limit duration to receive a response and read it totally after a request; defaults to 10 seconds.
+** shutdownTimeout: limit duration to close a connection; defaults to 10 seconds.
+** sendBufferSize: the size of the buffer used to prepare the data to send; defaults to `_1024_` bytes.
+** receiveBufferSize: the size of the buffer to receive the data of the response; defaults to `_1024_` bytes.
+** nettChannelOptions: overwrites the options of the Netty channel, use with care.
