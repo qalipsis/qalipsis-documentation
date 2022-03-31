@@ -1,5 +1,5 @@
 = rabbitmq Plugin
-The `rabbitmq` plugin connects Qalipsis to the RabbitMQ broker.
+The rabbitmq plugin connects Qalipsis to the RabbitMQ broker.
 
 Technology Addressed::
  RabbitMQ: https://www.rabbitmq.com/

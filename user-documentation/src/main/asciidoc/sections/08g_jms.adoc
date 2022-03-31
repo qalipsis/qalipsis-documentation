@@ -1,6 +1,6 @@
 = jms Plugin
 
-The `jms` plugin Connects Qalipsis to ActiveMQ using jms.
+The jms plugin Connects Qalipsis to ActiveMQ using jms.
 
 Technology Addressed::
 ActiveMQ: https://activemq.apache.org/components/artemis/documentation/latest/using-jms.html

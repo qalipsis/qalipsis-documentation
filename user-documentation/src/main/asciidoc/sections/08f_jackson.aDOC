@@ -1,5 +1,5 @@
 = jackson Plugin
-The `jackson` plugin supports reading a file (JSON, XML or CSV), converting the data to an object, and pushing the object to the next step.
+The jackson plugin supports reading a file (JSON, XML or CSV), converting the data to an object, and pushing the object to the next step.
 
 Technologies Addressed::
  jackson-databind:

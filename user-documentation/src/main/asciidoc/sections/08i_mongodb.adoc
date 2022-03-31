@@ -1,5 +1,5 @@
 = mongodb Plugin
-The `mongodb` plugin connects Qalipsis to MongoDb using the mongodb-driver-sync
+The mongodb plugin connects Qalipsis to MongoDb using the mongodb-driver-sync
 driver from https://javadoc.io/doc/org.mongodb/mongodb-driver-sync/latest/index.html[mongodb.org].
 
 Technology Addressed::

@@ -1,5 +1,5 @@
 = r2bc-jasync Plugin
-The `r2bc-jasync` plugin connects Qalipsis to MariaDB, MySQL and PostgreSQL using the R2DBC drivers from jasync-sql.
+The r2bc-jasync plugin connects Qalipsis to MariaDB, MySQL and PostgreSQL using the R2DBC drivers from jasync-sql.
 
 Technologies Addressed::
 * MariaDB: https://mariadb.org/

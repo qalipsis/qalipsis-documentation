@@ -1,5 +1,5 @@
 = netty Plugin
-The `netty` plugin supports TCP, UDP, HTTP and MQTT using the non blocking Netty plugin.
+The netty plugin supports TCP, UDP, HTTP and MQTT clients.
 
 Technologies Addressed::
 * HTTP/1.1: https://datatracker.ietf.org/doc/html/rfc2616
@@ -19,14 +19,14 @@ Netty: https://netty.io/
 
 Supported Steps::
 * <<HTTP Step,HTTP>>: client for HTTP 1.1 and HTTP 2.0.
-* <<HTTP WITH Step,HTTP WITH>>: executes a HTTP request reusing the HTTP connection created by precedent step.
+* <<HTTP WITH Step,HTTP WITH>>: executes a HTTP request reusing the HTTP connection created by a precedent step.
 * <<CLOSE HTTP Step,CLOSE HTTP>>: closes the HTTP connection created by a precedent step.
 * <<MQTT Publish Step,MQTT Publish>>: sends data to an MQTT server.
 * <<MQTT Subscribe Step,MQTT Subscribe>>: consumes data from an MQTT server.
-* <<TCP Step,TCP>>: client to exchanges data with a TCP server.
+* <<TCP Step,TCP>>: exchanges data with a TCP server.
 * <<TCP WITH Step,TCP WITH>>: exchanges data reusing the TCP connection created by precedent step.
 * <<CLOSE TCP Step,CLOSE TCP>>: closes the TCP connection created by a precedent step.
-* <<UDP Step,UDP>>: client to exchanges data with UDP.
+* <<UDP Step,UDP>>: client to exchange data with UDP.
 
 == HTTP Step
 The `_HTTP_` step within the `_netty_` plugin is a client for HTTP 1.1 and HTTP 2.0

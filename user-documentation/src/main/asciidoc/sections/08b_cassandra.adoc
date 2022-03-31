@@ -1,6 +1,6 @@
 
 = cassandra Plugin
-The `cassandra` plugin connects Qalipsis to Cassandra using a `_datastax_` driver, the `_CqlSessionBuilder_` to build sessions, and Cassandra Query Language (CQL) for queries.
+The cassandra plugin connects Qalipsis to Cassandra using a `_datastax_` driver, the `_CqlSessionBuilder_` to build sessions, and Cassandra Query Language (CQL) for queries.
 
 Technologies Addressed::
 * Cassandra: https://cassandra.apache.org/_/index.html[Apache Cassandra]
@@ -24,7 +24,7 @@ Supported Steps::
 * <<Search Step,Search>>: searches records and builds a query from the input and step context.
 
 == Poll Step
-The `_Poll_` step within the cassandra plugin polls the newest records from the database table.
+The `_Poll_` step within the `_cassandra_` plugin polls the newest records from the database table.
  
 Ancestor::
  Scenario or Step
@@ -63,9 +63,9 @@ Example::
    broadcast(123, Duration.ofSeconds(20))
 }
 ----
- 
-Notable Parameters::
- * `_connect_` (required): configures the connection.
+ Notable Parameters::
+
+* `_connect_` (required): configures the connection.
 * `_servers_` (required): specifies the hosts and ports for the connection.
 * `_keyspace_` (required): sptcifies the top-level database object that controls the replication for the object it contains at each datacenter in the cluster.
 * `_datacenterProfile_` (required): an execution profile to encapsulate a group of settings that can then be associated with  individual queries.

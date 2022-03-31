@@ -1,5 +1,5 @@
 = elasticsearch Plugin
-The `elasticsearch` plugin connects Qalipsis to Elasticsearch using the REST client and a query.
+The elasticsearch plugin connects Qalipsis to Elasticsearch using the REST client and a query.
 
 Technology Addressed::
 Elasticsearch: https://www.elastic.co/

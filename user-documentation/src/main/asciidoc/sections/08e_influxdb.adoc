@@ -1,5 +1,5 @@
 = influxdb Plugin
-The `_influxdb_` plugin connects Qalipsis to InfluxDB using InfluxDbClientKotlin with Flux v.2.0.
+The influxdb plugin connects Qalipsis to InfluxDB using InfluxDbClientKotlin with Flux v.2.0.
 
 Technologies Addressed::
 * InfluxDB: https://www.influxdata.com/ 

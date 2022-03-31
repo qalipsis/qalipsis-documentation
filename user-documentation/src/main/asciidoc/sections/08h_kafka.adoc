@@ -1,5 +1,5 @@
 = kafka Plugin
-The `kafka` plugin connects Qalipsis to the Kafka broker.
+The kafka plugin connects Qalipsis to the Kafka broker.
  
 Technology Addressed::
  Kafka: https://kafka.apache.org/

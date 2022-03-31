@@ -1,5 +1,5 @@
 = redis-lettuce Plugin
-The `redis-lettuce` plugin connects Qalipsis to Redis using the Lettuce client.
+The redis-lettuce plugin connects Qalipsis to Redis using the Lettuce client.
 
 Technology Addressed::
 _Redis: https://redis.io/_
