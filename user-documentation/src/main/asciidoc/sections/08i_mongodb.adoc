@@ -26,7 +26,7 @@ Supported Steps::
 The `_poll_` step within the `_mongodb_` plugin polls the newest records from a database table, with a delay between each execution.
 
 Ancestor::
-Step or scenario
+Scenario
 
 Functionality::
 * The select query is created once by the scenario developer used throughout the scenario as called.

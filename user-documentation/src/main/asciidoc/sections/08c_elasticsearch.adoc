@@ -27,7 +27,7 @@ The `poll` step within the `elasticsearch` plugin periodically polls data from E
 This step is generally used in conjunction with a left join to assert data or inject them in a workflow
 
 Ancestor::
-Scenario or Step
+Scenario
 
 Functionality::
 The poll step is created only once in a scenario; it is used throughout the scenario as called.

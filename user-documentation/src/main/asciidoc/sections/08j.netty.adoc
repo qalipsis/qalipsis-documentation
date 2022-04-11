@@ -32,7 +32,7 @@ Supported Steps::
 The `_HTTP_` step within the `_netty_` plugin is a client for HTTP 1.1 and HTTP 2.0
 
 Ancestor::
-Step or Scenario
+Scenario and Step
 
 Functionality::
 * An HTTP connection is established with the server using either a pool of connections or an individual connection for each minion. 
@@ -127,14 +127,13 @@ nnetty().httpWith("name-of-a-previous-HTTP-step") {
 ----
 
 Notable Parameters::
-* request: a factory to create the request to exchange, using the step context and the input as arguments.
-* deserialize: specifies the class to use to deserialize the body of the response.
+* `_request_`: a factory to create the request to exchange, using the step context and the input as arguments.
+* `_deserialize_`: specifies the class to use to deserialize the body of the response.
 
 == CLOSE HTTP Step
 The `_CLOSE HTTP_` step within the `_netty_` plugin closes the HTTP connection attached to the minion, and created by a direct or indirect ancestor step, when the tail of the minion workflow is received. 
 
-It is always a best practice to use such a step when reusing an HTTP connection across several steps without a pool of connections. 
-
+It is always a best practice to use a _CLOSE HTTP_  step when reusing an HTTP connection across several steps without a pool of connections. 
 
 Ancestor::
 Step
@@ -192,7 +191,7 @@ Tip::
 The `_TCP_` step within the `_netty_` plugin is a client for TCP.
  
 Ancestor::
-Step or Scenario
+Scenario and Step
 
 Functionality::
 A TCP connection is established with the server using either a pool of connections or an individual connection for each minion. 
@@ -306,7 +305,7 @@ The `_UDP_` step within the `_netty_` plugin is a client for UDP.
 It is best practice to use such a step when reusing a TCP connection across several steps without a pool of connections.
 
 Ancestors:
-Step or Scenario
+Scenario and Step
 
 Functionality::
 The UDP step within the plugin creates a UDP Datagram packet from the request and sent to the remote endpoint, waiting for a response.  

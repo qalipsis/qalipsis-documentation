@@ -69,7 +69,8 @@ Example::
 * `_servers_` (required): specifies the hosts and ports for the connection.
 * `_keyspace_` (required): sptcifies the top-level database object that controls the replication for the object it contains at each datacenter in the cluster.
 * `_datacenterProfile_` (required): an execution profile to encapsulate a group of settings that can then be associated with  individual queries.
-* `_datacenterName_` (required): the name of the datacenter. Note that configuring CqlSessionBuilder with a local datacenter means usage of the token aware loading balancing.
+* `_datacenterName_` (required): the name of the datacenter. Note that configuring CqlSessionBuilder with a local datacenter assumes usage of token-aware load balancing.
+
 * `_query_` (required): defines the prepared statement to execute when polling.
 * `_tieBreaker_` (required): repeats the first column used for sorting and comparison: <= or >= depends on the ascending or descending order.
 * `_parameters_` (optional):  binds values to the clauses of the prepared query.

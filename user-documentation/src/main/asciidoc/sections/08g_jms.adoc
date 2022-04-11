@@ -25,7 +25,7 @@ Supported Steps::
 The `consume` step within the `jms` plugin consumes records from ActiveMQ.
  
 Ancestor::
-Scenario or Step
+Scenario
  
 Functionality::
 The `_consume_` step polls data from the designated ActiveMQ connection, step context, and the data deserializer.

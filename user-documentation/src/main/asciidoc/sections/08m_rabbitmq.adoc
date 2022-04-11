@@ -16,8 +16,8 @@ RabbitMQ: https://www.rabbitmq.com/
 RabbitMQ is a lightweight and easy to deploy open-source software for collecting, processing, storing, and analyzing data.
 
 Supported Steps::
-* <<Consume Step,Consume>>: polls data from a RabbitMQ broker
-* <<Produce Step,Procuce>>: push data to a RabbitMQ broker
+* <<Consume Step,Consume>>: polls data from the RabbitMQ broker
+* <<Produce Step,Procuce>>: push data to the RabbitMQ broker
  
 == Consume Step
 The `consume` step within the `rabbitmq` plugin consumes data from queues of the RabbitMQ broker and forwards the data to the next step.
@@ -29,7 +29,7 @@ This step supports multithreading concurrent consumers using  the `concurrency()
 To learn more, visit the https://www.rabbitmq.com/#getstarted[RabbitMQ] website.
 
 Ancestor::
-Step or Scenario
+Scenario
  
 Functionality::
 The `_consume_` step starts a polling loop for connection to the designated queue.  As new records appear, `_consume_` polls them and sends them to the next step. After receiving the records, `_consume_` closes the polling loop for connection.
@@ -66,7 +66,7 @@ Use the `consume` step with `join`  to assert data or inject data into a workflo
 The `produce` step within the `rabbitmq` plugin provides messages to the RabbitMQ broker using a query; the messages are then forwarded as input to the next step.
 
 Ancestor::
-Scenario or Step
+Scenario
  
 Functionality::
 The `_produce_` step's input and step context are used to generate the values to complete the step; results are then forwarded to the next step(s).

@@ -23,7 +23,7 @@ Supported Steps::
 The `_poll_` step within the `_influxdb()_` plugin polls the newest records from the database, with a delay between each execution of a select query.
 
 Ancestor::
-Scenario or Step
+Scenario
 
 Functionality::
 The `_poll_` step is created only once in a scenario; it is used throughout the scenario as called.

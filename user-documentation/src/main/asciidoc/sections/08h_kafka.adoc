@@ -17,7 +17,7 @@ Kafka is open-source stream-processing software for collecting, processing, stor
 
 Supported Steps::
 * <<Consume Step,Consume>>: polls data from topics of an Apache Kafka cluster.
-* <<Produce Step,Produce>>: pushes data onto topics of a Kafka broker.
+* <<Produce Step,Produce>>: pushes data onto topics of the Kafka broker.
 
 == Consume Step
 The `consume` step within the `kafka` plugin polls data from topics of an Apache Kafka cluster and forwards the data to the next step, either in batches or individually.
@@ -27,7 +27,7 @@ This step is generally used in conjunction with a left join to assert data or in
 The `consume` step supports multithreading (concurrent consumers) using the `concurrency` property.
 
  Ancestor::
- Scenario or Step.
+ Scenario
  
 Functionality::
 The `_consume_` step starts a polling loop for the designated client, using the provided subscription topic name or pattern and groupId. When new records appear, `_consume_` polls them and sends them to the next step(s). After the records are received `_consume_` closes the polling loop for the client.
@@ -63,7 +63,7 @@ Tip::
 The `produce` step within the `_kafka_` plugin pushes data onto topics of the Kafka broker and forwards the data as input to the next step.
 
 Ancestor::
- Scenario or Step
+ Scenario
  
 Functionality::
 The `_produce_` step's input and step context are used to generate values to complete the step. The batch of results, or a single result, is then forwarded to the next step(s).

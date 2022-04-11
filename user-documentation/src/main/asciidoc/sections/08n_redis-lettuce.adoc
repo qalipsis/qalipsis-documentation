@@ -22,10 +22,10 @@ Supported steps::
 * <<Produce Step),Produce>>: produces messages into Redis streams.
 
 == Poll Step 
-The `_poll_` step within the `_redis-lettuce_` plugin polls the newest records from a Redis key, with a delay between each execution of polling.
+The poll  step within the `_redis-lettuce_` plugin polls the newest records from a Redis key, with a delay between each execution of polling.
 
 Ancestor::
-Scenario or Step
+Scenario
 
 Functionality::
 The `_poll_` step is created only once in a scenario; it is used throughout the scenario as called.
@@ -122,7 +122,7 @@ Different types of commands can be inserted in the same step.
 The `_consume_` step within the `_redis-lettuce_` plugin records data from Redis streams.
 
 Ancestor::
-Scenario or Step
+Scenario 
 
 Functionality::
 The `_consume_` step creates a consumer group in a Redis stream key with the provided connection, consumer group name, and concurrency level.
@@ -200,4 +200,4 @@ Notable Parameters::
 To configure the connection, indicate the connection type as `_SINGLE_`, `_CLUSTER_` or `_SENTINEL_`.
 +
 If the connection type is set to `_SENTINEL_`, the parameter masterId is necessary. For more information, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]. 
-* `_records_` (required): the combination of key and values to be produce, can be used the values from previous steps.
+* `_records_` (required): the combination of keys and values to be produced; the values from previous steps may be used. 

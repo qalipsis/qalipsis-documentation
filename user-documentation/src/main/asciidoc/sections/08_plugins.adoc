@@ -63,6 +63,6 @@ implementation("io.qalipsis:plugin-XXX:{revnumber}")
 ----
 
 == Available Plugins
-You can  find all  available plugins and their related documentation in the xref:08a_available plugins.adoc#Available Plugins[Available Plugins] Section of this manual. 
+You can  find all  available plugins and their related documentation in the xref:08a_available plugins.adoc[Available Plugins] section of this manual. 
 
 
