@@ -1,14 +1,14 @@
 = redis-lettuce Plugin
-The redis-lettuce plugin connects Qalipsis to Redis using the Lettuce client.
+The redis-lettuce plugin connects QALIPSIS to Redis using the Lettuce client.
 
 Technology Addressed::
 _Redis: https://redis.io/_
 
 Dependency::
-`_io.qalipsis:plugin-redis-lettuce_`
+`io.qalipsis:plugin-redis-lettuce`
 
 Namespace in Scenario::
-`_redisLettuce()_`
+`redisLettuce()`
 
 Client Library::
 Lettuce: https://lettuce.io/
@@ -22,17 +22,17 @@ Supported steps::
 * <<Produce Step),Produce>>: produces messages into Redis streams.
 
 == Poll Step 
-The poll  step within the `_redis-lettuce_` plugin polls the newest records from a Redis key, with a delay between each execution of polling.
+The poll  step within the `redis-lettuce` plugin polls the newest records from a Redis key, with a delay between each execution of polling.
 
 Ancestor::
 Scenario
 
 Functionality::
-The `_poll_` step is created only once in a scenario; it is used throughout the scenario as called.
+The `poll` step is created only once in a scenario; it is used throughout the scenario as called.
  
 * The key or pattern to be used in the poll is set to one of the following valid vaules: SCAN, SSCAN, HSCAN, ZSCAN.
 
-* The native `_redis-lettuce_`  command is called using the pattern provided.
+* The native `redis-lettuce`  command is called using the pattern provided.
 
 Example::
 +
@@ -57,9 +57,9 @@ Example::
 ----
 
 Notable Parameters::
-To configure the connection, indicate the connection type as `_SINGLE_`, `_CLUSTER_` or `_SENTINEL_`.
+To configure the connection, indicate the connection type as `SINGLE`, `CLUSTER` or `SENTINEL`.
 +
-If the connection type is set to `_SENTINEL_`, the parameter masterId is necessary. For more information, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel].
+If the connection type is set to `SENTINEL`, the parameter masterId is necessary. For more information, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel].
 +
 The step supports different Redis commands: SCAN, SSCAN, HSCAN, ZSCAN.
 * keyOrPattern (required): pattern or key that will be polled after each pollDelay.
@@ -69,7 +69,7 @@ Tip::
 Use this step with a join operator when you need to verify the values saved by your tested system in the database.
 
 == Save Step 
-The `_save_` step within the `_redis-lettuce_` plugin persists a batch of records into Redis.
+The `save` step within the `redis-lettuce` plugin persists a batch of records into Redis.
 
 Ancestor::
 Step
@@ -110,22 +110,22 @@ Example::
 ----
 
 Notable Parameters::
-* To configure the connection, indicate the connection type as `_SINGLE_`, `_CLUSTER_` or `_SENTINEL_`.
+* To configure the connection, indicate the connection type as `SINGLE`, `CLUSTER` or `SENTINEL`.
 +
-If the connection type is set to `_SENTINEL_`, the parameter masterId is necessary. For more information, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel].
+If the connection type is set to `SENTINEL`, the parameter masterId is necessary. For more information, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel].
 * Records (required): the step supports different Redis commands: SET, SADD, HSET, ZADD and the provided values might depend on the context and input value received from the previous step.
 
 Tip::
 Different types of commands can be inserted in the same step.
 
 == Consume Step
-The `_consume_` step within the `_redis-lettuce_` plugin records data from Redis streams.
+The `consume` step within the `redis-lettuce` plugin records data from Redis streams.
 
 Ancestor::
 Scenario 
 
 Functionality::
-The `_consume_` step creates a consumer group in a Redis stream key with the provided connection, consumer group name, and concurrency level.
+The `consume` step creates a consumer group in a Redis stream key with the provided connection, consumer group name, and concurrency level.
 
 Example::
 +
@@ -153,14 +153,14 @@ Example::
 ----
 
 Notable Parameters::
-To configure the connection, indicate the connection type as `_SINGLE_`, `_CLUSTER_` or `_SENTINEL_`.
+To configure the connection, indicate the connection type as `SINGLE`, `CLUSTER` or `SENTINEL`.
 +
-If the connection type is set to `_SENTINEL_`, the parameter masterId is necessary. For more information, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]. 
-* `_concurrency_`: configures the level of coroutines consuming the Redis streams.
-* `_Offset_`: sets the offset value to `_FROM_BEGINNING_`, `_LAST_CONSUMED_` or `_LATEST_` for each topic and consumer group.
+If the connection type is set to `SENTINEL`, the parameter masterId is necessary. For more information, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]. 
+* `concurrency`: configures the level of coroutines consuming the Redis streams.
+* `Offset`: sets the offset value to `FROM_BEGINNING`, `LAST_CONSUMED` or `LATEST` for each topic and consumer group.
 
 == Produce Step 
-The `_produce_` step within the `_redis-lettuce_` plugin produces records into the Redis streams.
+The `produce` step within the `redis-lettuce` plugin produces records into the Redis streams.
 
 Ancestor::
 Step
@@ -197,7 +197,7 @@ Example::
 ----
 
 Notable Parameters::
-To configure the connection, indicate the connection type as `_SINGLE_`, `_CLUSTER_` or `_SENTINEL_`.
+To configure the connection, indicate the connection type as `SINGLE`, `CLUSTER` or `SENTINEL`.
 +
-If the connection type is set to `_SENTINEL_`, the parameter masterId is necessary. For more information, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]. 
-* `_records_` (required): the combination of keys and values to be produced; the values from previous steps may be used. 
+If the connection type is set to `SENTINEL`, the parameter masterId is necessary. For more information, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]. 
+* `records` (required): the combination of keys and values to be produced; the values from previous steps may be used. 

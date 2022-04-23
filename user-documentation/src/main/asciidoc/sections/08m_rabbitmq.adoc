@@ -1,5 +1,5 @@
 = rabbitmq Plugin
-The rabbitmq plugin connects Qalipsis to the RabbitMQ broker.
+The rabbitmq plugin connects QALIPSIS to the RabbitMQ broker.
 
 Technology Addressed::
  RabbitMQ: https://www.rabbitmq.com/
@@ -32,7 +32,7 @@ Ancestor::
 Scenario
  
 Functionality::
-The `_consume_` step starts a polling loop for connection to the designated queue.  As new records appear, `_consume_` polls them and sends them to the next step. After receiving the records, `_consume_` closes the polling loop for connection.
+The `consume` step starts a polling loop for connection to the designated queue.  As new records appear, `consume` polls them and sends them to the next step. After receiving the records, `consume` closes the polling loop for connection.
 
 Example::
 +
@@ -54,7 +54,7 @@ rabbitmq().
  
 Notable Parameters::
 To configure the consume step, consult the https://www.rabbitmq.com/documentation.html[rabbitMQ] documentation.
-* `connection` configures the connection to the rabbitMQ broker; defaults to `_localhost:5672_`.* `queue` defines the name of the queue to consume.
+* `connection` configures the connection to the rabbitMQ broker; defaults to `localhost:5672`.* `queue` defines the name of the queue to consume.
 * `concurrency` defines the number of concurrent channels producing messages to RabbitMQ; defaults to 1.
 * `prefetchCount` defines the prefetch count value; defaults to 10. 
 * `monitoring` configures the monitoring of the producer step.
@@ -69,7 +69,7 @@ Ancestor::
 Scenario
  
 Functionality::
-The `_produce_` step's input and step context are used to generate the values to complete the step; results are then forwarded to the next step(s).
+The `produce` step's input and step context are used to generate the values to complete the step; results are then forwarded to the next step(s).
 
 Example::
 +
@@ -97,7 +97,7 @@ rabbitmq().
  
 Notable Parameters::
  To configure the produc step, consult the https://www.rabbitmq.com/documentation.html[rabbitMQ] documentation.
-* `connection` configure the connection to the rabbitMQ broker; defaults to `_localhost:5672_`.
+* `connection` configure the connection to the rabbitMQ broker; defaults to `localhost:5672`.
 * `records` generatse a list of RabbitMqProducerRecord.
-* `concurrency` defines the number of concurrent channels producing messages to RabbitMQ; defaults to `_1_`.
+* `concurrency` defines the number of concurrent channels producing messages to RabbitMQ; defaults to `1`.
 * `monitoring` configures the monitoring of the `produce` step.

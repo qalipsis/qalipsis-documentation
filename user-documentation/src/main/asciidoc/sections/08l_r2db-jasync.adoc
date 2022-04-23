@@ -1,5 +1,5 @@
 = r2bc-jasync Plugin
-The r2bc-jasync plugin connects Qalipsis to MariaDB, MySQL and PostgreSQL using the R2DBC drivers from jasync-sql.
+The r2bc-jasync plugin connects QALIPSIS to MariaDB, MySQL and PostgreSQL using the R2DBC drivers from jasync-sql.
 
 Technologies Addressed::
 * MariaDB: https://mariadb.org/
@@ -9,10 +9,10 @@ Technologies Addressed::
 * PostgreSQL: https://www.postgresql.org/
 
 Dependency::
-`_io.qalipsis:plugin-r2dbc-jasync_`
+`io.qalipsis:plugin-r2dbc-jasync`
 
 Namespace in Scenario::
-`_r2dbcJasync()_`
+`r2dbcJasync()`
 
 Client Library::
 Jasync-sql: https://github.com/jasync-sql/jasync-sql
@@ -25,14 +25,14 @@ Supported Steps::
 * <<Search Step,Search>>: Searches records and builds a query from the input and step context.
 
 == Poll Step 
-The `_poll_` step within the `_r2bc-jasync_` plugin polls the newest records from the database, respecting a delay between each execution of a select query.
+The `poll` step within the `r2bc-jasync` plugin polls the newest records from the database, respecting a delay between each execution of a select query.
 
 Ancestor::
 Scenario
 
 Functionality::
-The `_poll_` step is created only once in a scenario; it is used throughout the scenario as called.
-* The `_query_` parameter requires at least one sorting field (SF) to filter the newest results and not fetch the same records repeatedly.
+The `poll` step is created only once in a scenario; it is used throughout the scenario as called.
+* The `query` parameter requires at least one sorting field (SF) to filter the newest results and not fetch the same records repeatedly.
 * The last known value for the SF is known as the tiebreaker which filters out the values already received directly from the database.
 * Poll uses a strategy of “delivered at least once” that cannot avoid the records at the boundaries (with an  SF equal to the tiebreaker) from being delivered several times.
 
@@ -70,7 +70,7 @@ Tip::
 Use this step with a join operator when you need to verify the values saved by your tested system in the database.
 
 == Save Step 
-The `_save_` step within the `_r2bc-jasync_` plugin persists a batch of records into an SQL table using a prepared statement.
+The `save` step within the `r2bc-jasync` plugin persists a batch of records into an SQL table using a prepared statement.
 
 Ancestor::
 Step
@@ -99,7 +99,7 @@ r2dbcJasync().save {
               ) }
 
 	monitoring {
-	  events = false
+	  			events = false
                 meters = true
             }
 }
@@ -107,13 +107,13 @@ r2dbcJasync().save {
 Notable Parameters::
 To configure the connection, refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] within the jasync-sql documentation.
 +
-The `_save_` step is extremely flexible; table, columns and values may  depend on the context and input value received from the previous step.
+The `save` step is extremely flexible; table, columns and values may  depend on the context and input value received from the previous step.
 
 Tip::
 Use this step after a collect() step in order to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.
 
 == Search Step 
-The `_search_` step within the `_r2bc-jasync_` plugin searches records in the database using a search query.
+The `search` step within the `r2bc-jasync` plugin searches records in the database using a search query.
 
 Ancestor::
 Step

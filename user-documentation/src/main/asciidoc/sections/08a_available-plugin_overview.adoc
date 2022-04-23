@@ -1,4 +1,4 @@
-= Qalipsis Available Plugins
+= QALIPSIS Available Plugins
 
 In this section, documentation is provided for currently available plugins that can be used with your QALIPSIS project.
 
@@ -21,40 +21,40 @@ Note: Before using a plugin, confirm that the related dependency has been added 
 |  *Description*
 
 |link:08b_cassandra.adoc[cassandra]
-|Cconnects Qalipsis to Cassandra using a `_datastax_` driver, the `_CqlSessionBuilder_` to build sessions, and Cassandra Query Language (CQL) for queries.
+|Connects QALIPSIS to Apache Cassandra with a Datastax driver, using  `CqlSessionBuilder` to build sessions, and Cassandra Query Language (CQL) for queries.
 
 |link:08c_elasticsearch.adoc[elasticsearch]
-|Connects Qalipsis to Elasticsearch using the REST client and a query.
+|Connects QALIPSIS to Elasticsearch using the REST APIs.
 
 |link:08d_graphite.adoc[graphite]
 |Waiting on info...
 
 |link:08e_influxdb.adoc[influxdb]
-|Connects Qalipsis to InfluxDB using InfluxDbClientKotlin with Flux v.2.0.
+|Connects QALIPSIS to InfluxDB using InfluxDbClientKotlin with Flux v.2.0.
 
 |link:08f_jackson.adoc[jackson]
-|Supports reading a file (JSON, XML or CSV), converting the data to an object, and pushing the object to the next step.
+|Supports reading a file (JSON, XML or CSV) and deserializing the data to objects.
 
-|link:08g_jmd.adoc[jms]
-|Connects Qalipsis to ActiveMQ using jms.
+|link:08g_jms.adoc[jms]
+|Connects QALIPSIS to a messaging platform that supports https://www.jcp.org/en/jsr/detail?id=914[JMS] (for example, https://activemq.apache.org/[ActiveMQ]).
 
 |link:08h_kafka.adoc[kafka]
-|Connects Qalipsis to the Kafka broker.
+|Connects QALIPSIS to an Apache Kafka cluster.
 
 |link:08i_mongodb.adoc[mongodb]
-|Connects Qalipsis to MongoDb using the mongodb-driver-sync driver from org.mongodb.
+|Connects QALIPSIS to MongoDb using the driver from org.mongodb.
 
 |link:08j_netty.adoc[netty]
-|Supports TCP, UDP, HTTP and MQTT using the non blocking Netty plugin
+|Supports TCP, UDP, HTTP and MQTT using the non blocking Netty library.
 
 |link:08kl_r2dbc-jasync.adoc[r2dbc-jasync]
-|Connects Qalipsis to MariaDB, MySQL and PostgreSQL using the R2DBC drivers from jasync-sql.
+|Connects QALIPSIS to MariaDB, MySQL and PostgreSQL using the R2DBC drivers from jasync-sql.
 
 |link:08m_rabbitmq.adoc[rabbitmq]
-|Connects Qalipsis to the RabbitMQ broker.
+|Connects QALIPSIS to RabbitMQ.
 
 |link:08n_redis-lettuce.adoc[redis-lettuce]
-|Connects Qalipsis to Redis using the Lettuce client.
+|Connects QALIPSIS to Redis using the Lettuce client.
 |===
 
 

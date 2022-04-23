@@ -4,215 +4,317 @@
 
 In this quickstart guide, you will learn how to test a very simple echo-like HTTP service.
 
-The HTTP service to use as a tested target can be started using the docker-compose.yml file and by running the command docker compose up -d when located in its parent directory.
+
  
-NOTE: This Quickstart Guide assumes that you have a general understanding of the QALIPSIS Core Concepts and that you have Java 11 or above SDK installed on your workstation.
+Note that this Quickstart Guide assumes that:
 
+* You have a general understanding of the <<QALIPSIS Core concepts>>.
+* You have Java 11 or above SDK installed on your workstation.
 
-== What you will  Quickstart Covers
+== What You Will Learn
+This guide will walk you through steps to:
 
-== Create Your Project
+. Start an HTTP server.
+. Create a skeleton project. 
+. Execute plain HTTP queries with Qalipsis as a standalone application.
+. Assert responses from the server.
+. Reuse an HTTP connection for further calls.
+. Create a Java archive to share your scenario.
+. Visualize the events within your scenario via a log file.
 
 == Start the HTTP server
 
-== Prepare Your Scenario
+ Start the HTTP service using the docker-compose.yml file and by running the command docker compose up -d when located in its parent directory.
+## Create A project
 
-=== Open the Scenario Skeleton
+1.In your browser, open the website [https://launch.qalipsis.io](https://launch.qalipsis.io).
 
-=== Configure the Scenario Basics
+1. . How to create and configure a scenario.
+Verify the prerequisites listed on the page.
+2. Give the name "Quickstart" to your project.
+3. In the plugins menu, select `Netty`.
+4. In the assertions libraries menu, select `Kotest`.
+5. Click on "Generate": an archive is proposed for download, which contains a skeleton for the project.
 
-=== Verify the Server's Response
+## Start the HTTP server
 
-== Execute the Scenario
+Create a file `docker-compose.yml` with the following content:
 
-=== Run `_ ./gradlew run_`
+```
+version: '3.5'
+services:
+  http-punching-ball:
+    image: aerisconsulting/http-punching-ball
+    command:
+      - "--https=true"
+      - "--ssl-key=http-server.key"
+      - "--ssl-cert=http-server.crt"
+    ports:
+      - "18080:8080"
+      - "18443:8443"
 
-=== View the Capmaign and Scenario Report
+```
+Start the docker environment with the file `docker-compose.yml` with the command `docker compose up -d`.
 
-=== Create an Archive to Tranport your Scenario
+## Prepare your scenario
 
-=== Create a Log of Failure Events
+### Open the scenario skeleton
 
-== Next Steps
+Open the project archive in your IDE and edit the file file `src/main/kotlin/Quickstart.kt'.
+You should be able to see the following skeleton:
 
+```kotlin
+package quickstart
 
+import io.qalipsis.api.annotations.Scenario
 
-. Create a project:
-.. Download a QALIPSIS project skeleton.
-.. Give your project a name.
-. Set up your IDE:
-. Create a scenario:
-.. Call the Scenario function (initiates a new scenario).
-.. Assign the scenario a name.
-.. Declare the package (directory) where the scenario will
-be stored.
-.. Import the QALIPSIS annotation processor.
-. Configure the Scenario Specification.
-.. Declare the root of the tree.
-.. Declare the # of minions (Optional, default = 1).
-.. Declare the ramping strategy.
-. Add Steps to your Scenario.
-.. Configure steps depending on their function.
-.. Add step specifications as applicable.
-. Repeat steps 3-5 to create, configure, and add steps to as many scenarios that you intend to run within your project. 
-. Start QALIPSIS.  
-.. Select scenario(s) to run.
-.. Enter load factor for each scenario.
-.. Enter speed factor for each scenario.
-.. Enter minion count for each scenario.
-.. Enter ramping strategy for each scenario.
-. Monitor the results.
+class Quickstart {
 
-[example]
-Insert Workflow graphic here
-
-== Creating a Project
-. Import a QALIPSIS skeleton project from the QALIPSIS Launch  website:
-[source,kotlin,linenumbers]
-+
-----
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar 
-----
-The project skeleton includes a Gradle plugin that generates a "fat JAR" that includes all required project and scenario: 
- * Compilers and their configurations.
- * Dependencies.
-*  Plugins .
-
-. Give your project a name:
-+
-[source,kotlin,linenumbers]
-----
-
-// Replace "QALIPSIS Quickstart" with your project name.
-----
-
-== Setting Up an IDE
-NOTE: While it is possible to develop a complete scenario with a text editor, it is recommended that you use a suitable IDE such as IntelliJ or Eclipse.
-
-QALIPSIS relies on annotation processing at compile time to prepare the executable code and to list the scenarios to later execute.
-
-QALIPSIS also relies on the Micronaut IoC framework, which requires that you setup your IDE following the instructions provided in the https://docs.micronaut.io/latest/guide/index.html[Micronaut User Guide].
-
-=== IntelliJ
-Follow the instructions provided in the https://docs.micronaut.io/latest/guide/index.html#ideaSetup[IntelliJ IDEA] section of the Micronaut User Guide.
-
-=== Eclipse
-Follow the instructions provided in the https://docs.micronaut.io/latest/guide/index.html#eclipseSetup[Eclipse] section of the Micronaut User Guide.
-
-=== Visual Studio Code
-Follow the instructions provided in the https://docs.micronaut.io/latest/guide/index.html#vsCodeSetup[Visual Studio Code] section of the Micronaut User Guide.
-
-== Creating and Configuring a Scenario
-Scenarios can be created in classes, as Kotlin objects or as a Kotlin function.  The name you give the class or function does not matter; however, it is necessary to annotate the function that builds the scenario. 
-
-In this section, you will create and configure a simple scenario that injects 500 minions, 35 ms apart, to write a message on the console and then stop.
-
-. Declare the package/directory where the scenario can be found:
-+
-`package my.example``
-. Import the Qalipsis annotation processor:
-+
-`import io.qalipsis.api.annotations.Scenario`
-. Declare the name for the Scenario class as _HelloWorldScenario_:
-+
-`class HelloWorldScenario {}`
-. Configure the Scenario
-+
-IMPORTANT: Due to the incremental compilation not yet fully taken into account by the QALIPSIS annotation processor, you should clear the output/build directory when you delete or rename the package or class containing a scenario method. The risk of not doing so is to have a scenario listed to be executed at runtime, which no longer exists.
-
-NOTE: You can create several methods with the `@Scenario` annotation in the same class/object.
-
-Using the _fun_ keyword, create a function that declares a new scenario named "hello-world" and configure it with a default minion count of 500:
-[source,kotlin,linenumbers]
-----
-@Scenario
-fun myScenario() {
-    scenario("hello-world") { 
-        minionsCount = 500 
-                rampUp {
-            regular(35, 50) 
-            // Defines the strategy to inject 50 minions
-            every 35 ms until 500 minions have been injected.
+    @Scenario
+    fun quickstart() {
+        scenario("quickstart-http") {
+            minionsCount = 1
+            rampUp {
+                
+            }
         }
+        .start()
     }
 }
-----
+```
 
-== Specifying the Load Injection Point
-Consider the scenario as a directed graph joining the steps/actions to execute. Within the scenario, it is possible to have:
+### Configure the scenario basics
 
-* Several roots.
-* Two branches joining the same step (like a Y).
-* One step distributing to two branches (like a ⅄).
+Configure the scenario to execute with 10,000 minions, 100 of them starting every 500 ms.
 
-You need to identify the branch that is to receive the load using the _(start ()_ operator.
-[source,kotlin,linenumbers]
-----
-@Scenario
-fun myScenario() {
-    val myScenario = scenario("hello-world") {
-    minionsCount = 500
-        rampUp {
-            regular(35, 50)
+```kotlin
+        scenario("quickstart-http") {
+            minionsCount = 10_000
+            rampUp {
+                regular(periodMs = 500, minionsCountProLaunch = 100)
+            }
         }
-    }
- .start() // Declares the root of the tree to receive the load of all the minions at runtime.
-----
+        .start()
+```
 
-== Adding Steps to the Scenario
-You can now add steps to your scenario.
-[source,kotlin,linenumbers]
-----
-@Scenario
-fun myScenario() {
-    val myScenario = scenario("hello-world") {
-        minionsCount = 500
-        rampUp {
-            regular(35, 50)
-        }
-    }
- .start() // Declares the root of the tree to receive the load of all the minions at runtime.
- 
-    // Add steps here.
-----
-. Add a step to generate data to be used in the rest of the tree:
-[source,kotlin,linenumbers]
-+
-----
-    .returns<String> { context -> 
-        "Hello World! I'm the minion ${context.minionId}"
-    }
-----
-. Add a step to indicate where data is cached for later use:
-+
-[source,kotlin,linenumbers]
-----
-    .shelve { mapOf("started at" to System.currentTimeMillis()) } 
-    .map { str -> str!!.toUpperCase() } 
-    // Transforms the record to an Upper Case string.
-    .unshelve<String, Long>("started at") 
-    // Retrieves a value previously added to the cache.
-    .verify {// Verifies the records using your assertion library of choice, assertk in this scenario.
-        assertThat(it).all {
-            prop(Pair<String, Long?>::first).startsWith("HELLO")
-            prop(Pair<String, Long?>::second).isNotNull().isPositive()
-        }
-    }
-----
+### Send a HTTP request
 
-== Configuring the Scenario Execution
+Create a HTTP step to send a POST request to the server. After the `start()` statement that specifies the starting point
+of load injection, access to the `netty` namespace and call the `http` operator:
 
-[source,kotlin,linenumbers]
-----
-        .execute<Pair<String, Long?>, Unit> { ctx -> // Executes a totally free operation on the step context: you can do whatever you want here, such as printing the "Hello world" message in the console with the start time.
-        val input = ctx.receive()
-        println("${input.first} and finished after ${input.second!! - start} ms")
-    }
-    .configure {
-        iterate(4, Duration.ofMillis(2)) // Repeat the execution 4 times with a delay of 2 msec.
-    }
-}
-----
-You've just created your first scenario. 
+1. Give your step a name.
+2. Configure the connection to the server.
+3. Configure the HTTP request to send: HTTP method, path and body.
+4. Enable the reporting of errors for that step.
 
-Now you are ready to create scenarios that are relevant for your system.
+```kotlin
+            .start()
+            .netty()
+            .http {
+                name = "quickstart-http-post"
+                connect {
+                    url("http://localhost:18080")
+                    version = HttpVersion.HTTP_1_1
+                }
+                request { _, _ ->
+                    SimpleHttpRequest(HttpMethod.POST, "/echo").body(
+                        "Hello World!",
+                        HttpHeaderValues.TEXT_PLAIN
+                    )
+                }
+                report {
+                    reportErrors = true
+                }
+            }
+```
+
+At that point, you can execute your scenario using Gradle: `./gradlew run`.
+You can observe the requests logged by the HTTP server. But is that enough to verify it is working?
+
+### Assert the response: content and performance
+
+In order to verify that the server is returning what we expect, let's ass a verification step to the scenario, just after the http step.
+
+We are verifying that:
+
+* the HTTP status of the response is OK (we are using `io.netty.handler.codec.http.HttpResponseStatus`)
+* the body contains the string we sent in the request
+
+```kotlin
+            .start()
+            .netty()
+            .http {
+               // ...
+            }
+            .verify { result ->
+                assertSoftly {
+                    result.asClue {
+                        it.response shouldNotBe null
+                        it.response!!.asClue { response ->
+                            response.status shouldBe HttpResponseStatus.OK
+                            response.body shouldContainOnlyOnce "Hello World!"
+                            response.body shouldContainOnlyOnce "POST"
+                        }
+                        it.meters.asClue { meters ->
+                            meters.timeToFirstByte!! shouldBeLessThanOrEqualTo Duration.ofSeconds(1)
+                            meters.timeToLastByte!! shouldBeLessThanOrEqualTo Duration.ofSeconds(2)
+                        }
+                    }
+                }
+            }.configure {
+                name = "verify-post"
+            }
+```
+
+### Reuse a HTTP connection
+
+In order to strength the relevance of your test, we are not only creating one HTTP connection by minion,
+but also reusing it for the same minion in further steps.
+
+To do so, we simply add a new Netty HTTP step after the validation, called `httpWith`, where we specify the name of the
+step that holds the connection: in our case `quickstart-http-post`, which is the first HTTP step of our scenario.
+
+You can not that there is logically no need to specify anything about the connection, since the one from `quickstart-http-post`
+was kept active and is automatically closed after that new step.
+
+For convenience purpose, we also add a new verification step.
+
+```kotlin
+
+ import java.time.Duration.configure {
+                name = "verify-post"
+            }
+            .netty()
+            .httpWith("quickstart-http-post") {
+                report {
+                    reportErrors = true
+                }
+                request { _, _ ->
+                    SimpleHttpRequest(HttpMethod.PATCH, "/echo").body(
+                        "Hello World!",
+                        HttpHeaderValues.TEXT_PLAIN
+                    )
+                }
+            }.verify { result ->
+                assertSoftly {
+                    result.asClue {
+                        it.response shouldNotBe null
+                        it.response!!.asClue { response ->
+                            response.status shouldBe HttpResponseStatus.OK
+                            response.body shouldContainOnlyOnce "Hello World!"
+                            response.body shouldContainOnlyOnce "PATCH"
+                        }
+                        it.meters.asClue { meters ->
+                            meters.timeToFirstByte!! shouldBeLessThanOrEqualTo Duration.ofMillis(100)
+                            meters.timeToLastByte!! shouldBeLessThanOrEqualTo Duration.ofMillis(200)
+                        }
+                    }
+                }
+            }.configure {
+                name = "verify-patch"
+            }
+```
+
+### Executes the scenario as a Gradle project
+
+You can now simply run `./gradlew run` to execute your scenario.
+After a couple of seconds, you will see the following report in your console:
+
+```
+============================================================
+=====================  CAMPAIGN REPORT =====================
+============================================================   
+
+Campaign...........................quickstart-http-4fb6244cd3
+Start..............................2022-03-30T16:41:02.597973Z
+End................................2022-03-30T16:41:53.411602Z
+Duration...........................50 seconds 
+Configured minions.................10000
+Completed minions..................10000
+Successful steps executions........39832
+Failed steps executions............42
+Status.............................FAILED
+   
+        
+
+=====================  SCENARIO REPORT =====================
+Scenario...........................quickstart-http
+Start..............................2022-03-30T16:41:02.597973Z
+End................................2022-03-30T16:41:53.411602Z
+Duration...........................50 seconds 
+Configured minions.................10000
+Completed minions..................10000
+Successful steps executions........39832
+Failed steps executions............42
+Status.............................FAILED
+Messages:
+- ERROR:  step 'quickstart-http-post' - "Success: 9958, Execution errors: 42"
+- INFO:   step 'verify-post' - "Success: 9958, Failures (verification errors): 0, Errors (execution errors): 0"
+- INFO:   step '_622niod959' - "Success: 9958, Execution errors: 0"
+- ERROR:  step 'verify-patch' - "Success: 9926, Failures (verification errors): 32, Errors (execution errors): 0"
+        
+```
+
+You can note the information of the whole campaign as well as scenario by scenario.
+There were errors, which explains why the execution failed. Do you want to know which errors? Go to the section
+related to the events logging.
+
+### Create an archive to transport your scenario and execute it
+
+Execute the statement `./gradlew assemble`.
+
+A JAR archive ending with `-qalipsis.jar` is created in the folder `build/libs`.
+This archive contains all the dependencies and is self-sufficient to execute your scenario on any machine having
+a Java Runtime Environment installed.
+
+To execute it, open a terminal and go to the folder where your JAR archive is stored - move it out from the `build`
+folder to avoid it to be deleted by mistake.
+
+Execute the command `java -jar quickstart-<your-version>-qalipsis.jar`.
+
+### Logging the events to know the details of the failures
+
+In current directory, create a folder called `config`.
+In this new folder, create a file called `qalipsis.yml` with the following content:
+
+```yaml
+events:
+  root: warn
+  export:
+    slf4j:
+      enabled: true
+```
+
+This enables the logging of the events with severity WARN and upper to a file called `qalipsis-events.log`.
+
+Execute your scenario again, the events file is created and contains the details of the individual failed assertions:
+
+```
+2022-03-31T06:33:55.937Z  WARN --- step.assertion.failure;io.qalipsis.plugins.netty.tcp.ConnectionAndRequestResult@1e869276
+MetersImpl(timeToSuccessfulConnect=null, timeToFailedConnect=null, timeToSuccessfulTlsConnect=null, timeToFailedTlsConnect=null, bytesCountToSend=85, sentBytes=85, timeToFirstByte=PT0.10696475S, timeToLastByte=PT0.1163375S, receivedBytes=394)
+PT0.10696475S should be <= PT0.1S;campaign=quickstart-campaign-4d39026fd7,minion=quickstart-http-62qr1n87xx,scenario=quickstart-http,dag=dag-1,step=verify-patch,context-creation=2022-03-31T06:33:55.730Z,parent-step=_629qthims5,step-type=Verification,iteration=0,attempts-after-failure=0,isExhausted=true,isTail=true,isCompleted=true
+2022-03-31T06:33:56.916Z  WARN --- step.assertion.failure;io.qalipsis.plugins.netty.tcp.ConnectionAndRequestResult@19a03b37
+MetersImpl(timeToSuccessfulConnect=null, timeToFailedConnect=null, timeToSuccessfulTlsConnect=null, timeToFailedTlsConnect=null, bytesCountToSend=85, sentBytes=85, timeToFirstByte=PT0.128673083S, timeToLastByte=PT0.128737375S, receivedBytes=394)
+PT0.128673083S should be <= PT0.1S;campaign=quickstart-campaign-4d39026fd7,minion=quickstart-http-62sqemkv8j,scenario=quickstart-http,dag=dag-1,step=verify-patch,context-creation=2022-03-31T06:33:56.735Z,parent-step=_629qthims5,step-type=Verification,iteration=0,attempts-after-failure=0,isExhausted=true,isTail=true,isCompleted=true
+```
+
+More specifically, you can messages like the following:
+```
+2022-03-31T06:33:55.937Z ... PT0.10696475S should be <= PT0.1S ... campaign=quickstart-campaign-4d39026fd7,... scenario=quickstart-http,... step=verify-patch
+```
+You can then exactly read:
+
+- the exact instant when the failed assertion occurred
+- the reason of the failure
+- the campaign, scenario and verification step where it failed assertion occurred 
+
+== Next steps
+
+* Learn how to push log file events to a database. <<where is this documented>> 
+* Work through other QALIPSIS  Quickstart Guides:
+** quickstart 1
+** quickstart 2
+
+other QALIPSIS Quickstart Guides to learn how to Set up  other ways This quickstart ends here, and of course, log files are not the best to work with a massive amount of events, whether they are failures or not.
+
+In the QALIPSIS, you will discover how to push those events to databases, so that you can query and report them in a fancier way.

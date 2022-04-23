@@ -88,7 +88,7 @@ In this section, you will create and configure a simple scenario that injects 50
 . Declare the package/directory where the scenario can be found:
 +
 `package my.example``
-. Import the Qalipsis annotation processor:
+. Import the QALIPSIS annotation processor:
 +
 `import io.qalipsis.api.annotations.Scenario`
 . Declare the name for the Scenario class as _HelloWorldScenario_:

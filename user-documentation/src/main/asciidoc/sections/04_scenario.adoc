@@ -93,7 +93,7 @@ Every scenario has a default configuration.
 Whether you want to simulate users, IoT devices or third-party systems, each simulation is identified with a unique minion.
 The more minions, the more load.
 Minions execute concurrently and through all trees.
-You can specify a default `_minionsCount_` (1000 in the following example ):
+You can specify a default `minionsCount` (1000 in the following example ):
 [source,kotlin,linenumbers]
 ----
 @Scenario
@@ -256,9 +256,9 @@ There might be several graphs starting concurrently at the scenario root, but on
 
 Other graphs are considered non-injected or "side-trees" and perform data verification for when the branches rejoin.
 
-`_myScenariostart().doSomething()_` identifies which graph is the root receiving the load of all the minions at runtime.
+`myScenariostart().doSomething()` identifies which graph is the root receiving the load of all the minions at runtime.
 
-`_myScenario.doSomething()_` identifies a second graph visited by a unique minion and generally consisting of iterative operations such as polling of data sources.
+`myScenario.doSomething()` identifies a second graph visited by a unique minion and generally consisting of iterative operations such as polling of data sources.
 [source,kotlin,linenumbers]
 ----
 @Scenario

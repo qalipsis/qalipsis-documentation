@@ -35,13 +35,13 @@ Note that all command-line arguments can be provided in a file, as explained in 
 
 . Number of Minions by Scenario.
 +
-This command defines how many minions should be used in the load-injected tree. It is not compliant with `_campaign.minions-factor_`.
+This command defines how many minions should be used in the load-injected tree. It is not compliant with `campaign.minions-factor`.
 +
 Following is an example of the command to set the number of minions:
 +
-`_campaign.minions-count-per-scenario=#ofMinion_`
+`campaign.minions-count-per-scenario=#ofMinion`
 +
-where `_#ofMinions_` is an integer and the default value is the `minionCount` set during configuration of the scenario.
+where `#ofMinions` is an integer and the default value is the `minionCount` set during configuration of the scenario.
 
 . Load Factor.
 +

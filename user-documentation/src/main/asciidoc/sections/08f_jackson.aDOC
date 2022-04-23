@@ -2,32 +2,31 @@
 The jackson plugin supports reading a file (JSON, XML or CSV), converting the data to an object, and pushing the object to the next step.
 
 Technologies Addressed::
- jackson-databind:
-http://fasterxml.github.io/jackson-databind/javadoc/2.11/com/fasterxml/jackson/databind/json/JsonMapper.html[Class JsonMapper]
+ https://github.com/FasterXML/jackson[Class JsonMapper]
 
 Dependency::
- `_io.qalipsis:plugin-jackson_`
+ `io.qalipsis:plugin-jackson`
 
 Namespace in Scenario::
- `_jackson()_`
+ `jackson()`
 
 Client Library::
- JsonMapper: refer to http://fasterxml.github.io/jackson-databind/javadoc/2.11/com/fasterxml/jackson/databind/json/JsonMapper.html[Class JsonMapper].
+ JsonMapper: refer to http://fasterxml.github.io/jackson-databind/javadoc/2.11/com/fasterxml/jackson/databind/json/JsonMapper.html[FasterXML].
 
 Supported Steps::
- * link:++ CSVToMap, CSVtoObject++,[CSVToMap, CSVtoObject]
-: reads a CSV file, and converts the data to an object (or Map).
- * link:++JsonToMap, JsonToObject"++,[JsonToMap, JsonToObject]: reads a JSON file and converts the data to an object (or Map) 
+ * link:++ csvToMap, csvToObject++,[csvToMap, csvToObject]
+: reads a CSV file, and converts the data to a MAP (or Object).
+ * link:++jsonToMap, jsonToObject"++,[jsonToMap, jsonToObject]: reads a JSON file and converts the data to a MAP (or Object) .
  * <<XmlToObject,xmlToObject>>: reads an XML file, converts the data to an object,
 
-== CSVToMap, CSVtoObject
-The `_CSVToMap_` and `_CVStoObject_` steps within the jackson plugin read a CSVresource (file, classpath resource, URL) and returns each item as an instance of mappingClass or Map.
+== csvToMap, csvToObject
+The `csvToMap` and `csvToObject` steps within the jackson plugin read a CSV resource (file, classpath resource, URL) and returns each item as an instance of an object or Map.
  
 Ancestor::
  Step
  
 Functionality::
-The `_CSVToMap_` and `_CVStoObject_` step Specification has a `_targetClass_` property to which the output lines should be mapped.
+The `csvToMap` and `csvToObject` step Specification has a `targetClass` property to which the output lines should be mapped.
 The step reads a CSV file, convert the data to an object (or Map)  and push the object (or Map) to the next step.
 
 Example::
@@ -56,21 +55,21 @@ jackson().csvToObject(PojoForTest::class) {
 ----
  
 Notable Parameters::
- * `_classpath(path)_`: reads the data from a class path resource. The parameter path is the path to the resource, the leading slash is ignored.
-* `_file(path)_`: reads the data from from a plain file on the file system. Parameter path is the path to the file, either absolute or relative to the working directory.a class path resource.
-* `_url(url)_`: reads the data from a URL. Parameter url is the url to access to the data resource.
-* `_mapper_`: configures the JSON Mapper to deserialize the records.
-· `_pollDelay_` (required): specifies the delay between two executions of the query.
+ * `classpath(path)`: reads the data from a class path resource. The parameter path is the path to the resource, the leading slash is ignored.
+* `file(path)`: reads the data from from a plain file on the file system. Parameter path is the path to the file, either absolute or relative to the current working directory.
+* `url(url)`: reads the data from a URL. Parameter url is the url to access to the data resource.
+* `mapper`: configures the JSON Mapper to deserialize the records.
+· `pollDelay` (required): specifies the delay between two executions of the query.
 
 == XmlToObject
-The `_XmlToObject_` step within the `_jackson_` plugin reads an XML resource (file, classpath resource, URL) and returns each item as an instance of mappingClass.
+The `XmlToObject` step within the `jackson` plugin reads an XML resource (file, classpath resource, URL) and returns each item as an instance of object of the specified class.
 
 Ancestor::
  Step
  
 Functionality::
- The `_XmlToObject_` step pecification has a property `_targetClass_` to which the output lines should be mapped.
-The `_XmlToObject_` step reads an XML file, convert the data to an object  and pushes the object to the next step.
+The `XmlToObject` step specification has a property `targetClass` to which the output lines should be mapped.
+The `XmlToObject` step reads an XML file, convert the data to an object  and pushes the object to the next step.
 
 Example::
 +
@@ -82,18 +81,18 @@ Example::
 ----
  
 Notable Parameters::
- * `_classpath(path)_`: reads the data from a class path resource. Parameter path is the path to the resource, the leading slash is ignored.
-* `_file(path)_`: reads the data from from a plain file on the file system. The parameter `_path_` is the path to the file, either absolute or relative to the working directory.
-* `_url(url)_`: reads the data from a URL. Parameter url is the url to access to the data resource.
+ * `classpath(path)`: reads the data from a class path resource. Parameter path is the path to the resource, the leading slash is ignored.
+* `file(path)`: reads the data from from a plain file on the file system. The parameter `path` is the path to the file, either absolute or relative to the working directory.
+* `url(url)`: reads the data from a URL. Parameter url is the url to access to the data resource.
 
-== JsonToMap, JsonToObject
-The `_JsonToMap_` and `_JsonToObject_` step within the `_jackson_` plugin reads a JSON resource (file, classpath resource, URL) and returns each item as an instance of `_mappingClass_` or `_Map_`.
+== jsonToMap, jsonToObject
+The `jsonToMap` and `jsonToObject` step within the `jackson` plugin reads a JSON resource (file, classpath resource, URL) and returns each item as an instance of `Map` or the specified type.
  
 Ancestor::
  Step
  
 Functionality::
- The step specification has aproperty `_targetClass_` to which the output lines should be mapped;  the step reads a JSON file, converts the data to an object (or Map) and pushes the object (or Map) to the next step.
+ The step specification has a property `targetClass` to which the output lines should be mapped;  the step reads a JSON file, converts the data to an object (or Map) and pushes the object (or Map) to the next step.
 
 Example::
 +
@@ -108,6 +107,6 @@ jackson().jsonToMap() {
 ----
  
 Notable Parameters::
- * `_classpath(path)_`: reads the data from a class path resource. The parameter `_path_` is the path to the resource; the leading slash is ignored.
-* `_file(path)_`: reads the data from from a plain file on the file system. The parameter `_path_` is the path to the file, either absolute or relative to the working directory.
-* `_url(url)_`: reads the data from a URL. The parameter `_url_` is the url to access to the data resource.
+ * `classpath(path)`: reads the data from a class path resource. The parameter `path` is the path to the resource; the leading slash is ignored.
+* `file(path)`: reads the data from from a plain file on the file system. The parameter `path` is the path to the file, either absolute or relative to the working directory.
+* `url(url)`: reads the data from a URL. The parameter `url` is the url to access to the data resource.

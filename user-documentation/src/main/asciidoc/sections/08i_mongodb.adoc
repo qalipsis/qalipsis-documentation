@@ -6,10 +6,10 @@ Technology Addressed::
 MongoDB: https://www.mongodb.com/
 
 Dependency::
-`_io.qalipsis:plugin-mongodb_`
+`io.qalipsis:plugin-mongodb`
 
 Namespace in Scenario::
-`_mongodb()_`
+`mongodb()`
 
 Client Library::
 Mongodb-driver-sync:  refer to the
@@ -23,7 +23,7 @@ Supported Steps::
 * <<Search Step,search>>: searches records, building a query from the input and step context.
 
 == Poll Step
-The `_poll_` step within the `_mongodb_` plugin polls the newest records from a database table, with a delay between each execution.
+The `poll` step within the `mongodb` plugin polls the newest records from a database table, with a delay between each execution.
 
 Ancestor::
 Scenario
@@ -63,7 +63,7 @@ Tip::
 Use this step with a join operator when you need to verify the values saved by your tested system in the database.
 
 == Save Step
-The `_save_` step within the _mongodb_` plugin persists a batch of records into MongoDB using a document.
+The `save` step within the _mongodb` plugin persists a batch of records into MongoDB using a document.
 
 Ancestor::
 Step
@@ -94,13 +94,13 @@ mongodb().save {
 Notable Parameters::
 To configure the connection, provide the port, database name  and collection name.
 +
-The  `_save_` step is extremely flexible; table, columns and values may depend on the context and input value received from the previous step.
+The  `save` step is extremely flexible; table, columns and values may depend on the context and input value received from the previous step.
 
 Tip::
 Use this step after a collect() step in order to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.
 
 == Search Step 
-The `_search_` step within the `_mongodb_` plugin searches records in the database using a search query.
+The `search` step within the `mongodb` plugin searches records in the database using a search query.
 
 Ancestor::
 Step

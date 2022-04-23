@@ -1,12 +1,12 @@
 = jms Plugin
 
-The jms plugin Connects Qalipsis to ActiveMQ using jms.
+The jms plugim connects QALIPSIS to a messaging platform that supports https://www.jcp.org/en/jsr/detail?id=914[JMS].
 
 Technology Addressed::
-ActiveMQ: https://activemq.apache.org/components/artemis/documentation/latest/using-jms.html
+ActiveMQ: https://activemq.apache.org/
 
 Dependency::
-`_io.qalipsis:plugin-jms_`
+`io.qalipsis:plugin-jms`
 
 Namespace in Scenario::
  jms()
@@ -17,8 +17,8 @@ Refer to
 https://docs.oracle.com/javaee/7/api/javax/jms/package-summary.html[Java Interface Summary] for more information.
 
 Supported Steps::
-* <<Consume Step,Consume>>: consumes data from activeMq  queues and topics
-* <<Produce Step,Produce>>: produces messages into activeMQ
+* <<Consume Step,Consume>>: consumes data from a messaging platform supporting JMS.
+* <<Produce Step,Produce>>: into a messaging platform supporting JMS.
 
  
 == Consume Step 
@@ -28,7 +28,7 @@ Ancestor::
 Scenario
  
 Functionality::
-The `_consume_` step polls data from the designated ActiveMQ connection, step context, and the data deserializer.
+The `consume` step polls data from the designated ActiveMQ connection, step context, and the data deserializer.
 
  Example::
 +
@@ -42,31 +42,28 @@ The `_consume_` step polls data from the designated ActiveMQ connection, step co
                     events = true
                     meters = true
                 }
-                metrics {
-                    bytesCount = true
-                    recordsCount = true
-                }
+                
             }.deserialize(JmsJsonDeserializer(User::class))
 
 ----
  
 Notable Parameters::
 
-To configure a connection, provide  the java activeMq connection for either queues (`_QueueConnection_`) or topics (`_TopicConnection_`).
+To configure a connection, provide  the java activeMq connection for either queues (`QueueConnection`) or topics (`TopicConnection`).
 +
-If the connection is a `_QueueConnection_` use queues; Otherwise use topics.
+If the connection is a `QueueConnection` use queues; Otherwise use topics.
 +
-To deserialize a json text use `_JmsJsonDeserializer_` and provide the desired class to use in the deserialization.
-+ If deserialize is a string, use `_JmsStringDeserialize_`.
+To deserialize a json text use `JmsJsonDeserializer` and provide the desired class to use in the deserialization.
++ If deserialize is a string, use `JmsStringDeserialize`.
  
 == Produce Step
-The `_produce_` step within the `_jms_` plugin produces records in ActiveMQ using JMS.
+The `produce` step within the `jms` plugin produces records in ActiveMQ using JMS.
  
 Ancestor::
 Step
  
 Functionality::
-The `_produce_` step produces a batch of records to be produced into one or more JMS destinations. Note that the record values may be provided by previous steps.
+The `produce` step produces a batch of records to be produced into one or more JMS destinations. Note that the record values may be provided by previous steps.
 
 Example::
 +
@@ -92,14 +89,11 @@ Example::
                     events = true
                     meters = true
                 }
-                metrics {
-                    bytesCount = true
-                    recordsCount = true
-                }
+                
 ----
 
  Notable Parameters::
 To configure the connection, provide the java activeMq connection for either queues (QueueConnection) or topics(TopicConnection).
-* `_JmsMessageType_` possible values are: TEXT, AUTO, BYTES, and OBJECT. 
+* `JmsMessageType` possible values are: TEXT, AUTO, BYTES, and OBJECT. 
 +
 Use AUTO if the type of the value is not known.
