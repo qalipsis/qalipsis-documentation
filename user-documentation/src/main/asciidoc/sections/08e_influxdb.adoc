@@ -1,9 +1,10 @@
 = influxdb Plugin
-The influxdb plugin connects QALIPSIS to InfluxDB using InfluxDbClientKotlin with Flux v.2.0.
+
+The `influxdb` plugin connects QALIPSIS to https://www.influxdata.com/[InfluxDB].
 
 Technologies Addressed::
-* InfluxDB: https://www.influxdata.com/ 
-* Flux: https://docs.influxdata.com/flux/v0.x/  
+* InfluxDB: https://www.influxdata.com/[]
+* Flux: https://docs.influxdata.com/flux/v0.x/[] 
 
 Dependency::
 `io.qalipsis:plugin-influxdb`
@@ -12,12 +13,12 @@ Namespace in Scenario::
 `influxdb()`
 
 Client Library::
-influxdb-client-kotlin: an asynchronous database client for InfluxDb written in Kotlin. Refer to the https://github.com/influxdata/influxdb-client-java/tree/master/client-kotlin[influxdb-client-kotlin] documentation.
+influxdb-client-kotlin: refer to the https://github.com/influxdata/influxdb-client-java/tree/master/client-kotlin[influxdb-client-kotlin] documentation.
 
 Supported Steps::
-* <<Poll Step,Poll>>: polls the newest data periodically.
-* <<Save Step,Save>>: saves a batch of records generated from the input and step context.
-* <<Search Step,Search>>: searches records, building a query from the input and step context.
+* <<Poll Step,`poll`>>: polls the newest data periodically.
+* <<Save Step,`save`>>: saves a batch of records generated from the input and step context.
+* <<Search Step,`search`>>: searches records, building a query from the input and step context.
 
 == Poll Step 
 The `poll` step within the `influxdb()` plugin polls the newest records from the database, with a delay between each execution of a select query.
@@ -26,78 +27,87 @@ Ancestor::
 Scenario
 
 Functionality::
-The `poll` step is created only once in a scenario; it is used throughout the scenario as called.
-* The query parameter requires at least one sorting field (SF) to filter the newest results and not fetch the same records repeatedly.
-* The latest known value for the SF is known as the tiebreaker which filters out the values already received directly from the database.
-* Poll uses a strategy of “delivered at least once” that cannot avoid the records at the boundaries (with an  SF equal to the tiebreaker) from being delivered several times.
+The `poll` step is created only once in a scenario; it is then used throughout the scenario as called.
+* `query` requires at least one sorting field (`tiebreaker` in the example) to filter the newest results and not fetch the same records repeatedly.
+* The latest known value for `tiebreaker` filters out the values already received directly from the database.
+* `poll` uses a strategy of “delivered at least once”.
 
 Example::
 +
 [source,kotlin,linenumbers]
 ----
-iinfluxdb().poll {
-            name = "poll.in"
-            connect {
-                   server("http://localhost:8080", BUCKET, ORGANIZATION)
-                   basic("user", "passpasspass")
-             }
-            query("from(bucket: \"$BUCKET\") |> range(start: 0) |> filter(fn: (r) => (r[\"tag\"] == \"IN\") |> sort([\”_time\”], desc: false")
-            pollDelay(Duration.ofSeconds(1))
+influxdb().poll {
+    name = "poll.in"
+    connect {
+        server("http://localhost:8080", BUCKET, ORGANIZATION)
+        basic("user", "passpasspass")
+    }
+    query("from(bucket: \"$BUCKET\") |> range(start: 0) |> filter(fn: (r) => (r[\"tag\"] == \"IN\") |> sort([\”_time\”], desc: false")
+    pollDelay(Duration.ofSeconds(1))
 }
 ----
 
 Notable Parameters::
-To configure the connection, provide the URL, organization name, bucket, and token for this method. The token can be automatically created using your password and username.
-* query (required): specifies a query respecting the requirements of the Flux v.2.0. Refer to the https://docs.influxdata.com/flux/v0.x/[Flux Documentation] for more information.  
-* pollDelay (required): specifies the delay to wait between two executions of the query
 
-Tip::
-Use the poll step with a join operator to verify the values that the tested system saves to the database.
+* `connect` (required): configures the connection to https://www.influxdata.com/[InfluxDB].
+* `query` (required): specifies a query respecting the requirements of the Flux v.2.0. Refer to the https://docs.influxdata.com/flux/v0.x/[Flux Documentation] for more information.
+* `tieBreaker` (required): repeats the first field used for sorting and comparison (`<=` or `>=`, depending on the ascending or descending order).
+* `parameters` (optional): binds values to the clauses of the prepared query.
+* `pollDelay` (required): specifies the delay between query executions.
+* `monitoring`(optional): configures the monitoring parameters for the step.
+* `broadcast` (optional): specifies the broadcast properties for the step.
 
+Tips::
+* Use the `poll` step with a join operator to verify the values that the tested system saves to the database.
+* The `token` can be automatically created using your password and username.
+* Refer to the https://docs.influxdata.com/[InfluxDB] documentation for further parameter and configuration information.
+ 
 == Save Step
-The `save` step within the `influxdb()` plugin persists a batch of records into the influxdb bucket using a specific `points` class.
+The `save` step within the `influxdb()` plugin persists a batch of records into the `influxdb` bucket using a specific `points` class.
 
 Ancestor::
 Step
 
 Functionality::
-The input and step context are used to generate the bucket, the list of points with their measurement, and tags and fields, which are combined and forwarded to the database.
+The `save` step's input and step context are used to generate the bucket, the list of points with their measurement, and tags and fields, which are then combined and forwarded to the database.
 
 Example::
 +
 [source,kotlin,linenumbers]
 ----
 influxdb().save {
-          connect {
-                    server(
-                            url = "http://localhost:8080",
-                            bucket = "test", 
-                            org = "testtesttest"
-                            )
-                   basic(
-                             user = "user", 
-                             password  = "passpasspass"
-                             )
-          }
-          query {
-                   bucket = bucketName
-                   organization = orgName
-                   points = pointSupplier
-          }
-          monitoring {
-                   events = true
-                   meters = false
-          }
+   connect {
+        server(
+           url = "http://localhost:8080",
+           bucket = "test", 
+           org = "testtesttest"
+           )
+         basic(
+           user = "user", 
+           password  = "passpasspass"
+           )
+    }
+    query {
+        bucket = bucketName
+        organization = orgName
+        points = pointSupplier
+    }
+    monitoring {
+        events = true
+        meters = false
+    }
 }
 ----
-
 Notable Parameters::
-To configure the connection, provide the URL, organization name, bucket, and token for this method. Token automatically can be created using your password and username.
+* `connect` (required): specifies the `url`, organization name (`org`), `bucket`, and `token` for the connection. 
 +
-The step is extremely flexible: bucket, tags, measurement and fields values may depend on the context and input value received from the previous step.
+The `token` can be automatically created using your password and username.
+* `monitoring`(optional): configures the monitoring parameters for the step.
 
-Tip::
-Use this step after a `collect()` step to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the tested system.
+Tips::
+* Use this step after a `collect()` step to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the tested system.
+* The step is extremely flexible: bucket, tags, measurement and fields might depend on the context and input value received from the previous step
+
 
 == Search Step 
 The `search` step within the `influxdb` plugin searches records in the database using a search query.
@@ -106,41 +116,41 @@ Ancestor::
 Step
 
 Functionality::
-The `search` step’s input and step context are used to generate a query; the batch of results is then forwarded to the next step(s).
+The `search` step's input and step context are used to generate a query; the batch of results is then forwarded to the next step(s).
 
 Example::
 +
 [source,kotlin,linenumbers]
 ----
 influxdb().search {
-          connect {
-                    server(
-                            url = "http://localhost:8080",
-                            bucket = "test", 
-                            org = "testtesttest"
-                            )
-                   basic(
-                             user = "user", 
-                             password  = "passpasspass"
-                             )
-          }
-          query {
-                   bucket = bucketName
-                   organization = orgName
-                   points = pointSupplier
-          }
-           parameters { ctx, input -> listOf("ENTERING") }
-          monitoring {
-                   events = true
-                   meters = false
-          }
+connect {
+   InfluxDBClientKotlinFactory.create(
+       InfluxDBClientOptions.builder()
+           .url("http://localhost:8080")
+           .authenticate(“username”, “password”.toCharArray())
+           .org(“organizationName”)
+           .build()
+   )
+}
+search {
+   connectionConfig = { _, _ -> influxDbSearchStepConnectionImpl }
+   query = { _, _ -> "query" }
+}
+monitoring {
+   events = true
+   meters = false
+}
 }
 ----
-
 Notable Parameters::
-To configure the connection, provide the URL, organization name, bucket, and token for this method. The token can automatically be created with your password and username.
-* search: generates the search query from the context and input.
 
+* `search`: generates the search query from the step input and context.
+* `connect` (required): specifies the `url`, organization name (`org`), `bucket`, and `token` for the connection. 
++
+* `monitoring`(optional): configures the monitoring parameters for the step.
 
-Tip::
-Use this step after a collect() step in order to reduce the number of queries executed onto the database and reduce the load the scenario generates on it.
+Tips::
+ 
+* Use this step after a collect() step in order to reduce the number of queries executed onto the database and reduce the load the scenario generates on it.
+The `token` can be automatically created using your password and username.
+

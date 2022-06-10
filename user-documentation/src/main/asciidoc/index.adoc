@@ -16,7 +16,7 @@ include::{includedir}/sections/02_whats-new.adoc[]
  include::{includedir}/sections/02a_core-concepts.adoc[]
    
 
-include::{includedir}/sections/03_quickstart.adoc[]
+include::{includedir}/sections/03_quickstart_Testing HTTP.adoc[]
 
 <<<<
 
@@ -89,6 +89,10 @@ include::{includedir}/sections/08m_rabbitmq.adoc[]
 <<<<
 
 include::{includedir}/sections/08n_redis-lettuce.adoc[]
+
+<<<<
+
+include::{includedir}/sections/common parameters.adoc[]
 
 <<<<
 

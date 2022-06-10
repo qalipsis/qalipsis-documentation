@@ -1,12 +1,13 @@
 = r2bc-jasync Plugin
-The r2bc-jasync plugin connects QALIPSIS to MariaDB, MySQL and PostgreSQL using the R2DBC drivers from jasync-sql.
+
+The `r2bc-jasync` plugin connects QALIPSIS to https://mariadb.org/[MariaDB], https://www.mysql.com[MySQL] and https://www.postgresql.org/[PostgreSQL].
 
 Technologies Addressed::
-* MariaDB: https://mariadb.org/
+* MariaDB: https://mariadb.org/[]
 
-* MySQL: https://www.mysql.com
+* MySQL: https://www.mysql.com[]
 
-* PostgreSQL: https://www.postgresql.org/
+* PostgreSQL: https://www.postgresql.org/[]
 
 Dependency::
 `io.qalipsis:plugin-r2dbc-jasync`
@@ -15,14 +16,14 @@ Namespace in Scenario::
 `r2dbcJasync()`
 
 Client Library::
-Jasync-sql: https://github.com/jasync-sql/jasync-sql
+Jasync-sql: refer to https://github.com/jasync-sql/jasync-sql[jasync-sql]
 +
 Jasync-sql is an asynchronous database driver for PostgreSQL and MySQL written in Kotlin.
 
 Supported Steps::
-* <<Poll Step,Poll>>: Polls newest data periodically.
-* <<Save Step,Save>>: Saves a batch of records generated from the input and step context.
-* <<Search Step,Search>>: Searches records and builds a query from the input and step context.
+* <<Poll Step,`poll`>>: Polls newest data periodically.
+* <<Save Step,`save`>>: Saves a batch of records generated from the input and step context.
+* <<Search Step,`search`>>: Searches records and builds a query from the input and step context.
 
 == Poll Step 
 The `poll` step within the `r2bc-jasync` plugin polls the newest records from the database, respecting a delay between each execution of a select query.
@@ -32,42 +33,46 @@ Scenario
 
 Functionality::
 The `poll` step is created only once in a scenario; it is used throughout the scenario as called.
-* The `query` parameter requires at least one sorting field (SF) to filter the newest results and not fetch the same records repeatedly.
-* The last known value for the SF is known as the tiebreaker which filters out the values already received directly from the database.
-* Poll uses a strategy of “delivered at least once” that cannot avoid the records at the boundaries (with an  SF equal to the tiebreaker) from being delivered several times.
+* `query` requires at least one sorting field (known as `tiebreaker` in the example) to filter the newest results and not fetch the same records repeatedly.
+* The latest known value for the `tiebreaker` is used to filter out the values already received directly from the database.
+* `poll` uses a strategy of “delivered at least once”.
 
 Example::
 [source,kotlin]
 ----
-	r2dbcJasync().poll {
-		protocol(Protocol. POSTGRESQL)
-		connection {
- 			port = 5432
- 			username = "dbuser"
-			password = "dbpassword"
-			database = "thedatabase"
+r2dbcJasync().poll {
+	protocol(Protocol. POSTGRESQL)
+	connection {
+ 		port = 5432
+ 		username = "dbuser"
+		password = "dbpassword"
+		database = "thedatabase"
 	}
-`
-		query("""select username, "timestamp" from buildingentries where action = ? order by "timestamp"""")
-		tieBreaker("timestamp", true)
+
+	query("""select username, "timestamp" from buildingentries where action = ? order by "timestamp"""")
 		parameters("ENTERING")
 		pollDelay(Duration.ofSeconds(1))
 		monitoring {
 			events = false
             meters = true
-            }
-}
+		}		
+    }
 ----
 
 Notable Parameters::
-To configure the connection, refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] within the jasync-sql documentation.
-* query (required): specifies a query respecting the requirements of the target database (MariaDB, MySQL or PostgreSQL).
-* tieBreaker (required): repeats the first field used for sorting as well as its strict comparison: true for strict filtering (< or >) and false otherwise (⇐ or >=).
-* parameters (optional): binds values to the clauses of the prepared statements.
-* pollDelay (required): specifies the delay to wait between two executions of the query.
+* `connection` (required): specifies the connection parameters. 
+* `query` (required): specifies a query respecting the requirements of the target database (MariaDB, MySQL or PostgreSQL).
+* `parameters` (optional): binds values to the clauses of the prepared statements.
+* `pollDelay` (required): specifies the delay between query executions.
 
-Tip::
-Use this step with a join operator when you need to verify the values saved by your tested system in the database.
+
+
+* `broadcast` (optional): specifies the broadcast properties.
+
+Tips::
+* Use this step with a join operator when you need to verify the values saved by your tested system in the database.
+* Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for for further parameter and configuration information.
+
 
 == Save Step 
 The `save` step within the `r2bc-jasync` plugin persists a batch of records into an SQL table using a prepared statement.
@@ -76,7 +81,7 @@ Ancestor::
 Step
 
 Functionality::
-The input and step context are used to generate the table and the list of columns and their values, which are then combined and forwarded to the database.
+The `save` step's input and step context are used to generate the table and the list of columns and their values, which are then combined and forwarded to the database.
 
 Example::
 +
@@ -93,24 +98,25 @@ r2dbcJasync().save {
 	tableName{ ctx, input -> "my_table" }
 	columns{ ctx, input -> listOf("firstname", "surname", "registration") }
 	values{ ctx, input -> list(
-                     JasyncSaveRecord("john", "doe", "265edfg2g5"),
-                     JasyncSaveRecord("alice", "foo", "3763gdw8"),
-                     JasyncSaveRecord("bob", "bar", "627twh762")
-              ) }
-
+        JasyncSaveRecord("john", "doe", "265edfg2g5"),
+        JasyncSaveRecord("alice", "foo", "3763gdw8"),
+        JasyncSaveRecord("bob", "bar", "627twh762")
+    )}
 	monitoring {
-	  			events = false
-                meters = true
-            }
+	  	events = false
+        meters = true
+    }
 }
 ----
-Notable Parameters::
-To configure the connection, refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] within the jasync-sql documentation.
-+
-The `save` step is extremely flexible; table, columns and values may  depend on the context and input value received from the previous step.
 
-Tip::
-Use this step after a collect() step in order to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.
+Notable Parameters::
+* `connection` (required): specifies the connection parameters. 
+
+Tips::
+* Use this step after a `collect()` step in order to reduce the number of queries executed onto the database and reduce the load that your scenario generates on it.
+* The `save` step is extremely flexible; table, columns and values might depend on the context and input value received from the previous step
+* Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for further parameter and configuration information.
+
 
 == Search Step 
 The `search` step within the `r2bc-jasync` plugin searches records in the database using a search query.
@@ -119,7 +125,7 @@ Ancestor::
 Step
 
 Functionality::
-The search step’s input and step context are used to generate a prepared statement and the values to complete it; the batch of results is then forwarded to the next step(s).
+The `search` step’s input and step context are used to generate a prepared statement and the values to complete it; the batch of results is then forwarded to the next step(s).
 
  Example::
 +
@@ -137,16 +143,17 @@ r2dbcJasync().search {
 	parameters { ctx, input -> listOf("ENTERING") }
 
 	monitoring {
-	  events = false
-                meters = true
-            }
+	  	events = false
+    	meters = true
+    }
 }
 ----
 
 Notable Parameters::
-To configure the connection, refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] within the jasync-sql documentation. 
-* query: generates a prepared statement from the context and input.
-* parameters: generates a list of values to bind onto the query parameters. Note that the order of the list of values is important.
+* `connection` (required): specifies the connection parameters.
+* `query`: generates a prepared statement from the context and input.
+* `parameters`: generates a list of values to bind onto the query parameters; the order of the list of values  matters and should match the arguments of the prepared statement.
 
-Tip::
-Use this step after a collect() step in order to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.
+Tips::
+* Use this step after a `collect`() step in order to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.
+* Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for for further parameter and configuration information.

@@ -17,6 +17,7 @@ java -jar my-scenario-qalipsis.jar --prompt
 . When prompted, enter the load factor (# of minions), speed factor, ramping strategy, etc. 
 
 === Scenario Selection
+
 . Execute QALIPSIS with the `--scenarios` or `-s` as in the following example:
 +
 [source,kotlin]
@@ -37,15 +38,18 @@ Note that all command-line arguments can be provided in a file, as explained in 
 +
 This command defines how many minions should be used in the load-injected tree. It is not compliant with `campaign.minions-factor`.
 +
-Following is an example of the command to set the number of minions:
+Following is an example of the command to use to set the number of minions:
 +
-`campaign.minions-count-per-scenario=#ofMinion`
-+
+[source,kotlin]
+---
+campaign.minions-count-per-scenario (#ofMinions)
+---
+
 where `#ofMinions` is an integer and the default value is the `minionCount` set during configuration of the scenario.
 
-. Load Factor.
+. `Load Factor`.
 +
-The load factor command multiplies the number of minions set in the scenario specification by the provided value. It is not compliant with `campaign.minions-count-per-scenario`.
+The `load factor` command multiplies the number of minions set in the scenario specification by the provided value. It is not compliant with `campaign.minions-count-per-scenario`.
 +
 * If the value is set between 0 and 1, the `minionCount` is reduced.
 * If the value is set to greater than one (or `double`,`triple`, `quadruple`, etc.) the `minionCount` is increased. 
@@ -55,7 +59,7 @@ Following is an example of the command to set the load factor:
 +
 `campaign.minions-factor, double, default to 1`
 +
-. Speed Factor.
+. `Speed Factor`.
 The speed factor command is applied on the ramping strategy to accelerate or slow down the pace of the minions released. 
 +
 For example:

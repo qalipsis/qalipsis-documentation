@@ -29,7 +29,6 @@ The QALIPSIS Graphical User Interface (GUI) allows users, depending on their rol
 * View Reports
 * Schedule a Test 
 
-
 === Automation Friendly Performance Verification
 Using the Command Line Interface (CLI) or the Gradle plugin, you can automatically and repeatedly verify the condition and performance of your system.
 

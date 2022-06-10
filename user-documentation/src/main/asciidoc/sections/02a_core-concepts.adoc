@@ -97,7 +97,7 @@ Steps are configured using core operators:
 * Joining
 * Mathematical/Aggregate
 * Transforming
-* Utility
+* Flow
 * User-defined
 
 Refer to the link:05_steps.adoc[Steps] section of this manual for details.  

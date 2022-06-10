@@ -12,7 +12,7 @@ This section focuses on scenario configuration.  Details on scenario execution a
 == Configuring a Scenario Specification
 A scenario specification is made up of several parts.
 
-. Calling the Scenario function:
+. A call to the Scenario function:
 +
 [source,kotlin,linenumbers]
 ----
@@ -25,7 +25,7 @@ fun myScenario()
 ----
 @Scenario
 fun myScenario(){
-val myScenario = scenario("hello-world")
+    val myScenario = scenario("hello-world")
 ----
 . Configuring the scenario.
 .. Assume the default configuration parameters: 
@@ -34,23 +34,26 @@ val myScenario = scenario("hello-world")
 ----
 @Scenario
 fun myScenario()
- val myScenario = scenario("hello-world"){// Scenario default parameter values
+    val myScenario = scenario("hello-world"){// Scenario default configuration parameter values
     }
 ----
 The default parameters include:
 * minionCount = 1
 * retryPolicy = no retry
-..  Include a defined parameters within the configuration, as in the following example: 
+--- 
+
+. Include defined parameters within the configuration, as in the following example: 
 +
 [source,kotlin,linenumbers]
 ----
 @Scenario
 fun myScenario(){
- val myScenario = scenario("hello-world"){ 
-    minionsCount = 1000
-     retryPolicy(instanceOfRetryPolicy)
-     rampUp {
+    val myScenario = scenario("hello-world"){ 
+        minionsCount = 1000
+        retryPolicy(instanceOfRetryPolicy)
+        rampUp {
         regular(1000, 50)
+        }
     }
 }
 ----
@@ -60,29 +63,32 @@ fun myScenario(){
 ----
 @Scenario
 fun myScenario(){
- val myScenario = scenario("hello-world"){ 
-    minionsCount = 1000
-     retryPolicy(instanceOfRetryPolicy)
-     rampUp {
+    val myScenario = scenario("hello-world"){ 
+        minionsCount = 1000
+        retryPolicy(instanceOfRetryPolicy)
+        rampUp {
         regular(1000, 50)
     }
 }
 .start()\\Root of the load injected tree.
 ----
 . Adding step specifications to the tree:
++
 [source,kotlin,linenumbers]
 ----
 @Scenario
 fun myScenario(){
- val myScenario = scenario("hello-world"){ 
-    minionsCount = 1000
-     retryPolicy(instanceOfRetryPolicy)
-     rampUp {
-        regular(1000, 50)
+    val myScenario = scenario("hello-world"){ 
+        minionsCount = 1000
+        retryPolicy(instanceOfRetryPolicy)
+        rampUp {
+            regular(1000, 50)
+        }
     }
-}
+}   
 .start() // Add step specifications here.
 ----
+
 == Default Scenario Configuration
 Every scenario has a default configuration.
 
@@ -103,7 +109,7 @@ fun myScenario() {
     }
 }
 ----
-Load-injected trees receive all the minions; non-load injected trees receive only one minion. 
+Load-injected trees receive all of the minions; non-load injected trees receive only one minion. 
 
 === Ramping Strategies
 * Mandatory
@@ -169,14 +175,14 @@ The following example sets the execution of 200 minions every 10 ms.
 fun myScenario() {
     val myScenario = scenario("hello-world") {
         rampUp {
-            regular(200, 10)
+        regular(200, 10)
         }
     }
 }
 ----
 +
 The speed-factor at runtime will be applied to the interval: a speed factor of 2 will divide the interval by 2.
-* `Timeframe` Ramping Strategy
+* `timeframe` Ramping Strategy
 +
 A time frame ramping strategy injects an equal number of minions at an equal interval within a set timeframe.
 +
@@ -198,10 +204,9 @@ The speed-factor at runtime will be applied to the interval: a speed factor of 2
 
 * User Defined Ramping Strategies
 +
-A user-defined ramping strategy is totally open to the developer's creativity or needs. It consists of returning a `MinionsStartingLine` considering the previous period in milliseconds, the total number of minions to start and the speed factor to apply.
+A user-defined ramping strategy is totally open to the developer's creativity or needs. It consists of returning a `minionsstartingline` considering the previous period in milliseconds, the total number of minions to start and the speed factor to apply.
 +
-The following example first releases 1/100th of all the minions after 1000 ms, then apply different rules depending on the past interval:
-
+The following example releases 1/100th of all the minions after 1000 ms, then applies different rules depending on the past interval:
 * If the previous interval was longer than 2 seconds, 100th of all the minions are released after 100ms;
 * Otherwise, a random interval is calculated applying the speed factor to reduce it, in order to start 10th of all the minions.
 +
@@ -226,7 +231,7 @@ fun myScenario() {
 +
 Whatever definition you choose: 
 +
-* The maximum number of minions launched cannot be more than the `totalMinions`.
+* The maximum number of minions launched cannot be more than the `totalmMnions`.
 *  Generating a negative interval results in an immediate start.
 +
 * When calling the first iteration of a user-defined strategy, the initial value of `pastPeriodMs` is 0. 
@@ -270,7 +275,7 @@ fun myScenario() {
         }
     }
     myScenario.start() // Root branch receiving all minions.
-        .returns<String>{ "My input" }
+        .returns<string>{ "My input" }
     myScenario // Second branch visited by a unique minion.
         .returns<String>{ "My other input" }
 }

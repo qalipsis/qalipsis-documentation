@@ -12,15 +12,12 @@ In the example below, `my-tcp` is the root step; `reuse-tcp` is a successor step
 [source,kotlin,linenumbers]
 ----
 scenario("hello-netty-udp-world") {
-        minionsCount = 100
-        rampUp {
-            
-            regular(100, minionsCount) // Start all at once.
-        }
+    minionsCount = 100
+    rampUp {
+        regular(100, minionsCount) // Start all at once.
     }
     .start()
     .netty()
-
     .tcp { // This step is the root of the scenario.
         name = "my-tcp"
         connect {
@@ -35,6 +32,7 @@ scenario("hello-netty-udp-world") {
         iterate(20, Duration.ofMillis(100))
         request { tcpRequest2 }
     }
+}
 ----
 A step specification is configured such that:
 
@@ -71,7 +69,7 @@ In the example below, `Anystep` receives the output of the previous step as inpu
             map { ... } 
                 .validate{ ... }
         }
-        .flatten()
+            .flatten()
                 .filterNotNull() 
 ----
 A graphical representation of the above example is shown below. Note that both branches run concurrently, in no defined execution order.
@@ -168,7 +166,7 @@ This section provides an explanation and examples of the `filter`, `validate`, a
 
 * `filter` removes the step contexts having an input not matching the filter specification. Filter is a silent equivalent of validate; it does not generate an error and does not mark the step context as exhausted.
 [example]
-provide and example and insert `filter(is even)` graphic here
+provide an example and insert `filter(is even)` graphic here
 
 * `validate` validates the input. If errors are returned, the step context is marked as exhausted and can then only be processed by error processing steps.
 [example]
@@ -215,8 +213,8 @@ Provide an example of `shelve` and insert a graphic here
 [example]
 Provide an example of `unshelve` and insert a graphic here
 
-=== Utility Operators
-This section provides an explanation and examples of the `pipe`, `blackHole`, and `stage` utility operators.
+=== Flow Operators
+This section provides an explanation and examples of the `pipe`, `blackHole`, and `stage` flow operators.
 
 * `pipe` simply forwards the input to the output.
 

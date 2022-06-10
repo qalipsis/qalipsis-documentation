@@ -1,0 +1,40 @@
+connection {
+      host = hostContainer
+      port = portContainer
+      password = "defaultpass"
+      username = "user"
+
+ `connection`: (required): configures the connection with the parameters that follow it in the code.
+
+    
+* `monitoring`(optional): specifies how the` step is monitored.
+** `meters`(optional): indicates if meters are to be monitored,  true = yes; false = no.
+** `events`(optional): indicates if events are to be monitored,  true = yes; false = no.
+** `broadcast (optional)`:
+
+
+
+
+* `broadcast (optional)`: 
+
+tiebreaker parameters:
+** `name` (required): tiebreaker name which is an alphanumeric string.
+** `type`(required): tiebreaker type which is either  GenericType.STRING or??
+
+
+** `datacenterName` (required): the name of the datacenter. 
+
+
+
+connect
+
+** `servers` (required): specifies the hosts and ports for the connection.
+** `keyspace` (required): specifies the top-level database object that controls the replication for the object it contains at each datacenter in the cluster.
+** `datacenterProfile` (required): an execution profile to encapsulate a group of settings that can then be associated with  individual queries.
+
+
+
+
+
+
+

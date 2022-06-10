@@ -1,32 +1,27 @@
 = Dependencies Injection
 
-QALIPSIS relies on the https://docs.micronaut.io/latest/guide/index.html#ioc[dependency injection framework from Micronaut] and supports the injection of dependencies in the constructors of the scenario declaring classes as well as in the methods annotated with `@Scenario`.
+QALIPSIS relies on the https://docs.micronaut.io/latest/guide/index.html#ioc[dependency injection framework from Micronaut] and supports the injection of dependencies in the constructors of the scenario declaring classes and methods annotated with `@Scenario`.
 
 WARNING: Ensure you have the following dependency in the project where your beans or factories are compiled: `kapt("io.qalipsis:api-processors:{revnumber}")`
 
 == Injecting a Singleton Bean
 You can declare a singleton bean using the annotation `@jakarta.inject.Singleton` on a type, or https://docs.micronaut.io/latest/guide/index.html#factories[use a Micronaut factory].
 
-. Creation of beans
+=== Creation of beans
 +
 [source,kotlin,linenumbers]
 ----
 import jakarta.inject.Singleton
-
 @Singleton // The annotation `@jakarta.inject.Singleton` can be added to a class to automatically create a bean and declare it as singleton.
 class NoRetry : RetryPolicy {
-
     suspend fun <I, O> execute(context: StepContext<I, O>, executable: suspend (StepContext<I, O>) -> Unit){
         executable(context)
     }
 }
-
 @Factory
 class ExecutorFactory {
-
-    @Singleton // The annotation `@jakarta.inject.Singleton` added to a method declares the returned bean as a singleton
-    fun simpleExecutor.
-    (retryPolicy: RetryPolicy): Executor { // The retry policy is automatically injected into the factory method.
+    @Singleton // The annotation `@jakarta.inject.Singleton` added to a method declares the returned bean as a singleton.
+    fun simpleExecutor(retryPolicy: RetryPolicy): Executor { // The retry policy is automatically injected into the factory method.
         return SimpleExecutor(retryPolicy)
     }
 }
@@ -34,14 +29,14 @@ class ExecutorFactory {
 
 Once beans are created, you can inject them in the constructor or the scenario method:
 
-. Injection of beans
+=== Injection of beans
 +
 [source,kotlin,linenumbers]
 ----
-class EcommercePurchase(private val retryPolicy: RetryPolicy) { // The previously created bean of type `RetryPolicy` is injected in the constructor of the scenario declaring class.
+class EcommercePurchase(private val retryPolicy: RetryPolicy) {// The previously created bean of type `RetryPolicy` is injected in the constructor of the scenario declaring class.
 
     @Scenario
-    fun fromLoginToCheckout(executor: Executor) {  // The previously created bean of type `Executor` is injected in the scenario declaring method.
+    fun fromLoginToCheckout(executor: Executor) {// The previously created bean of type `Executor` is injected in the scenario declaring method.
         scenario("login-select-and-checkout"){
             retryPolicy(retryPolicy)
         }
@@ -52,7 +47,7 @@ class EcommercePurchase(private val retryPolicy: RetryPolicy) { // The previousl
 
 == Qualifying the Bean to Inject
 When several beans exist for the same type, you might want to select the one to inject.
-QALIPSIS supports named injection as in the following example:
+QALIPSIS supports named injection as in the following example.
 [source,kotlin]
 ----
 import jakarta.inject.Named
@@ -115,7 +110,7 @@ class EcommercePurchase(private val retryPolicies: List<RetryPolicy>) {
 == Summary
 The sample code below includes all the supported methods of injection for beans and properties.
 
-The example is for a scenario method, but this can only be used for the constructor of a class declaring scenarios.
+The example is for a scenario method, but can also be used for the constructor of a class declaring scenarios.
 
 [source,kotlin,linenumbers]
 ----
@@ -130,6 +125,5 @@ The example is for a scenario method, but this can only be used for the construc
         @Property(name = "this-is-another-test", orElse = "10") propertyWithDefaultValue: Int, // The value of the property `this-is-another-test` is injected after its conversion to a `Int`, replace by 10 as Int if missing
         @Property(name = "this-is-yet-another-test") mayBeProperty: Optional<String> // The value of the property `this-is-yet-another-test` is injected after its conversion to a `String`, replaced by an empty optional if missing
     ) {
-
     }
 ----

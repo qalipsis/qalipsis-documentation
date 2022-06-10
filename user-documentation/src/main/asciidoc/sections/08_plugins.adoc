@@ -5,8 +5,8 @@ A plugin is a technical extension designed to extend the core capabilities of QA
 
 Plugins: 
 
-*  Tackle the complexity implied by the multiplicity of technologies and use cases to support in the tool.
- * Reduce the coupling between the technical elements, keeping them safer and easier to maintain.
+* Tackle the complexity implied by the multiplicity of technologies and use cases to support in the tool.
+* Reduce the coupling between the technical elements, keeping them safer and easier to maintain.
 
 The main advantages of using plugins are:
 
@@ -17,21 +17,21 @@ The main advantages of using plugins are:
 ** Faster compilation and start times.
 ** Smaller artifacts to store, transport and share.
 
-By nature, a plugin is an optional component of the tool. It allows you to include only what you need while ignoring components and libraries that do not serve your your present concerns.
+By nature, a plugin is an optional component of QALIPSIS. It allows you to include only what you need while ignoring components and libraries that do not serve your your present concerns.
 
 While a certain number of plugins are proposed by the community to cover the most common use cases and technologies, a plugin can also be an extension only for yourself and remain private.
 
 == Plugin Functionality
-A plugin contains one or several technical functionalities of the software that are not part of the core. The most common functionalities a plugin might implement are:
+A plugin contains one or several technical functionalities of the software that are not part of the core. The most common functionalities that a plugin might implement are:
 
-* A step to perform actions, such as
+* A step to perform an action, such as:
 ** Executing requests on a remote system using a specific protocol.
 ** Polling data from a source.
 ** Transforming data.
 * An events logger.
 * A meter registry.
  
-Default implementations of the above functionalities are part of the QALIPSIS core. However, the default implementations may not be suited for productive testing or constant monitoring. Plugins enhance the above functionalities by providing related implementations.
+Default implementations of the above functionalities are part of the QALIPSIS core. However, the default implementations may not be suited for your scenario (e.g., if productive testing or constant monitoring are requirements). QALIPSIS plugins enhance the above functionalities by providing related implementations.
 
 == Plugin Integration
 To create a test scenario, a tiny Gradle project is required. The plugin is simply added as a dependency to the class path of the project. You can read more about it in <<Creating a Scenario>> within <<Quickstart>>.

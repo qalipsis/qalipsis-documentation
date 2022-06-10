@@ -1,46 +1,35 @@
-= Quickstart Guide for Testing an HTTP Server
+= Quickstart Guide: Testing an HTTP Server with Qalipsis
 
-== Overview
+In this quickstart guide, you will learn how to test a very simple echo-like HTTP service using QALIPSIS.
 
-In this quickstart guide, you will learn how to test a very simple echo-like HTTP service.
+== Before You Get Started
+Before starting, you need:
 
+* A general understanding of the link:02a_core-concepts.adoc[QALIPSIS Core Concepts].
+* Java 11 or above SDK installed on your system.
+* Docker installed on your system.
 
+== What This Guide Covers 
  
-Note that this Quickstart Guide assumes that:
+This guide provides a step-by-step process for testing an HTTP server.
+Following this guide, you will:
+. Start the HTTP server and the docker environment for the project. 
+. Generate a project archive. 
+. Open the downloaded archive and configure the scenario skeleton.
+. Add steps to the scenario.
+.. An `HTTP` step to send requests to the server.
+.. An `assertion` step to verify the server's responses.
+.. An `HTTP WITH` step that reuses the HTTP connection.
+.. A second `assertion` step to verify the server's responses.
+. Execute the scenario using https://docs.gradle.org/current/userguide/what_is_gradle.html[Gradle] and view the report.
+. Create a Java archive of your project so that you can easily transport it as needed.  
+. Enable event logging to allow you to view reporting errors. 
 
-* You have a general understanding of the <<QALIPSIS Core concepts>>.
-* You have Java 11 or above SDK installed on your workstation.
-
-== What You Will Learn
-This guide will walk you through steps to:
-
-. Start an HTTP server.
-. Create a skeleton project. 
-. Execute plain HTTP queries with Qalipsis as a standalone application.
-. Assert responses from the server.
-. Reuse an HTTP connection for further calls.
-. Create a Java archive to share your scenario.
-. Visualize the events within your scenario via a log file.
-
-== Start the HTTP server
-
- Start the HTTP service using the docker-compose.yml file and by running the command docker compose up -d when located in its parent directory.
-## Create A project
-
-1.In your browser, open the website [https://launch.qalipsis.io](https://launch.qalipsis.io).
-
-1. . How to create and configure a scenario.
-Verify the prerequisites listed on the page.
-2. Give the name "Quickstart" to your project.
-3. In the plugins menu, select `Netty`.
-4. In the assertions libraries menu, select `Kotest`.
-5. Click on "Generate": an archive is proposed for download, which contains a skeleton for the project.
-
-## Start the HTTP server
-
-Create a file `docker-compose.yml` with the following content:
-
-```
+== Start the HTTP Server
+. Create a file named `docker-compose.yml` in the root (c:\) directory with the following content:
++
+[source,kotlin,linenumbers]
+----
 version: '3.5'
 services:
   http-punching-ball:
@@ -51,136 +40,145 @@ services:
       - "--ssl-cert=http-server.crt"
     ports:
       - "18080:8080"
-      - "18443:8443"
+      - "18443:8443"   
+----
 
-```
-Start the docker environment with the file `docker-compose.yml` with the command `docker compose up -d`.
+. Start the docker environment with the file `docker-compose.yml` with the command `docker compose up -d`.
 
-## Prepare your scenario
+== Create a Project
+. In your browser, open the website https://launch.qalipsis.io[Launch QALIPSIS].
+. Verify that your system has the pre-requisites listed on the https://launch.qalipsis.io[Launch QALIPSIS] page.
+. In the "Name" field, enter "Quickstart".
+. In the "plugins" menu, select `netty`.
+. In the assertions libraries menu, select `Kotest`.
+. Click `Generate`. An archive containing a skeleton of the project is proposed for download.
+. Download the proposed project archive. 
 
-### Open the scenario skeleton
+[ insert graphic/screenshot of the Launch QALLIPSIS page ]
 
-Open the project archive in your IDE and edit the file file `src/main/kotlin/Quickstart.kt'.
-You should be able to see the following skeleton:
+== Prepare a Scenario
 
-```kotlin
+=== Edit the Downloaded Scenario Skeleton
+
+. Open the downloaded project archive in your IDE. 
+. Edit the file `src/main/kotlin/Quickstart.kt`.
+The scenario skeleton should be displayed:
+
+[source,kotlin,linenumbers]
+----
 package quickstart
-
 import io.qalipsis.api.annotations.Scenario
-
-class Quickstart {
-
+class Quickstart{
     @Scenario
     fun quickstart() {
         scenario("quickstart-http") {
             minionsCount = 1
-            rampUp {
-                
+            rampUp {     
             }
         }
-        .start()
+    .start()
     }
 }
-```
+----
 
-### Configure the scenario basics
+=== Configure the Scenario Basics
 
-Configure the scenario to execute with 10,000 minions, 100 of them starting every 500 ms.
-
-```kotlin
+Configure the scenario to inject 10,000 minions at a rate of 100 minions every 500 ms.
+[source,kotlin,linenumbers ]
+----
         scenario("quickstart-http") {
-            minionsCount = 10_000
+            minionsCount = 10000
             rampUp {
                 regular(periodMs = 500, minionsCountProLaunch = 100)
             }
         }
         .start()
-```
+----
 
-### Send a HTTP request
+=== Add Steps to the Scenario.
+Add and configure steps within the scenario that will send an HTTP request to the server and verify that the server's response is as expected.
 
-Create a HTTP step to send a POST request to the server. After the `start()` statement that specifies the starting point
-of load injection, access to the `netty` namespace and call the `http` operator:
+==== Send an HTTP Request
+Create an HTTP step to send a POST request to the server. After the `start()` statement that specifies the starting point of load injection, access the `netty` namespace and call the `http` operator:
 
 1. Give your step a name.
 2. Configure the connection to the server.
 3. Configure the HTTP request to send: HTTP method, path and body.
-4. Enable the reporting of errors for that step.
+4. Enable the reporting of errors for the step.
 
-```kotlin
-            .start()
-            .netty()
-            .http {
-                name = "quickstart-http-post"
-                connect {
-                    url("http://localhost:18080")
-                    version = HttpVersion.HTTP_1_1
-                }
-                request { _, _ ->
+[source,kotlin,linenumbers ]
+----
+        .start()
+        .netty()
+        .http {
+            name = "quickstart-http-post"
+            connect {
+                url("http://localhost:18080")
+                version = HttpVersion.HTTP_1_1
+            }
+            request { _,_ ->
                     SimpleHttpRequest(HttpMethod.POST, "/echo").body(
-                        "Hello World!",
-                        HttpHeaderValues.TEXT_PLAIN
+                    "Hello World!",
+                    HttpHeaderValues.TEXT_PLAIN
                     )
-                }
-                report {
-                    reportErrors = true
-                }
             }
-```
-
-At that point, you can execute your scenario using Gradle: `./gradlew run`.
-You can observe the requests logged by the HTTP server. But is that enough to verify it is working?
-
-### Assert the response: content and performance
-
-In order to verify that the server is returning what we expect, let's ass a verification step to the scenario, just after the http step.
-
-We are verifying that:
-
-* the HTTP status of the response is OK (we are using `io.netty.handler.codec.http.HttpResponseStatus`)
-* the body contains the string we sent in the request
-
-```kotlin
-            .start()
-            .netty()
-            .http {
-               // ...
+            report {
+                reportErrors = true
             }
-            .verify { result ->
-                assertSoftly {
-                    result.asClue {
-                        it.response shouldNotBe null
-                        it.response!!.asClue { response ->
-                            response.status shouldBe HttpResponseStatus.OK
-                            response.body shouldContainOnlyOnce "Hello World!"
-                            response.body shouldContainOnlyOnce "POST"
-                        }
-                        it.meters.asClue { meters ->
-                            meters.timeToFirstByte!! shouldBeLessThanOrEqualTo Duration.ofSeconds(1)
-                            meters.timeToLastByte!! shouldBeLessThanOrEqualTo Duration.ofSeconds(2)
-                        }
+        }
+----
+
+Execute your scenario using Gradle: `./gradlew run`. This allows you to observe requests logged by the HTTP server. However, it does not verify that the server's is returning what you expect.
+
+[ insert screen shot here of the report]
+
+==== Verify the Server's Response
+In order to verify that the server is returning what you expect, add a `verify` step to the scenario, just after the `http` step. This steps allow you to verify that:
+
+* The HTTP status of the response is OK (we are using `io.netty.handler.codec.http.HttpResponseStatus`)
+* The body of the response contains the string we sent in the request.
+
+[source,kotlin,linenumbers ]
+----
+        .start()
+        .netty()
+        .http {
+            // ...
+        }
+        .verify { result ->
+            assertSoftly {
+                result.asClue {
+                    it.response shouldNotBe null
+                    it.response!!.asClue { response ->
+                        response.status shouldBe HttpResponseStatus.OK
+                        response.body shouldContainOnlyOnce "Hello World!"
+                        response.body shouldContainOnlyOnce "POST"
+                    }
+                    it.meters.asClue { meters ->
+                        meters.timeToFirstByte!! shouldBeLessThanOrEqualTo Duration.ofSeconds(1)
+                        meters.timeToLastByte!! shouldBeLessThanOrEqualTo Duration.ofSeconds(2)
                     }
                 }
-            }.configure {
-                name = "verify-post"
             }
-```
+        }.configure {
+            name = "verify-post"
+        }
+----
+Execute your updated scenario.  This time you will observe the HTTP status of the response and verify that server is returning the string you sent.
 
-### Reuse a HTTP connection
+[ *insert screen shot here of results* ]
 
-In order to strength the relevance of your test, we are not only creating one HTTP connection by minion,
-but also reusing it for the same minion in further steps.
+==== Reuse the HTTP Connection
+To strengthen the relevance of your test, create a step that reuses the first HTTP connection (`quickstart-http-post`)
+to provide  that the minions will be injected in.  [*needs reworked*]
 
-To do so, we simply add a new Netty HTTP step after the validation, called `httpWith`, where we specify the name of the
+To do so, add a new `netty http` step after the validation, called `httpWith`, where we specify the name of the
 step that holds the connection: in our case `quickstart-http-post`, which is the first HTTP step of our scenario.
 
-You can not that there is logically no need to specify anything about the connection, since the one from `quickstart-http-post`
-was kept active and is automatically closed after that new step.
+You can note that there is logically no need to specify anything about the connection, since the one from `quickstart-http-post` was kept active and is automatically closed after that new step.
 
 For convenience purpose, we also add a new verification step.
-
-```kotlin
-
+----
  import java.time.Duration.configure {
                 name = "verify-post"
             }
@@ -213,12 +211,11 @@ For convenience purpose, we also add a new verification step.
             }.configure {
                 name = "verify-patch"
             }
-```
+----
+=== Execute Your Scenario
 
-### Executes the scenario as a Gradle project
-
-You can now simply run `./gradlew run` to execute your scenario.
-After a couple of seconds, you will see the following report in your console:
+You can now  execute your scenario as a Gradle project.
+After a couple of seconds, you will see the following report on your console:
 
 ```
 ============================================================
@@ -254,17 +251,15 @@ Messages:
 - ERROR:  step 'verify-patch' - "Success: 9926, Failures (verification errors): 32, Errors (execution errors): 0"
         
 ```
-
 You can note the information of the whole campaign as well as scenario by scenario.
 There were errors, which explains why the execution failed. Do you want to know which errors? Go to the section
 related to the events logging.
 
-### Create an archive to transport your scenario and execute it
-
+=== Create an Archive of your scenario
 Execute the statement `./gradlew assemble`.
 
 A JAR archive ending with `-qalipsis.jar` is created in the folder `build/libs`.
-This archive contains all the dependencies and is self-sufficient to execute your scenario on any machine having
+This archive contains all the dependencies and is self-sufficient to execute your scenario on any machine with
 a Java Runtime Environment installed.
 
 To execute it, open a terminal and go to the folder where your JAR archive is stored - move it out from the `build`
@@ -272,8 +267,9 @@ folder to avoid it to be deleted by mistake.
 
 Execute the command `java -jar quickstart-<your-version>-qalipsis.jar`.
 
-### Logging the events to know the details of the failures
+=== Enable Event Logging 
 
+to know the details of the failures
 In current directory, create a folder called `config`.
 In this new folder, create a file called `qalipsis.yml` with the following content:
 
@@ -289,32 +285,34 @@ This enables the logging of the events with severity WARN and upper to a file ca
 
 Execute your scenario again, the events file is created and contains the details of the individual failed assertions:
 
-```
 2022-03-31T06:33:55.937Z  WARN --- step.assertion.failure;io.qalipsis.plugins.netty.tcp.ConnectionAndRequestResult@1e869276
 MetersImpl(timeToSuccessfulConnect=null, timeToFailedConnect=null, timeToSuccessfulTlsConnect=null, timeToFailedTlsConnect=null, bytesCountToSend=85, sentBytes=85, timeToFirstByte=PT0.10696475S, timeToLastByte=PT0.1163375S, receivedBytes=394)
-PT0.10696475S should be <= PT0.1S;campaign=quickstart-campaign-4d39026fd7,minion=quickstart-http-62qr1n87xx,scenario=quickstart-http,dag=dag-1,step=verify-patch,context-creation=2022-03-31T06:33:55.730Z,parent-step=_629qthims5,step-type=Verification,iteration=0,attempts-after-failure=0,isExhausted=true,isTail=true,isCompleted=true
+PT0.10696475S should be <= PT0.1S;campaign=quickstart-campaign-4d39026fd7,minion=quickstart-http-62qr1n87xx,scenario=quickstart-http,dag=dag-1,step=verify-patch,context-creation=2022-03-31T06:33:55.730Z,parent-step=_629qthims5,_ step-type=Verification,iteration=0,attempts-after-failure=0,isExhausted=true,isTail=true,isCompleted=true_
 2022-03-31T06:33:56.916Z  WARN --- step.assertion.failure;io.qalipsis.plugins.netty.tcp.ConnectionAndRequestResult@19a03b37
 MetersImpl(timeToSuccessfulConnect=null, timeToFailedConnect=null, timeToSuccessfulTlsConnect=null, timeToFailedTlsConnect=null, bytesCountToSend=85, sentBytes=85, timeToFirstByte=PT0.128673083S, timeToLastByte=PT0.128737375S, receivedBytes=394)
-PT0.128673083S should be <= PT0.1S;campaign=quickstart-campaign-4d39026fd7,minion=quickstart-http-62sqemkv8j,scenario=quickstart-http,dag=dag-1,step=verify-patch,context-creation=2022-03-31T06:33:56.735Z,parent-step=_629qthims5,step-type=Verification,iteration=0,attempts-after-failure=0,isExhausted=true,isTail=true,isCompleted=true
-```
+PT0.128673083S should be <= PT0.1S;campaign=quickstart-campaign-4d39026fd7,minion=quickstart-http-62sqemkv8j,scenario=quickstart-http,dag=dag-1,step=verify-patch,context-creation=2022-03-31T06:33:56.735Z,parent-step=_629qthims5,_ step-type=Verification,iteration=0,attempts-after-failure=0,isExhausted=true,isTail=true,isCompleted=true_
 
-More specifically, you can messages like the following:
+
+Essentially, you want to view the following pertinent parts of the message:
 ```
 2022-03-31T06:33:55.937Z ... PT0.10696475S should be <= PT0.1S ... campaign=quickstart-campaign-4d39026fd7,... scenario=quickstart-http,... step=verify-patch
 ```
-You can then exactly read:
 
-- the exact instant when the failed assertion occurred
-- the reason of the failure
-- the campaign, scenario and verification step where it failed assertion occurred 
+* The exact instant when the failed assertion occurred:
++
+2022-03-31T06:33:55 (March 31, 2022 at 06:33:55)in the example above.
+
+
+* The reason for the failure:
++
+PT0.10696475S should be <= PT0.1S
+* 
+The campaign (quickstart-campaign-4d39026fd7), scenario (quickstart-http) and verification step (verify-patch) where the failed assertion occurred 
 
 == Next steps
 
-* Learn how to push log file events to a database. <<where is this documented>> 
-* Work through other QALIPSIS  Quickstart Guides:
+* Discover how to push log file events to a database, making them easier to view and understand.
+* Work through other QALIPSIS Quickstart Guides:
 ** quickstart 1
 ** quickstart 2
 
-other QALIPSIS Quickstart Guides to learn how to Set up  other ways This quickstart ends here, and of course, log files are not the best to work with a massive amount of events, whether they are failures or not.
-
-In the QALIPSIS, you will discover how to push those events to databases, so that you can query and report them in a fancier way.

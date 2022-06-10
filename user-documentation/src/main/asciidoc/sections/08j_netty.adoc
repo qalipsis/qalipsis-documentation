@@ -104,7 +104,7 @@ Notable Parameters::
 ** `charset`: character encoding of the HTTP requests, 
 ** `maxContentLength`: maximal expected size of a request, in bytes, defaults to `1048576`, which is the minimum allowed.
 ** `inflate`: enables the acceptance of compressed response. Compression of the request is not supported.
-** `followRedirections`: when the server returns an HTTP status 3xx (redirection) in the response, the client will resend the request to the provided location. Otherwise, the response is kept as this. The argument maxRedirections provides the maximal number of redirections to follow; defaults to 10. By default, the redirections are not followed at all. Note that following a redirections makes the request to be sent there, exactly as it is (same method and content).
+** `followRedirections`: when the server returns an HTTP status 3xx (redirection) in the response, the client will resend the request to the provided location. Otherwise, the response is kept as is. The argument maxRedirections provides the maximal number of redirections to follow; defaults to 10. By default, the redirections are not followed at all. Note that following a redirections makes the request to be sent there, exactly as it is (same method and content).
 * `pool`: configuration of the pool of connections; the `pool` is disabled by default.
 ** `size`: number of constant connections maintained in the pool.
 ** `checkHealthBeforeUse`: verifies the health of the connection when polled from the `pool` and before it is used.
@@ -310,13 +310,14 @@ The `CLOSE TCP` step only accepts the name of a previous `HTTP` step as an argum
 == UDP Step 
 The `UDP` step within the `netty` plugin is a client for UDP.
 
-It is best practice to use `UDP` step when reusing a `TCP` connection across several steps without a pool of connections.
+It is best practice to use the  `UDP` step when reusing a `TCP` connection across several steps without a pool of connections.
 
 Ancestors:
 Scenario and Step
 
 Functionality::
-The `UDP` step creates a UDP Datagram packet from the `request` and sends it to the remote endpoint which is waiting for a response.  
+The `UDP` step creates a UDP Datagram packet from the `request` and sends it to the remote endpoint and expects a response.
+
 
 Example::
 +

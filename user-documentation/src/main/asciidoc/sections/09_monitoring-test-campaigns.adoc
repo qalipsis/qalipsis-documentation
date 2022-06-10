@@ -55,3 +55,308 @@ When the operation is not to save but push records, you can replace the save wor
 === Events
 
 === Step Execution Meters
+___________________________________________
+
+
+
+Created by Eric Jessé
+Last updated: Dec 28, 20219 min read11 people viewed11 people viewed
+:clipboard: Overview
+:compass: Definitions
+:mag: ​Meters
+Creation and destruction of meters
+What should be measured?
+Request based operations (HTTP, TCP,…)
+Records based operations (Database saving, polling, searching)
+:microscope: Events
+Which event level should be used?
+What should be measured?
+Request based operations (HTTP, TCP,…)
+Records based operations (Database saving, polling, searching)
+:test_tube: Step execution meters
+What should be measured?
+How to configure the monitoring in the step specification?
+:clipboard: Overview
+QALIPSIS aims at giving insights of the behavior of the tested system, from a performance perspective.
+
+Those insights are provided to the users via dashboards and detailed values describing the performed operations.
+
+
+:compass: Definitions
+In QALIPSIS, each step generates different kinds of metadata, to supply different level of details on the overall behavior and performances of the system.
+
+The highest level is built upon meters, using the library Micrometer Application Monitoring . You can read more in the official documentation. Long story made short, the meters represent the behavior or performance of a step or operation, over a short period of time which depends on the configuration. The shorter, the more data will be saved into the time-series database. Those values can then only be fetched and reported from the time-series database where they were saved. They are not available as such in a QALIPSIS scenario. In QALIPSIS, the Micrometer meters (Counters, Timers, Gauges) are attached to a single campaign and should be created and removed according to the campaign lifecycle. More on that in the dedicated section below.
+
+The intermediate level of detail, also directly saved into a time-series database and saved there,  are the events. The events represent an operation to be done or executed, at a given point in time. They can be compared to logs as managed by log4j and logback, and apply a similar concept for configuration. Similarly to logs, the events are described by a severity, a log name and values. But, more on that later.
+
+Meters and events have in common that they can be tagged, which allows to specify to which scenario, campaign, test step they are related to.
+
+The most detail of insights is made of the step execution meters. Those values are primitive values and Java durations, that are directly provided as an output from a step to another. They make it possible to verify the performances and the success of an operation directly in the scenario, in order to decide whether next steps should be executed or not.
+
+:mag: ​Meters
+The meters are generated using Micrometer Application Monitoring, which claims to be the “slf4j” for monitoring. And actually, this allows to very easily generates meters and publish them on a regular basis into a time-series database. When published, the values collected in the meantime are aggregated into averages, maximum and minimum. 
+
+Those meters can later be directly queried from the database or displayed into dashboards. To allow a maximal relevance, the meters have to be linked to the context of their measurement: name of scenario, campaign, step.
+
+Creation and destruction of meters
+To do such, the meters have to be created in the start stage of a campaign and stopped in the stop stage.
+
+The name of a meter is a dash-separated string, made of three parts:
+
+the name of the plugin (cassandra, elasticsearch, redis-lettuce)
+
+the type of the step (save, search, poll)
+
+the suffix of the meter, as explained in the next section.
+
+
+private val eventPrefix = "cassandra.save"
+private val meterPrefix = "cassandra-save"
+private var recordsToBeSent: Counter? = null
+private var timeToSuccess: Timer? = null
+private var timeToFailure: Timer? = null
+private var savedDocuments: Counter? = null
+private var failedDocuments: Counter? = null
+    
+override suspend fun start(context: StepStartStopContext) {
+    meterRegistry?.apply {
+        val tags = context.toMetersTags()
+        recordsToBeSent = counter("$meterPrefix-saving-documents", tags)
+        timeToSuccess = timer("$meterPrefix-time-to-response", tags)
+        timeToFailure = timer("$meterPrefix-time-to-failure", tags)
+        savedDocuments = counter("$meterPrefix-saved-documents", tags)
+        failedDocuments = counter("$meterPrefix-failed-documents", tags)
+    }
+}
+
+override suspend fun stop(context: StepStartStopContext) {
+    meterRegistry?.apply {
+        remove(recordsToBeSent!!)
+        remove(timeToSuccess!!)
+        remove(timeToFailure!!)
+        remove(savedDocuments!!)
+        remove(failedDocuments!!)
+        recordsToBeSent = null
+        timeToSuccess = null
+        timeToFailure = null
+        savedDocuments = null
+        failedDocuments = null
+    }
+}
+In the example above, you can see that the meters are nullable and only created when the meterRegistry of type io.micrometer.core.instrument.MeterRegistry is not null - injected in the step constructor, when converter the specification to a step, only if the configuration flag metersis set to true. The tags are passed from the start and stop context onto the identification of the meters to allow their search, aggregation and analysis relatively to different dimensions (step, campaign, scenario). When the step is stopped, the meters have to be removed from the meter registry to avoid them to be further published.
+
+What should be measured?
+Generally, the following things have to be measured.
+
+Request based operations (HTTP, TCP,…)
+Each request to be sent with the suffix -sending-request
+
+The size of each request to be sent with the suffix -sending-bytes
+
+Each request that succeeds with the suffix -successful-request
+
+The size of each request that was successfully sent with the suffix -sent-bytes
+
+Each request that fails with the suffix -failed-request
+
+The time to the first byte of the response (when the response starts to be received) with the suffix -receiving
+
+The time to the last byte of the response (when the response is completely received) with the suffix -received-response
+
+The size of each response that was successfully received with the suffix -received-bytes
+
+When the connection, handshake or other preparation are part of the operation, more details can be provided, they can also be measured as the requests are.
+
+Records based operations (Database saving, polling, searching)
+Note: the suffices below are proposed with -documents which has to be adapted to own terminology of the developed steps (record for a SQL database, document for Elasticsearch or MongoDB…)
+
+The number of records to be saved with the suffix -saving-documents
+
+The number of records actually saved with the suffix -saved-documents
+
+The number of records that could not be saved with the suffix -failed-documents
+
+The time to receive a complete successful response with the suffix -time-to-reponse
+
+The time to receive a failure with the suffix -time-to-failure
+
+The number of received records actually saved with the suffix -received-documents
+
+When the size in bytes is available for the records or documents, you will also add the relevant counters with the suffices -saving-bytes, -saved-bytes and -received-bytes.
+
+When the operation is not to save but push records, you can replace the save word by a more adequate one, like produce, push,… and the same applies received.
+
+:microscope: Events
+The events are logged using an instance of io.qalipsis.api.events.EventsLogger the step - injected in the step constructor, when converter the specification to a step, only if the configuration flag eventsis set to true.
+
+The name of a meter is a dot-separated string, made of three parts:
+
+the name of the plugin (cassandra, elasticsearch, redis-lettuce)
+
+the type of the step (save, search, poll)
+
+the suffix of the meter, as explained in the next section.
+
+eventsLogger?.debug("cassandra.save.saving-documents", records.size, tags = contextEventTags)
+
+A single event can bring several values of different types that relate to the same thing: 
+
+the size of a response and the time to receive it
+
+the time to a failure and the cause of the failure
+
+…
+
+In that case, those values are passed as an array:
+
+
+eventsLogger?.info(
+    "cassandra.save.saved-documents",
+    arrayOf(savedDocumentsCount, timeToResponse),
+    tags = stepContext.toEventTags()
+)
+Note that, like for the meters, the context must be provided as tags, which contains the identifiers of the scenario, the campaign, the step as well as the minion, the iteration of the step for that minion and the state of the context (exhausted or not).
+
+Which event level should be used?
+trace, is rarely used, especially not in steps, because it helps more to investigate issues in the Qalipsis engine.
+
+debug for events before the operation of the step occurs,
+
+info for information after the operation of step occurred (time to response, number of records successfully sent or received), generally used to later create dashboards and get insights of the performances
+
+warn for failures that should not abort the test campaign,
+
+error are extremely rare and only used when the error is so critical that the test campaign should not carry on.
+
+What should be measured?
+Generally, the following things have to be measured.
+
+Request based operations (HTTP, TCP,…)
+The preparation of the operation to perform:
+
+When the request is sent at once, each request to be sent with the suffix .sending-request and severity INFO, which must contain the size in bytes of the request
+
+When the request might be chunked or sent in several pieces onto the wire, .sending-request with severity INFO is generated for each request to send and the size of each chunk the suffix .sending-bytes and severity TRACE
+
+When the request is sent at once, each request successfully sent with the suffix .sent-request and severity INFO, which must contain the size in bytes of the request
+
+When the request might be chunked or sent in several pieces onto the wire, .sent-request with severity INFO is generated for each request to send and the size of each chunk the suffix .sent-bytes and severity TRACE
+
+Each request that fails with the suffix .failed-request and severity WARN, with the exception of the failure and the time between the request and the reception of the failure
+
+The time to the first byte of the response (when the response starts to be received) with the suffix .receiving and severity DEBUG
+
+The time to the last byte of the response (when the response starts to be received) and the number of received bytes with the suffix .received-response and severity DEBUG
+
+When the connection, handshake or other preparation are part of the operation, more details can be provided, they can also be measured as the requests are.
+
+Records based operations (Database saving, polling, searching)
+Note: the suffices below are proposed with -documents which has to be adapted to own terminology of the developed steps (record for a SQL database, document for Elasticsearch or MongoDB…)
+
+The number of records to be saved with the suffix .saving-documents and severity DEBUG
+
+The time to receive a complete successful response and the number of records with the suffix .success and severity INFO
+
+If a single request can lead to partial success, the saved records are saved with the suffix .saved-documents and severity INFO and the failed ones with the suffix .failed-documents and severity WARN
+
+The time to receive a failure and the exception with the suffix .failure and severity WARN
+
+The number of actually received records and the time to received all of them  with the suffix .received-documents and severity INFO
+
+When the size in bytes is available for the records or documents, you will also add the relevant counters with the suffices .saving-bytes, .saved-bytes and .received-bytes.
+
+When the operation is not to save but push records, you can replace the save word by a more adequate one, like produce, push,… and the same applies for received.
+
+:test_tube: Step execution meters
+The step execution meters are directly returned into a wrapper, itself contained in an object transporting the result of the step:
+
+
+CassandraSearchResult(
+    input = input,
+    rows = results,
+    meters = CassandraQueryMeters(results.size, timeToResponse)
+)
+
+data class CassandraQueryMeters(
+    var recordsCount: Int,
+    var timeToResponse: Duration? = null
+)
+The meters are generally primitive types and Java durations.
+
+Here are suggestions for the names of the fields:
+
+Timers:
+
+timeToResponse
+
+timeToFailure
+
+timeToFirstByte
+
+timeToLastByte
+
+timeToSuccesfullConnection
+
+timeToFailedConnection
+
+timeToSuccesfullHandshake
+
+timeToFailedHandshake
+
+Counters
+
+recordsToSend, recordsToSave, recordsToProduce…, or you can also use bytesCount, documents instead of records to match the plugin terminology
+
+sentRecords, savedRecords, producedRecords,… or you can also use bytesCount, documents instead of records to match the plugin terminology
+
+receivedRecords, consumedRecords
+
+sentBytes
+
+receivedBytes
+
+Then you are free to propose further details for the step execution meters, in order to increase the possibilities for analysis.
+
+What should be measured?
+See the values in the section Events just above. All the ones you put in the events have to be provided to the next step.
+
+How to configure the monitoring in the step specification?
+All the specification should have a function called monitoring, taking a block as parameter:
+
+
+fun monitoring(monitoringConfig: StepMonitoringConfiguration.() -> Unit)
+
+
+// Implementaton of io.qalipsis.api.steps.StepMonitoringConfiguration
+/**
+ * Configuration of the metrics and events to record for a step.
+ *
+ * @property events when set to true, records the events, defaults to false.
+ * @property meters when set to true, records meters, defaults to false.
+ *
+ * @author Eric Jessé
+ */
+@Spec
+data class StepMonitoringConfiguration(
+    var events: Boolean = false,
+    var meters: Boolean = false
+) {
+    /**
+     * Enables the record of both events and meters.
+     */
+    fun all() {
+        events = true
+        meters = true
+    }
+}
+
+Later, the events logger and meter registry are provided to the step only if the relevant flag is enabled:
+
+
+MyStep(
+  eventsLogger = supplyIf(spec.monitoringConfig.events) { eventsLogger },
+  meterRegistry = supplyIf(spec.monitoringConfig.meters) { meterRegistry }
+)
+ 
+
+ 

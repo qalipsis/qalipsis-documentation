@@ -21,40 +21,40 @@ Note: Before using a plugin, confirm that the related dependency has been added 
 |  *Description*
 
 |link:08b_cassandra.adoc[cassandra]
-|Connects QALIPSIS to Apache Cassandra with a Datastax driver, using  `CqlSessionBuilder` to build sessions, and Cassandra Query Language (CQL) for queries.
+|Connects QALIPSIS to https://cassandra.apache.org/index.html[APACHE Cassandra,window=_blank].
 
 |link:08c_elasticsearch.adoc[elasticsearch]
-|Connects QALIPSIS to Elasticsearch using the REST APIs.
+|Connects QALIPSIS to https://www.elastic.co/[Elasticsearch,window=_blank].
 
 |link:08d_graphite.adoc[graphite]
 |Waiting on info...
 
 |link:08e_influxdb.adoc[influxdb]
-|Connects QALIPSIS to InfluxDB using InfluxDbClientKotlin with Flux v.2.0.
+|Connects QALIPSIS to https://www.influxdata.com/[InfluxDB].
 
 |link:08f_jackson.adoc[jackson]
-|Supports reading a file (JSON, XML or CSV) and deserializing the data to objects.
+|Supports reading a file https://github.com/FasterXML/jackson[(JSON, XML or CSV)], converting the data to an object, and pushing the object to the next step.
 
 |link:08g_jms.adoc[jms]
-|Connects QALIPSIS to a messaging platform that supports https://www.jcp.org/en/jsr/detail?id=914[JMS] (for example, https://activemq.apache.org/[ActiveMQ]).
+|Connects QALIPSIS to a messaging platform that supports https://www.oracle.com/java/technologies/java-message-service.html[JMS] (for example, https://activemq.apache.org/[ActiveMQ]).
 
 |link:08h_kafka.adoc[kafka]
-|Connects QALIPSIS to an Apache Kafka cluster.
+|Connects QALIPSIS to an https://kafka.apache.org/[Apache Kafka] cluster.
 
 |link:08i_mongodb.adoc[mongodb]
-|Connects QALIPSIS to MongoDb using the driver from org.mongodb.
+|Connects QALIPSIS to https://mongodb.com/[MongoDb].
 
 |link:08j_netty.adoc[netty]
-|Supports TCP, UDP, HTTP and MQTT using the non blocking Netty library.
+|Supports https://datatracker.ietf.org/doc/html/rfc793[TCP], https://datatracker.ietf.org/doc/html/rfc768[UDP], https://httpwg.org/[HTTP] and https://mqtt.org/[MQTT] clients
 
-|link:08kl_r2dbc-jasync.adoc[r2dbc-jasync]
-|Connects QALIPSIS to MariaDB, MySQL and PostgreSQL using the R2DBC drivers from jasync-sql.
+|link:08l_r2db-jasync.adoc[r2db-jasync]
+|Connects connects QALIPSIS to https://mariadb.org/[MariaDB], https://www.mysql.com[MySQL] and https://www.postgresql.org/[PostgreSQL].
 
 |link:08m_rabbitmq.adoc[rabbitmq]
-|Connects QALIPSIS to RabbitMQ.
+|Connects QALIPSIS to https://www.rabbitmq.com/[RabbitMQ].
 
 |link:08n_redis-lettuce.adoc[redis-lettuce]
-|Connects QALIPSIS to Redis using the Lettuce client.
+|Connects QALIPSIS to https://redis.io/[Redis].
 |===
 
 
