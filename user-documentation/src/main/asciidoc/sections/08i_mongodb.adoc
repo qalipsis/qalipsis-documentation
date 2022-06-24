@@ -1,0 +1,146 @@
+= mongodb Plugin
+
+The `mongodb` plugin connects QALIPSIS to https://mongodb.com/[MongoDb].
+
+Technology Addressed::
+MongoDB: https://mongodb.com/[]
+
+Dependency::
+`io.qalipsis:plugin-mongodb`
+
+Namespace in Scenario::
+`mongodb()`
+
+Client Library::
+MongoDB Reactive Streams Driver: refer to https://www.mongodb.com/docs/drivers/reactive-streams/[MongoDB Java Reactive Streams].
+
+Supported Steps::
+* <<Poll Step,`poll`>>: polls newest data periodically.
+* <<Save Step,`save`>>: saves a batch of documents generated from the input and step context.
+* <<Search Step,`search`>>: searches documents, building a query from the input and step context.
+
+== Poll Step
+The `poll` step within the `mongodb` plugin polls the newest records from a database table, with a delay between each execution.
+
+Ancestor::
+Scenario
+
+Functionality::
+The `poll` step is created only once in a scenario;  it is then used throughout the scenario as called.
+ * `query` requires at least one sorting field (`tiebreaker` in the example) to filter the newest results and not fetch the same records repeatedly.
+* The latest known value for `tiebreaker` is used to filter out the values already received from the database.
+* `poll` uses a strategy of “delivered at least once”. 
+* `broadcast` (optional): specifies the broadcast properties.
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+mongodb().poll {
+  connect { 
+MongoClients.create("mongodb://localhost:${mongoDbPort}/?streamType=netty") 
+  }
+  search {
+    database = "the-db"
+    collection = "moves"
+    query = Document().append("action", "IN")
+    sort = linkedMapOf("timestamp" to Sorting.ASC)
+    tieBreaker = "timestamp"
+  }
+  pollDelay(Duration.ofSeconds(2))
+}
+----
+
+Notable Parameters::
+* `connect` (required): configures the connection to Mongodb.
+* `query` (required): specifies a document respecting the requirements of the target database. 
+* `tieBreaker` (required): repeats the first column used for sorting and comparison ( `<=` or `>=`, depending on the ascending or descending order).
+* `parameters` (optional): binds values to the clauses of the prepared statements.
+* `pollDelay` (required): specifies the delay between query executions.
+* `monitoring`(optional): configures the monitoring parameters for the step.
+* `broadcast` (optional): specifies the broadcast properties.
+
+Tips::
+* Use the `poll` step with a join operator if you need to verify the values saved by your tested system in the database.
+* Refer to the https://www.mongodb.com/docs/[Mongodb] documentation for further parameter and configuration information.
+
+
+== Save Step
+The `save` step within the 'mongodb` plugin persists a batch of documents into MongoDB.
+
+Ancestor::
+Step
+
+Functionality::
+The `save` step's input and step context are used to generate the table, the list of columns and their values, which are then combined and forwarded to the database.
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+mongodb().save {
+  connect {
+    MongoClients.create()
+  }
+  query {
+    database = databaseName
+    collection = collectionName
+    records = recordSupplier
+  }
+	monitoring {
+	  events = false
+    meters = true
+  }
+}
+----
+Notable Parameters:
+* `connect` (required):  configures the connection to `Mongodb`.
+* `query` (required): specifies a document respecting the requirements of the target database.
+* `monitoring`(optional): configures the monitoring parameters for the step.
+
+Tips::
+
+* Use this step after a `collect` step in order to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.
+* The  `save` step is extremely flexible; database, collection and documents may depend on the context and input value received from the previous step.
+* Refer to the  https://www.mongodb.com/docs/[Mongodb] documentation for further parameter and configuration information.
+
+
+== Search Step 
+The `search` step within the `mongodb` plugin searches records in the database using a search query.
+
+Ancestor::
+Step
+
+Functionality::
+The `search` step’s input and step context are used to generate a document and the values to complete it; the batch of results is then forwarded to the next step(s).
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+mongodb().search {
+	connect {
+    MongoClients.create()
+  }
+  search {
+    database = { _, _ -> "db" }
+    collection = { _, _ -> "col" }
+    query = { _, _ -> Document() }
+    sort = { _, _ -> linkedMapOf("asc" to Sorting.ASC, "desc" to Sorting.DESC) }
+  }
+  monitoring {
+	  events = false
+    meters = true
+  }
+}
+----
+
+Notable Parameters::
+* `connect` (required):  configures the connection to `MongoClients` using the provided host and port.
+* `search` (required): defines the search parameters including `database`, `collection` `query` and `sort`.
+* `monitoring`(optional): configures the monitoring parameters for the step.
+
+Tip::
+* Use this step after a collect() step in order to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.
+* Refer to the  https://www.mongodb.com/docs/[Mongodb] documentation for further parameter and configuration information.
+

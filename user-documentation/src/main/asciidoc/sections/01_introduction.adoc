@@ -1,4 +1,4 @@
-== Introduction
+= Introduction
 
 QALIPSIS is an enterprise-grade load and performance-testing tool especially designed for distributed systems.
 
@@ -8,48 +8,54 @@ QALIPSIS is a step above other load test applications that merely evaluate your 
 
 * QALIPSIS is developed in Kotlin to gain the benefits of the Java ecosystem and provide seamless system performance.
 
-* The basic out-of-the box QALIPSIS is completely free of charge.
+* The basic out-of-the box QALIPSIS tool is completely free of charge.
 +
-Commercial-licensed-based plugins, the cloud-based application, and other premium extensions are not included in the free version.
+Commercial-licensed-based plugins, the cloud-based application, and other premium extensions are not included in the basic out-of-the box QALIPSIS tool.
 
 * QALIPSIS is designed to test the performance of distributed and monolith systems.
 
 * QALIPSIS collects data from operating systems, databases, and monitoring tools.
 
-* QALIPSIS cross-checks system metrics and performs data verification to ensure that your systems is performing as expected. 
+* QALIPSIS cross-checks system metrics and performs data verification to ensure that the test systems is performing as expected. 
 
-=== Features
-==== User-friendly Interface
+== Features
+=== User-friendly Interface
   
-The QALIPSIS Graphical User Interface (GUI) allows users to drive straight forward test runs: start and stop, configure the load distribution, and increase or decrease the number of simulated users. The GUI also allows the user to view reports, schedule a test, etc.
+The QALIPSIS Graphical User Interface (GUI) allows users, depending on their role, to configure and run load tests with capabilities including, but not limited to:
 
-==== Automation Friendly Performance Verification
-Using the CLI or the Gradle plugin, you can automatically and repeatedly verify the condition and performance of your system.
+* Start/Stop
+* Configure the Load Distribution
+* Increase/Decrease the Number of Simulated Users
+* View Reports
+* Schedule a Test 
 
-==== Developer Friendly Plug-ins
+=== Automation Friendly Performance Verification
+Using the Command Line Interface (CLI) or the Gradle plugin, you can automatically and repeatedly verify the condition and performance of your system.
+
+=== Developer Friendly Plug-ins
 Downloading a ready-to-use project for your IDE is made easier on QALIPSIS, consequently integrating with popular DevOps tools to test your software and track the impact of recent changes.
 
-==== Aggregated Assertions
+=== Aggregated Assertions
 Aggregated assertions allow you to verify the overall results on a scenario. You can define thresholds to make a test succeed or fail and immediately get insights about the performance and consistency of your tested system. 
 
-==== Testing, Performance, and Geographical Distribution
+=== Testing, Performance, and Geographical Distribution
 * QALIPSIS can test distributed systems.
 * QALIPSIS can perform as a distributed system.
 * QALIPSIS can simulate load from several geographic locations to run comparisons based on location. 
  
-==== Live Results 
+=== Live Results 
 QALIPSIS events and meters provide extended details of load-test operations, providing users with various options for accessing the results. The results visualizations and dashboards, with details of each test-case execution, provide valuable insight for identifying the bottlenecks in your applications and uncovering the components and conditions of failures.
 
-==== Concurrent Load Simulations
+=== Concurrent Load Simulations
 QALIPSIS simulates the load from thousands to millions of users (e.g., website visitors, connected IoT devices, etc.) and cross-verifies successive values from different sources including requests, responses, infrastructure metrics, messaging platforms and databases.
 
-==== Operating System Independent
+=== Operating System Independent
 QALIPSIS load and performance testing can be performed from any operating system supporting Java with the same impressive results.
 
-=== Benefits
+== Benefits
 QALIPSIS was designed with distributed systems and current developer practices in mind. It provides a testing framework to allow developers to work in a real-world environment, writing and running load tests without a steep learning curve.
 
-==== For Developers 
+=== For Developers 
 QALIPSIS empowers developers to:
 
 * Choose their own testing tools and preferred programming language for writing load-test scenarios.
@@ -65,7 +71,7 @@ QALIPSIS empowers developers to:
 * Create a scenario in just a few minutes by enabling utilization of any Java library of choice (such as JUnit, Hamcrest, AssertJ) or pieces of software or proprietary libraries.
 * Test non-http technologies using numerous plug-ins, such as databases and messaging platforms.
 
-==== For IT Operations Teams
+=== For IT Operations Teams
 QALIPSIS provides IT Operations teams solutions to:
 
 * Monitor how deployments and other IT operations can affect the availability and overall performance of the system.

@@ -1,0 +1,118 @@
+
+= QALIPSIS Core Concepts 
+
+Once you have a minimal understanding of the core concepts, you will be ready to create a QALIPSIS scenario to verify that your software is performing as expected.
+
+The aim of QALIPSIS is to execute actions that inject load into IT systems to monitor and validate their behaviors (latency, failure rates, availability, and data consistency).
+
+The actions are performed by minions that inject load into a system and then run through a preconfigured scenario consisting of steps and assertions. If running QALIPSIS on a distributed system, you can create clusters with Head and Factory nodes to inject higher load.
+
+Before attempting to configure QALIPSIS to run on your system, it is important to understand the core concepts of the tool:
+
+* Minions
+* Scenarios
+* Steps
+* Assertions
+* Head
+* Factory
+ 
+== Minions
+Minions are simulations of website users, IoT devices, or other systems. They each perform a complete scenario.
+
+Any number of minions can act on a scenario. The minion count for a scenario is set during scenario configuration (refer to _<Scenario Configuration>_) or at runtime (refer to _<QALIPSIS Configuration>_).  If a minion count is entered at runtime, that count overrides the minion count set during scenario configuration.
+   
+== Scenarios
+ QALIPSIS scenario is the single largest component of a load test. It contains steps with a detailed description of all the operations to accomplish, their dependencies, as well as assertions to ensure everything performs as expected.
+A simple scenario configuration includes the following:
+
+. Call to the scenario function.
+** Mandatory
+** QALIPSIS Signature: `@Scenario`
+
+. Assign the scenario a name.
+** Mandatory
+** Value: alphanumeric string
+** QALIPSIS Signature: `val myScenario = scenario("scenario name")`
+
+. Define the total # of minions to be executed.
+** Optional
+** Value: positive number
+** Default = 1; Minimum = 1
+** QALIPSIS Signature: `minionsCount = xxxxx`
+
+. Define the ramping strategy.
+** Mandatory
+** QALIPSIS Signature: `rampUp {strategy( )}`
+
+. Define the tree where the load will be injected.
+** Mandatory
+** QALIPSIS Signature: `start()`
+
+. Call the Gradle Plugin for QALIPSIS.
+** Mandatory
++
+[source,kotlin,linenumbers]
+----
+plugins {
+    application
+    kotlin("jvm")
+    kotlin("kapt")
+    id("com.github.johnrengelman.shadow") version "6.0.0"
+    id("com.palantir.docker")
+}
+----
+
+. Add steps to your scenario.
+
+== Steps
+
+Steps are the central components for working with QALIPSIS and can be developed in Kotlin using the fluent API. 
+
+Steps depend on data sources, results of other steps or assertions to execute or use their data.
+
+A step specification is configured such that: 
+
+* The step receives the configuration closure as a parameter. 
+* `.configure` is called after the step parameters are set.
+
+Refer to the link:05_steps.adoc[Steps] section of this manual for details.  
+ 
+Each step has a unique configuration depending on the purpose of the step. The step configurations all follow the same logic:
+
+. Declared as a root or successor step.
+. Provided a name.
+. Provided with step context.
+. Delivers output data.
+
+
+Steps are configured using core operators:
+
+* Assertions
+* Timing
+* Creating
+* Conditional
+* Converting
+* Error Handling
+* Filtering
+* Joining
+* Mathematical/Aggregate
+* Transforming
+* Flow
+* User-defined
+
+Refer to the link:05_steps.adoc[Steps] section of this manual for details.  
+
+== Assertions 
+Assertions perform cross-checks within the scenario by:
+
+* Providing validation of data persistence, message exchanges, and requests to remote systems. 
+* Setting and testing durations to verify the system’s overall responsiveness.
+
+== Node
+A node is a distributed instance within a QALIPSIS cluster. QALIPSIS nodes are designated as either a Head or a Factory.
+
+=== Head
+The head is a node of a QALIPSIS cluster that is responsible for orchestration and reporting.
+
+=== Factory
+The factory is a node of a QALIPSIS cluster that hosts the minions to execute the load tests and assertions. 

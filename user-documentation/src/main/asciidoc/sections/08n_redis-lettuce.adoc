@@ -1,0 +1,225 @@
+= redis-lettuce Plugin
+
+The redis-lettuce plugin connects QALIPSIS to https://redis.io/[Redis].
+
+Technology Addressed::
+Redis: https://redis.io/[]
+
+Dependency::
+`io.qalipsis:plugin-redis-lettuce`
+
+Namespace in Scenario::
+`redisLettuce()`
+
+Client Library::
+Lettuce: refer to https://lettuce.io/[lettuce].
+
+Supported steps::
+* <<Poll Step,`poll`>>: polls newest data periodically.
+* <<Save Step,`save`>>: saves a batch of records generated from the input and step context.
+* <<Consume Step,`consume`>>: consumes data from `redis` streams.
+* <<Produce Step),`produce`>>: produces messages into `redis` streams.
+
+== Poll Step 
+The `poll` step within the `redis-lettuce` plugin polls the newest records from a `redis` key, with a delay between each execution of polling.
+
+Ancestor::
+Scenario
+
+Functionality::
+The `poll` step is created only once in a scenario; it is then used throughout the scenario as called.
+* The `KeyOrPattern` to be used in the poll is set to one of the following valid values: `scan`, `sscan`, `hscan`, `zscan`.
+* The native `redis-lettuce` command is called using the `KeyOrPattern` provided.
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+.redisLettuce()
+  pollHscan {
+    name = "poll.hscanacl"
+    connection {
+      nodes = “localhost:6379”
+      database = 0
+      redisConnectionType = RedisConnectionType.CLUSTER
+      authPassword = "pass"
+      authUser = "user"
+    }
+    KeyOrPattern("hscan-test-acl")
+    pollDelay(Duration.ofSeconds(1))
+    monitoring {
+      events = false
+      meters = false
+    }
+  }
+----
+
+Notable Parameters::
+* `Connection`(required): specifies the connection parameters.
+** `redisConnectionType`: indicates the connection type as `SINGLE`, `CLUSTER` or `SENTINEL`.
++
+If the connection type is set to `SENTINEL`, the parameter masterId is necessary. For more information, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel].
+* `keyOrPattern` (required): specifies the key or pattern that will be polled after each `pollDelay`.
+* `pollDelay` (required): specifies the delay between query executions.
+
+
+* `broadcast` (optional): specifies the broadcast properties.
+
+Tips::
+* Use this step with a join operator when you need to verify the values saved by your tested system in the database.
+* In addition to  HSCAN (`polllHscan` in the example), this step also supports the following `redis` commands: SCAN (`pollScan`), SSCAN (`pollSscan`), and ZSCAN (`pollZscan`). 
+* Refer to the  https://redis.io/docs/[Redis] documentation for further parameter and configuration information.
+
+
+== Save Step 
+The `save` step within the `redis-lettuce` plugin persists a batch of records into `redis`.
+
+Ancestor::
+Step
+
+Functionality::
+The `save` step's input and step context are used to generate a valid `redis` command and the values to complete it; the batch of results is then forwarded to the next step(s). The records are saved individually.
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+.redisLettuce().save {
+  name = "save"
+  connection {
+    nodes = “localhost:6379”
+    database = 0
+    redisConnectionType = RedisConnectionType.SINGLE
+    authPassword = "password"
+    authUser = "user"
+  }
+  records { _, _ ->
+    listOf(
+      ValueRecord(
+        key = "key",
+        value = "value"
+      ),
+      HashRecord(
+        key = "hash",
+        value = mapOf("key" to "value")
+      )
+    )
+  }
+  monitoring {
+    events = true
+    meters = true
+  }
+}
+----
+
+Notable Parameters::
+* `Connection`(required): specifies the connection parameters.
+** `redisConnectionType`: indicates the connection type as `SINGLE`, `CLUSTER` or `SENTINEL`.
++
+If the connection type is set to `SENTINEL`, the parameter `masterId` is necessary. For more information, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel].
+
+* `records `(required): generates and configures a list of saved records.
+
+The step supports the following `redis` commands: SET, SADD, HSET, ZADD. The provided values may depend on the context and input value received from the previous step.
+
+Tips::
+* Different types of commands can be inserted in the same step.
+* This step supports the following `redis` commands: SET, SADD, HSET, ZADD. The provided command may depend on the context and input value received from the previous step.
+* Refer to the  https://redis.io/docs/[Redis] documentation for further parameter and configuration information.
+
+
+== Consume Step
+The `consume` step within the `redis-lettuce` plugin records data from `redis` streams.
+
+Ancestor::
+Scenario 
+
+Functionality::
+The `consume` step creates a consumer group in a `redis` stream with the provided `connection`, consumer `group` name, and `concurrency`. If `concurrency` is set to 1, records are transmitted sequentially to the next step.  If `concurrency` is set to more than 1, the records transmitted to the next step may not be in sequence.
+
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+.redisLettuce()
+  .streamsConsume {
+    name = "consumer"
+    connection {
+      nodes = “localhost:6379”
+      database = 0
+      redisConnectionType = RedisConnectionType.CLUSTER
+      authPassword = "password"
+      authUser = "user"
+    }
+    concurrency(5)
+    group("consumer-test-1")
+    streamKey("test")
+    offset(“FROM_BEGINNING”)
+    monitoring {
+      events = false
+      meters = false
+    }
+  }
+----
+
+Notable Parameters::
+
+* `connection`(required): configures the connection to Qalipsis.
+* `redisConnectionType` (required): indicates the connection type as `SINGLE`, `CLUSTER` or `SENTINEL`. The default is `SINGLE`.
++
+If the connection type is set to `SENTINEL`, the parameter `masterId` is necessary. For more information, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]. 
+* `concurrency`(required): configures the level of coroutines consuming the Redis streams.
+* `offset`(required): sets the offset value to `FROM_BEGINNING`, `LAST_CONSUMED` or `LATEST` for each topic and consumer group.
+* `broadcast` (optional): specifies the broadcast properties.
+* `pollDelay` (required): specifies the delay between query executions.
+* `monitoring`(optional): configures the monitoring parameters for the step.
+
+Tip::
+* Refer to the  https://redis.io/docs/[Redis] documentation for further parameter and configuration information.
+
+== Produce Step
+The `produce` step within the `redis-lettuce` plugin produces records into the Redis streams.
+
+Ancestor::
+Step
+
+Functionality::
+The `produce` step produces a batch of records into one or more `redis` stream topics. Note that the record values may be provided by previous step(s).
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+.redisLettuce().streamsProduce {
+  name = "producer"
+  connection {
+    nodes = “localhost:6379”
+    database = 0
+    redisConnectionType = RedisConnectionType.CLUSTER
+    authPassword = "password"
+    authUser = "user"
+  }
+  records { _, input ->
+    listOf(
+      LettuceStreamsProduceRecord(
+        key = "producer.test",
+        value = mapOf("test" to input.value.values.first())
+        )
+      )
+  }
+  monitoring {
+    events = true
+    meters = true
+  }
+}
+----
+
+Notable Parameters::
+* `redisConectionType` (required): sets the connection type as `SINGLE`, `CLUSTER` or `SENTINEL`.
++
+Note: If the connection type is set to `SENTINEL`, the parameter `masterId` is necessary. For more information, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]. 
+* `records` (required): generates and configures a list of produced records.
+
+Tip::
+* Refer to the  https://redis.io/docs/[Redis] documentation for further parameter and configuration information.

@@ -1,0 +1,113 @@
+= rabbitmq Plugin
+
+The rabbitmq plugin connects QALIPSIS to the https://www.rabbitmq.com/[RabbitMQ] broker.
+
+Technology Addressed::
+ RabbitMQ: https://www.rabbitmq.com/[]
+
+Dependency::
+ `io.qalipsis:plugin-rabbitmq`
+ 
+Namespace in Scenario::
+ `rabbitmq()`
+
+Client Library::
+RabbitMQ: refer to https://www.rabbitmq.com/[rabbitMQ]
+
+
+Supported Steps::
+* <<Consume Step,`consume`>>: polls data from the `rabbitmq` broker
+* <<Produce Step,`produce`>>: push data to the rabbitmq broker
+ 
+== Consume Step
+The `consume` step within the `rabbitmq` plugin consumes data from queues of the rabbitmq broker and forwards the data to the next step.
+
+This step is generally used in conjunction with `join` to assert data or inject data into a workflow.
+
+This step supports multithreading concurrent consumers using  the `concurrency()` property.  When the concurrency is set to more than 1, the sequence of the records transmitted to the next step in no longer guaranteed.
+ 
+To learn more, visit the https://www.rabbitmq.com/#getstarted[RabbitMQ] website.
+
+Ancestor::
+Scenario
+ 
+Functionality::
+The `consume` step starts a polling loop for consumption of the designated queue.  As new records appear, `consume` polls them and sends them to the next step.
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+rabbitmq().
+  consume {
+    queue("user")
+    connection {
+      host = hostContainer
+      port = portContainer
+      password = "defaultpass"
+      username = "user"
+    }
+    concurrency(2)
+    prefetchCount (11)
+}
+----
+ 
+Notable Parameters::
+* `queue`: defines the name of the queue to consume.
+* `connection`: configures the connection to the RabbitMQ broker; defaults to `localhost:5672`
+* `concurrency:` defines the number of concurrent channels producing messages to RabbitMQ; defaults to 1.
+* `prefetchCount`: defines the prefetch count value; defaults to 10. 
+* `pollDelay` (required): specifies the delay between query executions.
+
+* `broadcast` (optional): specifies the broadcast properties.
+
+Tip::
+* Use the `consume` step with `join` to assert data or inject data into a workflow.
+* Learn more about `prefetchCount` by reading the  https://www.rabbitmq.com/consumer-prefetch.html [RabbitMQ Prefetch] documentation.
+* To configure the `consume` step, consult the https://www.rabbitmq.com/documentation.html[rabbitMQ] documentation.
+* Learn more about `prefetchCount` by reading the  https://www.rabbitmq.com/consumer-prefetch.html [RabbitMQ Prefetch] documentation.
+
+== Produce Step 
+
+The `produce` step within the `rabbitmq` plugin provides messages to the `rabbitmq` broker using a query; the messages are then forwarded as input to the next step.
+
+Ancestor::
+Scenario
+ 
+Functionality::
+The `produce` step's input and step context are used to generate the values to complete the step; results are then forwarded to the next step(s).
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+rabbitmq().
+  produce {
+    name = "my-producer-step"
+    concurrency(10)
+    connection {
+      host = "anotherhost"
+      port = 5673
+      password = "pass"
+      username = "test"
+      virtualHost = "/guest"
+      clientProperties = mapOf("t" to "test")
+      }
+    records(recordSupplier)
+    monitoring {
+      events = true
+      meters = false
+    }
+}
+----
+ 
+Notable Parameters::
+* `concurrency` defines the number of concurrent channels producing messages to `rabbitmq`; defaults to `1`.
+* `connection`: configures the connection to the `rabbitmq` broker; defaults to `localhost:5672`.
+* `records`: configures and generates a list of produced records.
+
+Tip:: 
+* For more information on configuring the connection to `rabbitmq`, refer to  https://www.rabbitmq.com/api-guide.html#connecting[Connecting to RabbitMQ].
+
+* For more information on configuring the `produce` step, refer to the https://www.rabbitmq.com/documentation.html[rabbitMQ] documentation.
+

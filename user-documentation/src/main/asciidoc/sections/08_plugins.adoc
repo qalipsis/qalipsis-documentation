@@ -1,12 +1,12 @@
-== Plugins
+= Plugins
 
-=== Introduction
-A plugin is a technical extension designed to extend the core capabilities of a tool.
+== Introduction
+A plugin is a technical extension designed to extend the core capabilities of QALIPSIS.
 
 Plugins: 
 
-*  Tackle the complexity implied by the multiplicity of technologies and use cases to support in the tool.
- * Reduce the coupling between the technical elements, keeping them safer and easier to maintain.
+* Tackle the complexity implied by the multiplicity of technologies and use cases to support in the tool.
+* Reduce the coupling between the technical elements, keeping them safer and easier to maintain.
 
 The main advantages of using plugins are:
 
@@ -17,39 +17,33 @@ The main advantages of using plugins are:
 ** Faster compilation and start times.
 ** Smaller artifacts to store, transport and share.
 
-By nature, a plugin is an optional component of the tool. You only include what you need, ignoring components and libraries that do not serve your needs or your present critical concerns.
+By nature, a plugin is an optional component of QALIPSIS. It allows you to include only what you need while ignoring components and libraries that do not serve your your present concerns.
 
 While a certain number of plugins are proposed by the community to cover the most common use cases and technologies, a plugin can also be an extension only for yourself and remain private.
 
-=== Plugin Functionality
-A plugin contains one or several technical functionalities of the software that are not part of the core. The most common functionalities a plugin might implement are:
+== Plugin Functionality
+A plugin contains one or several technical functionalities of the software that are not part of the core. The most common functionalities that a plugin might implement are:
 
-* A step to perform actions, such as
+* A step to perform an action, such as:
 ** Executing requests on a remote system using a specific protocol.
 ** Polling data from a source.
 ** Transforming data.
 * An events logger.
-* A metrics registry to a datastore.
-* Cache storage.
-* A messaging platform or protocol.
+* A meter registry.
  
-Default implementations of the above functionalities are part of the QALIPSIS core. in the QALIPSIS core with default implementations. , which might not suit productive testing or constant monitoring. Plugins improve the coverage of the different technologies by providing related implementations.
+Default implementations of the above functionalities are part of the QALIPSIS core. However, the default implementations may not be suited for your scenario (e.g., if productive testing or constant monitoring are requirements). QALIPSIS plugins enhance the above functionalities by providing related implementations.
 
-=== Plugin Integration
-To create a test scenario, a tiny Gradle/Maven project is required. The plugin is simply added as a dependency to the class path of the project. You can read more about it in <<Creating a Scenario>> within <<Quickstart>>.
+== Plugin Integration
+To create a test scenario, a tiny Gradle project is required. The plugin is simply added as a dependency to the class path of the project. You can read more about it in <<Creating a Scenario>> within <<Quickstart>>.
 
-If the development of a scenario requires the plugin to compile - like when using a step - the dependency to the plugin artefact has to be added to the implementation dependencies.
+If the development of a scenario requires the plugin to compile (when using a step, for example), the dependency to the plugin artifact must be added to the `implementation` dependencies.
 
-If the plugin delivers functionalities you only need at runtime, add it to the runtimeOnly dependencies.
+If the plugin delivers functionalities that you only need at runtime, add it to the `runtimeOnly` dependencies.
 
-In case of doubt, you can still add to the implementation dependencies - api if the relationship between the executable project and the dependency is transitive.
-
-While plugins provide best practices and a convention to perform recurrent operations, they might not be always necessary. One-time show case or simple actions do not require to develop a plugin: the source code you create and need is directly part of your scenario project source and packaged into the executable archive.
-
-=== Using QALIPSIS Plugins
+== Using QALIPSIS Plugins
 QALIPSIS provides several plugins targeting different technologies, systems and protocols.
 
-To use a plugin, just add the related dependency to your project:
+To use a plugin, add the related dependency to your project:
 
 Gradle - Groovy DSL:
 [source,groovy,subs="normal"]
@@ -62,7 +56,7 @@ Gradle - Kotlin DSL:
 implementation("io.qalipsis:plugin-XXX:{revnumber}")
 ----
 
-You can find the list of available plugins and their related documentation on the <<QALIPSIS Plugins>> site.
+== Available Plugins
+You can  find all  available plugins and their related documentation in the xref:08a_available plugins.adoc[Available Plugins] section of this manual. 
 
-=== Creating Your Own Plugin
-TO DO
+

@@ -1,32 +1,35 @@
-== Configuration
-=== Starting QALIPSIS in Different Modes
+= QALIPSIS Configuration
+
+== Starting QALIPSIS in Different Modes
 Two modes of QALIPSIS configuration are currently supported:
 
 * Interactive
 * Scenario Selection
 
-==== Interactive
+=== Interactive
  . Execute QALIPSIS with the option `--prompt` or `-p`.
 as in the following example:
 +
-[source,bash]
+[source,kotlin]
 ----
 java -jar my-scenario-qalipsis.jar --prompt
 ----
 . When prompted, enter the load factor (# of minions), speed factor, ramping strategy, etc. 
 
-==== Scenario Selection
+=== Scenario Selection
+
 . Execute QALIPSIS with the `--scenarios` or `-s` as in the following example:
 +
-[source,bash]
+[source,kotlin]
 ----
 java -jar my-scenario-qalipsis.jar --scenarios "my-first-scenario, ?y-*-s*n?rio"
 ----
 +
 The value is a comma-separated list of an exact value of a scenario, a pattern of the scenario, or both. The pattern may contain wildcards (* or ?) as in the example above.
 
-=== Runtime Configuration
-==== Command-line Arguments
+== Runtime Configuration
+
+=== Command-line Arguments
 This section provides an overview and an example of the command-line arguments that are available at runtime.
 
 Note that all command-line arguments can be provided in a file, as explained in <<External Property Sources>>.
@@ -35,19 +38,18 @@ Note that all command-line arguments can be provided in a file, as explained in 
 +
 This command defines how many minions should be used in the load-injected tree. It is not compliant with `campaign.minions-factor`.
 +
-Following is an example of the command to set the number of minions:
+Following is an example of the command to use to set the number of minions:
 +
-[source,bash]
-----
-campaign.minions-count-per-scenario=#ofMinions
-----
-+
-where `# ofMinions` is an integer and the default value is the `minionCount` set during configuration of the scenario.
-+
+[source,kotlin]
+---
+campaign.minions-count-per-scenario (#ofMinions)
+---
 
-. Load Factor.
+where `#ofMinions` is an integer and the default value is the `minionCount` set during configuration of the scenario.
+
+. `Load Factor`.
 +
-The load factor command multiplies the number of minions set in the scenario specification by the provided value. It is not compliant with `campaign.minions-count-per-scenario`.
+The `load factor` command multiplies the number of minions set in the scenario specification by the provided value. It is not compliant with `campaign.minions-count-per-scenario`.
 +
 * If the value is set between 0 and 1, the `minionCount` is reduced.
 * If the value is set to greater than one (or `double`,`triple`, `quadruple`, etc.) the `minionCount` is increased. 
@@ -55,30 +57,31 @@ The load factor command multiplies the number of minions set in the scenario spe
 +
 Following is an example of the command to set the load factor:
 +
-[source,bash]
-----
-campaign.minions-factor, double, default to 1
-----
+`campaign.minions-factor, double, default to 1`
 +
-. Speed Factor.
+. `Speed Factor`.
 The speed factor command is applied on the ramping strategy to accelerate or slow down the pace of the minions released. 
-
++
 For example:
-[source,bash]
-----
-`campaign.speed-factor`, double, default to 1
-----
-The value for the speed factor are defined the same as for load factor.
++
+`campaign.speed-factor, double, default to 1`
++
+The value for the speed factor is defined the same as for load factor.
 
-==== External Property Sources
+=== External Property Sources
+
 QALIPSIS uses Micronaut's runtime underneath.
-Hence, you can use its mechanism of https://docs.micronaut.io/latest/guide/index.html#propertySource[externalized configuration with property sources].
+Hence, you can use its mechanism of https://docs.micronaut.io/latest/guide/index.html#propertySource[Externalized Configuration with Property Sources].
 
-You can overwrite the default configuration and add your own properties by creating a file called `qalipsis-config.yml` either in the class path or in the working directory or both. Both the default configuration and the  `qalipsis-config.yml` file can specify the same parameters; however, the `qalipsis-config.yml` has precedence.
+You can overwrite the default configuration and add your own properties by creating a file called `qalipsis-config.yml` either in the class path or in the working directory or both. 
+
+Both the default configuration and the  `qalipsis-config.yml` file can specify the same parameters; however, the `qalipsis-config.yml` has precedence.
 
 === Injecting Configuration in a Scenario
+
 You can inject values into your scenario or its declaring class using the annotation `@io.qalipsis.api.annotations.Property` as in the following example:
-[source,kotlin]
+
+[source,kotlin, linenumbers]
 ----
 class EcommercePurchase(@Property("ecommerce-purchase.load") private val numberOfMinions: Int) {
 

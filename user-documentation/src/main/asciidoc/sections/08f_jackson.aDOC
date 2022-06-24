@@ -1,0 +1,123 @@
+= jackson Plugin
+
+The `jackson` plugin supports reading a (https://github.com/FasterXML/jackson[JSON, XML or CSV]) file, converting the data to an object, and pushing the object to the next step.
+
+Technologies Addressed::
+ https://github.com/FasterXML/jackson[Class JsonMapper]
+
+Dependency::
+ `io.qalipsis:plugin-jackson`
+
+Namespace in Scenario::
+ `jackson()`
+
+Client Library::
+ JsonMapper: refer to http://fasterxml.github.io/jackson-databind/javadoc/2.11/com/fasterxml/jackson/databind/json/JsonMapper.html[FasterXML].
+
+Supported Steps::
+ * link:++ csvToMap, csvToObject++,[csvToMap, csvToObject]
+: reads a CSV file, and converts the data to a map (or an Object).
+ * link:++jsonToMap, jsonToObject"++,[jsonToMap, jsonToObject]: reads a JSON file and converts the data to a map (or Object) .
+ * <<XmlToObject,`xmlToObject`>>: reads an XML file and converts the data to an object.
+
+== csvToMap, csvToObject
+The `csvToMap` and `csvToObject` steps within the `jackson` plugin read a CSV resource (file, classpath resource, URL) and returns each item as an instance of an object or Map.
+ 
+Ancestor::
+ Step
+ 
+Functionality::
+The `csvToMap` and `csvToObject` step Specification has a `targetClass` property to which the output lines should be mapped.
+The step reads a CSV file, converts the data to a `map` (or an `object`) and pushes the `map` (or `object`) to the next step.
+
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+jackson().csvToMap {
+   classpath(file)
+   header {
+       escapeChar('E')
+       quoteChar('"')
+       columnSeparator(';')
+       withHeader()
+       allowComments()
+
+       column("1st value").double()
+       column("2th value").string().array(",")
+       column("3rd value").string(true)
+       column("4th value").string(true)
+   }
+}
+
+jackson().csvToObject(PojoForTest::class) {
+   classpath(file)
+}
+----
+ 
+Notable Parameters::
+* `classpath(path)`: reads the data from a specified class path resource; `file` is the path to the resource with the leading slash ignored.
+* `file(path)`: reads the data from from a specified plain file on the file system; `path` is the path to the file, either absolute or relative to the current working directory.
+* `url(url)`: reads the data from the specified `url`; the specified `url` links to the data resource.
+* `mapper`: configures the JSON Mapper to deserialize the records.
+* `monitoring`(optional): configures the monitoring parameters for the step.
+
+Tips::
+Only one path `classpath(path)`, `file(path)`, or `url(url)`) to the resource is allowed for each `csvToObject` or `csvToMap` step.
+
+
+== XmlToObject
+The `XmlToObject` step within the `jackson` plugin reads an XML resource (file, classpath resource, URL) and returns each item as an instance of an object of the specified class.
+
+Ancestor::
+ Step
+ 
+Functionality::
+The `XmlToObject` step specification has a `targetClass` property to which the output lines should be mapped.
+The step reads an XML file, converts the data to an `object`, and pushes the `object` to the next step.
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+jackson().xmlToObject(PojoForTest::class) {
+   classpath(file)
+}
+----
+ 
+Notable Parameters::
+* `classpath(path)`: reads the data from a specified class path resource; `file` is the path to the resource with the leading slash ignored.
+* `file(path)`: reads the data from from a specified plain file on the file system; `path` is the path to the file, either absolute or relative to the current working directory.
+* `url(url)`: reads the data from the specified `url`; the specified `url` links to the data resource.
+* `monitoring`(optional): configures the monitoring parameters for the step.
+
+Tips::
+Only one path (`classpath(path)`, `file(path)`, or `url(url)`) to the resource is allowed for each `xmlToObject` step.
+
+== jsonToMap, jsonToObject
+The `jsonToMap` and `jsonToObject` steps within the `jackson` plugin read a JSON resource (file, classpath resource, URL) and returns each item as an instance of `map` or `object`).
+ 
+Ancestor::
+ Step
+ 
+Functionality::
+The `jsonToMap` and  `jsonToObject` step specification has a `targetClass` property to which the output lines should be mapped. The step reads a JSON file, converts the data to a `map` (or an `object`)  and pushes the `map` (or `object`) to the next step.
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+jackson().jsonToMap() {
+   classpath(file)
+}
+jackson().jsonToObject(PojoForTest::class) {
+   classpath(file)
+}
+----
+ 
+Notable Parameters::
+* `classpath(path)`: reads the data from a specified `path` resource; `file` is the path to the resource with the leading slash ignored.
+* `file(path)`: reads the data from from a specified plain file on the file system; `path` is the path to the file, either absolute or relative to the current working directory.
+* `url(url): ; specifies and links to the `url` of the data resource.
+* `monitoring`(optional): configures the monitoring parameters for the step.
