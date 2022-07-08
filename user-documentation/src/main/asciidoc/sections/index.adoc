@@ -2,7 +2,7 @@
 ifndef::imagesdir[:imagesdir: ./images]
 :favicon: ./images/qalipsis.ico
 :stylesheet: {includedir}/stylesheets/colony.css
-= image:qalipsis-big-no-headline.png[qalipsis-big-no-headline,100] User guide
+= image:QALIPSIS-Insight-color-text-no-bg.png[QALIPSIS-Insight-color-text-no-bg,100] User guide
 
 <<<<
 include::{includedir}/sections/01_introduction.adoc[]

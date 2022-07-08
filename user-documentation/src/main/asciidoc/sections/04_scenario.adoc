@@ -204,7 +204,7 @@ The speed-factor at runtime will be applied to the interval: a speed factor of 2
 
 * User Defined Ramping Strategies
 +
-A user-defined ramping strategy is totally open to the developer's creativity or needs. It consists of returning a `minionsstartingline` considering the previous period in milliseconds, the total number of minions to start and the speed factor to apply.
+A user-defined ramping strategy is totally open to the developer's creativity or needs. It consists of returning a `MinionsStartingLine` considering the previous period in milliseconds, the total number of minions to start and the speed factor to apply.
 +
 The following example releases 1/100th of all the minions after 1000 ms, then applies different rules depending on the past interval:
 * If the previous interval was longer than 2 seconds, 100th of all the minions are released after 100ms;
