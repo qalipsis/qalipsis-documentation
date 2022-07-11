@@ -18,13 +18,12 @@ java -jar my-scenario-qalipsis.jar --prompt
 
 === Scenario Selection
 
-. Execute QALIPSIS with the `--scenarios` or `-s` as in the following example:
-+
+Execute QALIPSIS with the `--scenarios` or `-s` as in the following example:
 [source,kotlin]
 ----
 java -jar my-scenario-qalipsis.jar --scenarios "my-first-scenario, ?y-*-s*n?rio"
 ----
-+
+
 The value is a comma-separated list of an exact value of a scenario, a pattern of the scenario, or both. The pattern may contain wildcards (* or ?) as in the example above.
 
 == Runtime Configuration
@@ -44,7 +43,7 @@ Following is an example of the command to use to set the number of minions:
 ---
 campaign.minions-count-per-scenario (#ofMinions)
 ---
-
++
 where `#ofMinions` is an integer and the default value is the `minionCount` set during configuration of the scenario.
 
 . `Load Factor`.

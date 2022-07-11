@@ -1,5 +1,6 @@
 = Scenario specification
 
+== Overview
 A scenario specification is the total of all of the steps required to configure the scenario and to execute it at run-time.
 
 In order to provide maximum flexibility for configuring a scenario and the best performance while executing it, QALIPSIS splits its configuration from its execution.
@@ -96,10 +97,11 @@ Every scenario has a default configuration.
 * Optional
 * Default = 1
 
-Whether you want to simulate users, IoT devices or third-party systems, each simulation is identified with a unique minion.
-The more minions, the more load.
-Minions execute concurrently and through all trees.
-You can specify a default `minionsCount` (1000 in the following example ):
+Whether you want to simulate users, IoT devices or third-party systems, each simulation is identified with a unique minion:
+
+* The more minions, the more load.
+* Minions execute concurrently and through all trees.
+* You can specify a default `minionsCount` (1000 in the following example):
 [source,kotlin,linenumbers]
 ----
 @Scenario
@@ -127,9 +129,9 @@ An accelerating ramping strategy injects either a set number of minions at an ac
 +
 . Accelerated pace using `faster`.
 +
-The following example injects 10 minions every 2000 ms, then 10 minions every 1333 (2000 / 1.5) ms, then 10 minions every 888 (2000 / 1.5 / 1.5) ms, continuing until the interval reaches 200 ms.
+The following example injects 10 minions to start,then 10 new minions after 2000 ms, 10 new minions after another 1333 (2000 / 1.5) ms, 10 new minions after 888 (2000 / 1.5 / 1.5) ms, continuing until the interval reaches 200 ms.
 +
-At that point, 10 minions are started every 200 ms, until they all are active.
+After the interval reaches 200ms, 10 minions are injected every 200 ms until all minions are active.
 +
 [source,kotlin,linenumbers]
 ----
@@ -143,11 +145,11 @@ fun myScenario() {
 }
 ----
 +
-The speed-factor at runtime will be applied to the multiplication factor: a speed factor of 2 will reduce the interval twice faster.
+The speed-factor at runtime will be applied to the multiplication factor: a speed factor of 2 will reduce the interval time in half.
 
 . Accelerated number of minions using `more`.
 +
-The following example starts minions every 200 ms: first 10, then 20 minions after 200 ms, 40 new minions after 200 ms, to the limit of 1000 minions every 200ms until they all are active.
+The following example injects minions every 200 ms: first 10, then 20 new minions after 200 ms, 40 new minions after another 200 ms, to the limit of 1000 minions every 200ms until all minions are active.
 +
 [source,kotlin,linenumbers]
 ----
@@ -161,7 +163,7 @@ fun myScenario() {
 }
 ----
 +
-The speed-factor at runtime will be applied to the multiplication factor: a speed factor of 2 will increase the number of minions at each shot twice faster.
+The speed-factor at runtime will be applied to the # of minions injected: a speed factor of 2 will increase the number of minions by 2 at each injection.
 
 * `regular` Ramping Strategy
 +
@@ -244,7 +246,8 @@ Execution of steps can fail for a variety of reasons, including, but not limited
 
 When a step execution fails, it may be retried if a retry policy has been set within the scenario configuration or the step configuration.
 
-Once all attempts are executed per the defined `retryPolicy`, the step execution context is marked as exhausted and only link:05_steps.adoc[Error Processing Steps] are executed.
+Once all attempts are executed per the defined `retryPolicy`, the step execution context is marked as exhausted and only error processing steps are executed.  Refer to the link:05_steps.adoc[Step Specifications Section] for more information on error processing steps.
+
 [source,kotlin,linenumbers]
 ----
 @Scenario

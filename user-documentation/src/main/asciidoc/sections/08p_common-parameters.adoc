@@ -1,0 +1,36 @@
+= Common Parameters
+
+* `connection`:
+ (required): configures the connection with the parameters that follow it in the code.
+[kotlin,line numbers]
+----
+connection {
+      host = hostContainer
+      port = portContainer
+      password = "defaultpass"
+      username = "user"
+}
+----
+* `monitoring` (optional): specifies how the` step is monitored.
+** `meters` (optional): indicates if meters are to be monitored,  true = yes; false = no.
+** `events` (optional): indicates if events are to be monitored,  true = yes; false = no.
+
+* `tiebreaker`:
+** `name` (required): tiebreaker name which is an alphanumeric string.
+** `type`(required): tiebreaker type which is either  GenericType.STRING or??
+
+
+* `datacenterName` (required): the name of the datacenter. 
+
+
+* `connect`
+
+* `servers` (required): specifies the hosts and ports for the connection.
+
+
+
+
+
+
+
+

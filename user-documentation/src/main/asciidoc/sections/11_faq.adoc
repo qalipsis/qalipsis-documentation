@@ -1,5 +1,6 @@
-== Frequently Asked Questions
-* *How do I implement a plugin in a Scenario?*
+= Frequently Asked Questions
+
+* *How do I implement a plugin into a Scenario?*
 +
 Answer text here
 

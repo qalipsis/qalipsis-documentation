@@ -1,21 +1,22 @@
 
 = cassandra Plugin
 
+== Overview
 The `cassandra` plugin connects QALIPSIS to https://cassandra.apache.org/_/index.html[APACHE Cassandra].
  
 Technologies Addressed:: 
-* Cassandra: https://cassandra.apache.org/_/index.html[APPACHE Cassandra]
+* Cassandra: https://cassandra.apache.org/_/index.html[APACHE Cassandra]
 * Cassandra Query Language: https://cassandra.apache.org/doc/latest/cassandra/cql/index.html[The Cassandra Query Language (CQL)]
 * DataStax Driver: https://docs.datastax.com/[DataStax].
 
 Dependency::
- `io.qalipsis:plugin-cassandra`
+`io.qalipsis:plugin-cassandra`
 
 Namespace in Scenario::
- `cassandra()`
+`cassandra()`
 
 Client Library::
-DataStax: refer to the https://docs.datastax.com/[DataStax] documentation.
+DataStax: refer to the https://docs.datastax.com/[DataStax].
 +
 Datastax is a modern, feature-rich and highly tunable Java client library for Apache Cassandra using Cassandra’s binary protocol and Cassandra Query Language.
 
@@ -25,16 +26,13 @@ Supported Steps::
 * <<Search Step,`search`>>: searches records and builds a query from the input and step context.
 
 == Poll Step
-The `poll` step within the `cassandra` plugin polls the newest records from the database table.
+The `poll` step within the `cassandra` plugin polls the newest records from the database table. 
  
 Ancestor::
 Scenario or Step
  
 Functionality::
-The `poll` step is created only once in a scenario; it is then used throughout the scenario as called. 
-* `query` requires at least one sorting field (`tiebreaker` in the example) to filter the newest results and not fetch the same records repeatedly.
-* The latest known value for `tiebreaker` is used to filter out values already received from the database.
-* `poll` uses a strategy of “delivered at least once."
+The `poll` step is created only once in a scenario; it is then used throughout the scenario as called. The `poll` step within the `cassandra` plugin uses a strategy of “delivered at least once." 
 
 Example::
 +
@@ -62,22 +60,21 @@ cassandra().poll {
 }
 ----
 Notable Parameters::
-
-* `connect` (required): configures the connection to https://cassandra.apache.org[APACHE Cassandra].
+* `connect` (required): configures the connection to https://cassandra.apache.org[APACHE Cassandra]
 ** `keyspace`(required): the outermost object that determines how data replicates on nodes.
-** `datacenterProfile`(required): an execution profile to encapsulate a group of settings that can then be associated with individual queries.
+** `datacenterProfile`(required): an execution profile that encapsulates a group of settings associated with individual queries.
 * `query` (required): defines the prepared statement to execute when polling.
-* `parameters` (optional): binds values to the clauses of the prepared statements.
-* `tieBreaker` (required): repeats the first column used for sorting and comparison ( `<=` or `>=`, depending on the ascending or descending order).
+* `parameters` (optional): binds values to the clauses of the prepared query.
+* `tieBreaker` (required): repeats the first column used for sorting and comparison (`<=` or `>=`, depending on the ascending or descending order).
 * `pollDelay` (required): specifies the delay between query executions.
 * `monitoring`(optional): configures the monitoring parameters for the step.
-* `broadcast` (optional): specifies the broadcast properties for the step.
+* `broadcast` (optional): specifies the broadcast parameters for the step.
 
 Tips::
-
 * Use the `poll` step with a left join operator to verify the values saved by your tested system in the database.
+* `query` requires at least one sorting field (`tiebreaker` in the example) to filter the newest results and not fetch the same records repeatedly.
+* The latest known value for `tiebreaker` is used to filter out values already received from the database.
 * Refer to the https://cassandra.apache.org/doc/latest[APACHE Cassandra] documentation further parameter and configuration information.
-
 
 == Save Step 
 The `save` step within the `cassandra` plugin persists records into a cassandra database using the save query with Cassandra Query Language (CQL).
@@ -112,14 +109,13 @@ Example::
 Notable Parameters::
 * `connect` (required): configures the connection to https://cassandra.apache.org[APACHE Cassandra].
 ** `keyspace`(required): the outermost object that determines how data replicates on nodes.
-** `datacenterProfile`(required): an execution profile to encapsulate a group of settings that can then be associated with individual queries.
+** `datacenterProfile`(required): an execution profile that encapsulates a group of settings associated with individual queries.
 * `monitoring`(optional): configures the monitoring parameters for the step.
 
-
 Tips::
-* Use this step after a `collect` step in order to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.
+* Use the `save` after a `collect` step in order to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.
 * The `save` step is extremely flexible; table, rows, and columns depend on the context and input value received from the previous step.
-* Refer to the https://cassandra.apache.org/doc/latest[APACHE Cassandra] documentation further parameter and configuration information.
+* Refer to the https://cassandra.apache.org/doc/latest[APACHE Cassandra] documentation for further parameter and configuration information.
  
 
 
@@ -129,10 +125,10 @@ Tips::
 The `search` step within the `cassandra` plugin searches records in the database using a search query.
  
 Ancestor::
- Step
+Step
  
 Functionality::
- The `search` step’s input and step context are used to complete the search; the list of results is then forwarded to the next step(s).
+The `search` step’s input and step context are used to complete the search; the list of results is then forwarded to the next step(s).
 
 Example::
 +
@@ -157,17 +153,16 @@ connect {
    }
 }
 ----
- 
 Notable Parameters::
 * `connect` (required): configures the connection to  https://cassandra.apache.org
 [APACHE Cassandra].
 ** `keyspace`(required): the outermost object that determines how data replicates on nodes.
-** `datacenterProfile`(required): an execution profile to encapsulate a group of settings that can then be associated with individual queries.
-** `query` (required): defines the prepared statement to execute when searching; the query may contain ordering clauses.
+** `datacenterProfile`(required): an execution profile that encapsulates a group of settings associated with individual queries.
+** `query` (required): defines the prepared statement to execute when searching.
 * `parameters`: (optional): binds values to the clauses of the prepared query.
 * `monitoring`(optional): configures the monitoring parameters for the step.
 
 Tips::
-* Use this step after a `collect()` step to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.
-
-* Refer to the https://cassandra.apache.org/doc/latest[APACHE Cassandra] documentation further parameter and configuration information.
+* Use the `search` step after a `collect()` step to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.
+* The `query` Parameter may contain ordering clauses.
+* Refer to the https://cassandra.apache.org/doc/latest[APACHE Cassandra] documentation for further parameter and configuration information.

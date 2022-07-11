@@ -8,7 +8,6 @@ WARNING: Ensure you have the following dependency in the project where your bean
 You can declare a singleton bean using the annotation `@jakarta.inject.Singleton` on a type, or https://docs.micronaut.io/latest/guide/index.html#factories[use a Micronaut factory].
 
 === Creation of beans
-+
 [source,kotlin,linenumbers]
 ----
 import jakarta.inject.Singleton
@@ -26,11 +25,9 @@ class ExecutorFactory {
     }
 }
 ----
-
 Once beans are created, you can inject them in the constructor or the scenario method:
 
 === Injection of beans
-+
 [source,kotlin,linenumbers]
 ----
 class EcommercePurchase(private val retryPolicy: RetryPolicy) {// The previously created bean of type `RetryPolicy` is injected in the constructor of the scenario declaring class.
@@ -44,7 +41,6 @@ class EcommercePurchase(private val retryPolicy: RetryPolicy) {// The previously
     }
 }
 ----
-
 == Qualifying the Bean to Inject
 When several beans exist for the same type, you might want to select the one to inject.
 QALIPSIS supports named injection as in the following example.
@@ -63,13 +59,10 @@ class EcommercePurchase(@param:Named("default") private val retryPolicy: RetryPo
     }
 }
 ----
-
 QALIPSIS only supports name qualifiers; however, you can read more about other qualifiers in the https://docs.micronaut.io/latest/guide/index.html#qualifiers[Micronaut] documentation.
  
 == Injecting a Property Value
-
 Properties for the runtime property sources are also injectable in scenario declaring classes,  constructors, and methods.
-
 [source,kotlin, linenumbers]
 ----
 import io.qalipsis.api.annotations.Property
@@ -93,10 +86,9 @@ More information about property sources is available at https://docs.micronaut.i
 
 == Injecting Iterable Containers
 
-QALIPSIS supports the injection of a single instance of beans as shown above, as well as an `Iterable` or any of its subtypes `Collection`, `List`, `Set` and their derivatives and `Optional` - also for properties.
+QALIPSIS supports the injection of a single instance of beans as shown above, as well as an `Iterable` or any of its subtypes `Collection`, `List`, `Set` and their derivatives and `Optional` for properties as in the example below.
 
-.Injection of `Iterable` and `Optional`
-[source,kotlin]
+[source,kotlin, line numbers]
 ----
 class EcommercePurchase(private val retryPolicies: List<RetryPolicy>) {
 

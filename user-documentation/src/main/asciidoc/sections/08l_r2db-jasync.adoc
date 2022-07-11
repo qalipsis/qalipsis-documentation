@@ -1,5 +1,6 @@
 = r2bc-jasync Plugin
 
+== Overview
 The `r2bc-jasync` plugin connects QALIPSIS to https://mariadb.org/[MariaDB], https://www.mysql.com[MySQL] and https://www.postgresql.org/[PostgreSQL].
 
 Technologies Addressed::
@@ -18,12 +19,12 @@ Namespace in Scenario::
 Client Library::
 Jasync-sql: refer to https://github.com/jasync-sql/jasync-sql[jasync-sql]
 +
-Jasync-sql is an asynchronous database driver for PostgreSQL and MySQL written in Kotlin.
+Jasync-sql is an asynchronous database driver for PostgreSQL and MySQL written in kotlin.
 
 Supported Steps::
-* <<Poll Step,`poll`>>: Polls newest data periodically.
-* <<Save Step,`save`>>: Saves a batch of records generated from the input and step context.
-* <<Search Step,`search`>>: Searches records and builds a query from the input and step context.
+* <<Poll Step,`poll`>>: polls the newest data periodically.
+* <<Save Step,`save`>>: saves a batch of records generated from the input and step context.
+* <<Search Step,`search`>>: searches records and builds a query from the input and step context.
 
 == Poll Step 
 The `poll` step within the `r2bc-jasync` plugin polls the newest records from the database, respecting a delay between each execution of a select query.
@@ -32,10 +33,8 @@ Ancestor::
 Scenario
 
 Functionality::
-The `poll` step is created only once in a scenario; it is used throughout the scenario as called.
-* `query` requires at least one sorting field (known as `tiebreaker` in the example) to filter the newest results and not fetch the same records repeatedly.
-* The latest known value for the `tiebreaker` is used to filter out the values already received directly from the database.
-* `poll` uses a strategy of “delivered at least once”.
+The `poll` step is created only once in a scenario; it is then used throughout the scenario as called. The `poll` step within the `r2b-jaysync` plugin uses a strategy of “delivered at least once”.
+
 
 Example::
 [source,kotlin]
@@ -58,20 +57,20 @@ r2dbcJasync().poll {
 		}		
     }
 ----
-
 Notable Parameters::
 * `connection` (required): specifies the connection parameters. 
-* `query` (required): specifies a query respecting the requirements of the target database (MariaDB, MySQL or PostgreSQL).
-* `parameters` (optional): binds values to the clauses of the prepared statements.
+* `query` (required): specifies a query respecting the requirements of the target database (https://mariadb.org/[MariaDB], MySQL: https://www.mysql.com[MySQL], https://www.postgresql.org/[PostgreSQL],).
+* `parameters` (optional): binds values to the clauses of the prepared query.
 * `pollDelay` (required): specifies the delay between query executions.
-
-
-
-* `broadcast` (optional): specifies the broadcast properties.
+`tieBreaker` (required): repeats the first column used for sorting and comparison ( `<=` or `>=`, depending on the ascending or descending order).
+* `monitoring`(optional): configures the monitoring parameters for the step.
+* `broadcast` (optional): specifies the broadcast parameters for the step.
 
 Tips::
-* Use this step with a join operator when you need to verify the values saved by your tested system in the database.
-* Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for for further parameter and configuration information.
+* Use the `poll` step with a join operator when you need to verify the values saved by your tested system in the database.
+* `query` requires at least one sorting field (known as `tiebreaker` in the example) to filter the newest results and not fetch the same records repeatedly.
+* The latest known value for the `tiebreaker` is used to filter out the values already received directly from the database.
+* Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for further parameter and configuration information.
 
 
 == Save Step 
@@ -111,9 +110,10 @@ r2dbcJasync().save {
 
 Notable Parameters::
 * `connection` (required): specifies the connection parameters. 
+* `monitoring`(optional): configures the monitoring parameters for the step.
 
 Tips::
-* Use this step after a `collect()` step in order to reduce the number of queries executed onto the database and reduce the load that your scenario generates on it.
+* Use the `save` step after a `collect()` step in order to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.
 * The `save` step is extremely flexible; table, columns and values might depend on the context and input value received from the previous step
 * Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for further parameter and configuration information.
 
@@ -151,9 +151,10 @@ r2dbcJasync().search {
 
 Notable Parameters::
 * `connection` (required): specifies the connection parameters.
-* `query`: generates a prepared statement from the context and input.
-* `parameters`: generates a list of values to bind onto the query parameters; the order of the list of values  matters and should match the arguments of the prepared statement.
+* `query`: generates a prepared statement from the step's context and input.
+* `parameters` (optional): binds values to the clauses of the prepared query.
+* `monitoring`(optional): configures the monitoring parameters for the step.
 
 Tips::
-* Use this step after a `collect`() step in order to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.
-* Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for for further parameter and configuration information.
+* Use the `search` step after a `collect` step in order to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.
+* Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for further parameter and configuration information.

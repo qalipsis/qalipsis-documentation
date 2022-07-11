@@ -21,10 +21,10 @@ Note: Before using a plugin, confirm that the related dependency has been added 
 |  *Description*
 
 |link:08b_cassandra.adoc[cassandra]
-|Connects QALIPSIS to https://cassandra.apache.org/index.html[APACHE Cassandra,window=_blank].
+|Connects QALIPSIS to https://cassandra.apache.org/index.html[APACHE Cassandra].
 
 |link:08c_elasticsearch.adoc[elasticsearch]
-|Connects QALIPSIS to https://www.elastic.co/[Elasticsearch,window=_blank].
+|Connects QALIPSIS to https://www.elastic.co/[Elasticsearch].
 
 |link:08d_graphite.adoc[graphite]
 |Waiting on info...

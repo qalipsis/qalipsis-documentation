@@ -13,8 +13,9 @@ include::{includedir}/sections/02_whats-new.adoc[]
 
 <<<<
 
- include::{includedir}/sections/02a_core-concepts.adoc[]
-   
+include::{includedir}/sections/02a_core-concepts.adoc[]
+
+<<<<
 
 include::{includedir}/sections/03_quickstart_Testing HTTP.adoc[]
 
@@ -40,7 +41,7 @@ include::{includedir}/sections/08_plugins.adoc[]
 
 <<<<
 
-include::{includedir}/sections/08a_avaialable-plugins.adoc[]
+include::{includedir}/sections/08a_available-plugins.adoc[]
 
 <<<<
 
@@ -92,10 +93,6 @@ include::{includedir}/sections/08n_redis-lettuce.adoc[]
 
 <<<<
 
-include::{includedir}/sections/08p_common parameters.adoc[]
-
-<<<<
-
 include::{includedir}/sections/09_monitoring-test-campaigns.adoc[]
 
 <<<<
@@ -103,5 +100,5 @@ include::{includedir}/sections/09_monitoring-test-campaigns.adoc[]
 include::{includedir}/sections/10_glossary.adoc[]
 
 <<<<
-include::{includedir}/sections/11_faq.adoc[]
 
+include::{includedir}/sections/11_faq.adoc[]

@@ -1,5 +1,6 @@
 = jms Plugin
 
+== Overview
 The `jms` plugin connects QALIPSIS to a messaging platform that supports https://www.oracle.com/java/technologies/java-message-service.html[JMS].
 
 Technology Addressed::
@@ -9,27 +10,27 @@ Dependency::
 `io.qalipsis:plugin-jms`
 
 Namespace in Scenario::
- jms()
+jms()
  
- Client Library::
- JMS API: refer to 
+Client Library::
+JMS API: refer to 
 https://docs.oracle.com/javaee/7/api/javax/jms/package-summary.html[Java Interface Summary].
 
 Supported Steps::
 * <<Consume Step,`consume`>>: consumes data from a messaging platform supporting JMS.
-* <<Produce Step,`produce`>>: into a messaging platform supporting JMS.
+* <<Produce Step,`produce`>>: pushes data to a messaging platform supporting JMS.
 
  
 == Consume Step 
-The `consume` step within the `jms` plugin consumes records from ActiveMQ.
+The `consume` step within the `jms` plugin consumes records from https://activemq.apache.org/[ActiveMQ].
  
 Ancestor::
 Scenario
  
 Functionality::
-The `consume` step polls data from the designated ActiveMQ connection, step context, and the data deserializer.
+The `consume` step polls data from the designated https://activemq.apache.org/[ActiveMQ] connection, step context, and the data deserializer.
 
- Example::
+Example::
 +
 [source,kotlin,linenumbers]
 ----
@@ -43,33 +44,28 @@ The `consume` step polls data from the designated ActiveMQ connection, step cont
         }
     }.deserialize(JmsJsonDeserializer(User::class))
 ----
- 
 Notable Parameters::
-
-* `consume`: configures the the ActiveMQ connection.
+* `consume`: configures the the https://activemq.apache.org/[ActiveMQ] connection.
 ** `queues`: specifies the queue(s) for the connection.
-** `QueueConnection`: provides the java ActiveMQ connection for the specified `queues`.
+** `QueueConnection`: provides the java https://activemq.apache.org/[ActiveMQ] connection for the specified `queues`.
 ** `topics`: specifies the topic(s) for the connection.
-** `TopicConnection`: provides the java ActiveMQ connection for the specified `topics`.
+** `TopicConnection`: provides the java https://activemq.apache.org/[ActiveMQ] connection for the specified `topics`.
 * `monitoring`(optional): configures the monitoring parameters for the step.
-* `deserialize`: configures the deserializer for a jms text (`JmsJsonDeserializer`) or a jms string (`JmsStringDeserialize`) and identifies the class (`User::class`) for the deserialization.
-
+* `broadcast` (optional): specifies the broadcast parameters for the step.
+* `deserialize`: specifies the class to use to deserialize the body of the response.
 
 Tips::
-
-* The ActiveMQ connection can be configured for either `queues` (`QeueConnection`) or `topics` (`TopicConnection`), but not both.
-
+* The https://activemq.apache.org/[ActiveMQ] connection can be configured for either `queues` (`QeueConnection`) or `topics` (`TopicConnection`), but not both.
 * Refer to the  https://www.oracle.com/java/technologies/java-message-service.html[JMS] documentation for for further parameter and configuration information.
-
  
 == Produce Step
-The `produce` step within the `jms` plugin produces records in ActiveMQ using JMS.
+The `produce` step within the `jms` plugin produces records in https://activemq.apache.org/[ActiveMQ] using https://www.oracle.com/java/technologies/java-message-service.html[JMS].
  
 Ancestor::
 Step
  
 Functionality::
-The `produce` step produces a batch of records into one or more JMS `destinations`. Note that the record values may be provided by previous steps.
+The `produce` step produces a batch of records into one or more https://www.oracle.com/java/technologies/java-message-service.html[JMS] `destinations`. The record values may be provided by previous steps.
 
 Example::
 +
@@ -97,16 +93,14 @@ Example::
         }   
 }     
 ----
-
 Notable Parameters::
 * `records`: generates and configures a list of produced records.
 ** `destination`:  defines the destination for each `JmsProducerRecord` as either queues (`QueueConnection`) or topics (`TopicConnection`).
 ** `messageType`: indicates the `JmsMessageType` as: `TEXT`, `AUTO`, `BYTES`, or `OBJECT`.
-+
-If you are not sure about the message type,  use `AUTO` to allow the system to try to infer the type and display the result. 
 ** `value`: defines the message to be displayed at the `destination`. 
 * `connect`: specifies the connection type for the `JmsProducerRecord`(s).
 * `monitoring`(optional): configures the monitoring parameters for the step.
 
-Tip::
-Refer to the  https://www.oracle.com/java/technologies/java-message-service.html[JMS] documentation for for further parameter and configuration information.
+Tips::
+* If you are not sure about the `JmsMessageType`, use `AUTO` to allow the system to infer the type and display the result. 
+* Refer to the  https://www.oracle.com/java/technologies/java-message-service.html[JMS] documentation for further parameter and configuration information.

@@ -1,4 +1,4 @@
-= Step specifications
+= Step Specifications
 
 == Defining and Configuring a Step Specification
 A step specification is defined, depending on the step nature and function, as either: 
