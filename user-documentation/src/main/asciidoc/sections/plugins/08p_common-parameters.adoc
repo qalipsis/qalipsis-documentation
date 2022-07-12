@@ -1,4 +1,4 @@
-= Common Parameters
+== Common Parameters
 
 * `connection`:
  (required): configures the connection with the parameters that follow it in the code.

@@ -17,7 +17,7 @@ include::{includedir}/sections/02a_core-concepts.adoc[]
 
 <<<<
 
-include::{includedir}/sections/03_quickstart_Testing HTTP.adoc[]
+include::{includedir}/sections/03_quickstart_testing HTTP server.adoc[]
 
 <<<<
 
@@ -38,58 +38,6 @@ include::{includedir}/sections/07_dependency-injection.adoc[]
 <<<<
 
 include::{includedir}/sections/08_plugins.adoc[]
-
-<<<<
-
-include::{includedir}/sections/08a_available-plugins.adoc[]
-
-<<<<
-
-include::{includedir}/sections/08b_cassandra.adoc[]
-
-<<<<
-
-include::{includedir}/sections/08c_elasticsearch.adoc[]
-
-<<<<
-
-include::{includedir}/sections/08d_graphite.adoc[]
-
-<<<<
-
-include::{includedir}/sections/08e_influxdb.adoc[]
-
-<<<<
-
-include::{includedir}/sections/08f_jackson.adoc[]
-
-<<<<
-
-include::{includedir}/sections/08g_jms.adoc[]
-
-<<<<
-
-include::{includedir}/sections/08h_kafka.adoc[]
-
-<<<<
-
-include::{includedir}/sections/08i_mongodb.adoc[]
-
-<<<<
-
-include::{includedir}/sections/08j_netty.adoc[]
-
-<<<<
-
-include::{includedir}/sections/08l_r2db-jaysync.adoc[]
-
-<<<<
-
-include::{includedir}/sections/08m_rabbitmq.adoc[]
-
-<<<<
-
-include::{includedir}/sections/08n_redis-lettuce.adoc[]
 
 <<<<
 

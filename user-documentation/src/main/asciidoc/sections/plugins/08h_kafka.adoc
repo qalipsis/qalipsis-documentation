@@ -1,6 +1,6 @@
-= kafka Plugin
+== kafka Plugin
 
-== Overview
+=== Overview
 The `kafka` plugin connects QALIPSIS to an https://kafka.apache.org/[APACHE Kafka] cluster.
  
 Technology Addressed::
@@ -20,7 +20,7 @@ Supported Steps::
 * <<Consume Step,`consume`>>: consumes data from topics of an Apache Kafka cluster.
 * <<Produce Step,`produce`>>: pushes data to topics of the Apache Kafka cluster.
 
-== Consume Step
+=== Consume Step
 The `consume` step within the `kafka` plugin polls data from topics of an Apache Kafka cluster and forwards the data to the next step, either in batches or individually.
 
 This step is generally used in conjunction with a left join to assert data or inject data into a workflow.
@@ -66,7 +66,7 @@ Tips::
 `OffsetResetStrategy.LATEST` is the default. 
 * Refer to the https://kafka.apache.org/[APACHE KAFKA] documentation for further parameter and configuration information. 
  
-== Produce Step
+=== Produce Step
 The `produce` step within the `kafka` plugin pushes data onto topics of the Kafka broker and forwards the data as input to the next step.
 
 Ancestor::

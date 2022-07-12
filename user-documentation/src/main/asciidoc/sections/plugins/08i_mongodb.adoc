@@ -1,6 +1,6 @@
-= mongodb Plugin
+== mongodb Plugin
 
-== Overview
+=== Overview
 The `mongodb` plugin connects QALIPSIS to https://mongodb.com/[MongoDb].
 
 Technology Addressed::
@@ -20,7 +20,7 @@ Supported Steps::
 * <<Save Step,`save`>>: saves a batch of documents generated from the input and step context.
 * <<Search Step,`search`>>: searches documents and builds a query from the input and step context.
 
-== Poll Step
+=== Poll Step
 The `poll` step within the `mongodb` plugin polls the newest records from a database table, with a delay between each execution.
 
 Ancestor::
@@ -64,7 +64,7 @@ Tips::
 * The latest known value for `tiebreaker` is used to filter out the values already received from the database.
 * Refer to the https://www.mongodb.com/docs/[Mongodb] documentation for further parameter and configuration information.
 
-== Save Step
+=== Save Step
 The `save` step within the 'mongodb` plugin persists a batch of documents into MongoDB.
 
 Ancestor::
@@ -103,7 +103,7 @@ Tips::
 * Refer to the  https://www.mongodb.com/docs/[Mongodb] documentation for further parameter and configuration information.
 
 
-== Search Step 
+=== Search Step 
 The `search` step within the `mongodb` plugin searches records in the database using a search query.
 
 Ancestor::

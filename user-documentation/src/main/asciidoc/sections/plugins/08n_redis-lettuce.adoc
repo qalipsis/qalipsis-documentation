@@ -1,4 +1,4 @@
-= redis-lettuce Plugin
+== redis-lettuce Plugin
 
 The redis-lettuce plugin connects QALIPSIS to https://redis.io/[Redis].
 
@@ -20,7 +20,7 @@ Supported steps::
 * <<Consume Step,`consume`>>: consumes data from `redis` streams.
 * <<Produce Step,`produce`>>: pushes messages to `redis` streams.
 
-== Poll Step 
+=== Poll Step 
 The `poll` step within the `redis-lettuce` plugin polls the newest records from a `redis` key, with a delay between each execution of polling.
 
 Ancestor::
@@ -69,7 +69,7 @@ Tips::
 * Refer to the  https://redis.io/docs/[Redis] documentation for further parameter and configuration information.
 
 
-== Save Step 
+=== Save Step 
 The `save` step within the `redis-lettuce` plugin persists a batch of records into `redis`.
 
 Ancestor::
@@ -121,7 +121,7 @@ Tips::
 * If the `redisConnectionType` is set to `SENTINEL`, the parameter `masterId` is necessary. For more information, refer to https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel].
 * Refer to the  https://redis.io/docs/[Redis] documentation for further parameter and configuration information.
 
-== Consume Step
+=== Consume Step
 The `consume` step within the `redis-lettuce` plugin records data from `redis` streams.
 
 Ancestor::
@@ -171,7 +171,7 @@ Tips::
 * If `concurrency` is set to more than 1, the records transmitted to the next step may not be in sequence.
 * Refer to the  https://redis.io/docs/[Redis] documentation for further parameter and configuration information.
 
-== Produce Step
+=== Produce Step
 The `produce` step within the `redis-lettuce` plugin produces records into the Redis streams.
 
 Ancestor::

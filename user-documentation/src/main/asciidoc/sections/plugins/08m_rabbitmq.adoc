@@ -1,6 +1,6 @@
-= rabbitmq Plugin
+== rabbitmq Plugin
 
-== Overview
+=== Overview
 The rabbitmq plugin connects QALIPSIS to the https://www.rabbitmq.com/[RabbitMQ] broker.
 
 Technology Addressed::
@@ -20,7 +20,7 @@ Supported Steps::
 * <<Consume Step,`consume`>>: polls data from the `rabbitmq` broker.
 * <<Produce Step,`produce`>>: pushes data to the rabbitmq broker.
  
-== Consume Step
+=== Consume Step
 The `consume` step within the `rabbitmq` plugin consumes data from queues of the rabbitmq broker and forwards the data to the next step.
 
 This step is generally used in conjunction with `join` to assert data or inject data into a workflow.
@@ -66,7 +66,7 @@ Tips::
 * Learn more about `prefetchCount` by reading the  https://www.rabbitmq.com/consumer-prefetch.html [RabbitMQ Prefetch] documentation.
 * To configure the `consume` step, consult the https://www.rabbitmq.com/documentation.html[rabbitMQ] documentation.
 
-== Produce Step 
+=== Produce Step 
 
 The `produce` step within the `rabbitmq` plugin provides messages to the `rabbitmq` broker using a query; the messages are then forwarded as input to the next step.
 

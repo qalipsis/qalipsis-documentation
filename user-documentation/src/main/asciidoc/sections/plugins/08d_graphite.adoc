@@ -1,3 +1,3 @@
-= graphite Plugin
+== graphite Plugin
 
 The `graphite_` plugin connects or supports...

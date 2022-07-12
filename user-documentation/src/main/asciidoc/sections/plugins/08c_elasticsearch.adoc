@@ -1,6 +1,6 @@
-= elasticsearch Plugin
+== elasticsearch Plugin
 
-== Overview
+=== Overview
 The elasticsearch plugin connects QALIPSIS to https://www.elastic.co/[Elasticsearch].
 
 Technology Addressed::
@@ -22,7 +22,7 @@ Supported Steps::
 * <<Save Step,`save`>>: saves a batch records generated from the input and step context.
 * <<Search Step,`search`>>: searches records and builds a query from the input and step context.
 
-== Poll Step
+=== Poll Step
 The `poll` step within the `elasticsearch` plugin periodically polls data from Elasticsearch. The output is a list of `ElasticsearchDocument` containing JSON data or deserialized to objects. 
 
 Ancestor::
@@ -73,7 +73,7 @@ Tips::
 https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-query-params[Elasticsearch Query Parameters] for more information on query parameters.
 * Refer to the https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html#search-after[elasticsearch documentation] for further parameter and configuration information.
 
-== Save Step 
+=== Save Step 
 The `save` step within the `elasticsearch` plugin persists a batch of documents into  https://www.elastic.co/[Elasticsearch].
 
 Ancestor::
@@ -107,7 +107,7 @@ Tip::
 Refer to the https://www.elastic.co/guide[Elasticsearch] documentation for further information on parameter configuration.
 
 
-== Search Step
+=== Search Step
 on The `search` step within the `elasticsearch` plugin searches documents in the Elasticsearch database using a search query. 
 
 Ancestor::

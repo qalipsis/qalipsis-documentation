@@ -1,6 +1,6 @@
-= netty Plugin
+== netty Plugin
 
-== Overview
+=== Overview
 
 The https://netty.io/[netty] plugin supports https://datatracker.ietf.org/doc/html/rfc793[TCP], https://datatracker.ietf.org/doc/html/rfc768[UDP], https://httpwg.org/[HTTP] and https://mqtt.org/[MQTT] clients.
 
@@ -31,7 +31,7 @@ Supported Steps::
 * <<CLOSE TCP Step,`CLOSE TCP`>>: closes a TCP connection created by a precedent step.
 * <<UDP Step,`UDP`>>: exchanges data with a UDP endpoint.
 
-== HTTP Step
+=== HTTP Step
 The `HTTP` step within the `netty` plugin executes an HTTP request using https://datatracker.ietf.org/doc/rfc2616[`HTTP 1.1`] or https://datatracker.ietf.org/doc/rfc7540[`HTTP 2.0`].
 
 Ancestor::
@@ -114,7 +114,7 @@ Notable Parameters::
 Tip::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
-== HTTP WITH Step
+=== HTTP WITH Step
 The `HTTP WITH` step within the `netty` plugin executes an HTTP request reusing the HTTP connection created by a precedent step.
 
 Ancestor::
@@ -142,7 +142,7 @@ Notable Parameters::
 Tip:: 
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
-== CLOSE HTTP Step
+=== CLOSE HTTP Step
 The `CLOSE HTTP` step within the `netty` plugin closes the `HTTP` connection attached to the minion, and created by a direct or indirect ancestor step, when the tail of the minion workflow is received. 
 
 It is always a best practice to use a _CLOSE HTTP_  step when reusing an `HTTP` connection across several steps without a pool of connections. 
@@ -165,7 +165,7 @@ Notable Parameters::
 Tip::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
-== MQTT Publish Step 
+=== MQTT Publish Step 
 The `MQTT Publish` step within the `netty` plugin sends data to an MQTT server.
 
 Ancestor::
@@ -185,7 +185,7 @@ Notable Parameters::
 Tip(s)::
 To be provided.
 
-== MQTT Subscribe Step 
+=== MQTT Subscribe Step 
 * The `MQTT Subscribe Step` within the `netty` plugin consumes data from an MQTT server.
 
 Ancestor::
@@ -205,7 +205,7 @@ Notable Parameters::
 Tip(s)::
 To be provided   
 
-== TCP Step
+=== TCP Step
 The `TCP` step within the `netty` plugin is a client for `TCP`.
  
 Ancestor::
@@ -277,7 +277,7 @@ Notable Parameters::
 Tip::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
-== TCP WITH Step 
+=== TCP WITH Step 
 The `TCP WITH step` within the `netty` plugin sends a TCP payload, reusing the connection created by a precedent step.
 
 Ancestor::
@@ -303,7 +303,7 @@ Notable Parameters::
 Tip::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
-== CLOSE TCP Step 
+=== CLOSE TCP Step 
 The `CLOSE TCP` step within the `netty` plugin closes the TCP connection, attached to a minion and created by a direct or indirect ancestor step, when the tail of the minion workflow is received. 
 
 It is best practice to use a `CLOSE TCP` step when reusing a `TCP` connection across several steps without a pool of connections.
@@ -328,7 +328,7 @@ Notable Parameters::
 Tip::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
-== UDP Step 
+=== UDP Step 
 The `UDP` step within the `netty` plugin is a client for UDP.
 
 It is best practice to use the  `UDP` step when reusing a `TCP` connection across several steps without a pool of connections.
