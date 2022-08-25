@@ -1,10 +1,10 @@
 
-== cassandra Plugin
+== cassandra plugin
 
 === Overview
 The `cassandra` plugin connects QALIPSIS to https://cassandra.apache.org/_/index.html[APACHE Cassandra].
 
-Technologies Addressed::
+Technologies addressed::
 * Cassandra: https://cassandra.apache.org/_/index.html[APACHE Cassandra]
 * Cassandra Query Language: https://cassandra.apache.org/doc/latest/cassandra/cql/index.html[The Cassandra Query Language (CQL)]
 * DataStax Driver: https://docs.datastax.com/[DataStax].
@@ -12,24 +12,24 @@ Technologies Addressed::
 Dependency::
 `io.qalipsis:plugin-cassandra`
 
-Namespace in Scenario::
+Namespace in scenario::
 `cassandra()`
 
-Client Library::
+Client library::
 DataStax: refer to the https://docs.datastax.com/[DataStax].
 +
 Datastax is a modern, feature-rich and highly tunable Java client library for Apache Cassandra using Cassandra’s binary protocol and Cassandra Query Language.
 
-Supported Steps::
-* <<Poll Step,`poll`>>: polls the newest data periodically.
-* <<Save Step,`save`>>: saves records generated from the input and step context.
-* <<Search Step,`search`>>: searches records and builds a query from the input and step context.
+Supported steps::
+* <<poll step,`poll`>>: polls the newest data periodically.
+* <<Save step,`save`>>: saves records generated from the input and step context.
+* <<Search step,`search`>>: searches records and builds a query from the input and step context.
 
-=== Poll Step
+===Poll step
 The `poll` step within the `cassandra` plugin polls the newest records from the database table.
 
 Ancestor::
-Scenario or Step
+Scenario or step
 
 Functionality::
 The `poll` step is created only once in a scenario; it is then used throughout the scenario as called. The `poll` step within the `cassandra` plugin uses a strategy of “delivered at least once."
@@ -59,7 +59,7 @@ cassandra().poll {
    broadcast(123, Duration.ofSeconds(20))
 }
 ----
-Notable Parameters::
+Notable parameters::
 * `connect` (required): configures the connection to https://cassandra.apache.org[APACHE Cassandra]
 ** `keyspace`(required): the outermost object that determines how data replicates on nodes.
 ** `datacenterProfile`(required): an execution profile that encapsulates a group of settings associated with individual queries.
@@ -76,7 +76,7 @@ Tips::
 * The latest known value for `tiebreaker` is used to filter out values already received from the database.
 * Refer to the https://cassandra.apache.org/doc/latest[APACHE Cassandra] documentation further parameter and configuration information.
 
-=== Save Step
+=== Save step
 The `save` step within the `cassandra` plugin persists records into a cassandra database using the save query with Cassandra Query Language (CQL).
 
 Ancestor::
@@ -106,7 +106,7 @@ Example::
 }
 ----
 
-Notable Parameters::
+Notable parameters::
 * `connect` (required): configures the connection to https://cassandra.apache.org[APACHE Cassandra].
 ** `keyspace`(required): the outermost object that determines how data replicates on nodes.
 ** `datacenterProfile`(required): an execution profile that encapsulates a group of settings associated with individual queries.
@@ -117,15 +117,11 @@ Tips::
 * The `save` step is extremely flexible; table, rows, and columns depend on the context and input value received from the previous step.
 * Refer to the https://cassandra.apache.org/doc/latest[APACHE Cassandra] documentation for further parameter and configuration information.
 
-
-
-
-
-=== Search Step
+=== Search step
 The `search` step within the `cassandra` plugin searches records in the database using a search query.
 
 Ancestor::
-Step
+step
 
 Functionality::
 The `search` step’s input and step context are used to complete the search; the list of results is then forwarded to the next step(s).
@@ -153,9 +149,8 @@ connect {
    }
 }
 ----
-Notable Parameters::
-* `connect` (required): configures the connection to  https://cassandra.apache.org
-[APACHE Cassandra].
+Notable parameters::
+* `connect` (required): configures the connection to  https://cassandra.apache.org[APACHE Cassandra].
 ** `keyspace`(required): the outermost object that determines how data replicates on nodes.
 ** `datacenterProfile`(required): an execution profile that encapsulates a group of settings associated with individual queries.
 ** `query` (required): defines the prepared statement to execute when searching.

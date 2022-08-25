@@ -1,26 +1,26 @@
-== kafka Plugin
+== kafka plugin
 
 === Overview
 The `kafka` plugin connects QALIPSIS to an https://kafka.apache.org/[APACHE Kafka] cluster.
  
-Technology Addressed::
+Technology addressed::
 Kafka: https://kafka.apache.org/[]
 
 Dependency::
 `io.qalipsis:plugin-kafka`
 
-Namespace in Scenario::
+Namespace in scenario::
 `kafka()`
 
-Client Library::
+Client library::
 Kafka: refer to https://kafka.apache.org/[Apache Kafka]
 +
 
-Supported Steps::
-* <<Consume Step,`consume`>>: consumes data from topics of an Apache Kafka cluster.
-* <<Produce Step,`produce`>>: pushes data to topics of the Apache Kafka cluster.
+Supported steps::
+* <<Consume step,`consume`>>: consumes data from topics of an Apache Kafka cluster.
+* <<Produce step,`produce`>>: pushes data to topics of the Apache Kafka cluster.
 
-=== Consume Step
+=== Consume step
 The `consume` step within the `kafka` plugin polls data from topics of an Apache Kafka cluster and forwards the data to the next step, either in batches or individually.
 
 This step is generally used in conjunction with a left join to assert data or inject data into a workflow.
@@ -47,7 +47,7 @@ kafka().consume {
 }
 ----
  
-Notable Parameters::
+Notable parameters::
 * `bootstrap`: configures the bootstrap hosts of the `Kafka` cluster; defaults to localhost:9092.
 * `groupId`: defines the consumer group.
 * `pollTimeout` defines the consumer poll timeout to wait for records; defaults to 1 second.
@@ -66,7 +66,7 @@ Tips::
 `OffsetResetStrategy.LATEST` is the default. 
 * Refer to the https://kafka.apache.org/[APACHE KAFKA] documentation for further parameter and configuration information. 
  
-=== Produce Step
+=== Produce step
 The `produce` step within the `kafka` plugin pushes data onto topics of the Kafka broker and forwards the data as input to the next step.
 
 Ancestor::
@@ -101,7 +101,7 @@ kafka().produce(
 }
 ----
  
-Notable Parameters::
+Notable parameters::
 * `Serdes.ByteArray().serializer()`: describes how to serialize the record keys to send  to `kafka`.
 * `Serdes.String().serializer()`: describes how to serialize the record values to send to `kafka`.
 * `bootstrap` configures the bootstrap hosts of the Kafka cluster; defaults to `localhost:9092`.

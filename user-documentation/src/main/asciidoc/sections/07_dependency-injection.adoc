@@ -1,10 +1,10 @@
-= Dependencies Injection
+= Dependency injection
 
-QALIPSIS relies on the https://docs.micronaut.io/latest/guide/index.html#ioc[dependency injection framework from Micronaut] and supports the injection of dependencies in the constructors of the scenario declaring classes and methods annotated with `@Scenario`.
+QALIPSIS relies on the https://docs.micronaut.io/latest/guide/index.html#ioc[Dependency injection framework] from Micronaut and supports the injection of dependencies in the constructors of the scenario declaring classes and methods annotated with `@Scenario`.
 
 WARNING: Ensure you have the following dependency in the project where your beans or factories are compiled: `kapt("io.qalipsis:api-processors:{revnumber}")`
 
-== Injecting a Singleton Bean
+== Injecting a singleton bean
 You can declare a singleton bean using the annotation `@jakarta.inject.Singleton` on a type, or https://docs.micronaut.io/latest/guide/index.html#factories[use a Micronaut factory].
 
 === Creation of beans
@@ -41,7 +41,7 @@ class EcommercePurchase(private val retryPolicy: RetryPolicy) {// The previously
     }
 }
 ----
-== Qualifying the Bean to Inject
+== Qualifying the bean to inject
 When several beans exist for the same type, you might want to select the one to inject.
 QALIPSIS supports named injection as in the following example.
 [source,kotlin]
@@ -61,7 +61,7 @@ class EcommercePurchase(@param:Named("default") private val retryPolicy: RetryPo
 ----
 QALIPSIS only supports name qualifiers; however, you can read more about other qualifiers in the https://docs.micronaut.io/latest/guide/index.html#qualifiers[Micronaut] documentation.
  
-== Injecting a Property Value
+== Injecting a property value
 Properties for the runtime property sources are also injectable in scenario declaring classes,  constructors, and methods.
 [source,kotlin, linenumbers]
 ----
@@ -82,10 +82,9 @@ class EcommercePurchase {
 
 The default value set in `orElse` is optional.
 
-More information about property sources is available at https://docs.micronaut.io/latest/guide/index.html#propertySource[Micronaut] documentation.
+More information about property sources is available in the  https://docs.micronaut.io/latest/guide/index.html#propertySource[Micronaut] documentation.
 
-== Injecting Iterable Containers
-
+== Injecting iterable containers
 QALIPSIS supports the injection of a single instance of beans as shown above, as well as an `Iterable` or any of its subtypes `Collection`, `List`, `Set` and their derivatives and `Optional` for properties as in the example below.
 
 [source,kotlin, line numbers]

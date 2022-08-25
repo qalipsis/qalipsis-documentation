@@ -1,5 +1,5 @@
 
-= QALIPSIS Core Concepts 
+= QALIPSIS core concepts 
 
 == Overview
 Once you have a minimal understanding of the core concepts, you will be ready to create a QALIPSIS scenario to verify that your software is performing as expected.
@@ -20,7 +20,7 @@ Before attempting to configure QALIPSIS to run on your system, it is important t
 == Minions
 Minions are simulations of website users, IoT devices, or other systems. They each perform a complete scenario.
 
-Any number of minions can act on a scenario. The minion count for a scenario is set during scenario configuration (refer to <<Scenario specification>> or at runtime (refer to <<QALIPSIS Configuration>>).
+Any number of minions can act on a scenario. The minion count for a scenario is set during scenario configuration (refer to <<#Scenario specifications>>) or at runtime (refer to <<QALIPSIS configuration>>).
 
 Note that a minion count entered at runtime overrides the minion count set during scenario configuration.
 
@@ -79,7 +79,7 @@ A step specification is configured such that:
 * The step receives the configuration closure as a parameter. 
 * `.configure` is called after the step parameters are set.
 
-Refer to the <<Step Specifications>> section of this manual for details.
+Refer to the <<Step specifications>> section of this manual for details.
  
 Each step has a unique configuration depending on the purpose of the step. The step configurations all follow the same logic:
 

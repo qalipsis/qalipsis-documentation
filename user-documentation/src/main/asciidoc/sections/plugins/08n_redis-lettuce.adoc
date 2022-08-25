@@ -1,26 +1,26 @@
-== redis-lettuce Plugin
+== redis-lettuce plugin
 
 The redis-lettuce plugin connects QALIPSIS to https://redis.io/[Redis].
 
-Technology Addressed::
+Technology addressed::
 Redis: https://redis.io/[]
 
 Dependency::
 `io.qalipsis:plugin-redis-lettuce`
 
-Namespace in Scenario::
+Namespace in scenario::
 `redisLettuce()`
 
-Client Library::
+Client library::
 Lettuce: refer to https://lettuce.io/[Lettuce].
 
 Supported steps::
-* <<Poll Step,`poll`>>: polls the newest data periodically.
-* <<Save Step,`save`>>: saves a batch of records generated from the input and step context.
-* <<Consume Step,`consume`>>: consumes data from `redis` streams.
-* <<Produce Step,`produce`>>: pushes messages to `redis` streams.
+* <<Poll step,`poll`>>: polls the newest data periodically.
+* <<Save step,`save`>>: saves a batch of records generated from the input and step context.
+* <<Consume step,`consume`>>: consumes data from `redis` streams.
+* <<Produce step,`produce`>>: pushes messages to `redis` streams.
 
-=== Poll Step 
+=== Poll step 
 The `poll` step within the `redis-lettuce` plugin polls the newest records from a `redis` key, with a delay between each execution of polling.
 
 Ancestor::
@@ -54,7 +54,7 @@ Example::
   }
 ----
 
-Notable Parameters::
+Notable parameters::
 * `Connection`(required): specifies the connection parameters.
 * `redisConnectionType` (required): indicates the connection type as `SINGLE`, `CLUSTER` or `SENTINEL`.
 * `KeyOrPattern` (required): specifies the key or pattern that will be polled after each `pollDelay`.
@@ -69,7 +69,7 @@ Tips::
 * Refer to the  https://redis.io/docs/[Redis] documentation for further parameter and configuration information.
 
 
-=== Save Step 
+=== Save step 
 The `save` step within the `redis-lettuce` plugin persists a batch of records into `redis`.
 
 Ancestor::
@@ -110,7 +110,7 @@ Example::
 }
 ----
 
-Notable Parameters::
+Notable parameters::
 * `Connection`(required): specifies the connection parameters.
 **  `redisConnectionType` (required): indicates the connection type as `SINGLE`, `CLUSTER` or `SENTINEL`.
 * `records` (required): generates and configures a list of saved records.
@@ -121,7 +121,7 @@ Tips::
 * If the `redisConnectionType` is set to `SENTINEL`, the parameter `masterId` is necessary. For more information, refer to https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel].
 * Refer to the  https://redis.io/docs/[Redis] documentation for further parameter and configuration information.
 
-=== Consume Step
+=== Consume step
 The `consume` step within the `redis-lettuce` plugin records data from `redis` streams.
 
 Ancestor::
@@ -157,7 +157,7 @@ Example::
   }
 ----
 
-Notable Parameters::
+Notable parameters::
 * `connection`(required): configures the connection to Qalipsis.
 * `redisConnectionType` (required): indicates the connection type as `SINGLE`, `CLUSTER` or `SENTINEL`. The default is `SINGLE`.
 * `concurrency`(required): configures the level of coroutines consuming the Redis streams.
@@ -171,7 +171,7 @@ Tips::
 * If `concurrency` is set to more than 1, the records transmitted to the next step may not be in sequence.
 * Refer to the  https://redis.io/docs/[Redis] documentation for further parameter and configuration information.
 
-=== Produce Step
+=== Produce step
 The `produce` step within the `redis-lettuce` plugin produces records into the Redis streams.
 
 Ancestor::
@@ -208,7 +208,7 @@ Example::
 }
 ----
 
-Notable Parameters::
+Notable parameters::
 * `redisConnectionType` (required): sets the connection type as `SINGLE`, `CLUSTER` or `SENTINEL`.
 * `records` (required): generates and configures a list of produced records.
 * `monitoring`(optional): configures the monitoring parameters for the step.

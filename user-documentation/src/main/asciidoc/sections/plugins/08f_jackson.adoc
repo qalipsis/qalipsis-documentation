@@ -1,21 +1,21 @@
-== jackson Plugin
+== jackson plugin
 
 === Overview
 The `jackson` plugin supports reading a (https://github.com/FasterXML/jackson[JSON, XML or CSV]) file, converting the data to an object, and pushing the object to the next step.
 
-Technologies Addressed::
+Technologies addressed::
 https://github.com/FasterXML/jackson[Class JsonMapper]
 
 Dependency::
 `io.qalipsis:plugin-jackson`
 
-Namespace in Scenario::
+Namespace in scenario::
 `jackson()`
 
-Client Library::
+Client library::
 JsonMapper: refer to http://fasterxml.github.io/jackson-databind/javadoc/2.11/com/fasterxml/jackson/databind/json/JsonMapper.html[FasterXML].
 
-Supported Steps::
+Supported steps::
 * <<csvToMap and csvToObject, csvToMap and csvToObject>>: reads a csv file, and converts the data to a Map (or an Object).
 * <<jsonToMap and jsonToObject, jsonToMap and jsonToObject>>: reads a json file and converts the data to a Map (or Object).
 * <<xmlToObject,`xmlToObject`>>: reads an xml file and converts the data to an object.
@@ -54,7 +54,7 @@ jackson().csvToObject(PojoForTest::class) {
    classpath(file)
 }
 ----
-Notable Parameters::
+Notable parameters::
 * `classpath(file)`: reads the data from a specified class path resource; `file` is the path to the resource with the leading slash ignored.
 * `file(path)`: reads the data from a specified plain file in the file system; `path` is the path to the file, either absolute or relative to the current working directory.
 * `url(url)`: specifies and links to the `url` of the data resource.
@@ -83,7 +83,7 @@ jackson().xmlToObject(PojoForTest::class) {
    classpath(file)
 }
 ----
-Notable Parameters::
+Notable parameters::
 * `classpath(file)`: reads the data from a specified class path resource; `file` is the path to the resource with the leading slash ignored.
 * `file(path)`: reads the data from a specified plain file in the file system; `path` is the path to the file, either absolute or relative to the current working directory.
 * `url(url)`: specifies and links to the `url` of the data resource.
@@ -113,7 +113,7 @@ jackson().jsonToObject(PojoForTest::class) {
    classpath(file)
 }
 ----
-Notable Parameters::
+Notable parameters::
 * `classpath(file)`: reads the data from a specified `path` resource; `file` is the path to the resource with the leading slash ignored.
 * `file(path)`: reads the data from a specified plain file in the file system; `path` is the path to the file, either absolute or relative to the current working directory.
 * `url(url): specifies and links to the `url` of the data resource.

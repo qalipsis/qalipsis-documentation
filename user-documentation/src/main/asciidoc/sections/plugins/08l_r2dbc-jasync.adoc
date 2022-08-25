@@ -1,9 +1,9 @@
-== r2dbc-jasync Plugin
+== r2dbc-jasync plugin
 
 === Overview
 The `r2dbc-jasync` plugin connects QALIPSIS to https://mariadb.org/[MariaDB], https://www.mysql.com[MySQL] and https://www.postgresql.org/[PostgreSQL].
 
-Technologies Addressed::
+Technologies addressed::
 * MariaDB: https://mariadb.org/[]
 
 * MySQL: https://www.mysql.com[]
@@ -13,20 +13,20 @@ Technologies Addressed::
 Dependency::
 `io.qalipsis:plugin-r2dbc-jasync`
 
-Namespace in Scenario::
+Namespace in scenario::
 `r2dbcJasync()`
 
-Client Library::
+Client library::
 Jasync-sql: refer to https://github.com/jasync-sql/jasync-sql[jasync-sql]
 +
 Jasync-sql is an asynchronous database driver for PostgreSQL and MySQL written in kotlin.
 
-Supported Steps::
-* <<Poll Step,`poll`>>: polls the newest data periodically.
-* <<Save Step,`save`>>: saves a batch of records generated from the input and step context.
-* <<Search Step,`search`>>: searches records and builds a query from the input and step context.
+Supported steps::
+* <<Poll step,`poll`>>: polls the newest data periodically.
+* <<Save step,`save`>>: saves a batch of records generated from the input and step context.
+* <<Search step,`search`>>: searches records and builds a query from the input and step context.
 
-=== Poll Step 
+=== Poll step 
 The `poll` step within the `r2bc-jasync` plugin polls the newest records from the database, respecting a delay between each execution of a select query.
 
 Ancestor::
@@ -57,9 +57,9 @@ r2dbcJasync().poll {
 		}		
     }
 ----
-Notable Parameters::
+Notable parameters::
 * `connection` (required): specifies the connection parameters. 
-* `query` (required): specifies a query respecting the requirements of the target database (https://mariadb.org/[MariaDB], MySQL: https://www.mysql.com[MySQL], https://www.postgresql.org/[PostgreSQL],).
+* `query` (required): specifies a query respecting the requirements of the target database (https://mariadb.org/[MariaDB],  https://www.mysql.com[MySQL], https://www.postgresql.org/[PostgreSQL],).
 * `parameters` (optional): binds values to the clauses of the prepared query.
 * `pollDelay` (required): specifies the delay between query executions.
 `tieBreaker` (required): repeats the first column used for sorting and comparison ( `<=` or `>=`, depending on the ascending or descending order).
@@ -73,7 +73,7 @@ Tips::
 * Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for further parameter and configuration information.
 
 
-=== Save Step 
+=== Save step 
 The `save` step within the `r2bc-jasync` plugin persists a batch of records into an SQL table using a prepared statement.
 
 Ancestor::
@@ -108,7 +108,7 @@ r2dbcJasync().save {
 }
 ----
 
-Notable Parameters::
+Notable parameters::
 * `connection` (required): specifies the connection parameters. 
 * `monitoring`(optional): configures the monitoring parameters for the step.
 
@@ -118,7 +118,7 @@ Tips::
 * Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for further parameter and configuration information.
 
 
-=== Search Step 
+=== Search step 
 The `search` step within the `r2bc-jasync` plugin searches records in the database using a search query.
 
 Ancestor::
@@ -149,7 +149,7 @@ r2dbcJasync().search {
 }
 ----
 
-Notable Parameters::
+Notable parameters::
 * `connection` (required): specifies the connection parameters.
 * `query`: generates a prepared statement from the step's context and input.
 * `parameters` (optional): binds values to the clauses of the prepared query.

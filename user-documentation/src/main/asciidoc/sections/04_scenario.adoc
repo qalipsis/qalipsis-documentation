@@ -8,9 +8,9 @@ In order to provide maximum flexibility for configuring a scenario and the best 
 * In the configuration phase, you develop specifications for the scenario.
 * In the execution phase, you set the runtime parameters for the scenario(s) you are executing.
 
-This section focuses on scenario configuration.  Details on scenario execution are provided in <<QALIPSIS Configuration>>.
+This section focuses on scenario configuration.  Details on scenario execution are provided in <<QALIPSIS configuration>>.
 
-== Configuring a Scenario Specification
+== Configuring a scenario specification
 A scenario specification is made up of several parts.
 
 . A call to the Scenario function:
@@ -90,10 +90,10 @@ fun myScenario(){
 .start() // Add step specifications here.
 ----
 
-== Default Scenario Configuration
+== Default scenario configuration
 Every scenario has a default configuration.
 
-=== Number of Minions
+=== Number of minions
 * Optional
 * Default = 1
 
@@ -113,7 +113,7 @@ fun myScenario() {
 ----
 Load-injected trees receive all of the minions; non-load injected trees receive only one minion. 
 
-=== Ramping Strategies
+=== Ramping strategies
 * Mandatory
 * There is no default
 
@@ -246,7 +246,7 @@ Execution of steps can fail for a variety of reasons, including, but not limited
 
 When a step execution fails, it may be retried if a retry policy has been set within the scenario configuration or the step configuration.
 
-Once all attempts are executed per the defined `retryPolicy`, the step execution context is marked as exhausted and only error processing steps are executed.  Refer to the <<Step Specifications>> section for more information on error processing steps.
+Once all attempts are executed per the defined `retryPolicy`, the step execution context is marked as exhausted and only error processing steps are executed.  Refer to the <<Step specifications>> section for more information on error processing steps.
 
 [source,kotlin,linenumbers]
 ----
@@ -257,7 +257,7 @@ fun myScenario() {
     }
 }
 ----
-== Load-injected Tree
+== Load-injected tree
 A scenario is a combination of directed acyclic graphs, joined by steps.
 
 There might be several graphs starting concurrently at the scenario root, but only one graph (the specified load-injected branch) is visited by all the minions injected into the scenario.
@@ -309,7 +309,7 @@ fun myScenario() {
 }
 ----
 
-== Singleton Step
+== Singleton step
 A singleton step is designed to be executed only once by one minion. Its purpose is to gather data to provide to the other minions as they pass through it.  The minions can use the data to feed other steps or verify expected results in the tested system.
 
 Examples of a singleton step include:
@@ -325,7 +325,7 @@ The proxy will be executed by all the minions going through the branch, while th
 
 The singleton step and its proxy are connected by a topic, which actually defines the way the polled/read/ consumed records are provided to the minions.
 
-== Data Distribution from the Singleton Step to the Load Minions
+== Data distribution from the singleton step to the load minions
 For convenience purpose, QALIPSIS proposes three different modes of distributing records out of a singleton step:
 
 * Loop
@@ -346,7 +346,7 @@ Create and insert singleton loop graphic here
 All minions receive all the records.
 When there is no more data for a minion, it receives the same data again from the beginning and loops on the whole set of records as long as it needs new ones.
 
-=== Unicast/Forward Once
+=== Unicast/forward once
 
 Each minion receives the next unused record emitted from the step. Once there are no more records to provide, all the minions remain blocked in the step.
 

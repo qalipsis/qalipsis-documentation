@@ -1,15 +1,15 @@
-= Quickstart Guide: Testing an HTTP Server with Qalipsis
+= Quickstart guide: Testing an HTTP server with QALIPSIS
 
 In this quickstart guide, you will learn how to test a very simple echo-like HTTP service using QALIPSIS.
 
-== Before You Get Started
+== Before you get started
 Before starting, you need:
 
 * A general understanding of the <<QALIPSIS Core Concepts>>.
 * Java 11 SDK or above installed on your system.
 * Docker installed on your system.
 
-== What This Guide Covers 
+== What this guide covers 
 
 This guide will take you through the following steps for testing a simple HTTP service:
 
@@ -23,9 +23,9 @@ This guide will take you through the following steps for testing a simple HTTP s
 .. A second `assertion` step to verify the server's responses.
 . Execute the scenario using https://docs.gradle.org/current/userguide/what_is_gradle.html[Gradle] and view the report.
 . Create a Java archive of your project so that you can transport it as needed and run it anywhere.
-. <<Enable Event Logging,Enable Event Logging>> to allow you to view errors in the report. 
+. <<Enable event logging>> to allow you to view errors in the report. 
 
-== Start an HTTP Server
+== Start an HTTP server
 
 . Create a file named `docker-compose.yml` in your working directory with the following content:
 +
@@ -45,7 +45,7 @@ services:
 ----
 . Start the created docker environment with the command `docker compose up -d`.
 
-== Create a Project
+== Create a project
 . In your browser, open the website https://bootstrap.qalipsis.io[Bootstrap QALIPSIS].
 . Verify that your system has the pre-requisites listed on the https://bootstrap.qalipsis.io[Bootstrap QALIPSIS] page.
 . In the "Name" field, enter "Quickstart".
@@ -56,8 +56,8 @@ services:
 
 [ insert graphic/screenshot of the Bootstrap QALIPSIS page ]
 
-== Prepare a Scenario
-=== Edit the Downloaded Scenario Skeleton
+== Prepare a scenario
+=== Edit the downloaded scenario skeleton
 . Open the downloaded project archive in your IDE. 
 . Edit the file `src/main/kotlin/Quickstart.kt`.
 
@@ -78,7 +78,7 @@ class Quickstart{
     }
 }
 ----
-=== Configure the Scenario Basics
+=== Configure the scenario basics
 Configure the scenario to inject 10,000 minions at a rate of 100 minions every 500 ms.
 [source,kotlin,linenumbers ]
 ----
@@ -90,10 +90,10 @@ Configure the scenario to inject 10,000 minions at a rate of 100 minions every 5
         }
         .start()
 ----
-=== Add Steps to the Scenario
+=== Add steps to the scenario
 Add and configure steps within the scenario that will send an HTTP request to the server and verify that the server's response is as expected.
 
-==== Send an HTTP Request
+==== Send an HTTP request
 Add an `http` step to the scenario that will send a POST request to the server. 
 
 [source,kotlin]
@@ -129,7 +129,7 @@ Execute the scenario using Gradle: `./gradlew run`. This allows you to observe r
 
 [ insert screen shot here of the report]
 
-==== Verify the Server's Response
+==== Verify the server's response
 To verify that the server is returning what you expect, add a `verify` step to the scenario, just after the `http` step. 
 [source,kotlin,linenumbers ]
 ----
@@ -165,7 +165,7 @@ At this point, if you execute the updated scenario, a log file will display show
 
 [insert screen shot of results]
 
-==== Reuse the HTTP Connection
+==== Reuse the HTTP connection
 You can strengthen the relevance of your test by:
 
 . Adding an `httpWith` step to the scenario that reuses the original HTTP connection (`quickstart-http-post`).  
@@ -218,7 +218,7 @@ Note that there is no need to specify parameters for the`httpWith` connection si
 <4> Verifies that the body of the response contains the string  ("Hello World!") sent in the request.
 <5> Not sure I understand what this line of code does...
 
-=== Execute the Scenario
+=== Execute the scenario
 Execute your updated scenario as a Gradle project.
 
 A couple of seconds after execution, a report (similar to the one below) will display on your console.
@@ -258,9 +258,9 @@ Messages:
 ```
 * Note that the information for the whole campaign as well as for each scenario is displayed.
 * In the example above, there are errors, which explains why the execution failed. 
-* To understand the errors, refer to  <<Enable Event Logging,Enable Event Logging>> . 
+* To understand the errors, refer to  <<Enable event logging,Enable Event Logging>> . 
 
-=== Create an Archive of your scenario
+=== Create an archive of your scenario
 Execute the statement `./gradlew assemble`.
 
 A JAR archive ending with `-qalipsis.jar` is created in the folder `build/libs`.
@@ -272,7 +272,7 @@ To execute your scenario:
 . Move the JAR  archive out of the `build` folder; this will avoid accidental deletion of the archive.
 . Execute the command `java -jar quickstart-<your-version>-qalipsis.jar`.
 
-=== Enable Event Logging 
+=== Enable event logging 
 To know the details of the failures
 In current directory, create a folder called `config`.
 In this new folder, create a file called `qalipsis.yml` with the following content:

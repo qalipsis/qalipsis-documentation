@@ -1,6 +1,6 @@
-= Step Specifications
+= Step specifications
 
-== Defining and Configuring a Step Specification
+== Defining and configuring a step specification
 A step specification is defined, depending on the step nature and function, as either: 
 
 * The root of a scenario (the first step after .start()).
@@ -50,14 +50,14 @@ A step specification is configured such that:
         timeout(2000) 
     }
 ----
-== Step Context
+== Step context
 A step context is the mechanism by which:
 
 * Data received from the previous step is transported as input to the next steps. The next steps transform the data and provides it as output. The output is forwarded to the next steps as input.
 
 * Prior errors are transported through a step.
 
-== Common Load Distribution Steps
+== Common load distribution steps
 === Fan-out
 To split a branch and add two or more concurrent steps as successors, execute a `.split`.
 
@@ -78,7 +78,7 @@ create and include fan-out distribution graphic here-> more like a flowchart
 
 WARNING: If the entity returned by the step providing the data before the `.split` (`Anystep()` in the example) is liable to change, do not change it in one branch, as this would have side-effects on the other branch. Consider creating a deep clone of the record that is to be changed to avoid this issue. 
 
-=== Fan-in/Joins
+=== Fan-in/joins
 Fan-in/Join functions allow the user to re-join split branches of a scenario or to verify data from different sources.
 
 You can join the branches in one of two ways:
@@ -101,7 +101,7 @@ The following example uses the name of a concurrent step:
 Records coming from the right side are kept in a cache until one comes from the left side with the same key. Once used, they are evicted from the cache.
 
 When a flow comes from the left side but has no corresponding record yet coming from the right, it waits until the defined timeout on the step.
-Refer to <<Defining and Configuring a Step Specification>> for more details.
+Refer to <<Defining and configuring a step specification>> for more details.
 
 The step context after the join inherits from the one coming from the left. Below is the graphical representation:
 
@@ -125,7 +125,7 @@ The following example creates a step directly in the join:
 ----
 This method is similar to naming a concurrent step except that a step is created in the join. The receiver of the `with` is the scenario.
 
-=== Error Processing Steps
+=== Error processing steps
 When an error occurs when executing a step, after all the potential retries, the step context being carried from top to bottom is marked as "exhausted".
 
 From that point of the process, only the steps relevant for error processing are executed, the others are simply bypassed.
@@ -142,7 +142,7 @@ Out-of-the-box QALIPSIS operators perform a variety of functions including data 
 
 Some of the commonly used operators are defined in this section.
 
-=== Timing Operators
+=== Timing operators
 This section provides an explanation and examples  of the `delay`, `pace`, `acceleratingPace`, and `constantPace` timing operators.
 
 * `delay` adds a constant delay before executing the next step, keeping the same execution pace as previous step.
@@ -161,7 +161,7 @@ insert example and create and insert acceleratingPace graphic here
 [example]
 insert example and create and insert constantPace graphic here
 
-=== Filter Operators
+=== Filter operators
 This section provides an explanation and examples of the `filter`, `validate`, and `verify` filter operators.
 
 * `filter` removes the step contexts having an input not matching the filter specification. Filter is a silent equivalent of validate; it does not generate an error and does not mark the step context as exhausted.
@@ -175,7 +175,7 @@ Provide an example and insert `validate(is even)` graphic here
 [example]
 Provide an example and insert `verify(assetThat(it).isEven())` graphic here
 
-=== Transformation Operators
+=== Transformation operators
 flatThis section provides an explanation and examples  of the `flatMap`, `flatten`, `map`, `mapWithContext`, and `onEach` transformation operators.
 
 * `flatMap` converts a collective input into a single element in the output, with a user-defined strategy.
@@ -199,7 +199,7 @@ Provide an example of `map` and `mapWithContext`  and insert a graphic here
 [example]
 Provide an example of `onEach` and insert a graphic here
 
-=== Caching Operators
+=== Caching operators
 This section provides an explanation and examples of the `shelve` and `unshelve` caching operators.
 
 * `shelve` caches the provided values in a shared cache.
@@ -213,7 +213,7 @@ Provide an example of `shelve` and insert a graphic here
 [example]
 Provide an example of `unshelve` and insert a graphic here
 
-=== Flow Operators
+=== Flow operators
 This section provides an explanation and examples of the `pipe`, `blackHole`, and `stage` flow operators.
 
 * `pipe` simply forwards the input to the output.
@@ -241,7 +241,7 @@ Stages are not mandatory in a scenario, but provide a convenient way to iterate 
 [example]
  insert a `stage` graphic here if helpful
 
-=== Combining Operators
+=== Combining operators
 The most often used combining operator is `collect`.
 
 `collect` collects inputs across all the minions and releases them as a list within the latest received step context.

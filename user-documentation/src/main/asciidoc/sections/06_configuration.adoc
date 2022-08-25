@@ -1,6 +1,6 @@
-= QALIPSIS Configuration
+= QALIPSIS configuration
 
-== Starting QALIPSIS in Different Modes
+== Starting QALIPSIS in different modes
 Two modes of QALIPSIS configuration are currently supported:
 
 * Interactive
@@ -16,7 +16,7 @@ java -jar my-scenario-qalipsis.jar --prompt
 ----
 . When prompted, enter the load factor (# of minions), speed factor, ramping strategy, etc. 
 
-=== Scenario Selection
+=== Scenario selection
 
 Execute QALIPSIS with the `--scenarios` or `-s` as in the following example:
 [source,kotlin]
@@ -26,12 +26,12 @@ java -jar my-scenario-qalipsis.jar --scenarios "my-first-scenario, ?y-*-s*n?rio"
 
 The value is a comma-separated list of an exact value of a scenario, a pattern of the scenario, or both. The pattern may contain wildcards (* or ?) as in the example above.
 
-== Runtime Configuration
+== Runtime configuration
 
-=== Command-line Arguments
+=== Command-line arguments
 This section provides an overview and an example of the command-line arguments that are available at runtime.
 
-Note that all command-line arguments can be provided in a file, as explained in <<External Property Sources>>.
+Note that all command-line arguments can be provided in a file, as explained in <<External property sources>>.
 
 . Number of Minions by Scenario.
 +
@@ -67,7 +67,7 @@ For example:
 +
 The value for the speed factor is defined the same as for load factor.
 
-=== External Property Sources
+=== External property sources
 
 QALIPSIS uses Micronaut's runtime underneath.
 Hence, you can use its mechanism of https://docs.micronaut.io/latest/guide/index.html#propertySource[Externalized Configuration with Property Sources].
@@ -76,7 +76,7 @@ You can overwrite the default configuration and add your own properties by creat
 
 Both the default configuration and the  `qalipsis-config.yml` file can specify the same parameters; however, the `qalipsis-config.yml` has precedence.
 
-=== Injecting Configuration in a Scenario
+=== Injecting values into your scenario
 
 You can inject values into your scenario or its declaring class using the annotation `@io.qalipsis.api.annotations.Property` as in the following example:
 

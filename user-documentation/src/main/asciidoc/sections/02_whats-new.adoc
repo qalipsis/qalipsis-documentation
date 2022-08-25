@@ -1,4 +1,4 @@
-= What's New
+= What's new
 
 QALIPSIS 1.0 is the initial product release.
 

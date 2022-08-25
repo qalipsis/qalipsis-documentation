@@ -101,7 +101,7 @@ The result is dispatched as output of the step context to the followers.
 |Runner
 |A component in charge of triggering and orchestrating the flow of data from one step to the next.  The runner is responsible for ensuring that output data from each step is provided as input to the next step as appropriate. Each runner task is assigned to the minion that simulates the user or device executing it.
 
-|Run-time Parameters
+|Run-time parameters
 |Scenario parameters that are set at run-time or execution of the scenario. 
 
 |Scenario
@@ -118,7 +118,7 @@ The result is dispatched as output of the step context to the followers.
 a|The central atomic components within each scenario. Steps are the challenges minions must complete in order to continue in the scenario.
 Each step has purpose.  There are several step types within QALIPSIS:
 
- * Error Processing steps that contains information for handling a failed assertion or execution.
+ * Error processing steps that contains information for handling a failed assertion or execution.
 
 * Proxy steps that act as a middle man to forward the step execution to a follower, using convenient strategies.
 Operator steps that act on its data input or output before releasing it to the next step,
@@ -134,7 +134,7 @@ minion  * Execution: A set of fields and values representing the single executio
 
  * Tail: A step context that represents the last one in the execution workflow of a single minion.
 
-|Target System
+|Target system
 |An IT system that QALIPSIS injects load into in order to verify its ability to scale and support a high volume of users or data.
 
 |===

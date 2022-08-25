@@ -1,26 +1,26 @@
-== mongodb Plugin
+== mongodb plugin
 
 === Overview
 The `mongodb` plugin connects QALIPSIS to https://mongodb.com/[MongoDb].
 
-Technology Addressed::
+Technology addressed::
 MongoDB: https://mongodb.com/[]
 
 Dependency::
 `io.qalipsis:plugin-mongodb`
 
-Namespace in Scenario::
+Namespace in scenario::
 `mongodb()`
 
-Client Library::
+Client library::
 MongoDB Reactive Streams Driver: refer to https://www.mongodb.com/docs/drivers/reactive-streams/[MongoDB Java Reactive Streams].
 
-Supported Steps::
-* <<Poll Step,`poll`>>: polls the newest data periodically.
-* <<Save Step,`save`>>: saves a batch of documents generated from the input and step context.
-* <<Search Step,`search`>>: searches documents and builds a query from the input and step context.
+Supported steps::
+* <<Poll step,`poll`>>: polls the newest data periodically.
+* <<Save step,`save`>>: saves a batch of documents generated from the input and step context.
+* <<Search step,`search`>>: searches documents and builds a query from the input and step context.
 
-=== Poll Step
+=== Poll step
 The `poll` step within the `mongodb` plugin polls the newest records from a database table, with a delay between each execution.
 
 Ancestor::
@@ -49,7 +49,7 @@ MongoClients.create("mongodb://localhost:${mongoDbPort}/?streamType=netty")
 }
 ----
 
-Notable Parameters::
+Notable parameters::
 * `connect` (required): configures the connection to https://mongodb.com/[MongoDb].
 * `query` (required): specifies a document respecting the requirements of the target database. 
 * `tieBreaker` (required): repeats the first column used for sorting and comparison (`<=` or `>=`, depending on the ascending or descending order).
@@ -64,7 +64,7 @@ Tips::
 * The latest known value for `tiebreaker` is used to filter out the values already received from the database.
 * Refer to the https://www.mongodb.com/docs/[Mongodb] documentation for further parameter and configuration information.
 
-=== Save Step
+=== Save step
 The `save` step within the 'mongodb` plugin persists a batch of documents into MongoDB.
 
 Ancestor::
@@ -92,7 +92,7 @@ mongodb().save {
   }
 }
 ----
-Notable Parameters::
+Notable parameters::
 * `connect` (required): configures the connection to https://mongodb.com/[MongoDb].
 * `query` (required): specifies a document respecting the requirements of the target database.
 * `monitoring`(optional): configures the monitoring parameters for the step.
@@ -103,7 +103,7 @@ Tips::
 * Refer to the  https://www.mongodb.com/docs/[Mongodb] documentation for further parameter and configuration information.
 
 
-=== Search Step 
+=== Search step 
 The `search` step within the `mongodb` plugin searches records in the database using a search query.
 
 Ancestor::
@@ -133,7 +133,7 @@ mongodb().search {
 }
 ----
 
-Notable Parameters::
+Notable parameters::
 * `connect` (required): configures the connection to https://mongodb.com/[MongoDb].
 * `search` (required): defines the search parameters including `database`, `collection` `query` and `sort`.
 * `monitoring`(optional): configures the monitoring parameters for the step.

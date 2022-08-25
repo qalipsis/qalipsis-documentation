@@ -1,4 +1,4 @@
-= Monitoring a Test Campaign
+= Monitoring a test campaign
 
 == Overview
 QALIPSIS aims at giving insights of the behavior of the tested system, from a performance perspective.
@@ -8,7 +8,7 @@ Those insights are provided to the users via dashboards and detailed values desc
 == Definitions
 * <<Meters,Meters>>
 * <<Events,Events>>
-* <<Step Execution Meters, Step Execution Meters>>
+* <<Step execution meters, Step execution meters>>
 
 === Meters
 Behaviors and Results Reported via the Campaign Dashboard
@@ -48,7 +48,7 @@ Note: the suffices below are proposed with -documents which has to be adapted to
 === Events
 *To be provided*.
 
-=== Step Execution Meters
+=== Step execution meters
 In QALIPSIS, each step generates a different kinds of metadata, to supply different level of details on the overall behavior and performances of the system.
 
 The highest level is built upon meters, using the library Micrometer Application Monitoring . You can read more in the official documentation. Long story made short, the meters represent the behavior or performance of a step or operation, over a short period of time which depends on the configuration. The shorter, the more data will be saved into the time-series database. Those values can then only be fetched and reported from the time-series database where they were saved. They are not available as such in a QALIPSIS scenario. In QALIPSIS, the Micrometer meters (Counters, Timers, Gauges) are attached to a single campaign and should be created and removed according to the campaign lifecycle. More on that in the dedicated section below.
@@ -109,7 +109,7 @@ override suspend fun stop(context: StepStartStopContext) {
 In the example above, you can see that the meters are nullable and only created when the meterRegistry of type io.micrometer.core.instrument.MeterRegistry is not null - injected in the step constructor, when converter the specification to a step, only if the configuration flag metersis set to true. The tags are passed from the start and stop context onto the identification of the meters to allow their search, aggregation and analysis relatively to different dimensions (step, campaign, scenario). When the step is stopped, the meters have to be removed from the meter registry to avoid them to be further published.
 
 ==== What should be measured?
-Generally, the following things have to be measured:
+Generally, the following items need to be measured:
 
 * Request based operations (HTTP, TCP,…)
 ** Each request to be sent with the suffix -sending-request
@@ -131,7 +131,7 @@ Note: the suffices below are proposed with -documents which has to be adapted to
 
 ** The number of records that could not be saved with the suffix -failed-documents
 
-** The time to receive a complete successful response with the suffix -time-to-reponse
+** The time to receive a complete successful response with the suffix -time-to-response
 
 ** The time to receive a failure with the suffix -time-to-failure
 

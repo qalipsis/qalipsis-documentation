@@ -1,26 +1,26 @@
-== rabbitmq Plugin
+== rabbitmq plugin
 
 === Overview
 The rabbitmq plugin connects QALIPSIS to the https://www.rabbitmq.com/[RabbitMQ] broker.
 
-Technology Addressed::
+Technology addressed::
  RabbitMQ: https://www.rabbitmq.com/[]
 
 Dependency::
  `io.qalipsis:plugin-rabbitmq`
  
-Namespace in Scenario::
+Namespace in scenario::
  `rabbitmq()`
 
-Client Library::
+Client library::
 RabbitMQ: refer to https://www.rabbitmq.com/[rabbitMQ]
 
 
-Supported Steps::
-* <<Consume Step,`consume`>>: polls data from the `rabbitmq` broker.
-* <<Produce Step,`produce`>>: pushes data to the rabbitmq broker.
+Supported steps::
+* <<Consume step,`consume`>>: polls data from the `rabbitmq` broker.
+* <<Produce step,`produce`>>: pushes data to the rabbitmq broker.
  
-=== Consume Step
+=== Consume step
 The `consume` step within the `rabbitmq` plugin consumes data from queues of the rabbitmq broker and forwards the data to the next step.
 
 This step is generally used in conjunction with `join` to assert data or inject data into a workflow.
@@ -52,7 +52,7 @@ rabbitmq().
     prefetchCount (11)
 }
 ----
-Notable Parameters::
+Notable parameters::
 * `queue`: defines the name of the queue to consume.
 * `connection`: configures the connection to the RabbitMQ broker; defaults to `localhost:5672`
 * `concurrency:` defines the number of concurrent channels producing messages to RabbitMQ; defaults to 1.
@@ -63,10 +63,10 @@ Notable Parameters::
 
 Tips::
 * Use the `consume` step with `join` to assert data or inject data into a workflow.
-* Learn more about `prefetchCount` by reading the  https://www.rabbitmq.com/consumer-prefetch.html [RabbitMQ Prefetch] documentation.
+* Learn more about `prefetchCount` by reading the  https://www.rabbitmq.com/consumer-prefetch.html[RabbitMQ Prefetch] documentation.
 * To configure the `consume` step, consult the https://www.rabbitmq.com/documentation.html[rabbitMQ] documentation.
 
-=== Produce Step 
+=== Produce step 
 
 The `produce` step within the `rabbitmq` plugin provides messages to the `rabbitmq` broker using a query; the messages are then forwarded as input to the next step.
 
@@ -100,7 +100,7 @@ rabbitmq().
 }
 ----
  
-Notable Parameters::
+Notable parameters::
 * `concurrency` defines the number of concurrent channels producing messages to `rabbitmq`; defaults to `1`.
 * `connection`: configures the connection to the `rabbitmq` broker; defaults to `localhost:5672`.
 * `records`: configures and generates a list of produced records.

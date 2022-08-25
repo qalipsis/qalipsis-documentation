@@ -1,28 +1,28 @@
-== influxdb Plugin
+== influxdb plugin
 
 === Overview
 
 The `influxdb` plugin connects QALIPSIS to https://www.influxdata.com/[InfluxDB].
 
-Technologies Addressed::
+Technologies addressed::
 * InfluxDB: https://www.influxdata.com/[]
 * Flux: https://docs.influxdata.com/flux/v0.x/[] 
 
 Dependency::
 `io.qalipsis:plugin-influxdb`
 
-Namespace in Scenario::
+Namespace in scenario::
 `influxdb()`
 
-Client Library::
+Client library::
 influxdb-client-kotlin: refer to the https://github.com/influxdata/influxdb-client-java/tree/master/client-kotlin[influxdb-client-kotlin].
 
-Supported Steps::
-* <<Poll Step,`poll`>>: polls the newest data periodically.
-* <<Save Step,`save`>>: saves a batch of records generated from the input and step context.
-* <<Search Step,`search`>>: searches records and builds a query from the input and step context.
+Supported steps::
+* <<Poll step,`poll`>>: polls the newest data periodically.
+* <<Save step,`save`>>: saves a batch of records generated from the input and step context.
+* <<Search step,`search`>>: searches records and builds a query from the input and step context.
 
-=== Poll Step 
+=== Poll step 
 The `poll` step within the `influxdb()` plugin polls the newest records from the database, with a delay between each execution of a select query.
 
 Ancestor::
@@ -45,7 +45,7 @@ influxdb().poll {
     pollDelay(Duration.ofSeconds(1))
 }
 ----
-Notable Parameters::
+Notable parameters::
 * `connect` (required): configures the connection to https://www.influxdata.com/[InfluxDB].
 * `query` (required): specifies a query respecting the requirements of https://docs.influxdata.com/influxdb/v2.3/reference/api/[Flux v.2.0]. 
 * `tieBreaker` (required): repeats the first field used for sorting and comparison (`<=` or `>=`, depending on the ascending or descending order).
@@ -61,7 +61,7 @@ Tips::
 * The latest known value for `tiebreaker` filters out the values already received directly from the database.
 * Refer to the https://docs.influxdata.com/[InfluxDB] documentation for further parameter and configuration information.
  
-=== Save Step
+=== Save step
 The `save` step within the `influxdb()` plugin persists a batch of records into the `influxdb` bucket using a specific `points` class.
 
 Ancestor::
@@ -97,7 +97,7 @@ influxdb().save {
     }
 }
 ----
-Notable Parameters::
+Notable parameters::
 * `connect` (required): configures the connection to https://www.influxdata.com/[InfluxDB].
 * `monitoring`(optional): configures the monitoring parameters for the step.
 
@@ -108,7 +108,7 @@ Tips::
 * Refer to the https://docs.influxdata.com/[InfluxDB] documentation for further parameter and configuration information.
 
 
-=== Search Step 
+=== Search step 
 The `search` step within the `influxdb` plugin searches records in the database using a search query.
 
 Ancestor::
@@ -141,7 +141,7 @@ monitoring {
 }
 }
 ----
-Notable Parameters::
+Notable parameters::
 * `search`: generates the search query from the step input and context.
 * `connect` (required): configures the connection to https://www.influxdata.com/[InfluxDB]. 
 * `monitoring`(optional): configures the monitoring parameters for the step.

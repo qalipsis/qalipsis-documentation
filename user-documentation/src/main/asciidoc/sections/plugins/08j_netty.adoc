@@ -1,10 +1,10 @@
-== netty Plugin
+== netty plugin
 
 === Overview
 
 The https://netty.io/[netty] plugin supports https://datatracker.ietf.org/doc/html/rfc793[TCP], https://datatracker.ietf.org/doc/html/rfc768[UDP], https://httpwg.org/[HTTP] and https://mqtt.org/[MQTT] clients.
 
-Technologies Addressed::
+Technologies addressed::
 * HTTP/1.1: https://httpwg.org/[]
 * HTTP/2: https://httpwg.org/[]
 * MQTT: https://mqtt.org/[]
@@ -14,24 +14,24 @@ Technologies Addressed::
 Dependency::
 `io.qalipsis:plugin-netty`
 
-Namespace in Scenario::
+Namespace in scenario::
 `netty()`
 
-Client Library::
-Netty: refer to https://netty.io/[the Netty project].
+Client library::
+Netty: refer to the https://netty.io/[Netty] project.
 
-Supported Steps::
-* <<HTTP Step,`HTTP`>>: executes an HTTP request using https://datatracker.ietf.org/doc/rfc2616[`HTTP 1.1`] or https://datatracker.ietf.org/doc/rfc7540[`HTTP 2.0`].
-* <<HTTP WITH Step,`HTTP WITH`>>: executes an HTTP request reusing the HTTP connection created by a precedent step.
-* <<CLOSE HTTP Step,`CLOSE HTTP`>>: closes an HTTP connection created by a precedent step.
-* <<MQTT Publish Step,`MQTT Publish`>>: sends data to an MQTT server.
-* <<MQTT Subscribe Step,`MQTT Subscribe`>>: consumes data from an MQTT server.
-* <<TCP Step,`TCP`>>: exchanges data with a TCP server.
-* <<TCP WITH Step,`TCP WITH`>>: exchanges data reusing the TCP connection created by a precedent step.
-* <<CLOSE TCP Step,`CLOSE TCP`>>: closes a TCP connection created by a precedent step.
-* <<UDP Step,`UDP`>>: exchanges data with a UDP endpoint.
+Supported steps::
+* <<HTTP step,`HTTP`>>: executes an HTTP request using https://datatracker.ietf.org/doc/rfc2616[`HTTP 1.1`] or https://datatracker.ietf.org/doc/rfc7540[`HTTP 2.0`].
+* <<HTTP WITH step,`HTTP WITH`>>: executes an HTTP request reusing the HTTP connection created by a precedent step.
+* <<CLOSE HTTP step,`CLOSE HTTP`>>: closes an HTTP connection created by a precedent step.
+* <<MQTT publish step,`MQTT Publish`>>: sends data to an MQTT server.
+* <<MQTT subscribe step,`MQTT Subscribe`>>: consumes data from an MQTT server.
+* <<TCP step,`TCP`>>: exchanges data with a TCP server.
+* <<TCP WITH step,`TCP WITH`>>: exchanges data reusing the TCP connection created by a precedent step.
+* <<CLOSE TCP step,`CLOSE TCP`>>: closes a TCP connection created by a precedent step.
+* <<UDP step,`UDP`>>: exchanges data with a UDP endpoint.
 
-=== HTTP Step
+=== HTTP step
 The `HTTP` step within the `netty` plugin executes an HTTP request using https://datatracker.ietf.org/doc/rfc2616[`HTTP 1.1`] or https://datatracker.ietf.org/doc/rfc7540[`HTTP 2.0`].
 
 Ancestor::
@@ -39,9 +39,9 @@ Scenario and Step
 
 Functionality::
 * The `HTTP` step establishes a connection with the server using either a pool of connections or an individual connection for each minion.
-* If an individual connection is used, the connection is maintained until the latest execution for the minion is performed, including the ones from the related <<HTTP WITH Step,`HTTP WITH`>> step, as in the example.
+* If an individual connection is used, the connection is maintained until the latest execution for the minion is performed, including the ones from the related <<HTTP WITH step,`HTTP WITH`>> step, as in the example.
 +
-* When the step is kept open without limit, a <<CLOSE TCP Step,`CLOSE TCP`>> step must be executed to properly close the connections and avoid saturation of the system.
+* When the step is kept open without limit, a <<CLOSE TCP step,`CLOSE TCP`>> step must be executed to properly close the connections and avoid saturation of the system.
 +
 Be aware that the number of open connections that can be concurrently maintained depends on the configuration of your operating system. If there are issues with maintaining open connections, try adapting the limits of the file descriptors.
 
@@ -80,7 +80,7 @@ netty().http {
 }.deserialize(String::class)
 
 ----
-Notable Parameters::
+Notable parameters::
 * `request`: a factory to create the request to exchange, using the step context and the input as arguments.
 * `connect`: configures the connection to the remote endpoint.
 ** `version`: version of the HTTP protocol to use: `HTTP_1_1` or `HTTP_2_0`,; defaults to `HTTP_1_1`.
@@ -114,7 +114,7 @@ Notable Parameters::
 Tip::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
-=== HTTP WITH Step
+=== HTTP WITH step
 The `HTTP WITH` step within the `netty` plugin executes an HTTP request reusing the HTTP connection created by a precedent step.
 
 Ancestor::
@@ -133,7 +133,7 @@ netty().httpWith("name-of-a-previous-HTTP-step") {
 }.deserialize(String::class)
 ----
 
-Notable Parameters::
+Notable parameters::
 * `netty().httpWith`("name-of-a-previous-HTTP-step"): the name of the `HTTP` step that owns the connection.
 ** `request`: a factory to create the request to exchange, using the step context and the input as arguments.
 ** `monitoring`(optional): configures the monitoring parameters for the step.
@@ -142,7 +142,7 @@ Notable Parameters::
 Tip:: 
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
-=== CLOSE HTTP Step
+=== CLOSE HTTP step
 The `CLOSE HTTP` step within the `netty` plugin closes the `HTTP` connection attached to the minion, and created by a direct or indirect ancestor step, when the tail of the minion workflow is received. 
 
 It is always a best practice to use a _CLOSE HTTP_  step when reusing an `HTTP` connection across several steps without a pool of connections. 
@@ -158,14 +158,14 @@ Example::
 ----
 netty().closeHttp("name-of-a-previous-HTTP-step")
 ----
-Notable Parameters::
+Notable parameters::
 * `closeHttp` (required)  specifies the  name of an `HTTP` step owning the `HTTP` connection to close. 
 * `monitoring`(optional): configures the monitoring parameters for the step.
 
 Tip::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
-=== MQTT Publish Step 
+=== MQTT publish step 
 The `MQTT Publish` step within the `netty` plugin sends data to an MQTT server.
 
 Ancestor::
@@ -180,12 +180,12 @@ Example::
 To be provided.
 ----
  
-Notable Parameters::
+Notable parameters::
  To be provided.
 Tip(s)::
 To be provided.
 
-=== MQTT Subscribe Step 
+=== MQTT subscribe step 
 * The `MQTT Subscribe Step` within the `netty` plugin consumes data from an MQTT server.
 
 Ancestor::
@@ -205,7 +205,7 @@ Notable Parameters::
 Tip(s)::
 To be provided   
 
-=== TCP Step
+=== TCP step
 The `TCP` step within the `netty` plugin is a client for `TCP`.
  
 Ancestor::
@@ -251,7 +251,7 @@ netty().tcp {
    }
 }
 ----
-Notable Parameters::
+Notable parameters::
 * `request`: a factory to create the request to exchange, using the step context and the input as arguments; the request is an array of bytes.
 * `connect`:configures the connection to the remote endpoint.
 *** `address`:hostname or IP address and port of the remote server.
@@ -277,7 +277,7 @@ Notable Parameters::
 Tip::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
-=== TCP WITH Step 
+=== TCP WITH step 
 The `TCP WITH step` within the `netty` plugin sends a TCP payload, reusing the connection created by a precedent step.
 
 Ancestor::
@@ -296,14 +296,14 @@ netty().tcpWith("name-of-a-previous-HTTP-step") {
    monitoring { all() }
 }
 ----
-Notable Parameters::
+Notable parameters::
 * `request`: a factory to create the request to exchange, using the step context and the input as arguments.
 * `monitoring`(optional): configures the monitoring parameters for the step.
 
 Tip::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
-=== CLOSE TCP Step 
+=== CLOSE TCP step 
 The `CLOSE TCP` step within the `netty` plugin closes the TCP connection, attached to a minion and created by a direct or indirect ancestor step, when the tail of the minion workflow is received. 
 
 It is best practice to use a `CLOSE TCP` step when reusing a `TCP` connection across several steps without a pool of connections.
@@ -321,14 +321,14 @@ Example::
 netty().closeHttp("name-of-a-previous-HTTP-step")
 ----
 
-Notable Parameters::
+Notable parameters::
 * `closeHttp` (required):  specifies the  name of the `HTTP` step to close. 
 * `monitoring`(optional): configures the monitoring parameters for the step.
 
 Tip::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
-=== UDP Step 
+=== UDP step 
 The `UDP` step within the `netty` plugin is a client for UDP.
 
 It is best practice to use the  `UDP` step when reusing a `TCP` connection across several steps without a pool of connections.
@@ -361,7 +361,7 @@ netty().udp {
 }
 ----
 
-Notable Parameters::
+Notable parameters::
 * `request`: a factory to create the request to exchange, using the step context and the input as arguments, the request is an array of bytes
 * `connect`: configures the connection to the remote endpoint
 ** `address`: hostname or IP address and port of the remote endpoint

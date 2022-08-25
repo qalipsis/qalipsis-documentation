@@ -21,7 +21,7 @@ By nature, a plugin is an optional component of QALIPSIS. It allows you to inclu
 
 While a certain number of plugins are proposed by the community to cover the most common use cases and technologies, a plugin can also be an extension only for yourself and remain private.
 
-== Plugin Functionality
+== Plugin functionality
 A plugin contains one or several technical functionalities of the software that are not part of the core. The most common functionalities that a plugin might implement are:
 
 * A step to perform an action, such as:
@@ -33,14 +33,14 @@ A plugin contains one or several technical functionalities of the software that 
  
 Default implementations of the above functionalities are part of the QALIPSIS core. However, the default implementations may not be suited for your scenario (e.g., if productive testing or constant monitoring are requirements). QALIPSIS plugins enhance the above functionalities by providing related implementations.
 
-== Plugin Integration
-To create a test scenario, a tiny Gradle project is required. The plugin is simply added as a dependency to the class path of the project. You can read more about scenario configuration within the <<Quickstart Guide: Testing an HTTP Server with Qalipsis>>.
+== Plugin integration
+To create a test scenario, a tiny Gradle project is required. The plugin is simply added as a dependency to the class path of the project. You can read more about scenario configuration within the <<Quickstart guide: Testing an HTTP server with QALIPSIS>>.
 
 If the development of a scenario requires the plugin to compile (when using a step, for example), the dependency to the plugin artifact must be added to the `implementation` dependencies.
 
 If the plugin delivers functionalities that you only need at runtime, add it to the `runtimeOnly` dependencies.
 
-== Using QALIPSIS Plugins
+== Using QALIPSIS plugins
 QALIPSIS provides several plugins targeting different technologies, systems and protocols.
 
 To use a plugin, add the related dependency to your project:
@@ -56,7 +56,7 @@ Gradle - Kotlin DSL:
 implementation("io.qalipsis:plugin-XXX:{revnumber}")
 ----
 
-== QALIPSIS Available Plugins
+== QALIPSIS available plugins
 
 In this section, documentation is provided for currently available plugins that can be used with your QALIPSIS project.
 
