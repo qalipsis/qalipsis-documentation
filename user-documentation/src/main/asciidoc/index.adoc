@@ -1,8 +1,8 @@
-:title: Qalipsis - User guide
+:title: QALIPSIS User guide
 ifndef::imagesdir[:imagesdir: ./images]
 :favicon: ./images/qalipsis.ico
 :stylesheet: {includedir}/stylesheets/qalipsis.css
-= image:QALIPSIS-Insight-color-text-no-bg.png[QALIPSIS-Insight-color-text-no-bg,100] User guide
+= image:qalipsis.png[qalipsis,60] QALIPSIS - User guide
 
 <<<<
 include::{includedir}/sections/01_introduction.adoc[]

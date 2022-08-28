@@ -822,6 +822,10 @@ b.button:after {
   content: none;
 }
 
+#header h1 {
+  padding-bottom: 10px;
+}
+
 #header > h1:first-child {
   color: #37acad;
   margin-top: 2.25rem;
