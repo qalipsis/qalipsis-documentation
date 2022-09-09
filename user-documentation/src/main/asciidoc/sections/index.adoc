@@ -50,3 +50,7 @@ include::{includedir}/sections/10_glossary.adoc[]
 <<<<
 
 include::{includedir}/sections/11_faq.adoc[]
+
+<<<<
+
+include::{includedir}/sections/12_architecture.adoc[]
