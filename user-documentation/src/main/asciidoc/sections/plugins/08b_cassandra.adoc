@@ -213,7 +213,7 @@ class CassandraSaveAndSearch {
                     datacenterName = "test_datacenter"
                 }
 
-                 table { _, _ ->    <7>
+                table { _, _ ->    <7>
                     TABLE_NAME
                 }
 
