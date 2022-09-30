@@ -13,29 +13,29 @@ This section focuses on scenario configuration.  Details on scenario execution a
 == Configuring a scenario specification
 A scenario specification is made up of several parts.
 
-. A call to the Scenario function:
+. A declaration of the function that declares the scenario:
 +
 [source,kotlin,linenumbers]
 ----
-@Scenario
+@Scenario("hello-world")
 fun myScenario()
 ----
-. Assigning the scenario a name (_hello world_):
+. Assigning the kebbab-cased scenario name (_hello world_):
 +
 [source,kotlin,linenumbers]
 ----
-@Scenario
+@Scenario("hello-world")
 fun myScenario(){
-    val myScenario = scenario("hello-world")
+    val myScenario = scenario { }
 ----
 . Configuring the scenario.
 .. Assume the default configuration parameters: 
 +
 [source,kotlin,linenumbers]
 ----
-@Scenario
+@Scenario("hello-world")
 fun myScenario()
-    val myScenario = scenario("hello-world"){// Scenario default configuration parameter values
+    val myScenario = scenario { // Scenario default configuration parameter values
     }
 ----
 The default parameters include:
@@ -47,13 +47,13 @@ The default parameters include:
 +
 [source,kotlin,linenumbers]
 ----
-@Scenario
+@Scenario("hello-world")
 fun myScenario(){
-    val myScenario = scenario("hello-world"){ 
+    val myScenario = scenario {
         minionsCount = 1000
         retryPolicy(instanceOfRetryPolicy)
-        rampUp {
-        regular(1000, 50)
+        profile {
+          regular(1000, 50)
         }
     }
 }
@@ -62,27 +62,28 @@ fun myScenario(){
 +
 [source,kotlin,linenumbers]
 ----
-@Scenario
+@Scenario("hello-world")
 fun myScenario(){
-    val myScenario = scenario("hello-world"){ 
+    val myScenario = scenario {
         minionsCount = 1000
         retryPolicy(instanceOfRetryPolicy)
-        rampUp {
-        regular(1000, 50)
+        profile {
+          regular(1000, 50)
+        }
     }
 }
-.start()\\Root of the load injected tree.
+.start() // Root of the load injected tree.
 ----
 . Adding step specifications to the tree:
 +
 [source,kotlin,linenumbers]
 ----
-@Scenario
+@Scenario("hello-world")
 fun myScenario(){
-    val myScenario = scenario("hello-world"){ 
+    val myScenario = scenario {
         minionsCount = 1000
         retryPolicy(instanceOfRetryPolicy)
-        rampUp {
+        profile {
             regular(1000, 50)
         }
     }
@@ -104,16 +105,16 @@ Whether you want to simulate users, IoT devices or third-party systems, each sim
 * You can specify a default `minionsCount` (1000 in the following example):
 [source,kotlin,linenumbers]
 ----
-@Scenario
+@Scenario("hello-world")
 fun myScenario() {
-    val myScenario = scenario("hello-world") {
+    val myScenario = scenario {
         minionsCount = 1000 
     }
 }
 ----
 Load-injected trees receive all of the minions; non-load injected trees receive only one minion. 
 
-=== Ramping strategies
+=== Execution profile / ramping strategies
 * Mandatory
 * There is no default
 
@@ -135,10 +136,10 @@ After the interval reaches 200ms, 10 minions are injected every 200 ms until all
 +
 [source,kotlin,linenumbers]
 ----
-@Scenario
+@Scenario("hello-world")
 fun myScenario() {
-    val myScenario = scenario("hello-world") {
-        rampUp {
+    val myScenario = scenario {
+        profile {
             faster(2000, 1.5, 200, 10)
         }
     }
@@ -153,10 +154,10 @@ The following example injects minions every 200 ms: first 10, then 20 new minion
 +
 [source,kotlin,linenumbers]
 ----
-@Scenario
+@Scenario("hello-world")
 fun myScenario() {
-    val myScenario = scenario("hello-world") {
-        rampUp {
+    val myScenario = scenario {
+        profile {
             more(200, 10, 2.0, 1000)
         }
     }
@@ -173,10 +174,10 @@ The following example sets the execution of 200 minions every 10 ms.
 +
 [source,kotlin,linenumbers]
 ----
-@Scenario
+@Scenario("hello-world")
 fun myScenario() {
-    val myScenario = scenario("hello-world") {
-        rampUp {
+    val myScenario = scenario {
+        profile {
         regular(200, 10)
         }
     }
@@ -192,10 +193,10 @@ The following example starts an equal number of minions every 20 ms, so that the
 +
 [source,kotlin,linenumbers]
 ----
-@Scenario
+@Scenario("hello-world")
 fun myScenario() {
-    val myScenario = scenario("hello-world") {
-        rampUp {
+    val myScenario = scenario {
+        profile {
             timeframe(20, 40000)
         }
     }
@@ -209,15 +210,16 @@ The speed-factor at runtime will be applied to the interval: a speed factor of 2
 A user-defined ramping strategy is totally open to the developer's creativity or needs. It consists of returning a `MinionsStartingLine` considering the previous period in milliseconds, the total number of minions to start and the speed factor to apply.
 +
 The following example releases 1/100th of all the minions after 1000 ms, then applies different rules depending on the past interval:
-* If the previous interval was longer than 2 seconds, 100th of all the minions are released after 100ms;
-* Otherwise, a random interval is calculated applying the speed factor to reduce it, in order to start 10th of all the minions.
+
+** If the previous interval was longer than 2 seconds, 1/100 of all the minions are released after 100ms;
+** Otherwise, a random interval is calculated applying the speed factor to reduce it, in order to start 1/10 of all the minions.
 +
 [source,kotlin,linenumbers]
 ----
-@Scenario
+@Scenario("hello-world")
 fun myScenario() {
-    val myScenario = scenario("hello-world") {
-        rampUp {
+    val myScenario = scenario {
+        profile {
             define { pastPeriodMs, totalMinions, speedFactor ->
                 when {
                     pastPeriodMs == 0L -> MinionsStartingLine(totalMinions / 100, 1000)
@@ -233,10 +235,10 @@ fun myScenario() {
 +
 Whatever definition you choose: 
 +
-* The maximum number of minions launched cannot be more than the `totalmMnions`.
-*  Generating a negative interval results in an immediate start.
+** The maximum number of minions launched cannot be more than the `totalMinions`.
+**  Generating a negative interval results in an immediate start.
 +
-* When calling the first iteration of a user-defined strategy, the initial value of `pastPeriodMs` is 0. 
+** When calling the first iteration of a user-defined strategy, the initial value of `pastPeriodMs` is 0.
 
 === Retry policy
 * Optional
@@ -250,9 +252,9 @@ Once all attempts are executed per the defined `retryPolicy`, the step execution
 
 [source,kotlin,linenumbers]
 ----
-@Scenario
+@Scenario("hello-world")
 fun myScenario() {
-    val myScenario = scenario("hello-world") {
+    val myScenario = scenario {
         retryPolicy(instanceOfRetryPolicy)
     }
 }
@@ -269,11 +271,11 @@ Other graphs are considered non-injected or "side-trees" and perform data verifi
 `myScenario.doSomething()` identifies a second graph visited by a unique minion and generally consisting of iterative operations such as polling of data sources.
 [source,kotlin,linenumbers]
 ----
-@Scenario
+@Scenario("hello-world")
 fun myScenario() {
-    val myScenario = scenario("hello-world") {
+    val myScenario = scenario {
         minionsCount = 1000
-        rampUp {
+        profile {
             regular(1000, 50)
         }
     }
@@ -292,9 +294,9 @@ To create two load-injected branches, you can use the `.split` command.
 In the following example, two branches are diverging: one with the step `.map{}` and a second with `flatten().filterNotNull()`.  Both run concurrently after `.split`.
 [source,kotlin,linenumbers]
 ----
-@Scenario
+@Scenario("hello-world")
 fun myScenario() {
-    val myScenario = scenario("hello-world"){
+    val myScenario = scenario {
     .start()
         .split { 
              .map {

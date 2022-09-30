@@ -67,11 +67,11 @@ The scenario skeleton should be displayed:
 package quickstart
 import io.qalipsis.api.annotations.Scenario
 class Quickstart{
-    @Scenario
+    @Scenario("quickstart")
     fun quickstart() {
-        scenario("quickstart") {
+        scenario {
             minionsCount = 1
-            rampUp {     
+            profile {
             }
         }
     .start()
@@ -82,9 +82,9 @@ class Quickstart{
 Configure the scenario to inject 10,000 minions at a rate of 100 minions every 500 ms.
 [source,kotlin,linenumbers ]
 ----
-        scenario("quickstart-http") {
+        scenario {
             minionsCount = 10000
-            rampUp {
+            profile {
                 regular(periodMs = 500, minionsCountProLaunch = 100)
             }
         }
