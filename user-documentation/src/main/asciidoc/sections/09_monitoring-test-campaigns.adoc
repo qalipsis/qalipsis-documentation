@@ -59,7 +59,7 @@ Meters and events have in common that they can be tagged, which allows to specif
 
 The most detail of insights is made of the step execution meters. Those values are primitive values and Java durations, that are directly provided as an output from a step to another. They make it possible to verify the performances and the success of an operation directly in the scenario, in order to decide whether next steps should be executed or not.
 
-:mag: ​Meters
+:mag: Meters
 The meters are generated using Micrometer Application Monitoring, which claims to be the “slf4j” for monitoring. And actually, this allows to very easily generates meters and publish them on a regular basis into a time-series database. When published, the values collected in the meantime are aggregated into averages, maximum and minimum. 
 
 Those meters can later be directly queried from the database or displayed into dashboards. To allow a maximal relevance, the meters have to be linked to the context of their measurement: name of scenario, campaign, step.

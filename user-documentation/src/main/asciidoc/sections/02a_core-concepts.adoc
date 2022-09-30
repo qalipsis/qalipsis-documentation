@@ -29,14 +29,13 @@ A QALIPSIS scenario is the single largest component of a load test. It contains 
 
 A simple scenario configuration includes the following:
 
-. Call to the scenario function.
+. Declare to the scenario function and assign it a name.
 ** Mandatory
-** QALIPSIS Signature: `@Scenario`
+** QALIPSIS Signature: `@Scenario("scenario name")`
 
-. Assign the scenario a name.
+. Register the scenario.
 ** Mandatory
-** Value: alphanumeric string
-** QALIPSIS Signature: `val myScenario = scenario("scenario name")`
+** QALIPSIS Signature: `val myScenario = scenario()`
 
 . Define the total # of minions to be executed.
 ** Optional
@@ -44,9 +43,9 @@ A simple scenario configuration includes the following:
 ** Default = 1; Minimum = 1
 ** QALIPSIS Signature: `minionsCount = xxxxx`
 
-. Define the ramping strategy.
+. Define the execution profile.
 ** Mandatory
-** QALIPSIS Signature: `rampUp {strategy( )}`
+** QALIPSIS Signature: `profile { strategy( ) }`
 
 . Define the tree where the load will be injected.
 ** Mandatory
@@ -58,11 +57,8 @@ A simple scenario configuration includes the following:
 [source,kotlin,linenumbers]
 ----
 plugins {
-    application
     kotlin("jvm")
     kotlin("kapt")
-    id("com.github.johnrengelman.shadow") version "6.0.0"
-    id("com.palantir.docker")
 }
 ----
 
