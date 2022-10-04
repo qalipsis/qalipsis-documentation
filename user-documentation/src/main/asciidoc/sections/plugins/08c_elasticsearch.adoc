@@ -22,6 +22,8 @@ Supported steps::
 * <<save step,`save`>>: saves a batch records generated from the input and step context.
 * <<search step,`search`>>: searches records and builds a query from the input and step context.
 
+<<Elasticsearch examples>> using the supported steps are provided later in this document.
+
 === Poll step
 The `poll` step within the `elasticsearch` plugin periodically polls data from Elasticsearch. The output is a list of `ElasticsearchDocument` containing JSON data or deserialized to objects. 
 
@@ -30,29 +32,7 @@ Scenario
 
 Functionality::
 The `poll` step is created only once in a scenario; it is then used throughout the scenario as called. The `poll` step within the elasticsearch plugin uses a strategy of “delivered exactly once”. The output of the `poll` step is an `ElasticsearchDocument` that contains maps of column to values.
-Example::
-+
-[source,kotlin,linenumbers]
-----
-elasticsearch().poll {
-    index("building-moves")
-    client {
-        RestClient.builder(HttpHost("localhost", esPort, "http")).build()
-    }
-   query {
-       """{
-           "query": {
-               "term": {
-                   "action": "IN"
-            }
-        },
-        "size": 2,
-        "sort":["timestamp","username"]
-    }""".trimIndent()
-   }
-   pollDelay(Duration.ofSeconds(1))
-}
-----
+
 Notable parameters::
 * `index`: sets the `elasticsearch` indices to use for the queries; defaults to `all`.
 * `client`: configures the REST client to connect to https://www.elastic.co/[Elasticsearch].
@@ -69,6 +49,8 @@ Tips::
 * The `query` parameter requires at least one sorting field (`tiebreaker` in the example) to filter the newest results and not fetch the same records repeatedly.
 * The latest known value for `tiebreaker` is used to filter out values already received from the database.
 * The output of the `poll` step is an `ElasticsearchDocument` that contains maps of column names to values. If `flatten` is called, the records are provided one by one to the next step; otherwise each poll batch remains complete.
+
+Reference Documentation::
 * Refer to
 https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-query-params[Elasticsearch Query Parameters] for more information on query parameters.
 * Refer to the https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html#search-after[Elasticsearch] documentation for further parameter and configuration information.
@@ -82,56 +64,23 @@ Step
 Functionality::
 The `save` step's input and step context are used to generate a list of documents that are forwarded to https://www.elastic.co/[Elasticsearch].
 
-Example::
-+
-[source,kotlin,linenumbers]
-----
-elasticsearch().save {
-    documentsFactory = documentsFactory
-    client{
-        RestClient.builder(HttpHost("localhost", esPort, "http")).build()
-    }
-	monitoring {
-	    events = false
-        meters = true
-    }
-}
-----
 Notable Parameters::
 * `documentsFactory`: defines the strategy to create documents to save from the input and step context.
 * `client`: configures the REST client to connect to https://www.elastic.co/[Elasticsearch].
 * `mapper`: configures the JSON Mapper to serialize the documents.
 * `monitoring`(optional): configures the monitoring parameters for the step.
 
-Tip::
-Refer to the https://www.elastic.co/guide[Elasticsearch] documentation for further information on parameter configuration.
-
+Reference Documentation::
+Refer to the https://www.elastic.co/guide[Elasticsearch] documentation for further parameter information.
 
 === Search step
-on The `search` step within the `elasticsearch` plugin searches documents in the Elasticsearch database using a search query. 
+The `search` step within the `elasticsearch` plugin searches documents in the Elasticsearch database using a search query. 
 
 Ancestor::
 Step
  
 Functionality::
 The `search` step’s input and step context are used to generate a query; the batch of results is then forwarded to the next step(s).
-
-Example::
-+
-[source,kotlin,linenumbers]
-----
-elasticsearch().search {
-    client(clientBuilder)
-    mapper(mapperConfigurer)
-    index(indicesFactory)
-    query(queryFactory)
-    queryParameters(paramsFactory)
-    monitoring {
-        all()
-    }
-         fetchAll()
-
-----
  
 Notable parameters::
 * `client`: configures the REST client to connect to https://www.elastic.co/[Elasticsearch].
@@ -140,11 +89,207 @@ Notable parameters::
 * `queryParameters`(optional): adds parameters to the query. 
 * `mapper` configures the JSON Mapper to deserialize the documents.
 * `monitoring`(optional): configures the monitoring parameters for the step.
-* `fetchAll`: specifies that all the documents have to be fetched, even over the result-sized window.
- 
-Tips::
-* `fetchAll` must be combined with either a scroll activation or a sorting definition in the query. Refer to the current; The latter case uses `search` after to page all the data. New data coming between two requests will be fetched. The requests stops when the number of fetched documents reaches the total hits of the latest response. Note that this could lead to an infinite step execution if data are added to the results set in `elasticsearch` on a regular basis.
-* Refer to the https://www.elastic.co/guide[Elasticsearch] documentation for further information on parameter configuration.
+* `fetchAll`: specifies that all the documents have to be fetched, even over the result-sized window;  
+
+Tip::
+`fetchAll` must be combined with either a scroll activation or a sorting definition in the query.
+
+
+Reference Documentation::
+* Refer to the https://www.elastic.co/guide[Elasticsearch] documentation for further parameter information.
 * For specifics on `queryParameters` refer to https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-query-paramsElastic[Elasticsearch Query Parameters].
 * For specifics on `search` parameters, refer to 
  https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html[Elasticsearch Search Parameters] 
+
+
+=== Elasticsearch examples
+
+==== elasticsearch-save-and-poll
+
+[source,kotlin,linenumbers]
+----
+class ElasticSearchSaveAndPoll {
+
+    private val objectMapper = ObjectMapper().also {
+        it.registerModule(JavaTimeModule())
+    }
+
+    @Scenario("elasticsearch-save-and-poll")
+    fun elasticSearchSaveAndPoll(){
+
+        scenario {
+            minionsCount = NUMBER_MINION
+            profile {
+                regular(periodMs = 1000, minionsCountProLaunch = minionsCount)
+            }
+        }
+            .start()
+            .jackson()       <1>
+            .csvToObject(BatteryState::class) {
+
+                classpath("battery-levels.csv")
+                header {     <2>
+                    column("deviceId")
+                    column("timestamp")
+                    column("batteryLevel").integer()
+                }
+                unicast()
+            }
+            .map { it.value }  <3> 
+            .elasticsearch()
+            .save {
+                name = "save"
+                client {
+                    RestClient.builder(HttpHost.create("http://localhost:9200")).build() <4>
+                }
+
+                documents { _, input ->
+                    listOf(Document(
+                        index = BatteryStateContract.INDEX,
+                        id = input.primaryKey,
+                        source = objectMapper.writeValueAsString(input) <5>
+                    ))
+                }
+            }
+            .map { it.input }
+            .delay(Duration.ofSeconds(2))     <6> 
+            .innerJoinUncasted(
+                using = {correlationRecord -> correlationRecord.value.primaryKey },
+                on = {
+                    it.elasticsearch().poll {
+                        name = "poll"
+                        client { RestClient.builder(HttpHost.create("http://localhost:9200")).build() }
+                        query {
+                            """{
+                                "query":{
+                                    "match_all":{}
+                                },
+                                "sort" : ["_score"]
+                            }""".trimIndent()
+                        }
+                        index(BatteryStateContract.INDEX)  <7> 
+                        pollDelay(Duration.ofSeconds(1))   <8> 
+                    }
+                        .deserialize(BatteryState::class)  <9> 
+                        .flatten()
+                        .map{record ->
+                            record.value
+                        }
+                },
+                having = {correlationRecord -> (correlationRecord.value as BatteryState).primaryKey}
+            )
+            .filterNotNull()
+            .verify { result ->
+                result.asClue {
+                    assertSoftly {
+                        it.first.batteryLevel shouldBeExactly (it.second as BatteryState).batteryLevel
+                    }
+                }
+            }
+
+    }
+
+}
+---- 
+<1> Start the jackson step to fetch data from the csv file; use the csvToObject method to map csv entries to list of utils.BatteryState object
+<2> Define the header of the csv file.
+<3> Transform the output of the CSV reader entries to utils.BatteryState.
+<4> Create the rest client that will help submit the request to elasticsearch.
+<5> Parse to json the object we want to save.
+<6> Input a delay of 2 seconds as elasticsearch's persistence of data is not immediate.
+<7> Specify the table from where we want to fetch data.
+<8> Pull data every 2 seconds to avoid saturating the server with requests.
+<9> Transform your elastic search result to a specific object of your class.
+
+==== ElasticSearchSaveAndSearch
+[source,kotlin,linenumbers]
+----
+class ElasticSearchSaveAndSearch {
+
+    private val objectMapper = ObjectMapper().also {
+        it.registerModule(JavaTimeModule())
+    }
+
+    @Scenario("elasticsearch-save-and-search")
+    fun scenarioSaveAndSearch() {
+        scenario {
+            minionsCount = NUMBER_MINION
+            profile {
+                regular(periodMs = 1000, minionsCountProLaunch = minionsCount)
+            }
+        }
+            .start()
+            .jackson() <1>
+            .csvToObject(BatteryState::class) {
+
+                classpath("battery-levels.csv") <2>
+                header {
+                    column("deviceId")
+                    column("timestamp")
+                    column("batteryLevel").integer()
+                }
+                unicast()
+            }
+            .map { it.value }      <3> 
+            .elasticsearch()
+            .save {
+                name = "save"
+                client {
+                    RestClient.builder(HttpHost.create("http://localhost:9200"))
+                        .build() <4>
+                }
+                documents { _, input ->
+                    listOf(
+                        Document(
+                            index = "battery-state",
+                            id = input.primaryKey,
+                            source = objectMapper.writeValueAsString(input) <5> 
+                        )
+                    )
+                }
+            }
+            .delay(Duration.ofSeconds(2)) <6>
+            .elasticsearch()
+            .search {
+                name = "search"
+                client {
+                    RestClient.builder(HttpHost.create("http://localhost:9200")).build()
+                }
+                index { _, _ -> listOf(BatteryStateContract.INDEX) }  <7> 
+                query { _, input ->
+                    """{
+                        "query": {
+                            "bool": {
+                                "must": [
+                                    { "match": { "deviceId": "${input.input.deviceId}" }},
+                                    { "term": { "timestamp": ${input.input.timestamp.epochSecond} }}
+                                ]
+                            }
+                        }
+                   }"""
+                } <8> 
+            }
+            .deserialize(BatteryState::class) <9>
+            .verify { result ->
+                val savedBatteryState = result.first.input
+                result.second.asClue {
+                    assertSoftly {
+                        it.results shouldHaveSize 1
+                        it.results.first().value.batteryLevel shouldBe savedBatteryState.batteryLevel
+                    }
+                }
+            }
+
+    }
+
+}
+----
+<1> Start the jackson step to fetch data from the csv file; use the csvToObject method to map csv entries to list of utils.BatteryState object.
+<2> Define the header of the csv file.
+<3> Transform the output of the CSV reader entries to utils.BatteryState.
+<4> Create the rest client that will help submit the request to elasticsearch.
+<5> Parse to json the object we want to save.
+<6> Input a delay of 2 seconds as elasticsearch's persistence of data is not immediate.
+<7> Specify the table from where we want to fetch data.
+<8> Create the query that will help get the battery state of a specific id and specific timestamp.
+<9> Transform your elastic search result to a specific object of your class.
