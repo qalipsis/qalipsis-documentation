@@ -24,7 +24,8 @@ Supported steps::
 * <<poll step,`poll`>>: polls the newest data periodically.
 * <<Save step,`save`>>: saves records generated from the input and step context.
 * <<Search step,`search`>>: searches records and builds a query from the input and step context.
-* <<SaveandAndSearch step,`saveandsearch>>
+
+Example scenarios that use a combination of the supported steps are provided <<Cassandra scenario examples,here>>.
 
 === Poll step
 The `poll` step within the `cassandra` plugin polls the newest records from the database table.
@@ -76,7 +77,6 @@ Tips::
 Reference documentation:
 * Refer to the https://cassandra.apache.org/doc/latest[APACHE Cassandra] documentation for further parameter and configuration information.
 
-
 === Search step
 The `search` step within the `cassandra` plugin searches records in the database using a search query.
 
@@ -101,8 +101,55 @@ Tips::
 Reference documentation::
 * Refer to the https://cassandra.apache.org/doc/latest[APACHE Cassandra] documentation for further parameter and configuration information.
 
-== cassandra scenario examples
-=== cassandra-save-and-search
+=== Cassandra scenario examples
+The scenarios in this section demo how to save, poll and search data with the plugin for Apache Cassandra.
+
+To start the scenarios:
+
+* Start the container for Apache Cassandra from the <<docker-compose.yml,docker-compose.yml>>  with the command docker-compose up.
+* Execute the Gradle task runCampaignForSaveAndPoll with the command gradle :cassandra:runCampaignForSaveAndPoll to see the save and poll scenario in action.
+* Execute the Gradle task runCampaignForSaveAndSearch with the command gradle :cassandra:runCampaignForSaveAndSearch to see the save and search scenario in action.
+
+docker-compose.yml::
++
+[source,kotlin,linenumbers]
+----
+version: '3.9' \\docker-compose.yml for cassandra
+services:
+  cassandra:
+    image: cassandra #https://hub.docker.com/_/cassandra
+    container_name: cassandra-server
+    restart: always
+    environment:
+      - CASSANDRA_SNITCH=GossipingPropertyFileSnitch
+      - "JVM_OPTS=-Dcassandra.skip_wait_for_gossip_to_settle=0 -Dcassandra.initial_token=0"
+      - HEAP_NEWSIZE=128M
+      - MAX_HEAP_SIZE=1024M
+      - CASSANDRA_DC=qalipsis
+    ports:
+      - "9042:9042"
+    healthcheck:
+      test: [ "CMD", "cqlsh", "-u cassandra", "-p cassandra" ,"-e describe keyspaces" ]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  cassandra-load-keyspace:
+    container_name: cassandra-load-keyspace
+    image: cassandra
+    depends_on:
+      cassandra:
+        condition: service_healthy
+    volumes:
+      - ./schema.cql:/schema.cql
+    command: /bin/bash -c "echo loading cassandra keyspace && cqlsh cassandra -f /schema.cql"
+----
+
+==== cassandra-save-and-search
+ Save and Search desription here...
+  Rework:
+  Save and search : Records are saved into the database using the save step, then searched with a query from the same location and compared to the original saved record. 
+ 
 [source,kotlin,linenumbers]
 ----
 class CassandraSaveAndSearch {
@@ -208,7 +255,10 @@ class CassandraSaveAndSearch {
 <8> Define the names of the columns of the table.
 <9> Create the list of rows to save in the database/create the list of rows to save in database.
 
-=== cassandra-save-and-poll 
+==== cassandra-save-and-poll 
+Save and poll description ...
+Rework: Records are saved into the database using the save step, then retrieved periodically from the same location and compared to the original saved record.
+
 [source,kotlin,linenumbers]
 ----
     @Scenario
