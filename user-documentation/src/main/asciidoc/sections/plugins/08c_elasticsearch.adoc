@@ -105,6 +105,7 @@ Reference Documentation::
 === Elasticsearch examples
 
 ==== elasticsearch-save-and-poll
+The `elasticsearch-save-and-poll` scenario saves records into the database using the `save` step, periodically retrieves data from a specified location in the database using the `poll` step, and verifies that the retrieved data matches the original saved record.
 
 [source,kotlin,linenumbers]
 ----
@@ -201,7 +202,10 @@ class ElasticSearchSaveAndPoll {
 <8> Pull data every 2 seconds to avoid saturating the server with requests.
 <9> Transform your elastic search result to a specific object of your class.
 
-==== ElasticSearchSaveAndSearch
+==== elasticsearch-save-and-search
+The `elasticsearch-save-and-search` scenario 
+saves records into the database using the `save` step, then searches with a query from the same location and verifies that the retrieved data matches the original saved record.
+
 [source,kotlin,linenumbers]
 ----
 class ElasticSearchSaveAndSearch {
