@@ -53,7 +53,7 @@ Tips::
 * The latest known value for `tiebreaker` is used to filter out values already received from the database.
 
 Reference documentation::
-* Refer to the https://cassandra.apache.org/doc/latest[APACHE Cassandra] documentation further parameter and configuration information.
+Refer to the https://cassandra.apache.org/doc/latest[APACHE Cassandra] documentation further parameter and configuration information.
 
 === Save step
 The `save` step within the `cassandra` plugin persists records into a cassandra database using the save query with Cassandra Query Language (CQL).
@@ -74,8 +74,8 @@ Tips::
 * Use the `save` after a `collect` step in order to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.
 * The `save` step is extremely flexible; table, rows, and columns depend on the context and input value received from the previous step.
 
-Reference documentation:
-* Refer to the https://cassandra.apache.org/doc/latest[APACHE Cassandra] documentation for further parameter and configuration information.
+Reference documentation::
+Refer to the https://cassandra.apache.org/doc/latest[APACHE Cassandra] documentation for further parameter and configuration information.
 
 === Search step
 The `search` step within the `cassandra` plugin searches records in the database using a search query.
@@ -104,51 +104,8 @@ Reference documentation::
 === Cassandra scenario examples
 The scenarios in this section demo how to save, poll and search data with the plugin for Apache Cassandra.
 
-To start the scenarios:
-
-* Start the container for Apache Cassandra from the <<docker-compose.yml,docker-compose.yml>>  with the command docker-compose up.
-* Execute the Gradle task runCampaignForSaveAndPoll with the command gradle :cassandra:runCampaignForSaveAndPoll to see the save and poll scenario in action.
-* Execute the Gradle task runCampaignForSaveAndSearch with the command gradle :cassandra:runCampaignForSaveAndSearch to see the save and search scenario in action.
-
-docker-compose.yml::
-+
-[source,kotlin,linenumbers]
-----
-version: '3.9' \\docker-compose.yml for cassandra
-services:
-  cassandra:
-    image: cassandra #https://hub.docker.com/_/cassandra
-    container_name: cassandra-server
-    restart: always
-    environment:
-      - CASSANDRA_SNITCH=GossipingPropertyFileSnitch
-      - "JVM_OPTS=-Dcassandra.skip_wait_for_gossip_to_settle=0 -Dcassandra.initial_token=0"
-      - HEAP_NEWSIZE=128M
-      - MAX_HEAP_SIZE=1024M
-      - CASSANDRA_DC=qalipsis
-    ports:
-      - "9042:9042"
-    healthcheck:
-      test: [ "CMD", "cqlsh", "-u cassandra", "-p cassandra" ,"-e describe keyspaces" ]
-      interval: 15s
-      timeout: 10s
-      retries: 10
-
-  cassandra-load-keyspace:
-    container_name: cassandra-load-keyspace
-    image: cassandra
-    depends_on:
-      cassandra:
-        condition: service_healthy
-    volumes:
-      - ./schema.cql:/schema.cql
-    command: /bin/bash -c "echo loading cassandra keyspace && cqlsh cassandra -f /schema.cql"
-----
-
 ==== cassandra-save-and-search
- Save and Search desription here...
-  Rework:
-  Save and search : Records are saved into the database using the save step, then searched with a query from the same location and compared to the original saved record. 
+The cassandra-save-and-search scenario saves records into a database using the save step, searches for a specific record in the database with a query and verifies that the result matches the original saved record.
  
 [source,kotlin,linenumbers]
 ----
@@ -221,7 +178,8 @@ class CassandraSaveAndSearch {
                     datacenterName = "test_datacenter"
                 }
                 query { _, _ ->
-                    "SELECT * FROM $TABLE_NAME WHERE ${BatteryStateContract.COMPANY} = ? AND ${BatteryStateContract.DEVICE_ID} = ? AND ${BatteryStateContract.TIMESTAMP} = ?"
+                    "SELECT * FROM $TABLE_NAME WHERE ${BatteryStateContract.COMPANY} = ? AND $
+                    {BatteryStateContract.DEVICE_ID} = ? AND ${BatteryStateContract.TIMESTAMP} = ?"
                 }
                 parameters { _, input ->
                     listOf("ACME Inc.", input.input.deviceId, input.input.timestamp)
@@ -230,8 +188,8 @@ class CassandraSaveAndSearch {
             .map {
                 it.input.input to it.records.first().let { cassandraRecord ->
                     BatteryState(
-                        deviceId = cassandraRecord.value[CqlIdentifier.fromCql(BatteryStateContract.DEVICE_ID)] as String,
-                        timestamp = cassandraRecord.value[CqlIdentifier.fromCql(BatteryStateContract.TIMESTAMP)] as Instant,
+                        deviceId = cassandraRecord.value[CqlIdentifier.fromCql(BatteryStateContract DEVICE_ID)] as String,
+                        timestamp = cassandraRecord.value[CqlIdentifier.fromCql(BatteryStateContract.TIMESTAMP) as Instant,
                         batteryLevel = (cassandraRecord.value[CqlIdentifier.fromCql(BatteryStateContract.BATTERY_LEVEL)] as Number).toInt()
                     )
                 }
@@ -253,11 +211,10 @@ class CassandraSaveAndSearch {
 <6> Setup the database connection. 
 <7> Define the name of the database.
 <8> Define the names of the columns of the table.
-<9> Create the list of rows to save in the database/create the list of rows to save in database.
+<9> Create the list of rows to save in the database.
 
 ==== cassandra-save-and-poll 
-Save and poll description ...
-Rework: Records are saved into the database using the save step, then retrieved periodically from the same location and compared to the original saved record.
+The cassandra-save-and-poll scenario saves records into a database using the save step, retrieves records periodically from the database using the poll step and verifies that the results match the original saved record.
 
 [source,kotlin,linenumbers]
 ----
