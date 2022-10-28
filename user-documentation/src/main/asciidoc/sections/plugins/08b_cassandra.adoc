@@ -101,12 +101,23 @@ Tips::
 Reference documentation::
 * Refer to the https://cassandra.apache.org/doc/latest[APACHE Cassandra] documentation for further parameter and configuration information.
 
+<<<<<<< Updated upstream
 === Cassandra scenario examples
 The scenarios in this section demo how to save, poll and search data with the plugin for Apache Cassandra.
 
 ==== cassandra-save-and-search
 The cassandra-save-and-search scenario saves records into a database using the save step, searches for a specific record in the database with a query and verifies that the result matches the original saved record.
  
+=======
+== cassandra scenario examples
+The scenarios in this section demonstrate how to save, poll and search data using the plugin for Apache Cassandra.
+
+* SaveAndSearch: Saves records to a database using the `save` step, queries records from the same database location using the `search` step, and then compares the returned record to the saved record using the `verify` step. 
+* SaveAndPoll: Saves records to a database using the `save` step, retrieves records periodically from the same database location using the `poll` step, and then compares the returned record to the saved record using the `verify` step.
+
+=== SaveAndSearch
+
+>>>>>>> Stashed changes
 [source,kotlin,linenumbers]
 ----
 class CassandraSaveAndSearch {
