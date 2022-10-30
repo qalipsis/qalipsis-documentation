@@ -20,7 +20,7 @@ Supported steps::
 * <<Consume step,`consume`>>: consumes data from topics of an Apache Kafka cluster.
 * <<Produce step,`produce`>>: pushes data to topics of the Apache Kafka cluster.
 
-An Example scenarios that use a combination of the supported steps is provided <<kafka-produce-and-consume scenario example,here>>.
+An example scenario that uses a combination of the `kafka` `consume` and `produce` steps is provided <<kafka produce-and-consume scenario example,here>>.
 
 === Consume step
 The `consume` step within the `kafka` plugin polls data from topics of an Apache Kafka cluster and forwards the data to the next step, either in batches or individually.
@@ -54,7 +54,7 @@ Tips::
 `OffsetResetStrategy.LATEST` is the default. 
 
 Reference documentation::
-* Refer to the https://kafka.apache.org/[APACHE KAFKA] documentation for further parameter and configuration information. 
+Refer to the https://kafka.apache.org/[APACHE KAFKA] documentation for further parameter and configuration information. 
  
 === Produce step
 The `produce` step within the `kafka` plugin pushes data onto topics of the Kafka broker and forwards the data as input to the next step.
@@ -65,7 +65,6 @@ Scenario
 Functionality::
 The `produce` step's input and step context are used to generate values to complete the step. The batch of results, or a single result, is then forwarded to the next step(s).
 
- 
 Notable parameters::
 * `Serdes.ByteArray().serializer()`: describes how to serialize the record keys to send  to `kafka`.
 * `Serdes.String().serializer()`: describes how to serialize the record values to send to `kafka`.
@@ -75,13 +74,11 @@ Notable parameters::
 * `monitoring`(optional): configures the monitoring parameters for the step.
 
 Reference documentation::
-* Refer to the https://kafka.apache.org/documentation/[APACHE KAFKA] documentation for further parameter and configuration information. 
+Refer to the https://kafka.apache.org/documentation/[APACHE KAFKA] documentation for further parameter and configuration information. 
 
-===Kafka scenario example
-=== produce-and-consume
-The example in this section deomonstrates how to produce and consume data using the APACHE `plugin`. 
-Reowrk: 
-The producer sends `BatteryState` data on a topic and the consumer read it periodically then compared to the original send data.
+
+=== kafka produce-and-consume scenario example
+The example `kafka-produce-and-consume` scenario sends BatteryState data on a topic using the `produce` step, periodically reads the data using the `consume` step, and verifies that the retrieved data matches the original sent record 
 
 [source,kotlin,linenumbers]
 ----
@@ -104,15 +101,15 @@ class KafkaProduceAndConsume {
             .csvToObject(BatteryState::class) {
 
                 classpath("battery-levels.csv")
-                // we define the header of the csv file
-                header {
+                
+                header { <3>
                     column("deviceId")
                     column("timestamp")
                     column("batteryLevel").integer()
                 }
                 unicast()
             }
-            .map { it.value } <3>
+            .map { it.value } <4>
             .kafka()
             .produce(
                 keySerializer = Serdes.String().serializer(),
@@ -136,7 +133,7 @@ class KafkaProduceAndConsume {
                     correlationRecord.value.primaryKey
                 },
                 on = {
-                    it.kafka().consume {  <4>
+                    it.kafka().consume {  <5>
                         bootstrap(ServerConfiguration.SERVER_BOOTSTRAP)
                         topics(ServerConfiguration.TOPIC)  
                         groupId("kafka-example")
@@ -154,45 +151,15 @@ class KafkaProduceAndConsume {
                 }
             )
     }
-
 }
 ----
-<1> Define the scenario, set the name, number of minions and rampUp.
-<2> Start the jackson step to fetch data from the csv file; use the csvToObject method to map csv entries to list of utils.BatteryState object.
-<3> Transform the output of the CSV reader entries to utils.BatteryState.
-<4> Configure the `consume` step; define the `topics`, `groupId`, `offsetReset` strategy (EARLIEST starts consuming messages from the beginning of the queue), and `pollTimeout` duration.
+<1> Define the scenario; set the name, number of minions and rampUp strategy.
+<2> Start the `jackson` `csvToObject` step to fetch data from the csv file and map the csv entries to a list of `utils.BatteryState object`.
+<3> Define the header of the csv file.
+<4> Transform the output of the CSV reader entries to `utils.BatteryState`.
+<5> Configure the `consume` step; define the `topics`, `groupId`, `offsetReset` strategy (EARLIEST starts consuming messages from the beginning of the queue), and `pollTimeout` duration.
 
 
-To start the scenario:
 
-1. Create a `docker-compose.yml` file in the project folder.
-+
-[source,kotlin,linenumbers]
-----
-version: "3"
-services:
-  zookeeper:
-    image: 'bitnami/zookeeper:latest'
-    ports:
-      - '12181:2181'
-    environment:
-      - ALLOW_ANONYMOUS_LOGIN=yes
-  kafka:
-    image: 'bitnami/kafka:latest'
-    ports:
-      - '9092:9092'
-    environment:
-      - KAFKA_BROKER_ID=1
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092
-      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-      - ALLOW_PLAINTEXT_LISTENER=yes
-    depends_on:
-      - zookeeper
-----    
-[start=2] 
-. Start the container for Apache Kafka from the <<docker-compose.yml,`docker-compose.yml`>> with the command `docker-compose up`
-
-. Execute the Gradle task `runCampaignForProduceAndConsume` with the command `gradle :kafka:runCampaignForProduceAndConsume` to see the produce and consume scenario in action.
 
 
