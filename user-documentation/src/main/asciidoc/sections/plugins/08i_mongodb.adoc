@@ -20,6 +20,9 @@ Supported steps::
 * <<Save step,`save`>>: saves a batch of documents generated from the input and step context.
 * <<Search step,`search`>>: searches documents and builds a query from the input and step context.
 
+
+Example scenarios using a combination of `mongodb` supported steps are provided <<mongodb scenario examples,here>>.
+
 === Poll step
 The `poll` step within the `mongodb` plugin polls the newest records from a database table, with a delay between each execution.
 
@@ -28,26 +31,6 @@ Scenario
 
 Functionality::
 The `poll` step is created only once in a scenario;  it is then used throughout the scenario as called. The `poll` step within the `mongodb` plugin uses a strategy of “delivered at least once”. 
-
-
-Example::
-+
-[source,kotlin,linenumbers]
-----
-mongodb().poll {
-  connect { 
-MongoClients.create("mongodb://localhost:${mongoDbPort}/?streamType=netty") 
-  }
-  search {
-    database = "the-db"
-    collection = "moves"
-    query = Document().append("action", "IN")
-    sort = linkedMapOf("timestamp" to Sorting.ASC)
-    tieBreaker = "timestamp"
-  }
-  pollDelay(Duration.ofSeconds(2))
-}
-----
 
 Notable parameters::
 * `connect` (required): configures the connection to https://mongodb.com/[MongoDb].
@@ -62,7 +45,9 @@ Tips::
 * Use the `poll` step with a join operator if you need to verify the values saved by your tested system in the database.
 * The `query` parameter requires at least one sorting field (`tiebreaker` in the example) to filter the newest results and not fetch the same records repeatedly.
 * The latest known value for `tiebreaker` is used to filter out the values already received from the database.
-* Refer to the https://www.mongodb.com/docs/[Mongodb] documentation for further parameter and configuration information.
+
+Reference Documentation::
+Refer to the https://www.mongodb.com/docs/[Mongodb] documentation for further parameter and configuration information.
 
 === Save step
 The `save` step within the 'mongodb` plugin persists a batch of documents into MongoDB.
@@ -73,25 +58,6 @@ Step
 Functionality::
 The `save` step's input and step context are used to generate the table, the list of columns and their values, which are then combined and forwarded to the database.
 
-Example::
-+
-[source,kotlin,linenumbers]
-----
-mongodb().save {
-  connect {
-    MongoClients.create()
-  }
-  query {
-    database = databaseName
-    collection = collectionName
-    records = recordSupplier
-  }
-	monitoring {
-	  events = false
-    meters = true
-  }
-}
-----
 Notable parameters::
 * `connect` (required): configures the connection to https://mongodb.com/[MongoDb].
 * `query` (required): specifies a document respecting the requirements of the target database.
@@ -100,7 +66,9 @@ Notable parameters::
 Tips::
 * Use the `save` step after a `collect` step in order to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.
 * The  `save` step is extremely flexible; database, collection and documents may depend on the context and input value received from the previous step.
-* Refer to the  https://www.mongodb.com/docs/[Mongodb] documentation for further parameter and configuration information.
+
+Reference Documentation::
+Refer to the  https://www.mongodb.com/docs/[Mongodb] documentation for further parameter and configuration information.
 
 
 === Search step 
@@ -112,33 +80,213 @@ Step
 Functionality::
 The `search` step’s input and step context are used to generate a document and the values to complete it; the batch of results is then forwarded to the next step(s).
 
-Example::
-+
-[source,kotlin,linenumbers]
-----
-mongodb().search {
-	connect {
-    MongoClients.create()
-  }
-  search {
-    database = { _, _ -> "db" }
-    collection = { _, _ -> "col" }
-    query = { _, _ -> Document() }
-    sort = { _, _ -> linkedMapOf("asc" to Sorting.ASC, "desc" to Sorting.DESC) }
-  }
-  monitoring {
-	  events = false
-    meters = true
-  }
-}
-----
-
 Notable parameters::
 * `connect` (required): configures the connection to https://mongodb.com/[MongoDb].
 * `search` (required): defines the search parameters including `database`, `collection` `query` and `sort`.
 * `monitoring`(optional): configures the monitoring parameters for the step.
 
-Tips::
+Tip::
 * Use this step after a collect() step in order to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.
-* Refer to the  https://www.mongodb.com/docs/[Mongodb] documentation for further parameter and configuration information.
+*
+Reference Documentation::
+Refer to the  https://www.mongodb.com/docs/[Mongodb] documentation for further parameter and configuration information.
 
+=== Example mongodb scenarios
+
+==== mongodb-save-and-poll
+The examaple `mongodb-save-and-poll` scenario saves records into the database using the `save` step, periodically retrieves data from a specified location in the database using the `poll` step, and verifies that the retrieved data matches the original saved record.
+ 
+[source,kotlin,linenumbers]
+----
+class MongoDbSaveAndPoll {
+     private val objectMapper = ObjectMapper().also {
+        it.registerModule(JavaTimeModule())
+    }
+
+    @Scenario("mongodb-save-and-poll")
+    fun scenarioSaveAndPoll() {
+        scenario { <1>
+            minionsCount = NUMBER_MINION
+            profile {
+                regular(periodMs = 1000, minionsCountProLaunch = minionsCount)
+            }
+        }.start()
+            .jackson() <2> 
+            .csvToObject(BatteryState::class) {
+                name = "csv to json"
+
+                classpath("battery-levels.csv")
+                header {  <3>
+                    column("deviceId")
+                    column("timestamp")
+                    column("batteryLevel").integer()
+                }
+                unicast()
+            }.map { it.value } <4> 
+            .mongodb() <5> 
+            .save {
+                name = "save"
+
+
+                connect { <6>
+                    MongoClients.create(DatabaseConfiguration.SERVER_LINK)
+                }
+
+                query {
+                    database { _, _ ->
+                        DatabaseConfiguration.DATABASE
+                    }
+                    collection { _, _ ->
+                        DatabaseConfiguration.COLLECTION
+                    }
+
+                    documents { _, input ->
+                        listOf(Document.parse(objectMapper.writeValueAsString(input)))
+                    }
+                }
+            }
+            .map { it.input }
+            .innerJoin(
+                using = { correlationRecord -> correlationRecord.value.primaryKey },
+                on = {
+                    it.mongodb().poll {
+                        name = "poll"
+
+                        connect {
+                            MongoClients.create(DatabaseConfiguration.SERVER_LINK)
+                        }
+
+                        search {
+                            database = DatabaseConfiguration.DATABASE
+                            collection = DatabaseConfiguration.COLLECTION
+                            query = Document()
+                            sort = linkedMapOf(BatteryStateContract.DEVICE_ID to Sorting.ASC)
+                            tieBreaker = BatteryStateContract.DEVICE_ID
+                        }
+
+                        pollDelay(Duration.ofSeconds(1)) <7> 
+
+                    }.flatten().map { record ->
+                        objectMapper.convertValue(record.value, BatteryState::class.java)
+                    }
+                }, having = { correlationRecord ->
+                    correlationRecord.value.primaryKey
+                })
+            .filterNotNull()
+            .verify { result ->
+                result.asClue {
+                    assertSoftly {
+                        it.first.batteryLevel shouldBeExactly it.second.batteryLevel
+                    }
+                }
+            }
+    }
+
+}
+----
+<1> Define the scenario; set the name, number of minions and rampUp strategy.
+<2> Start the `jackson` `csvToObject` step to fetch data from the csv file and map csv entries to a list of `utils.BatteryState` object
+<3> Define the header of the csv file.
+<4> Transform the output of the CSV reader entries to `utils.BatteryState`.
+<5> Start the `mongodb` `save` step to save data to the mongodb database.
+<6> Setup the connection to the database.
+<7> Poll the database once every second. 
+
+==== mongodb-save-and-search
+The example  `mongodb-save-and-search` scenario saves records into the database using the `save` step, queries a specific location in the database using the search step, and verifies that the retrieved data matches the original saved record.
+
+[source,kotlin,linenumbers]
+----
+class MongoDbSaveAndSearch {
+
+    private val objectMapper = ObjectMapper().also {
+        it.registerModule(JavaTimeModule())
+    }
+
+    @Scenario("mongodb-save-and-search")
+    fun scenarioSaveAndSearch() {
+        scenario { <1>
+            minionsCount = NUMBER_MINION
+            profile {
+                regular(periodMs = 1000, minionsCountProLaunch = minionsCount)
+            }
+        }
+            .start()
+            .jackson() <2> 
+            .csvToObject(BatteryState::class) {
+
+                classpath("battery-levels.csv")
+                header { <3>
+                    column("deviceId")
+                    column("timestamp")
+                    column("batteryLevel").integer()
+                }
+                unicast()
+            }
+            .map { it.value } <4> 
+            .mongodb() <5>
+            .save {
+
+                connect { <6>
+                    MongoClients.create(DatabaseConfiguration.SERVER_LINK)
+                }
+
+                query {
+                    database { _, _ ->
+                        DatabaseConfiguration.DATABASE
+                    }
+
+                    collection { _, _ ->
+                        DatabaseConfiguration.COLLECTION
+                    }
+
+                    documents { _, input ->
+                        listOf(Document.parse(objectMapper.writeValueAsString(input)))
+                    }
+                }
+            }
+            .map { it.input }
+            .mongodb()
+            .search {
+                name = "search"
+
+                connect {
+                    MongoClients.create(DatabaseConfiguration.SERVER_LINK)
+                }
+
+                search {
+                    database { _, _ -> DatabaseConfiguration.DATABASE }
+                    collection { _, _ -> DatabaseConfiguration.COLLECTION }
+                    query { _, input ->
+                        Document(
+                            mapOf(
+                                BatteryStateContract.DEVICE_ID to input.deviceId,
+                                BatteryStateContract.TIMESTAMP to input.timestamp.epochSecond
+                            )
+                        )
+                    }
+                }
+            }
+            .map {
+                it.input to it.documents.map { document ->
+                    objectMapper.readValue(document.toJson(), BatteryState::class.java)
+                }
+            }
+            .verify { result ->
+                result.asClue {
+                    assertSoftly {
+                        it.second.size shouldBeExactly 1
+                        it.first.batteryLevel shouldBeExactly it.second.first().batteryLevel
+                    }
+                }
+            }
+    }
+
+}
+----
+<1> Define the scenario; set the name, number of minions and rampUp strategy.
+<2> Start the `jackson` `csvToObject` step to fetch data from the csv file and map csv entries to a list of `utils.BatteryState` object
+<3> Define the header of the csv file.
+<4> Transform the output of the CSV reader entries to `utils.BatteryState`.
+<5> Start the `mongodb` `save` step to save data to the mongodb database.
+<6> Setup the connection to the database.
