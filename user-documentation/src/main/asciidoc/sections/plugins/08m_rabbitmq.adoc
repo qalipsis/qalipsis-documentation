@@ -1,4 +1,4 @@
-== rabbitmq plugin
+== rabbitmq plugins
 
 === Overview
 The rabbitmq plugin connects QALIPSIS to the https://www.rabbitmq.com/[RabbitMQ] broker.
@@ -15,11 +15,12 @@ Namespace in scenario::
 Client library::
 RabbitMQ: refer to https://www.rabbitmq.com/[rabbitMQ]
 
-
 Supported steps::
 * <<Consume step,`consume`>>: polls data from the `rabbitmq` broker.
 * <<Produce step,`produce`>>: pushes data to the rabbitmq broker.
- 
+
+An example scenario that uses a combination of the `rabbitmq` `consume` and `produce` steps is provided <<rabbitmq produce-and-consume scenario example,here>>.
+
 === Consume step
 The `consume` step within the `rabbitmq` plugin consumes data from queues of the rabbitmq broker and forwards the data to the next step.
 
@@ -61,13 +62,14 @@ Notable parameters::
 * `monitoring`(optional): configures the monitoring parameters for the step.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
 
-Tips::
-* Use the `consume` step with `join` to assert data or inject data into a workflow.
+Tip::
+Use the `consume` step with `join` to assert data or inject data into a workflow.
+
+Reference documentation::
 * Learn more about `prefetchCount` by reading the  https://www.rabbitmq.com/consumer-prefetch.html[RabbitMQ Prefetch] documentation.
 * To configure the `consume` step, consult the https://www.rabbitmq.com/documentation.html[rabbitMQ] documentation.
 
 === Produce step 
-
 The `produce` step within the `rabbitmq` plugin provides messages to the `rabbitmq` broker using a query; the messages are then forwarded as input to the next step.
 
 Ancestor::
@@ -76,37 +78,143 @@ Scenario
 Functionality::
 The `produce` step's input and step context are used to generate the values to complete the step; results are then forwarded to the next step(s).
 
-Example::
-+
-[source,kotlin,linenumbers]
-----
-rabbitmq().
-  produce {
-    name = "my-producer-step"
-    concurrency(10)
-    connection {
-      host = "anotherhost"
-      port = 5673
-      password = "pass"
-      username = "test"
-      virtualHost = "/guest"
-      clientProperties = mapOf("t" to "test")
-      }
-    records(recordSupplier)
-    monitoring {
-      events = true
-      meters = false
-    }
-}
-----
- 
 Notable parameters::
 * `concurrency` defines the number of concurrent channels producing messages to `rabbitmq`; defaults to `1`.
 * `connection`: configures the connection to the `rabbitmq` broker; defaults to `localhost:5672`.
 * `records`: configures and generates a list of produced records.
 * `monitoring`(optional): configures the monitoring parameters for the step.
 
-Tips:: 
+Reference documentation:: 
 * For more information on configuring the connection to `rabbitmq`, refer to  https://www.rabbitmq.com/api-guide.html#connecting[Connecting to RabbitMQ].
 * For more information on configuring the `produce` step, refer to the https://www.rabbitmq.com/documentation.html[rabbitMQ] documentation.
 
+=== rabbitmq produce-and-consume scenario example
+The `rabbitmq produce-and-consume` scenario sends BatteryState data to an exchange destination using the `produce` step, periodically reads the data using the `consume` step, and verifies that the retrieved data matches the original sent record.
+
+[source,kotlin,linenumbers]
+----
+class RabbitmqProduceAndConsume {
+
+    private val objectMapper = ObjectMapper().also {
+        it.registerModule(JavaTimeModule())
+    }
+
+    private fun createExchangeAndQueue(
+        channel: Channel, queueName: String, routingKey: String,
+        type: String = "direct"
+    ) {
+        channel.exchangeDeclare(queueName, type, true)
+
+        val queue = channel.queueDeclare(queueName, true, false, false, emptyMap()).queue
+        channel.queueBind(queue, queueName, routingKey)
+    }
+
+    @Scenario("rabbitmq-produce-and-consume")
+    fun rabbitmqProduceAndConsume() {
+
+        try {  <1>
+            ConnectionFactory().apply {
+                host = ServerConfiguration.HOST
+                port = ServerConfiguration.PORT
+                username = ServerConfiguration.USER_NAME
+                password = ServerConfiguration.PASSWORD
+                createExchangeAndQueue(
+                    newConnection().createChannel(),
+                    ServerConfiguration.EXCHANGE,
+                    ServerConfiguration.EXCHANGE
+                )
+            }
+        } catch (e: IOException) { <2>
+        }
+
+        scenario {
+            minionsCount = NUMBER_MINION
+            profile {
+                regular(periodMs = 1000, minionsCountProLaunch = minionsCount)
+            }
+        }
+            .start()
+            .jackson() <3> 
+            .csvToObject(BatteryState::class) {
+
+                classpath("battery-levels.csv")
+                header { <4>
+                    column("deviceId")
+                    column("timestamp")
+                    column("batteryLevel").integer()
+                }
+                unicast()
+            }
+            .map { it.value }  <5> 
+            .rabbitmq()
+            .produce {
+
+                connection {
+                    host = ServerConfiguration.HOST
+                    port = ServerConfiguration.PORT
+                    username = ServerConfiguration.USER_NAME
+                    password = ServerConfiguration.PASSWORD
+
+                }
+
+                records { _, input ->
+                    listOf(
+                        RabbitMqProducerRecord(
+                            exchange = ServerConfiguration.EXCHANGE,
+                            routingKey = ServerConfiguration.EXCHANGE,
+                            props = null,
+                            value = objectMapper.writeValueAsBytes(input)
+                        )
+                    )
+                }
+            }
+            .map {
+                it.input
+            }
+            .innerJoin(
+                using = { correlationRecord ->
+                    correlationRecord.value.primaryKey
+                },
+                on = {
+                    it.rabbitmq()
+                        .consume {
+                            name = "consume"
+                            connection {
+                                host = ServerConfiguration.HOST
+                                port = ServerConfiguration.PORT
+                                username = ServerConfiguration.USER_NAME
+                                password = ServerConfiguration.PASSWORD
+                            }
+
+                            queue(ServerConfiguration.EXCHANGE)
+
+                        }
+                        .deserialize(MessageJsonDeserializer(BatteryState::class)) <6> 
+                        .map { result ->
+                            result.value
+                        }
+                        .filterNotNull()
+                },
+                having = { correlationRecord ->
+                    correlationRecord.value.primaryKey
+                }
+            )
+            .filterNotNull()
+            .verify { result ->
+                result.asClue {
+                    assertSoftly {
+                        it.first.batteryLevel shouldBeExactly (it.second).batteryLevel
+                    }
+                }
+            }
+
+    }
+
+}
+----
+<1> Create the exchange and the queue that will be used by the scenario prior to its execution.
+<2> Ignore the exception, the exchange might already exist.
+<3> Start the `jackson` `csvToObject` step to fetch data from the csv file and map csv entries to a list of `utils.BatteryState` objects.
+<4> Define the header of the csv file.
+<5> Transform the output of the CSV reader entries to `utils.BatteryState`.
+<6> Transform the data from the `consume` step to a specific `BatteryState::class` object.
