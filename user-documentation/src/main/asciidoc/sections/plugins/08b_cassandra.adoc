@@ -1,4 +1,3 @@
-
 == cassandra plugin
 
 === Overview
@@ -25,8 +24,8 @@ Supported steps::
 * <<Save step,`save`>>: saves records generated from the input and step context.
 * <<Search step,`search`>>: searches records and builds a query from the input and step context.
 
-Example scenarios that use a combination of the supported steps are provided <<Cassandra scenario examples,here>>.
-
+Example scenarios using a combination of `cassandra` supported steps are provided <<Cassandra scenario examples,here>>.
+ 
 === Poll step
 The `poll` step within the `cassandra` plugin polls the newest records from the database table.
 
@@ -101,23 +100,12 @@ Tips::
 Reference documentation::
 * Refer to the https://cassandra.apache.org/doc/latest[APACHE Cassandra] documentation for further parameter and configuration information.
 
-<<<<<<< Updated upstream
-=== Cassandra scenario examples
-The scenarios in this section demo how to save, poll and search data with the plugin for Apache Cassandra.
+=== cassandra scenario examples
+The example scenarios in this section demo how to save, poll and search data with the plugin for Apache Cassandra.
 
 ==== cassandra-save-and-search
-The cassandra-save-and-search scenario saves records into a database using the save step, searches for a specific record in the database with a query and verifies that the result matches the original saved record.
- 
-=======
-== cassandra scenario examples
-The scenarios in this section demonstrate how to save, poll and search data using the plugin for Apache Cassandra.
+The example `cassandra-save-amd-search` scenario saves records to a database using the `save` step, queries records from the same database location using the `search` step, and verifies that the retrieved data matches the original saved record.
 
-* SaveAndSearch: Saves records to a database using the `save` step, queries records from the same database location using the `search` step, and then compares the returned record to the saved record using the `verify` step. 
-* SaveAndPoll: Saves records to a database using the `save` step, retrieves records periodically from the same database location using the `poll` step, and then compares the returned record to the saved record using the `verify` step.
-
-=== SaveAndSearch
-
->>>>>>> Stashed changes
 [source,kotlin,linenumbers]
 ----
 class CassandraSaveAndSearch {
@@ -214,18 +202,18 @@ class CassandraSaveAndSearch {
 
 }
 ----
-<1> Define the scenario, set the name, number of minions and rampUp strategy.
-<2> Start the `jackson` step to fetch data from the csv file, using the `csvToObject` method to map csv entries to list of `utils.BatteryState` object.
+<1> Define the scenario; set the name, number of minions and rampUp strategy.
+<2> Start the `jackson` `csvToObject` step to fetch data from the csv file and map the csv entries to a list of `utils.BatteryState` objects.
 <3> Define the header of the csv file.
 <4> Transform the output of the CSV reader entries to `utils.BatteryState`
-<5> Start the `cassandra` step to save data in `cassandra` database.
+<5> Start the `cassandra` `save` step to save data to a database.
 <6> Setup the database connection. 
 <7> Define the name of the database.
 <8> Define the names of the columns of the table.
 <9> Create the list of rows to save in the database.
 
 ==== cassandra-save-and-poll 
-The cassandra-save-and-poll scenario saves records into a database using the save step, retrieves records periodically from the database using the poll step and verifies that the results match the original saved record.
+The example `cassandra-save-and-poll` scenario saves records into a database using the `save` step, periodically retrieves records from the database using the `poll` step and verifies that the retrieved records match the original saved records.
 
 [source,kotlin,linenumbers]
 ----
@@ -330,11 +318,11 @@ The cassandra-save-and-poll scenario saves records into a database using the sav
             }
     }
 ----
-<1> Define the scenario, set the name, number of minions and the rampUp strategy.
-<2> Start the `jackson` step to fetch data from the csv file, using the `csvToObject` method to map csv entries to list of `utils.BatteryState` object.
+<1> Define the scenario; set the name, number of minions and the rampUp strategy.
+<2> Start the `jackson` `csvToObject` step to fetch data from the csv file and map the csv entries to a list of `utils.BatteryState` objects.
 <3> Define the header of the csv file.
 <4> Transform the output of the CSV reader entries to `utils.BatteryState`.
-<5> Start the `cassandra` step to save data in `cassandra` database.
+<5> Start the `cassandra` `save` step to save data to the `cassandra` database.
 <6> Setup the database connection. 
 <7> Define the name of the database.
 <8> Define the names of the columns of the table.
