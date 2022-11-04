@@ -24,7 +24,7 @@ Supported steps::
 * <<Save step,`save`>>: saves records generated from the input and step context.
 * <<Search step,`search`>>: searches records and builds a query from the input and step context.
 
-Example scenarios using a combination of `cassandra` supported steps are provided <<Cassandra scenario examples,here>>.
+Example scenarios using a combination of `cassandra` supported steps are provided <<cassandra scenario examples,here>>.
  
 === Poll step
 The `poll` step within the `cassandra` plugin polls the newest records from the database table.
@@ -95,16 +95,17 @@ Notable parameters::
 
 Tips::
 * Use the `search` step after a `collect()` step to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.
-* The `query` Parameter may contain ordering clauses.
+* The `query` parameter may contain ordering clauses.
 
 Reference documentation::
 * Refer to the https://cassandra.apache.org/doc/latest[APACHE Cassandra] documentation for further parameter and configuration information.
 
 === cassandra scenario examples
-The example scenarios in this section demo how to save, poll and search data with the plugin for Apache Cassandra.
+The example scenarios in this section demonstrate how to save, poll and search data using the https://cassandra.apache.org/_/index.html[cassandra] plugin.
 
 ==== cassandra-save-and-search
-The example `cassandra-save-amd-search` scenario saves records to a database using the `save` step, queries records from the same database location using the `search` step, and verifies that the retrieved data matches the original saved record.
+The example `cassandra-save-and-search` scenario saves records to a database using the `save` step, queries a specific location in the database using the `search` step, and then verifies that the returned data matches the data in the original saved record.
+
 
 [source,kotlin,linenumbers]
 ----
@@ -113,7 +114,7 @@ class CassandraSaveAndSearch {
     @Scenario
     fun scenarioSaveAndSearch() {  <1>
     
-        scenario("") {
+        scenario {
             minionsCount = NUMBER_MINION
             rampUp {
                 regular(periodMs = 1000, minionsCountProLaunch = minionsCount)
@@ -209,11 +210,11 @@ class CassandraSaveAndSearch {
 <5> Start the `cassandra` `save` step to save data to a database.
 <6> Setup the database connection. 
 <7> Define the name of the database.
-<8> Define the names of the columns of the table.
-<9> Create the list of rows to save in the database.
+<8> Define the list of columns in the database.
+<9> Define the list of rows to save to the database.
 
 ==== cassandra-save-and-poll 
-The example `cassandra-save-and-poll` scenario saves records into a database using the `save` step, periodically retrieves records from the database using the `poll` step and verifies that the retrieved records match the original saved records.
+The example `cassandra-save-and-poll` scenario saves records to a database using the `save` step, periodically retrieves records from the database using the `poll` step, and then verifies that the retrieved records match the original saved records.
 
 [source,kotlin,linenumbers]
 ----
@@ -322,8 +323,8 @@ The example `cassandra-save-and-poll` scenario saves records into a database usi
 <2> Start the `jackson` `csvToObject` step to fetch data from the csv file and map the csv entries to a list of `utils.BatteryState` objects.
 <3> Define the header of the csv file.
 <4> Transform the output of the CSV reader entries to `utils.BatteryState`.
-<5> Start the `cassandra` `save` step to save data to the `cassandra` database.
+<5> Start the `cassandra` `save` step to save data to a database.
 <6> Setup the database connection. 
 <7> Define the name of the database.
-<8> Define the names of the columns of the table.
-<9> Create the list of rows to save in the database.
+<8> Define the list of columns in the database.
+<9> Define the list of rows to save to the database.
