@@ -22,7 +22,7 @@ Supported steps::
 * <<save step,`save`>>: saves a batch records generated from the input and step context.
 * <<search step,`search`>>: searches records and builds a query from the input and step context.
 
-<<Elasticsearch examples>> using the supported steps are provided later in this document.
+Example scenarios using a combination of `elastcisearch` supported steps are provided <<elasticsearch scenario examples,here>>.
 
 === Poll step
 The `poll` step within the `elasticsearch` plugin periodically polls data from Elasticsearch. The output is a list of `ElasticsearchDocument` containing JSON data or deserialized to objects. 
@@ -102,10 +102,11 @@ Reference Documentation::
  https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html[Elasticsearch Search Parameters] 
 
 
-=== Elasticsearch examples
+=== elasticsearch scenario examples
+The example scenarios in this section domonstrate how to save, poll and search data using the  https://www.elastic.co/[Elasticsearch] plugin.
 
 ==== elasticsearch-save-and-poll
-The `elasticsearch-save-and-poll` scenario saves records into the database using the `save` step, periodically retrieves data from a specified location in the database using the `poll` step, and verifies that the retrieved data matches the original saved record.
+The example `elasticsearch-save-and-poll` scenario saves records into a database using the `save` step, periodically retrieves records from the database using the `poll` step, and verifies that the data in the retrieved records match the the data in the original saved records.
 
 [source,kotlin,linenumbers]
 ----
@@ -118,42 +119,42 @@ class ElasticSearchSaveAndPoll {
     @Scenario("elasticsearch-save-and-poll")
     fun elasticSearchSaveAndPoll(){
 
-        scenario {
+        scenario {   <1>
             minionsCount = NUMBER_MINION
             profile {
                 regular(periodMs = 1000, minionsCountProLaunch = minionsCount)
             }
         }
             .start()
-            .jackson()       <1>
+            .jackson()       <2>
             .csvToObject(BatteryState::class) {
 
                 classpath("battery-levels.csv")
-                header {     <2>
+                header {     <3>
                     column("deviceId")
                     column("timestamp")
                     column("batteryLevel").integer()
                 }
                 unicast()
             }
-            .map { it.value }  <3> 
+            .map { it.value }  <4> 
             .elasticsearch()
             .save {
                 name = "save"
                 client {
-                    RestClient.builder(HttpHost.create("http://localhost:9200")).build() <4>
+                    RestClient.builder(HttpHost.create("http://localhost:9200")).build() <5>
                 }
 
                 documents { _, input ->
                     listOf(Document(
                         index = BatteryStateContract.INDEX,
                         id = input.primaryKey,
-                        source = objectMapper.writeValueAsString(input) <5>
+                        source = objectMapper.writeValueAsString(input) <6>
                     ))
                 }
             }
             .map { it.input }
-            .delay(Duration.ofSeconds(2))     <6> 
+            .delay(Duration.ofSeconds(2))     <7> 
             .innerJoinUncasted(
                 using = {correlationRecord -> correlationRecord.value.primaryKey },
                 on = {
@@ -168,10 +169,10 @@ class ElasticSearchSaveAndPoll {
                                 "sort" : ["_score"]
                             }""".trimIndent()
                         }
-                        index(BatteryStateContract.INDEX)  <7> 
-                        pollDelay(Duration.ofSeconds(1))   <8> 
+                        index(BatteryStateContract.INDEX)  <8> 
+                        pollDelay(Duration.ofSeconds(1))  <9> 
                     }
-                        .deserialize(BatteryState::class)  <9> 
+                        .deserialize(BatteryState::class)  <10> 
                         .flatten()
                         .map{record ->
                             record.value
@@ -192,19 +193,20 @@ class ElasticSearchSaveAndPoll {
 
 }
 ---- 
-<1> Start the jackson step to fetch data from the csv file; use the csvToObject method to map csv entries to list of utils.BatteryState object
-<2> Define the header of the csv file.
-<3> Transform the output of the CSV reader entries to utils.BatteryState.
-<4> Create the rest client that will help submit the request to elasticsearch.
-<5> Parse to json the object we want to save.
-<6> Input a delay of 2 seconds as elasticsearch's persistence of data is not immediate.
-<7> Specify the table from where we want to fetch data.
-<8> Pull data every 2 seconds to avoid saturating the server with requests.
-<9> Transform your elastic search result to a specific object of your class.
+<1> Define the scenario; set the name, number of minions and the rampUp strategy.
+<2> Start the `jackson` `csvToObject` step to fetch data from the csv file and map the csv entries to a list of `utils.BatteryState` objects.
+<3> Define the header of the csv file.
+<4> Transform the output of the CSV reader entries to `utils.BatteryState`.
+<5> Create the rest client that will help submit the request to elasticsearch.
+<6> Define the index, id, and source of the document to save.
+<7> Input a delay of 2 seconds as elasticsearch's persistence of data is not immediate.
+<8> Specify the table from where we want to fetch data.
+<9> Poll data every 2 seconds to avoid saturating the server with requests.
+<10> Transform your elastic search result to a specific object of your class.
 
 ==== elasticsearch-save-and-search
-The `elasticsearch-save-and-search` scenario 
-saves records into the database using the `save` step, then searches with a query from the same location and verifies that the retrieved data matches the original saved record.
+The example `elasticsearch-save-and-search` scenario saves records into the database using the `save` step,  queries a specific location in the database using the `search` step and verifies that the data in the queried record matches the data in the original saved record.
+
 
 [source,kotlin,linenumbers]
 ----
@@ -288,11 +290,11 @@ class ElasticSearchSaveAndSearch {
 
 }
 ----
-<1> Start the jackson step to fetch data from the csv file; use the csvToObject method to map csv entries to list of utils.BatteryState object.
+<1> Start the jackson step to fetch data from the csv file; use the csvToObject method to map csv entries to list of utils.BatteryState objects.
 <2> Define the header of the csv file.
 <3> Transform the output of the CSV reader entries to utils.BatteryState.
 <4> Create the rest client that will help submit the request to elasticsearch.
-<5> Parse to json the object we want to save.
+<5> Parse to json the object to save.
 <6> Input a delay of 2 seconds as elasticsearch's persistence of data is not immediate.
 <7> Specify the table from where we want to fetch data.
 <8> Create the query that will help get the battery state of a specific id and specific timestamp.
