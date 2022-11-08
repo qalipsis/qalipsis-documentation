@@ -33,20 +33,6 @@ Scenario
 Functionality::
 The `poll` step is created only once in a scenario; it is then used throughout the scenario as called. The `poll` step within the `influxdb` plugin uses a strategy of “delivered at least once”.
 
-Example::
-+
-[source,kotlin,linenumbers]
-----
-influxdb().poll {
-    name = "poll.in"
-    connect {
-        server("http://localhost:8080", BUCKET, ORGANIZATION)
-        basic("user", "passpasspass")
-    }
-    query("from(bucket: \"$BUCKET\") |> range(start: 0) |> filter(fn: (r) => (r[\"tag\"] == \"IN\") |> sort([\”_time\”], desc: false")
-    pollDelay(Duration.ofSeconds(1))
-}
-----
 Notable parameters::
 * `connect` (required): configures the connection to https://www.influxdata.com/[InfluxDB].
 * `query` (required): specifies a query respecting the requirements of https://docs.influxdata.com/influxdb/v2.3/reference/api/[Flux v.2.0]. 
@@ -61,7 +47,9 @@ Tips::
 * The `token` can be created automatically using your password and username.
 * `query` requires at least one sorting field (`tiebreaker` in the example) to filter the newest results and not fetch the same records repeatedly.
 * The latest known value for `tiebreaker` filters out the values already received directly from the database.
-* Refer to the https://docs.influxdata.com/[InfluxDB] documentation for further parameter and configuration information.
+
+Reference: Documentation::
+Refer to the https://docs.influxdata.com/[InfluxDB] documentation for further parameter and configuration information.
  
 === Save step
 The `save` step within the `influxdb()` plugin persists a batch of records into the `influxdb` bucket using a specific `points` class.
@@ -72,33 +60,6 @@ Step
 Functionality::
 The `save` step's input and step context are used to generate the bucket, the list of points with their measurement, and tags and fields, which are then combined and forwarded to the database.
 
-Example::
-+
-[source,kotlin,linenumbers]
-----
-influxdb().save {
-   connect {
-        server(
-           url = "http://localhost:8080",
-           bucket = "test", 
-           org = "testtesttest"
-           )
-         basic(
-           user = "user", 
-           password  = "passpasspass"
-           )
-    }
-    query {
-        bucket = bucketName
-        organization = orgName
-        points = pointSupplier
-    }
-    monitoring {
-        events = true
-        meters = false
-    }
-}
-----
 Notable parameters::
 * `connect` (required): configures the connection to https://www.influxdata.com/[InfluxDB].
 * `monitoring`(optional): configures the monitoring parameters for the step.
@@ -110,7 +71,6 @@ Tips::
 
 Reference documentation::
 Refer to the https://docs.influxdata.com/[InfluxDB] documentation for further parameter and configuration information.
-
 
 === Search step 
 The `search` step within the `influxdb` plugin searches records in the database using a search query.
@@ -134,11 +94,11 @@ Reference documentation::
 Refer to the https://docs.influxdata.com/[InfluxDB] documentation for further parameter and configuration information.
 
 === influxdb scenario examples
+The example scenarios in this section demonstrate how to save, poll and search data using the https://docs.influxdata.com/[`influxDB`] plugin.
 
 ==== influxdb-save-and-poll
-The example `influxdb-save-and-poll` scenario saves records into the database using the `save` step, periodically retrieves data from a specified location in the database using the `poll` step, and verifies that the retrieved data matches the original saved record.
+The example `influxdb-save-and-poll` scenario saves records to a database using the `save` step, periodically retrieves records from the database using the `poll` step, and then verifies that the retrieved data matches the original saved record.
 
-+
 [source,kotlin,linenumbers]
 ----
 class InfluxdbSaveAndPoll {
@@ -253,7 +213,6 @@ class InfluxdbSaveAndPoll {
 <2> Define the header of the csv file.
 <3> Transform the output of the CSV reader entries to `utils.BatteryState.influxdb()`
 
-
 ==== influxdb-save-and-search
 The example `influxdb-save-and-search` scenario saves records into the database using the `save` step, queries a specific location in the database using the `search` step, and verifies that the retrieved data matches the original saved record.
 
@@ -359,8 +318,6 @@ class InfluxdbSaveAndSearch {
     }
 
 }
-
-
 ----
 <1> Start the jackson `csvToObject` step to fetch data from the csv file and map the csv entries to a list of `utils.BatteryState` object.
 <2> Define the header of the csv file.
