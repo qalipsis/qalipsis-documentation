@@ -38,10 +38,8 @@ The `poll` step is created only once in a scenario; it is then used throughout t
 Example::
 [source,kotlin,linenumbers]
 ----
-            .innerJoin(
-                using = { correlationRecord -> correlationRecord.value.primaryKey },
-                on = {
-                    it.cassandra().poll {
+
+                    cassandra().poll {
                         connect {
                             servers = listOf("localhost:7777", "10.42.42.42:7778")
                             keyspace = "test_keyspace"
@@ -52,22 +50,9 @@ Example::
                         tieBreaker {
                             name = BatteryStateContract.TIMESTAMP
                             type = GenericType.INSTANT
+
                         }
-                        pollDelay(Duration.ofSeconds(1))
                     }
-                        .flatten()
-                        .map { record ->
-                            BatteryState(
-                                deviceId = record.value[CqlIdentifier.fromCql(BatteryStateContract.DEVICE_ID)] as String,
-                                timestamp = record.value[CqlIdentifier.fromCql(BatteryStateContract.TIMESTAMP)] as Instant,
-                                batteryLevel = (record.value[CqlIdentifier.fromCql(BatteryStateContract.BATTERY_LEVEL)] as Number).toInt()
-                            )
-                        }
-                },
-                having = { correlationRecord ->
-                    correlationRecord.value.primaryKey
-                }
-            )
 ----
  Notable parameters::
 * `connect` (required): configures the connection to https://cassandra.apache.org[Apache Cassandra]
@@ -99,42 +84,40 @@ Functionality::
 Example::
 [source,kotlin,linenumbers]
 ----
-            .cassandra() <5>
-            .save {
-                name = "save"
+.cassandra() 
+.save {
+    name = "save"
+  
+    connect {   
+        servers = listOf("localhost:7777", "10.42.42.42:7778")
+        keyspace = "test_keyspace"
+        datacenterName = "test_datacenter"
+    }
 
-                
-                connect {   <6>
-                    servers = listOf("localhost:7777", "10.42.42.42:7778")
-                    keyspace = "test_keyspace"
-                    datacenterName = "test_datacenter"
-                }
+    table { _, _ ->   
+        TABLE_NAME
+    }
 
-                table { _, _ ->    <7>
-                    TABLE_NAME
-                }
-
-                columns { _, _ ->     <8>
-                    listOf(
-                        BatteryStateContract.COMPANY,
-                        BatteryStateContract.DEVICE_ID,
-                        BatteryStateContract.TIMESTAMP,
-                        BatteryStateContract.BATTERY_LEVEL
-                    )
-                }
-
+    columns { _, _ ->    
+        listOf(
+            BatteryStateContract.COMPANY,
+            BatteryStateContract.DEVICE_ID,
+            BatteryStateContract.TIMESTAMP,
+            BatteryStateContract.BATTERY_LEVEL
+        )
+    }
                
-                rows { _, input ->     <9>
-                    listOf(
-                        CassandraSaveRow(
-                            "'ACME Inc.'",
-                            "'${input.deviceId}'",
-                            "'${input.timestamp}'",
-                            input.batteryLevel
-                        )
-                    )
-                }
-            }
+    rows { _, input ->    
+        listOf(
+            CassandraSaveRow(
+                "'ACME Inc.'",
+                "'${input.deviceId}'",
+                "'${input.timestamp}'",
+                input.batteryLevel
+            )
+        )
+    }
+}
 ----
 Notable parameters::
 * `connect` (required): configures the connection to https://cassandra.apache.org[Apache Cassandra].
@@ -174,15 +157,6 @@ Example::
     }
     parameters { _, input ->
         listOf("ACME Inc.", input.input.deviceId, input.input.timestamp)
-    }
-}
-.map {
-    it.input.input to it.records.first().let { cassandraRecord ->
-        BatteryState(
-            deviceId = cassandraRecord.value[CqlIdentifier.fromCql(BatteryStateContract DEVICE_ID)] as String,
-            timestamp = cassandraRecord.value[CqlIdentifier.fromCql(BatteryStateContract.TIMESTAMP) as Instant,
-            batteryLevel = (cassandraRecord.value[CqlIdentifier.fromCql(BatteryStateContract.BATTERY_LEVEL)] as Number).toInt()
-        )
     }
 }
 ----
