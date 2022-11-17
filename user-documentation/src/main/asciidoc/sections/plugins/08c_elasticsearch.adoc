@@ -36,57 +36,33 @@ The `poll` step is created only once in a scenario; it is then used throughout t
 Example::
 [source,kotlin,linenumbers]
 ----
-            .map { it.input }
-            .delay(Duration.ofSeconds(2))      
-            .innerJoinUncasted(
-                using = {correlationRecord -> correlationRecord.value.primaryKey },
-                on = {
-                    it.elasticsearch().poll {
-                        name = "poll"
-                        client { RestClient.builder(HttpHost.create("http://localhost:9200")).build() }
-                        query {
-                            """{
-                                "query":{
-                                    "match_all":{}
-                                },
-                                "sort" : ["_score"]
-                            }""".trimIndent()
-                        }
-                        index(BatteryStateContract.INDEX)   
-                        pollDelay(Duration.ofSeconds(1))  
-                    }
-                        .deserialize(BatteryState::class)   
-                        .flatten()
-                        .map{record ->
-                            record.value
-                        }
-                },
-                having = {correlationRecord -> (correlationRecord.value as BatteryState).primaryKey}
-            )
-            .filterNotNull()
-            .verify { result ->
-                result.asClue {
-                    assertSoftly {
-                        it.first.batteryLevel shouldBeExactly (it.second as BatteryState).batteryLevel
-                    }
-                }
-            }
+elasticsearch().poll {
+    name = "poll"
+    client { RestClient.builder(HttpHost.create("http://localhost:9200")).build() }
+    query {
+        """{
+            "query":{
+                "match_all":{}
+            },
+            "sort" : ["_score"]
+        }""".trimIndent()
+    }
+    index(BatteryStateContract.INDEX)   
+    pollDelay(Duration.ofSeconds(1))  
+}
 ----
 Notable parameters::
 * `index`: sets the `elasticsearch` indices to use for the queries; defaults to `all`.
 * `client`: configures the REST client to connect to https://www.elastic.co/[Elasticsearch].
 * `query`: configures the builder for the JSON query to perform the first poll.
 * `queryParameters`(optional): adds parameters to the query. 
-* `mapper`: configures the JSON Mapper to deserialize the documents.
-* `tieBreaker` (required): repeats the first column used for sorting and comparison (`<=` or `>=`, depending on the ascending or descending order).
 * `pollDelay` (required): specifies the delay between query executions.
 * `monitoring`(optional): configures the monitoring parameters for the step.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
 
 Tips::
 * The `poll` step is generally used in conjunction with a `join` to assert data or inject data into a workflow.
-* The `query` parameter requires at least one sorting field (`tiebreaker` in the example) to filter the newest results and not fetch the same records repeatedly.
-* The latest known value for `tiebreaker` is used to filter out values already received from the database.
+* The `query` parameter requires at least one sorting field to filter the newest results and not fetch the same records repeatedly.
 * The output of the `poll` step is an `ElasticsearchDocument` that contains maps of column names to values. If `flatten` is called, the records are provided one by one to the next step; otherwise each poll batch remains complete.
 
 Reference Documentation::
@@ -106,31 +82,28 @@ The `save` step's input and step context are used to generate a list of document
 Example::
 [source,kotlin,linenumbers]
 ----
-            .map { it.value }       
-            .elasticsearch()
-            .save {
-                name = "save"
-                client {
-                    RestClient.builder(HttpHost.create("http://localhost:9200"))
-                        .build() 
-                }
-                documents { _, input ->
-                    listOf(
-                        Document(
-                            index = "battery-state",
-                            id = input.primaryKey,
-                            source = objectMapper.writeValueAsString(input) <6> 
-                        )
-                    )
-                }
-            }
+.elasticsearch()
+.save {
+    name = "save"
+    client {
+        RestClient.builder(HttpHost.create("http://localhost:9200"))
+            .build() 
+    }
+    documents { _, input ->
+        listOf(
+            Document(
+                index = "battery-state",
+                id = input.primaryKey,
+                source = objectMapper.writeValueAsString(input)  
+            )
+        )
+    }
+}
 ----
-
 Notable Parameters::
 
 * `client`: configures the REST client to connect to https://www.elastic.co/[Elasticsearch].
 * `documents`: defines the strategy to create documents to save from the input and step context.
-* `mapper`: configures the JSON Mapper to serialize the documents.
 * `monitoring`(optional): configures the monitoring parameters for the step.
 
 Reference Documentation::
@@ -148,244 +121,36 @@ The `search` step’s input and step context are used to generate a query; the b
  Example::
 [source,kotlin,linenumbers]
 ----
-            .delay(Duration.ofSeconds(2)) 
-            .elasticsearch()
-            .search {
-                name = "search"
-                client {
-                    RestClient.builder(HttpHost.create("http://localhost:9200")).build()
+.elasticsearch()
+.search {
+    name = "search"
+    client {
+        RestClient.builder(HttpHost.create("http://localhost:9200")).build()
+    }
+    index { _, _ -> listOf(BatteryStateContract.INDEX) }   
+    query { _, input ->
+        """{
+            "query": {
+                "bool": {
+                    "must": [
+                        { "match": { "deviceId": "${input.input.deviceId}" }},
+                        { "term": { "timestamp": ${input.input.timestamp.epochSecond} }}
+                    ]
                 }
-                index { _, _ -> listOf(BatteryStateContract.INDEX) }   
-                query { _, input ->
-                    """{
-                        "query": {
-                            "bool": {
-                                "must": [
-                                    { "match": { "deviceId": "${input.input.deviceId}" }},
-                                    { "term": { "timestamp": ${input.input.timestamp.epochSecond} }}
-                                ]
-                            }
-                        }
-                   }"""
-                }  
             }
+        }"""
+    }  
+}
 ----
 
 Notable parameters::
 * `client`: configures the REST client to connect to https://www.elastic.co/[Elasticsearch].
 * `index`: sets the `elasticsearch` indices to use for the queries; defaults to `all`.
 * `query`: configures the builder for the JSON query to perform a search. 
-
-* `mapper` configures the JSON Mapper to deserialize the documents.
 * `monitoring`(optional): configures the monitoring parameters for the step.
-* `fetchAll`: specifies that all the documents have to be fetched, even over the result-sized window;  
-
-
-Tip::
-`fetchAll` must be combined with either a scroll activation or a sorting definition in the query.
 
 Reference Documentation::
 * Refer to the https://www.elastic.co/guide[Elasticsearch] documentation for further parameter and configuration information.
 * For specifics on `queryParameters` refer to https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-query-paramsElastic[Elasticsearch Query Parameters].
 * For specifics on `search` parameters, refer to 
  https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html[Elasticsearch Search Parameters].
-
-=== elasticsearch scenario examples
-The example scenarios in this section domonstrate how to save, poll and search data using the  https://www.elastic.co/[`elasticsearch`] plugin.
-
-==== elasticsearch-save-and-poll
-The example `elasticsearch-save-and-poll` scenario saves records to a database using the `save` step, periodically retrieves records from the database using the `poll` step, and then verifies that the retrieved data matches the original saved record.
-
-[source,kotlin,linenumbers]
-----
-class ElasticSearchSaveAndPoll {
-
-    private val objectMapper = ObjectMapper().also {
-        it.registerModule(JavaTimeModule())
-    }
-
-    @Scenario("elasticsearch-save-and-poll")
-    fun elasticSearchSaveAndPoll(){
-
-        scenario {   <1>
-            minionsCount = NUMBER_MINION
-            profile {
-                regular(periodMs = 1000, minionsCountProLaunch = minionsCount)
-            }
-        }
-            .start()
-            .jackson()       <2>
-            .csvToObject(BatteryState::class) {
-
-                classpath("battery-levels.csv")
-                header {     <3>
-                    column("deviceId")
-                    column("timestamp")
-                    column("batteryLevel").integer()
-                }
-                unicast()
-            }
-            .map { it.value }  <4> 
-            .elasticsearch()
-            .save {
-                name = "save"
-                client {
-                    RestClient.builder(HttpHost.create("http://localhost:9200")).build() <5>
-                }
-
-                documents { _, input ->
-                    listOf(Document(
-                        index = BatteryStateContract.INDEX,
-                        id = input.primaryKey,
-                        source = objectMapper.writeValueAsString(input) <6>
-                    ))
-                }
-            }
-            .map { it.input }
-            .delay(Duration.ofSeconds(2))     <7> 
-            .innerJoinUncasted(
-                using = {correlationRecord -> correlationRecord.value.primaryKey },
-                on = {
-                    it.elasticsearch().poll {
-                        name = "poll"
-                        client { RestClient.builder(HttpHost.create("http://localhost:9200")).build() }
-                        query {
-                            """{
-                                "query":{
-                                    "match_all":{}
-                                },
-                                "sort" : ["_score"]
-                            }""".trimIndent()
-                        }
-                        index(BatteryStateContract.INDEX)  <8> 
-                        pollDelay(Duration.ofSeconds(1))  <9> 
-                    }
-                        .deserialize(BatteryState::class)  <10> 
-                        .flatten()
-                        .map{record ->
-                            record.value
-                        }
-                },
-                having = {correlationRecord -> (correlationRecord.value as BatteryState).primaryKey}
-            )
-            .filterNotNull()
-            .verify { result ->
-                result.asClue {
-                    assertSoftly {
-                        it.first.batteryLevel shouldBeExactly (it.second as BatteryState).batteryLevel
-                    }
-                }
-            }
-
-    }
-
-}
----- 
-<1> Define the scenario; set the name, number of minions and the rampUp strategy.
-<2> Start the `jackson` `csvToObject` step to fetch data from the csv file and map the csv entries to a list of `utils.BatteryState` objects.
-<3> Define the header of the csv file.
-<4> Transform the output of the CSV reader entries to `utils.BatteryState`.
-<5> Create the rest client to help submit the request to `elasticsearch`.
-<6> Define the index, id, and source of the document to save.
-<7> Input a delay of 2 seconds to accommodate `elasticsearch`'s persistence of data is not immediate.
-<8> Specify the table from where the data is fetched.  
-<9> Poll the data every 2 seconds to avoid saturating the server with requests.
-<10> Transform the elastic search result to a specific object of your class.
-
-==== elasticsearch-save-and-search
-The example `elasticsearch-save-and-search` scenario saves records to a database using the `save` step,  queries a specific location in the database using the `search` step, and then verifies that the data in the queried record matches the data in the original saved record.
-
-
-[source,kotlin,linenumbers]
-----
-class ElasticSearchSaveAndSearch {
-
-    private val objectMapper = ObjectMapper().also {
-        it.registerModule(JavaTimeModule())
-    }
-
-    @Scenario("elasticsearch-save-and-search")
-    fun scenarioSaveAndSearch() {
-        scenario { <1>
-            minionsCount = NUMBER_MINION
-            profile {
-                regular(periodMs = 1000, minionsCountProLaunch = minionsCount)
-            }
-        }
-            .start()
-            .jackson() <2>
-            .csvToObject(BatteryState::class) {
-
-                classpath("battery-levels.csv") <3>
-                header {
-                    column("deviceId")
-                    column("timestamp")
-                    column("batteryLevel").integer()
-                }
-                unicast()
-            }
-            .map { it.value }      <4> 
-            .elasticsearch()
-            .save {
-                name = "save"
-                client {
-                    RestClient.builder(HttpHost.create("http://localhost:9200"))
-                        .build() <5>
-                }
-                documents { _, input ->
-                    listOf(
-                        Document(
-                            index = "battery-state",
-                            id = input.primaryKey,
-                            source = objectMapper.writeValueAsString(input) <6> 
-                        )
-                    )
-                }
-            }
-            .delay(Duration.ofSeconds(2)) <7>
-            .elasticsearch()
-            .search {
-                name = "search"
-                client {
-                    RestClient.builder(HttpHost.create("http://localhost:9200")).build()
-                }
-                index { _, _ -> listOf(BatteryStateContract.INDEX) }  <8> 
-                query { _, input ->
-                    """{
-                        "query": {
-                            "bool": {
-                                "must": [
-                                    { "match": { "deviceId": "${input.input.deviceId}" }},
-                                    { "term": { "timestamp": ${input.input.timestamp.epochSecond} }}
-                                ]
-                            }
-                        }
-                   }"""
-                } <9> 
-            }
-            .deserialize(BatteryState::class) <10>
-            .verify { result ->
-                val savedBatteryState = result.first.input
-                result.second.asClue {
-                    assertSoftly {
-                        it.results shouldHaveSize 1
-                        it.results.first().value.batteryLevel shouldBe savedBatteryState.batteryLevel
-                    }
-                }
-            }
-
-    }
-
-}
-----
-<1> Define the scenario; set the name, number of minions and rampUp strategy.
-
-<2> Start the jackson step to fetch data from the csv file; use the csvToObject method to map csv entries to list of utils.BatteryState objects.
-<3> Define the header of the csv file.
-<4> Transform the output of the CSV reader entries to `utils.BatteryState`.
-<5> Create the `RestClient` that will help submit the request to `elasticsearch`.
-<6> Use the `map` step to save the data to a document list. 
-<7> Input a delay of 2 seconds as elasticsearch's persistence of data is not immediate.
-<8> Specify the table where the  fetch data from.
-<9> Create the query that will fetch the battery state of a specific id and specific timestamp.
-<10> Transform the  elastic `search` result to a specific `object` of the `ElasticSearchSaveAndSearch` class.
