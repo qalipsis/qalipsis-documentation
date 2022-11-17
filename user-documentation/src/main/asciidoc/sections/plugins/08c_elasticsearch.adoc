@@ -22,7 +22,7 @@ Supported steps::
 * <<save step,`save`>>: saves a batch records generated from the input and step context.
 * <<search step,`search`>>: searches records and builds a query from the input and step context.
 
-Example scenarios using a combination of `elastcisearch` supported steps are provided <<elasticsearch scenario examples,here>>.
+Example scenarios using a combination of `elastcisearch` supported steps are provided on https://github.com/qalipsis/qalipsis-examples/tree/master/elasticsearch[Github].
 
 === Poll step
 The `poll` step within the `elasticsearch` plugin periodically polls data from Elasticsearch. The output is a list of `ElasticsearchDocument` containing JSON data or deserialized to objects. 
@@ -33,6 +33,45 @@ Scenario
 Functionality::
 The `poll` step is created only once in a scenario; it is then used throughout the scenario as called. The `poll` step within the elasticsearch plugin uses a strategy of “delivered exactly once”. The output of the `poll` step is an `ElasticsearchDocument` that contains maps of column to values.
 
+Example::
+[source,kotlin,linenumbers]
+----
+            .map { it.input }
+            .delay(Duration.ofSeconds(2))      
+            .innerJoinUncasted(
+                using = {correlationRecord -> correlationRecord.value.primaryKey },
+                on = {
+                    it.elasticsearch().poll {
+                        name = "poll"
+                        client { RestClient.builder(HttpHost.create("http://localhost:9200")).build() }
+                        query {
+                            """{
+                                "query":{
+                                    "match_all":{}
+                                },
+                                "sort" : ["_score"]
+                            }""".trimIndent()
+                        }
+                        index(BatteryStateContract.INDEX)   
+                        pollDelay(Duration.ofSeconds(1))  
+                    }
+                        .deserialize(BatteryState::class)   
+                        .flatten()
+                        .map{record ->
+                            record.value
+                        }
+                },
+                having = {correlationRecord -> (correlationRecord.value as BatteryState).primaryKey}
+            )
+            .filterNotNull()
+            .verify { result ->
+                result.asClue {
+                    assertSoftly {
+                        it.first.batteryLevel shouldBeExactly (it.second as BatteryState).batteryLevel
+                    }
+                }
+            }
+----
 Notable parameters::
 * `index`: sets the `elasticsearch` indices to use for the queries; defaults to `all`.
 * `client`: configures the REST client to connect to https://www.elastic.co/[Elasticsearch].
@@ -64,9 +103,33 @@ Step
 Functionality::
 The `save` step's input and step context are used to generate a list of documents that are forwarded to https://www.elastic.co/[Elasticsearch].
 
+Example::
+[source,kotlin,linenumbers]
+----
+            .map { it.value }       
+            .elasticsearch()
+            .save {
+                name = "save"
+                client {
+                    RestClient.builder(HttpHost.create("http://localhost:9200"))
+                        .build() 
+                }
+                documents { _, input ->
+                    listOf(
+                        Document(
+                            index = "battery-state",
+                            id = input.primaryKey,
+                            source = objectMapper.writeValueAsString(input) <6> 
+                        )
+                    )
+                }
+            }
+----
+
 Notable Parameters::
-* `documentsFactory`: defines the strategy to create documents to save from the input and step context.
+
 * `client`: configures the REST client to connect to https://www.elastic.co/[Elasticsearch].
+* `documents`: defines the strategy to create documents to save from the input and step context.
 * `mapper`: configures the JSON Mapper to serialize the documents.
 * `monitoring`(optional): configures the monitoring parameters for the step.
 
@@ -82,14 +145,41 @@ Step
 Functionality::
 The `search` step’s input and step context are used to generate a query; the batch of results is then forwarded to the next step(s).
  
+ Example::
+[source,kotlin,linenumbers]
+----
+            .delay(Duration.ofSeconds(2)) 
+            .elasticsearch()
+            .search {
+                name = "search"
+                client {
+                    RestClient.builder(HttpHost.create("http://localhost:9200")).build()
+                }
+                index { _, _ -> listOf(BatteryStateContract.INDEX) }   
+                query { _, input ->
+                    """{
+                        "query": {
+                            "bool": {
+                                "must": [
+                                    { "match": { "deviceId": "${input.input.deviceId}" }},
+                                    { "term": { "timestamp": ${input.input.timestamp.epochSecond} }}
+                                ]
+                            }
+                        }
+                   }"""
+                }  
+            }
+----
+
 Notable parameters::
 * `client`: configures the REST client to connect to https://www.elastic.co/[Elasticsearch].
-* `query`: configures the builder for the JSON query to perform a search. 
 * `index`: sets the `elasticsearch` indices to use for the queries; defaults to `all`.
-* `queryParameters`(optional): adds parameters to the query. 
+* `query`: configures the builder for the JSON query to perform a search. 
+
 * `mapper` configures the JSON Mapper to deserialize the documents.
 * `monitoring`(optional): configures the monitoring parameters for the step.
 * `fetchAll`: specifies that all the documents have to be fetched, even over the result-sized window;  
+
 
 Tip::
 `fetchAll` must be combined with either a scroll activation or a sorting definition in the query.
