@@ -20,7 +20,9 @@ Supported steps::
 * <<Consume step,`consume`>>: consumes data from a messaging platform supporting JMS.
 * <<Produce step,`produce`>>: pushes data to a messaging platform supporting JMS.
 
- 
+An example scenario that uses a combination of the `jms` `consume` and `produce` steps is provided on https://github.com/qalipsis/qalipsis-examples/tree/master/jms[GitHub].
+
+
 === Consume step 
 The `consume` step within the `jms` plugin consumes records from https://activemq.apache.org/[ActiveMQ].
  
@@ -34,29 +36,30 @@ Example::
 +
 [source,kotlin,linenumbers]
 ----
-.jms()
-    .consume {
-        queues("queue-1")
-        queueConnection { ActiveMQConnectionFactory().createQueueConnection() }
-        monitoring {
-            events = true
-            meters = true
-        }
-    }.deserialize(JmsJsonDeserializer(User::class))
+jms().consume {
+    queues(ServerConfiguration.QUEUE_NAME)
+    queueConnection { ActiveMQConnectionFactory(ServerConfiguration.SERVER_URL).createQueueConnection() }
+}
+    .deserialize(JmsJsonDeserializer(targetClass = BatteryState::class))
+    .map { result ->
+        result.record.value
+    }
 ----
 Notable parameters::
 * `consume`: configures the the https://activemq.apache.org/[ActiveMQ] connection.
 ** `queues`: specifies the queue(s) for the connection.
 ** `QueueConnection`: provides the java https://activemq.apache.org/[ActiveMQ] connection for the specified `queues`.
-** `topics`: specifies the topic(s) for the connection.
-** `TopicConnection`: provides the java https://activemq.apache.org/[ActiveMQ] connection for the specified `topics`.
+** `topics`(optional): specifies the topic(s) for the connection.
+** `TopicConnection`(optional): provides the java https://activemq.apache.org/[ActiveMQ] connection for the specified `topics`.
 * `monitoring`(optional): configures the monitoring parameters for the step.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
 * `deserialize`: specifies the class to use to deserialize the body of the response.
 
-Tips::
-* The https://activemq.apache.org/[ActiveMQ] connection can be configured for either `queues` (`QeueConnection`) or `topics` (`TopicConnection`), but not both.
-* Refer to the  https://www.oracle.com/java/technologies/java-message-service.html[JMS] documentation for for further parameter and configuration information.
+Tip::
+The https://activemq.apache.org/[ActiveMQ] connection can be configured for either `queues` (`QeueConnection`) or `topics` (`TopicConnection`), but not both.
+
+Reference documentation::
+Refer to the  https://www.oracle.com/java/technologies/java-message-service.html[JMS] documentation for for further parameter and configuration information.
  
 === Produce step
 The `produce` step within the `jms` plugin produces records in https://activemq.apache.org/[ActiveMQ] using https://www.oracle.com/java/technologies/java-message-service.html[JMS].
@@ -71,27 +74,22 @@ Example::
 +
 [source,kotlin,linenumbers]
 ----
-.jms().produce {
-    records { ctx, input ->
+.jms()
+.produce {
+
+    connect {
+        ActiveMQConnectionFactory(ServerConfiguration.SERVER_URL).createConnection()
+    }
+    records { _, input ->
         listOf(
             JmsProducerRecord(
-                destination = ActiveMQQueue().createDestination("queue-1"),
-                messageType = JmsMessageType.TEXT,
-                value = "hello-queue"
-            ),
-            JmsProducerRecord(
-                destination = ActiveMQQueue().createDestination("queue-1"),
-                messageType = JmsMessageType.AUTO,
-                value = "another message".toByteArray()
+                destination = ActiveMQQueue().createDestination(ServerConfiguration.QUEUE_NAME),
+                messageType = JmsMessageType.BYTES,
+                value = objectMapper.writeValueAsBytes(input)
             )
         )
     }
-    connect { ActiveMQConnectionFactory().createQueueConnection() }
-        monitoring {
-            events = true
-            meters = true
-        }   
-}     
+}
 ----
 Notable parameters::
 * `records`: generates and configures a list of produced records.
@@ -101,6 +99,8 @@ Notable parameters::
 * `connect`: specifies the connection type for the `JmsProducerRecord`(s).
 * `monitoring`(optional): configures the monitoring parameters for the step.
 
-Tips::
-* If you are not sure about the `JmsMessageType`, use `AUTO` to allow the system to infer the type and display the result. 
-* Refer to the  https://www.oracle.com/java/technologies/java-message-service.html[JMS] documentation for further parameter and configuration information.
+Tip::
+If you are not sure about the `JmsMessageType`, use `AUTO` to allow the system to infer the type and display the result. 
+
+Reference documentation::
+Refer to the  https://www.oracle.com/java/technologies/java-message-service.html[JMS] documentation for further parameter and configuration information.
