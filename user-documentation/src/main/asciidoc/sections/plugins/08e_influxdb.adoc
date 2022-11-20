@@ -22,7 +22,7 @@ Supported steps::
 * <<Save step,`save`>>: saves a batch of records generated from the input and step context.
 * <<Search step,`search`>>: searches records and builds a query from the input and step context.
 
-Example scenarios using a combination of the `influxdb` supported steps are provided <<influxdb scenario examples,here>>.
+Example scenarios using a combination of the `influxdb` supported steps are provided on https://github.com/qalipsis/qalipsis-examples/tree/master/influxdb[GitHub].
 
 === Poll step 
 The `poll` step within the `influxdb()` plugin polls the newest records from the database, with a delay between each execution of a select query.
@@ -33,20 +33,42 @@ Scenario
 Functionality::
 The `poll` step is created only once in a scenario; it is then used throughout the scenario as called. The `poll` step within the `influxdb` plugin uses a strategy of “delivered at least once”.
 
+Example::
++
+[source,kotlin,linenumbers]
+----
+influxdb().poll {
+    connect {
+        server(
+            url = DatabaseConfiguration.SERVER_URL,
+            bucket = DatabaseConfiguration.BUCKET,
+            org = DatabaseConfiguration.ORGANISATION
+        )
+        basic(user = DatabaseConfiguration.USER_NAME, password = DatabaseConfiguration.PASSWORD)
+    }
+    query(
+        """
+        from(bucket: "${DatabaseConfiguration.BUCKET}")
+            |> range(start: -15m)
+            |> filter(
+                fn: (r) => r._measurement == "${BatteryStateContract.MEASUREMENT}" 
+                )               
+    """.trimIndent()
+    )
+    pollDelay(Duration.ofSeconds(1))
+}
+----
+
 Notable parameters::
 * `connect` (required): configures the connection to https://www.influxdata.com/[InfluxDB].
 * `query` (required): specifies a query respecting the requirements of https://docs.influxdata.com/influxdb/v2.3/reference/api/[Flux v.2.0]. 
-* `tieBreaker` (required): repeats the first field used for sorting and comparison (`<=` or `>=`, depending on the ascending or descending order).
 * `parameters` (optional): binds values to the clauses of the prepared query.
 * `pollDelay` (required): specifies the delay between query executions.
 * `monitoring`(optional): configures the monitoring parameters for the step.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
 
-Tips::
-* Use the `poll` step with a join operator to verify the values that the tested system saves to the database.
-* The `token` can be created automatically using your password and username.
-* `query` requires at least one sorting field (`tiebreaker` in the example) to filter the newest results and not fetch the same records repeatedly.
-* The latest known value for `tiebreaker` filters out the values already received directly from the database.
+Tip::
+Use the `poll` step with a join operator to verify the values that the tested system saves to the database.
 
 Reference: Documentation::
 Refer to the https://docs.influxdata.com/[InfluxDB] documentation for further parameter and configuration information.
@@ -60,6 +82,33 @@ Step
 Functionality::
 The `save` step's input and step context are used to generate the bucket, the list of points with their measurement, and tags and fields, which are then combined and forwarded to the database.
 
+Example::
++
+[source,kotlin,linenumbers]
+----
+.save {
+    connect {
+        server(
+            url = DatabaseConfiguration.SERVER_URL,
+            bucket = DatabaseConfiguration.BUCKET,
+            org = DatabaseConfiguration.ORGANISATION
+        )
+        basic(user = DatabaseConfiguration.USER_NAME, password = DatabaseConfiguration.PASSWORD)
+    }
+    query {
+        bucket = { _, _ -> DatabaseConfiguration.BUCKET }
+        organization = { _, _ -> DatabaseConfiguration.ORGANISATION }
+        points = { _, input ->
+            listOf(
+                Point.measurement(BatteryStateContract.MEASUREMENT)
+                    .addField(BatteryStateContract.BATTERY_LEVEL, input.batteryLevel)
+                    .addTag(BatteryStateContract.DEVICE_ID, input.deviceId)
+                    .addTag(BatteryStateContract.TIMESTAMP, input.timestamp.epochSecond.toString())
+            )
+        }
+    }
+}
+----
 Notable parameters::
 * `connect` (required): configures the connection to https://www.influxdata.com/[InfluxDB].
 * `monitoring`(optional): configures the monitoring parameters for the step.
@@ -67,7 +116,6 @@ Notable parameters::
 Tips::
 * Use the `save` step after a `collect` step to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.
 * The `save` step is extremely flexible: bucket, tags, measurement and fields might depend on the context and input value received from the previous step.
-* `token` can be created automatically using your password and username.
 
 Reference documentation::
 Refer to the https://docs.influxdata.com/[InfluxDB] documentation for further parameter and configuration information.
@@ -81,246 +129,43 @@ Step
 Functionality::
 The `search` step's input and step context are used to generate a query; the batch of results is then forwarded to the next step(s).
 
+
+Example::
+[source,kotlin,linenumbers]
+----
+.influxdb()
+.search {
+    connect {
+        server(
+            url = DatabaseConfiguration.SERVER_URL,
+            bucket = DatabaseConfiguration.BUCKET,
+            org = DatabaseConfiguration.ORGANISATION
+        )
+        basic(user = DatabaseConfiguration.USER_NAME, password = DatabaseConfiguration.PASSWORD)
+    }
+
+    query { _, input ->
+        """
+            from(bucket: "${DatabaseConfiguration.BUCKET}")
+                    |> range(start: -15m)
+                    |> filter(
+                        fn: (r) => r._measurement == "${BatteryStateContract.MEASUREMENT}" and
+                            r.${BatteryStateContract.DEVICE_ID} == "${input.deviceId}" and
+                            r.${BatteryStateContract.TIMESTAMP} == "${input.timestamp.epochSecond}"
+                        )               
+        """.trimIndent()
+    }
+
+}
+----
+
 Notable parameters::
 * `search`: generates the search query from the step input and context.
 * `connect` (required): configures the connection to https://www.influxdata.com/[InfluxDB]. 
 * `monitoring`(optional): configures the monitoring parameters for the step.
 
-Tips::
-* Use the `search` step after a `collect` step to reduce the number of queries executed onto the database and to reduce the load the scenario generates on the test system.
-* `token` can be created automatically using your password and username.
+Tip::
+Use the `search` step after a `collect` step to reduce the number of queries executed onto the database and to reduce the load the scenario generates on the test system.
 
 Reference documentation::
 Refer to the https://docs.influxdata.com/[InfluxDB] documentation for further parameter and configuration information.
-
-=== influxdb scenario examples
-The example scenarios in this section demonstrate how to save, poll and search data using the https://docs.influxdata.com/[`influxDB`] plugin.
-
-==== influxdb-save-and-poll
-The example `influxdb-save-and-poll` scenario saves records to a database using the `save` step, periodically retrieves records from the database using the `poll` step, and then verifies that the retrieved data matches the original saved record.
-
-[source,kotlin,linenumbers]
-----
-class InfluxdbSaveAndPoll {
-    @Scenario("influxdb-save-and-poll")
-    fun elasticSearchSaveAndPoll() {
-
-        scenario {
-            minionsCount = NUMBER_MINION
-            profile {
-                regular(periodMs = 1000, minionsCountProLaunch = minionsCount)
-            }
-        }
-            .start()
-            .jackson() <1> 
-            .csvToObject(BatteryState::class) {
-
-                classpath("battery-levels.csv")
-
-                header { <2>
-                    column("deviceId")
-                    column("timestamp")
-                    column("batteryLevel").integer()
-                }
-                unicast()
-            }
-            .map { it.value } <3> 
-            .influxdb()
-            .save {
-                connect {
-                    server(
-                        url = DatabaseConfiguration.SERVER_URL,
-                        bucket = DatabaseConfiguration.BUCKET,
-                        org = DatabaseConfiguration.ORGANISATION
-                    )
-                    basic(user = DatabaseConfiguration.USER_NAME, password = DatabaseConfiguration.PASSWORD)
-                }
-
-                query {
-                    bucket = { _, _ -> DatabaseConfiguration.BUCKET }
-
-                    organization = { _, _ -> DatabaseConfiguration.ORGANISATION }
-
-                    points = { _, input ->
-                        listOf(
-                            Point.measurement(BatteryStateContract.MEASUREMENT)
-                                .addField(BatteryStateContract.BATTERY_LEVEL, input.batteryLevel)
-                                .addTag(BatteryStateContract.DEVICE_ID, input.deviceId)
-                                .addTag(BatteryStateContract.TIMESTAMP, input.timestamp.epochSecond.toString())
-                        )
-                    }
-
-                }
-            }
-            .map { it.input }
-            .innerJoin(
-                using = { correlationRecord ->
-                    correlationRecord.value.primaryKey()
-                },
-                on = {
-                    it.influxdb().poll {
-                        connect {
-                            server(
-                                url = DatabaseConfiguration.SERVER_URL,
-                                bucket = DatabaseConfiguration.BUCKET,
-                                org = DatabaseConfiguration.ORGANISATION
-                            )
-
-                            basic(user = DatabaseConfiguration.USER_NAME, password = DatabaseConfiguration.PASSWORD)
-                        }
-
-                        query(
-                            """
-                            from(bucket: "${DatabaseConfiguration.BUCKET}")
-                                |> range(start: -15m)
-                                |> filter(
-                                    fn: (r) => r._measurement == "${BatteryStateContract.MEASUREMENT}" 
-                                    )               
-                        """.trimIndent()
-                        )
-
-                        pollDelay(Duration.ofSeconds(1))
-
-                    }
-                        .flatten()
-                        .map { fluxRecord ->
-                            BatteryState(
-                                deviceId = fluxRecord.values[BatteryStateContract.DEVICE_ID] as String,
-                                timestamp = Instant.ofEpochSecond((fluxRecord.values[BatteryStateContract.TIMESTAMP] as String).toLong()),
-                                batteryLevel = (fluxRecord.value as Number).toInt()
-                            )
-                        }
-                },
-                having = { correlationRecord ->
-                    correlationRecord.value.primaryKey()
-                }
-            )
-            .filterNotNull()
-            .verify { result ->
-                result.asClue {
-                    assertSoftly {
-                        it.first.batteryLevel shouldBeExactly it.second.batteryLevel
-                    }
-                }
-            }
-
-    }
-
-}
-
-----
-<1> Start the jackson `csvToObject` step to fetch data from the csv file and map the csv entries to a list of `utils.BatteryState` object.
-<2> Define the header of the csv file.
-<3> Transform the output of the CSV reader entries to `utils.BatteryState.influxdb()`
-
-==== influxdb-save-and-search
-The example `influxdb-save-and-search` scenario saves records into the database using the `save` step, queries a specific location in the database using the `search` step, and verifies that the retrieved data matches the original saved record.
-
-[source,kotlin,linenumbers]
-----
-class InfluxdbSaveAndSearch {
-    @Scenario("influxdb-save-and-search")
-    fun elasticSearchSaveAndPoll() {
-
-        scenario {
-            minionsCount = NUMBER_MINION
-            profile {
-                regular(periodMs = 1000, minionsCountProLaunch = minionsCount)
-            }
-        }
-            .start()
-            .jackson() <1> 
-            .csvToObject(BatteryState::class) {
-
-                classpath("battery-levels.csv")
-                header { <2>
-                    column("deviceId")
-                    column("timestamp")
-                    column("batteryLevel").integer()
-                }
-                unicast()
-            }
-            .map { it.value } <3>
-            .influxdb()
-            .save {
-                connect {
-                    server(
-                        url = DatabaseConfiguration.SERVER_URL,
-                        bucket = DatabaseConfiguration.BUCKET,
-                        org = DatabaseConfiguration.ORGANISATION
-                    )
-                    basic(user = DatabaseConfiguration.USER_NAME, password = DatabaseConfiguration.PASSWORD)
-                }
-
-                query {
-                    bucket = { _, _ -> DatabaseConfiguration.BUCKET }
-
-                    organization = { _, _ -> DatabaseConfiguration.ORGANISATION }
-
-                    points = { _, input ->
-                        listOf(
-                            Point.measurement(BatteryStateContract.MEASUREMENT)
-                                .addField(BatteryStateContract.BATTERY_LEVEL, input.batteryLevel)
-                                .addTag(BatteryStateContract.DEVICE_ID, input.deviceId)
-                                .addTag(BatteryStateContract.TIMESTAMP, input.timestamp.epochSecond.toString())
-                        )
-                    }
-
-                }
-            }
-            .map {
-                it.input
-            }
-            .influxdb()
-            .search {
-
-                connect {
-                    server(
-                        url = DatabaseConfiguration.SERVER_URL,
-                        bucket = DatabaseConfiguration.BUCKET,
-                        org = DatabaseConfiguration.ORGANISATION
-                    )
-                    basic(user = DatabaseConfiguration.USER_NAME, password = DatabaseConfiguration.PASSWORD)
-                }
-
-                query { _, input ->
-                    """
-                        from(bucket: "${DatabaseConfiguration.BUCKET}")
-                                |> range(start: -15m)
-                                |> filter(
-                                    fn: (r) => r._measurement == "${BatteryStateContract.MEASUREMENT}" and
-                                        r.${BatteryStateContract.DEVICE_ID} == "${input.deviceId}" and
-                                        r.${BatteryStateContract.TIMESTAMP} == "${input.timestamp.epochSecond}"
-                                    )               
-                    """.trimIndent()
-                }
-
-            }
-            .map {
-                it.input to it.results.map { fluxRecord ->
-                    BatteryState(
-                        deviceId = fluxRecord.values[BatteryStateContract.DEVICE_ID] as String,
-                        timestamp = Instant.ofEpochSecond((fluxRecord.values[BatteryStateContract.TIMESTAMP] as String).toLong()),
-                        batteryLevel = (fluxRecord.value as Number).toInt()
-                    )
-                }
-            }
-            .verify { result ->
-                result.asClue {
-                    assertSoftly {
-                        it.second.size shouldBeExactly 1
-                        it.first.batteryLevel shouldBeExactly it.second.first().batteryLevel
-                    }
-                }
-            }
-
-
-    }
-
-}
-----
-<1> Start the jackson `csvToObject` step to fetch data from the csv file and map the csv entries to a list of `utils.BatteryState` object.
-<2> Define the header of the csv file.
-<3> Transform the output of the CSV reader entries to `utils.BatteryState` 
-
-
