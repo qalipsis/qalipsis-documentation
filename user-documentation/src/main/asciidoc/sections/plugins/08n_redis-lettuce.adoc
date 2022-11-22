@@ -20,7 +20,7 @@ Supported steps::
 * <<Consume step,`consume`>>: consumes data from `redis` streams.
 * <<Produce step,`produce`>>: pushes messages to `redis` streams.
 
-Example scenarios using a combination of `cassandra` supported steps are provided on https://github.com/qalipsis/qalipsis-examples/tree/master/redis[Github].
+Example scenarios using a combination of `redis` supported steps are provided on https://github.com/qalipsis/qalipsis-examples/tree/master/redis[Github].
 
 === Poll step 
 The `poll` step within the `redis-lettuce` plugin polls the newest records from a `redis` key, with a delay between each execution of polling.
