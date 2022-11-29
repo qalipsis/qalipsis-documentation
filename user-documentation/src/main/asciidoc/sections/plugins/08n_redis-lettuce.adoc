@@ -40,13 +40,13 @@ Example::
 it.redisLettuce()
   .pollSscan {
     connection {
-      nodes = ServerConfiguration.NODES
-      database = ServerConfiguration.DATABASE
+      nodes = redis://localhost:6439
+      database = 0
       redisConnectionType = RedisConnectionType.SINGLE
-      authPassword = ServerConfiguration.PASSWORD
-      authUser = ServerConfiguration.USER_NAME
+      authPassword = "userpwd"
+      authUser = "username"
     }
-    keyOrPattern(BatteryStateContract.KEY_FOR_SAVE_AND_POLL)
+    keyOrPattern(sscan)
     pollDelay(Duration.ofSeconds(1))
 }
 ----
@@ -60,7 +60,7 @@ Notable parameters::
 
 Tips::
 * Use the `poll` step with a join operator when you need to verify the values saved by your tested system in the database.
-* In addition to HSCAN (`polllHscan` in the example), the `poll` step also supports the following `redis` commands: SCAN (`pollScan`), SSCAN (`pollSscan`), and ZSCAN (`pollZscan`). 
+* In addition to SSCAN (`pollSscan` in the example), the `poll` step also supports the following `redis` commands: HSCAN (`polllHscan`) SCAN (`pollScan`), and ZSCAN (`pollZscan`). 
 
 Reference documentation::
 * For more informationon on the `SENTINEL` `redisConnectionType`, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]. 
@@ -83,17 +83,17 @@ Example::
 .redisLettuce()
 .save {
   connection {
-    nodes = ServerConfiguration.NODES
-    database = ServerConfiguration.DATABASE
+    nodes = redis://localhost:6439
+    database = 0
     redisConnectionType = RedisConnectionType.SINGLE
-    authPassword = ServerConfiguration.PASSWORD
-    authUser = ServerConfiguration.USER_NAME
+    authPassword = "userpwd"
+    authUser = "username"
     }
 
   records { _, input ->
     listOf(
-      SetRecord(BatteryStateContract.KEY_FOR_SAVE_AND_POLL,
-                            objectMapper.writeValueAsString(input)
+      SetRecord("battery_state_save_and_poll",
+        objectMapper.writeValueAsString(input)
       )
     )
    }
@@ -131,16 +131,16 @@ Example::
 +
 [source,kotlin,linenumbers]
 ----
-it.redisLettuce()
+redisLettuce()
   .streamsConsume {
         connection {
-            nodes = ServerConfiguration.NODES
-            database = ServerConfiguration.DATABASE
+            nodes = redis://localhost:6439
+            database = 0
             redisConnectionType = RedisConnectionType.SINGLE
-            authPassword = ServerConfiguration.PASSWORD
-            authUser = ServerConfiguration.USER_NAME
+            authPassword = "userpwd"
+            authUser = "username"
         }
-        streamKey(BatteryStateContract.KEY_FOR_PRODUCE_AND_CONSUME)
+        streamKey(battery_state_produce_and_consume)
         offset(LettuceStreamsConsumerOffset.FROM_BEGINNING)
         group("consumer")
   }
@@ -176,20 +176,20 @@ Example::
 .redisLettuce()
 .streamsProduce {
   connection {
-    nodes = ServerConfiguration.NODES
-    database = ServerConfiguration.DATABASE
+    nodes = redis://localhost:6439
+    database = 0
     redisConnectionType = RedisConnectionType.SINGLE
-    authPassword = ServerConfiguration.PASSWORD
-    authUser = ServerConfiguration.USER_NAME
+    authPassword = "userpwd"
+    authUser = "username"
   }
 
   records { _, input ->
     listOf(
      LettuceStreamsProduceRecord(
-        key = BatteryStateContract.KEY_FOR_PRODUCE_AND_CONSUME, value = mapOf(
-            BatteryStateContract.DEVICE_ID to input.deviceId,
-            BatteryStateContract.TIMESTAMP to input.timestamp.epochSecond.toString(),
-            BatteryStateContract.BATTERY_LEVEL to input.batteryLevel.toString()
+        key = "battery_state_produce_and_consume", value = mapOf(
+            "device_id" to input.deviceId,
+            "timestamp" to input.timestamp.epochSecond.toString(),
+            "battery_level" to input.batteryLevel.toString()
           )
       )
    )
