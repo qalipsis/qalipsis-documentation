@@ -38,21 +38,20 @@ The `poll` step is created only once in a scenario; it is then used throughout t
 Example::
 [source,kotlin,linenumbers]
 ----
-
-                    cassandra().poll {
-                        connect {
-                            servers = listOf("localhost:7777", "10.42.42.42:7778")
-                            keyspace = "test_keyspace"
-                            datacenterName = "test_datacenter"                           
-                        }
-                        query("SELECT ${BatteryStateContract.DEVICE_ID}, ${BatteryStateContract.TIMESTAMP}, ${BatteryStateContract.BATTERY_LEVEL} FROM $TABLE_NAME WHERE ${BatteryStateContract.COMPANY} = ? ORDER BY ${BatteryStateContract.TIMESTAMP}")
-                        parameters("ACME Inc.")
-                        tieBreaker {
-                            name = BatteryStateContract.TIMESTAMP
-                            type = GenericType.INSTANT
-
-                        }
-                    }
+cassandra().poll {
+    connect {
+        servers = listOf("localhost:9042")
+        keyspace = "iot"
+        datacenterName = "datacenter1"                           
+    }
+    query("SELECT deviceid, timestamp, batterylevel FROM devices WHERE company = ? ORDER BY timestamp")
+    parameters("ACME Inc.")
+    tieBreaker {
+        name = "timestamp"
+        type = GenericType.INSTANT
+    }
+    pollDelay(Duration.ofSeconds(1))
+}
 ----
  Notable parameters::
 * `connect` (required): configures the connection to https://cassandra.apache.org[Apache Cassandra]
@@ -86,24 +85,22 @@ Example::
 ----
 .cassandra() 
 .save {
-    name = "save"
-  
     connect {   
-        servers = listOf("localhost:7777", "10.42.42.42:7778")
-        keyspace = "test_keyspace"
-        datacenterName = "test_datacenter"
+        servers = listOf("localhost:9042")
+        keyspace = "iot"
+        datacenterName = "datacenter1"
     }
 
     table { _, _ ->   
-        TABLE_NAME
+        "batteryState"
     }
 
     columns { _, _ ->    
         listOf(
-            BatteryStateContract.COMPANY,
-            BatteryStateContract.DEVICE_ID,
-            BatteryStateContract.TIMESTAMP,
-            BatteryStateContract.BATTERY_LEVEL
+            "company",
+            "deviceid",
+            "timestamp,
+            "batterylevel"
         )
     }
                
@@ -147,13 +144,12 @@ Example::
     name = "search"
 
     connect {
-        servers = listOf("localhost:7777", "10.42.42.42:7778")
+        servers = listOf("localhost:9042")
         keyspace = "test_keyspace"
         datacenterName = "test_datacenter"
     }
     query { _, _ ->
-        "SELECT * FROM $TABLE_NAME WHERE ${BatteryStateContract.COMPANY} = ? AND $
-        {BatteryStateContract.DEVICE_ID} = ? AND ${BatteryStateContract.TIMESTAMP} = ?"
+        "SELECT * FROM "batteryState" WHERE  "company"= ? AND "deviceid"" = ? AND timestamp = ?"
     }
     parameters { _, input ->
         listOf("ACME Inc.", input.input.deviceId, input.input.timestamp)
