@@ -47,7 +47,7 @@ elasticsearch().poll {
             "sort" : ["_score"]
         }""".trimIndent()
     }
-    index(BatteryStateContract.INDEX)   
+    index("battery-state")   
     pollDelay(Duration.ofSeconds(1))  
 }
 ----
@@ -86,8 +86,7 @@ Example::
 .save {
     name = "save"
     client {
-        RestClient.builder(HttpHost.create("http://localhost:9200"))
-            .build() 
+        RestClient.builder(HttpHost.create("http://localhost:9200")).build() 
     }
     documents { _, input ->
         listOf(
@@ -127,7 +126,7 @@ The `search` step’s input and step context are used to generate a query; the b
     client {
         RestClient.builder(HttpHost.create("http://localhost:9200")).build()
     }
-    index { _, _ -> listOf(BatteryStateContract.INDEX) }   
+    index { _, _ -> listOf("battery-state") }   
     query { _, input ->
         """{
             "query": {
