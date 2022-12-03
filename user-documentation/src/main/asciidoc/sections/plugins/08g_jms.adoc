@@ -37,8 +37,8 @@ Example::
 [source,kotlin,linenumbers]
 ----
 jms().consume {
-    queues(ServerConfiguration.QUEUE_NAME)
-    queueConnection { ActiveMQConnectionFactory(ServerConfiguration.SERVER_URL).createQueueConnection() }
+    queues("battery_state")
+    queueConnection { ActiveMQConnectionFactory("tcp://localhost:61616").createQueueConnection() }
 }
     .deserialize(JmsJsonDeserializer(targetClass = BatteryState::class))
     .map { result ->
@@ -78,12 +78,12 @@ Example::
 .produce {
 
     connect {
-        ActiveMQConnectionFactory(ServerConfiguration.SERVER_URL).createConnection()
+        ActiveMQConnectionFactory("tcp://localhost:61616").createConnection()
     }
     records { _, input ->
         listOf(
             JmsProducerRecord(
-                destination = ActiveMQQueue().createDestination(ServerConfiguration.QUEUE_NAME),
+                destination = ActiveMQQueue().createDestination("battery_state"),
                 messageType = JmsMessageType.BYTES,
                 value = objectMapper.writeValueAsBytes(input)
             )
@@ -92,11 +92,11 @@ Example::
 }
 ----
 Notable parameters::
+* `connect`: specifies the connection type for the `JmsProducerRecord`(s).
 * `records`: generates and configures a list of produced records.
 ** `destination`:  defines the destination for each `JmsProducerRecord` as either queues (`QueueConnection`) or topics (`TopicConnection`).
 ** `messageType`: indicates the `JmsMessageType` as: `TEXT`, `AUTO`, `BYTES`, or `OBJECT`.
 ** `value`: defines the message to be displayed at the `destination`. 
-* `connect`: specifies the connection type for the `JmsProducerRecord`(s).
 * `monitoring`(optional): configures the monitoring parameters for the step.
 
 Tip::
