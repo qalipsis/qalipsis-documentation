@@ -44,12 +44,12 @@ Example::
 r2dbcJasync().poll {
     protocol(Protocol.POSTGRESQL)
     connection {
-        database = databaseConfiguration.databaseName
-        port = databaseConfiguration.port
-        username = databaseConfiguration.userName
-        password = databaseConfiguration.password
+        database = "qalipsis_db"
+        port = jdbc:mysql://localhost:5432;
+        username = "qalipsis_user"
+        password = "qalipsis_user_password"
     }
-    query("select * from ${databaseConfiguration.tableName} order by \"${BatteryStateContract.TIMESTAMP}\"")
+    query("select * from ${"qalipsis_db"} order by \"${"timestamp"}\"")
     pollDelay(Duration.ofSeconds(1))
 }
 ----
@@ -57,9 +57,7 @@ r2dbcJasync().poll {
 Notable parameters::
 * `connection` (required): specifies the connection parameters. 
 * `query` (required): specifies a query respecting the requirements of the target database (https://mariadb.org/[MariaDB],  https://www.mysql.com[MySQL], https://www.postgresql.org/[PostgreSQL],).
-* `parameters` (optional): binds values to the clauses of the prepared query.
 * `pollDelay` (required): specifies the delay between query executions.
-
 * `monitoring`(optional): configures the monitoring parameters for the step.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
 
@@ -88,20 +86,20 @@ Example::
 .save {
     protocol(Protocol.POSTGRESQL)
     connection {
-        database = databaseConfiguration.databaseName
-        port = databaseConfiguration.port
-        username = databaseConfiguration.userName
-        password = databaseConfiguration.password
+        database = "qalipsis_db"
+        port = jdbc:mysql://localhost:5432
+        username = "qalipsis_user"
+        password = "qalipsis_user_password"
     }
     tableName { _, _ ->
-        databaseConfiguration.tableName
+        "qalipsis_table"
     }
     columns { _, _ ->
         listOf(
-            BatteryStateContract.ID,
-            BatteryStateContract.DEVICE_ID,
-            BatteryStateContract.TIMESTAMP,
-            BatteryStateContract.BATTERY_LEVEL
+            "id",
+            "device_id",
+            "timestamp",
+            "battery_level"
         )
     }
     values { _, input ->
@@ -149,13 +147,13 @@ Example::
 .search {
     protocol(Protocol.MARIADB)
     connection {
-        database = databaseConfiguration.databaseName
-        port = databaseConfiguration.port
-        username = databaseConfiguration.userName
-        password = databaseConfiguration.password
+        database = "qalipsis_db"
+        port = jdbc:mysql://localhost:5432
+        username = "qalipsis_user"
+        password = "qalipsis_user_password"
     }
     query { _, _ ->
-        val request = "SELECT DISTINCT * from ${databaseConfiguration.tableName} where ${BatteryStateContract.TIMESTAMP} = ? AND ${BatteryStateContract.DEVICE_ID} = ?"
+        val request = "SELECT DISTINCT * from ${qalipsis_db} where ${"timestamp"} = ? AND ${"device_id"} = ?"
         request
     }
     parameters { _, input ->
