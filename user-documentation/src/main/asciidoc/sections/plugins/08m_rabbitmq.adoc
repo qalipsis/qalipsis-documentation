@@ -44,10 +44,10 @@ rabbitmq().
   consume {
     queue("user")
     connection {
-      host = hostContainer
-      port = portContainer
-      password = "defaultpass"
-      username = "user"
+      host = "localhost"
+      port = 5672
+      password = "qalipsis_user_password"
+      username = "qalipsis_user"
     }
     concurrency(2)
     prefetchCount (11)
@@ -83,17 +83,17 @@ Example::
 .rabbitmq()
 .produce {
     connection {
-        host = ServerConfiguration.HOST
-        port = ServerConfiguration.PORT
-        username = ServerConfiguration.USER_NAME
-        password = ServerConfiguration.PASSWORD
+      host = "localhost"
+      port = 5672
+      password = "qalipsis_user_password"
+      username = "qalipsis_user"
 
     }
     records { _, input ->
         listOf(
             RabbitMqProducerRecord(
-                exchange = ServerConfiguration.EXCHANGE,
-                routingKey = ServerConfiguration.EXCHANGE,
+                exchange = "battery_state",
+                routingKey = "battery_state",
                 props = null,
                 value = objectMapper.writeValueAsBytes(input)
             )
