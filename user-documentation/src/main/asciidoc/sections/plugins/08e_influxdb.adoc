@@ -40,18 +40,18 @@ Example::
 influxdb().poll {
     connect {
         server(
-            url = DatabaseConfiguration.SERVER_URL,
-            bucket = DatabaseConfiguration.BUCKET,
-            org = DatabaseConfiguration.ORGANISATION
+            url = "http://localhost:18086",
+            bucket = "iot",
+            org = "qalipsis"
         )
-        basic(user = DatabaseConfiguration.USER_NAME, password = DatabaseConfiguration.PASSWORD)
+        basic(user = "qalipsis_user", password = "qalipsis_user_password")
     }
     query(
         """
-        from(bucket: "${DatabaseConfiguration.BUCKET}")
+        from(bucket:"${iot}")
             |> range(start: -15m)
             |> filter(
-                fn: (r) => r._measurement == "${BatteryStateContract.MEASUREMENT}" 
+                fn: (r) => r._measurement == "battery_state" 
                 )               
     """.trimIndent()
     )
@@ -89,21 +89,21 @@ Example::
 .save {
     connect {
         server(
-            url = DatabaseConfiguration.SERVER_URL,
-            bucket = DatabaseConfiguration.BUCKET,
-            org = DatabaseConfiguration.ORGANISATION
+            url =  "http://localhost:18086",
+            bucket = "iot",
+            org = "qalipsis"
         )
-        basic(user = DatabaseConfiguration.USER_NAME, password = DatabaseConfiguration.PASSWORD)
+        basic(user = "qalipsis_user", password = "qalipsis_user_password")
     }
     query {
-        bucket = { _, _ -> DatabaseConfiguration.BUCKET }
-        organization = { _, _ -> DatabaseConfiguration.ORGANISATION }
+        bucket = { _, _ -> "iot" }
+        organization = { _, _ -> "qalipsis" }
         points = { _, input ->
             listOf(
-                Point.measurement(BatteryStateContract.MEASUREMENT)
-                    .addField(BatteryStateContract.BATTERY_LEVEL, input.batteryLevel)
-                    .addTag(BatteryStateContract.DEVICE_ID, input.deviceId)
-                    .addTag(BatteryStateContract.TIMESTAMP, input.timestamp.epochSecond.toString())
+                Point.measurement("battery_state")
+                    .addField("battery_level", input.batteryLevel)
+                    .addTag("device_id", input.deviceId)
+                    .addTag("timestamp", input.timestamp.epochSecond.toString())
             )
         }
     }
@@ -137,25 +137,23 @@ Example::
 .search {
     connect {
         server(
-            url = DatabaseConfiguration.SERVER_URL,
-            bucket = DatabaseConfiguration.BUCKET,
-            org = DatabaseConfiguration.ORGANISATION
+            url = "http://localhost:18086",
+            bucket = "iot",
+            org = "qalipsis"
         )
-        basic(user = DatabaseConfiguration.USER_NAME, password = DatabaseConfiguration.PASSWORD)
+        basic(user = "qalipsis_user", password = "qalipsis_user_password")
     }
-
     query { _, input ->
         """
-            from(bucket: "${DatabaseConfiguration.BUCKET}")
+            from(bucket: "${iot}")
                     |> range(start: -15m)
                     |> filter(
-                        fn: (r) => r._measurement == "${BatteryStateContract.MEASUREMENT}" and
-                            r.${BatteryStateContract.DEVICE_ID} == "${input.deviceId}" and
-                            r.${BatteryStateContract.TIMESTAMP} == "${input.timestamp.epochSecond}"
+                        fn: (r) => r._measurement == "${"battery_state"}" and
+                            r.${"device_id"} == "${input.deviceId}" and
+                            r.${"timestamp"} == "${input.timestamp.epochSecond}"
                         )               
         """.trimIndent()
     }
-
 }
 ----
 
