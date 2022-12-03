@@ -49,8 +49,15 @@ jackson().csvToMap {
        column("4th value").string(true)
    }
 }
-jackson().csvToObject(PojoForTest::class) {
-   classpath(file)
+.jackson() 
+.csvToObject(BatteryState::class) {
+   classpath("battery-levels.csv")
+   header {
+      column("deviceId")
+      column("timestamp")
+      column("batteryLevel").integer()
+   }
+   unicast()
 }
 ----
 Notable parameters::
