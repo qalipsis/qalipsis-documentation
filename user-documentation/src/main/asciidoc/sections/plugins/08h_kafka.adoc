@@ -38,8 +38,8 @@ Example::
 [source,kotlin,linenumbers]
 ----
 kafka().consume {  
-    bootstrap(ServerConfiguration.SERVER_BOOTSTRAP)
-    topics(ServerConfiguration.TOPIC)  
+    bootstrap("localhost:9092")
+    topics("battery_state")  
     groupId("kafka-example")
     offsetReset(OffsetResetStrategy.EARLIEST) 
     pollTimeout(Duration.ofSeconds(1))
@@ -85,7 +85,7 @@ Example::
                 keySerializer = Serdes.String().serializer(),
                 valueSerializer = Serdes.String().serializer()
             ) {
-                bootstrap(ServerConfiguration.SERVER_BOOTSTRAP)
+                bootstrap("localhost:9092")
                 clientName("producer")
                 records { _, input ->
                     listOf(
