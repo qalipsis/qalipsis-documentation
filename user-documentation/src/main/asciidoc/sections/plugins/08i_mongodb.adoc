@@ -38,14 +38,14 @@ Example::
 mongodb().poll {
     name = "poll"
     connect {
-        MongoClients.create(DatabaseConfiguration.SERVER_LINK)
+        MongoClients.create("mongodb://localhost:27018")
     }
     search {
-        database = DatabaseConfiguration.DATABASE
-        collection = DatabaseConfiguration.COLLECTION
+        database = "iot"
+        collection = "batteryState"
         query = Document()
-        sort = linkedMapOf(BatteryStateContract.DEVICE_ID to Sorting.ASC)
-        tieBreaker = BatteryStateContract.DEVICE_ID
+        sort = linkedMapOf("deviceId" to Sorting.ASC)
+        tieBreaker = "deviceId"
     }
     pollDelay(Duration.ofSeconds(1)) 
 }
@@ -84,14 +84,14 @@ Example::
 .save {
     name = "save"
     connect {
-        MongoClients.create(DatabaseConfiguration.SERVER_LINK)
+        MongoClients.create("mongodb://localhost:27018")
     }
     query {
         database { _, _ ->
-            DatabaseConfiguration.DATABASE
+            "iot"
         }
         collection { _, _ ->
-            DatabaseConfiguration.COLLECTION
+            "batteryState"
         }
         documents { _, input ->
             listOf(Document.parse(objectMapper.writeValueAsString(input)))
@@ -128,16 +128,16 @@ Example::
 .search {
     name = "search"
     connect {
-        MongoClients.create(DatabaseConfiguration.SERVER_LINK)
+        MongoClients.create("mongodb://localhost:27018")
     }
     search {
-        database { _, _ -> DatabaseConfiguration.DATABASE }
-        collection { _, _ -> DatabaseConfiguration.COLLECTION }
+        database { _, _ -> "iot" }
+        collection { _, _ -> "batteryState" }
         query { _, input ->
             Document(
                 mapOf(
-                    BatteryStateContract.DEVICE_ID to input.deviceId,
-                    BatteryStateContract.TIMESTAMP to input.timestamp.epochSecond
+                    "deviceId" to input.deviceId,
+                    "timestamp" to input.timestamp.epochSecond
                 )
             )
         }
