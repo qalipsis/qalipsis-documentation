@@ -43,8 +43,8 @@ it.redisLettuce()
       nodes = redis://localhost:6439
       database = 0
       redisConnectionType = RedisConnectionType.SINGLE
-      authPassword = "redisuserpwd"
-      authUser = "redisusername"
+      authPassword = "    authPassword = "Brother1999"
+      authUser = "JohnJacobson"
     }
     keyOrPattern(sscan)
     pollDelay(Duration.ofSeconds(1))
@@ -86,8 +86,8 @@ Example::
     nodes = redis://localhost:6439
     database = 0
     redisConnectionType = RedisConnectionType.SINGLE
-    authPassword = "redisuserpwd"
-    authUser = "redisusername"
+    authPassword = "Brother1999"
+    authUser = "JohnJacobson"
     }
 
   records { _, input ->
@@ -137,8 +137,8 @@ redisLettuce()
             nodes = redis://localhost:6439
             database = 0
             redisConnectionType = RedisConnectionType.SINGLE
-            authPassword = "redisuserpwd"
-            authUser = "redisusername"
+            authPassword = "Brother1999"
+            authUser = "JohnJacobson"
         }
         streamKey("battery_state_produce_and_consume")
         offset("FROM_BEGINNING")
@@ -179,8 +179,8 @@ Example::
     nodes = redis://localhost:6439
     database = 0
     redisConnectionType = RedisConnectionType.SINGLE
-    authPassword = "redisuserpwd"
-    authUser = "redisusername"
+    authPassword = "Brother1999"
+    authUser = "JohnJacobson"
   }
 
   records { _, input ->
