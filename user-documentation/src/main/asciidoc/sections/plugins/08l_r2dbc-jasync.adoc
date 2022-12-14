@@ -46,8 +46,8 @@ r2dbcJasync().poll {
     connection {
         database = "qalipsis_db"
         port = jdbc:mysql://localhost:5432;
-        username = "qalipsis_user"
-        password = "qalipsis_user_password"
+        username = "JohnAmes"
+        password = "Fortune3018"
     }
     query("select * from ${"qalipsis_db"} order by \"${"timestamp"}\"")
     pollDelay(Duration.ofSeconds(1))
@@ -88,8 +88,8 @@ Example::
     connection {
         database = "qalipsis_db"
         port = jdbc:mysql://localhost:5432
-        username = "qalipsis_user"
-        password = "qalipsis_user_password"
+        username = "JohnAmes"
+        password = "Fortune3018"
     }
     tableName { _, _ ->
         "qalipsis_table"
@@ -149,8 +149,8 @@ Example::
     connection {
         database = "qalipsis_db"
         port = jdbc:mysql://localhost:5432
-        username = "qalipsis_user"
-        password = "qalipsis_user_password"
+        username = "JohnAmes"
+        password = "Fortune3018"
     }
     query { _, _ ->
         val request = "SELECT DISTINCT * from ${qalipsis_db} where ${"timestamp"} = ? AND ${"device_id"} = ?"
