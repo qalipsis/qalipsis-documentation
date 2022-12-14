@@ -44,7 +44,7 @@ influxdb().poll {
             bucket = "iot",
             org = "qalipsis"
         )
-        basic(user = "qalipsis_user", password = "qalipsis_user_password")
+        basic(user = "DomFisher", password = "Calgary1987")
     }
     query(
         """
@@ -93,7 +93,7 @@ Example::
             bucket = "iot",
             org = "qalipsis"
         )
-        basic(user = "qalipsis_user", password = "qalipsis_user_password")
+        basic(user = "DomFisher", password = "Calgary1987")
     }
     query {
         bucket = { _, _ -> "iot" }
@@ -141,7 +141,7 @@ Example::
             bucket = "iot",
             org = "qalipsis"
         )
-        basic(user = "qalipsis_user", password = "qalipsis_user_password")
+        basic(user = "DomFisher", password = "Calgary1987")
     }
     query { _, input ->
         """
