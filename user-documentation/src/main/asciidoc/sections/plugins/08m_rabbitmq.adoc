@@ -46,8 +46,8 @@ rabbitmq().
     connection {
       host = "localhost"
       port = 5672
-      password = "qalipsis_user_password"
-      username = "qalipsis_user"
+      password = "Ceila1995"
+      username = "PaulSmith"
     }
     concurrency(2)
     prefetchCount (11)
@@ -85,8 +85,8 @@ Example::
     connection {
       host = "localhost"
       port = 5672
-      password = "qalipsis_user_password"
-      username = "qalipsis_user"
+      password = "Ceila1995"
+      username = "PaulSmith"
 
     }
     records { _, input ->
