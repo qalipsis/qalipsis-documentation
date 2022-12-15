@@ -1,4 +1,4 @@
-== rabbitmq plugin
+== rabbitmq plugins
 
 === Overview
 The rabbitmq plugin connects QALIPSIS to the https://www.rabbitmq.com/[RabbitMQ] broker.
@@ -15,11 +15,12 @@ Namespace in scenario::
 Client library::
 RabbitMQ: refer to https://www.rabbitmq.com/[rabbitMQ]
 
-
 Supported steps::
 * <<Consume step,`consume`>>: polls data from the `rabbitmq` broker.
 * <<Produce step,`produce`>>: pushes data to the rabbitmq broker.
- 
+
+An example scenario that uses a combination of the `rabbitmq` `consume` and `produce` steps is provided on https://github.com/qalipsis/qalipsis-examples/tree/master/rabbitmq[GitHub].
+
 === Consume step
 The `consume` step within the `rabbitmq` plugin consumes data from queues of the rabbitmq broker and forwards the data to the next step.
 
@@ -43,10 +44,10 @@ rabbitmq().
   consume {
     queue("user")
     connection {
-      host = hostContainer
-      port = portContainer
-      password = "defaultpass"
-      username = "user"
+      host = "localhost"
+      port = 5672
+      password = "Ceila1995"
+      username = "PaulSmith"
     }
     concurrency(2)
     prefetchCount (11)
@@ -57,17 +58,17 @@ Notable parameters::
 * `connection`: configures the connection to the RabbitMQ broker; defaults to `localhost:5672`
 * `concurrency:` defines the number of concurrent channels producing messages to RabbitMQ; defaults to 1.
 * `prefetchCount`: defines the prefetch count value; defaults to 10. 
-* `pollDelay` (required): specifies the delay between query executions.
 * `monitoring`(optional): configures the monitoring parameters for the step.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
 
-Tips::
-* Use the `consume` step with `join` to assert data or inject data into a workflow.
+Tip::
+Use the `consume` step with `join` to assert data or inject data into a workflow.
+
+Reference documentation::
 * Learn more about `prefetchCount` by reading the  https://www.rabbitmq.com/consumer-prefetch.html[RabbitMQ Prefetch] documentation.
 * To configure the `consume` step, consult the https://www.rabbitmq.com/documentation.html[rabbitMQ] documentation.
 
 === Produce step 
-
 The `produce` step within the `rabbitmq` plugin provides messages to the `rabbitmq` broker using a query; the messages are then forwarded as input to the next step.
 
 Ancestor::
@@ -77,36 +78,36 @@ Functionality::
 The `produce` step's input and step context are used to generate the values to complete the step; results are then forwarded to the next step(s).
 
 Example::
-+
 [source,kotlin,linenumbers]
 ----
-rabbitmq().
-  produce {
-    name = "my-producer-step"
-    concurrency(10)
+.rabbitmq()
+.produce {
     connection {
-      host = "anotherhost"
-      port = 5673
-      password = "pass"
-      username = "test"
-      virtualHost = "/guest"
-      clientProperties = mapOf("t" to "test")
-      }
-    records(recordSupplier)
-    monitoring {
-      events = true
-      meters = false
+      host = "localhost"
+      port = 5672
+      password = "Ceila1995"
+      username = "PaulSmith"
+
+    }
+    records { _, input ->
+        listOf(
+            RabbitMqProducerRecord(
+                exchange = "battery_state",
+                routingKey = "battery_state",
+                props = null,
+                value = objectMapper.writeValueAsBytes(input)
+            )
+        )
     }
 }
 ----
- 
+
 Notable parameters::
-* `concurrency` defines the number of concurrent channels producing messages to `rabbitmq`; defaults to `1`.
+* `concurrency`(optional): defines the number of concurrent channels producing messages to `rabbitmq`; defaults to `1`.
 * `connection`: configures the connection to the `rabbitmq` broker; defaults to `localhost:5672`.
 * `records`: configures and generates a list of produced records.
 * `monitoring`(optional): configures the monitoring parameters for the step.
 
-Tips:: 
+Reference documentation:: 
 * For more information on configuring the connection to `rabbitmq`, refer to  https://www.rabbitmq.com/api-guide.html#connecting[Connecting to RabbitMQ].
 * For more information on configuring the `produce` step, refer to the https://www.rabbitmq.com/documentation.html[rabbitMQ] documentation.
-
