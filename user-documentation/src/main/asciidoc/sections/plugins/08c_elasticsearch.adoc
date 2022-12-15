@@ -22,6 +22,8 @@ Supported steps::
 * <<save step,`save`>>: saves a batch records generated from the input and step context.
 * <<search step,`search`>>: searches records and builds a query from the input and step context.
 
+Example scenarios using a combination of `elastcisearch` supported steps are provided on https://github.com/qalipsis/qalipsis-examples/tree/master/elasticsearch[Github].
+
 === Poll step
 The `poll` step within the `elasticsearch` plugin periodically polls data from Elasticsearch. The output is a list of `ElasticsearchDocument` containing JSON data or deserialized to objects. 
 
@@ -30,27 +32,23 @@ Scenario
 
 Functionality::
 The `poll` step is created only once in a scenario; it is then used throughout the scenario as called. The `poll` step within the elasticsearch plugin uses a strategy of “delivered exactly once”. The output of the `poll` step is an `ElasticsearchDocument` that contains maps of column to values.
+
 Example::
-+
 [source,kotlin,linenumbers]
 ----
 elasticsearch().poll {
-    index("building-moves")
-    client {
-        RestClient.builder(HttpHost("localhost", esPort, "http")).build()
+    name = "poll"
+    client { RestClient.builder(HttpHost.create("http://localhost:9200")).build() }
+    query {
+        """{
+            "query":{
+                "match_all":{}
+            },
+            "sort" : ["_score"]
+        }""".trimIndent()
     }
-   query {
-       """{
-           "query": {
-               "term": {
-                   "action": "IN"
-            }
-        },
-        "size": 2,
-        "sort":["timestamp","username"]
-    }""".trimIndent()
-   }
-   pollDelay(Duration.ofSeconds(1))
+    index("battery-state")   
+    pollDelay(Duration.ofSeconds(1))  
 }
 ----
 Notable parameters::
@@ -58,17 +56,16 @@ Notable parameters::
 * `client`: configures the REST client to connect to https://www.elastic.co/[Elasticsearch].
 * `query`: configures the builder for the JSON query to perform the first poll.
 * `queryParameters`(optional): adds parameters to the query. 
-* `mapper`: configures the JSON Mapper to deserialize the documents.
-* `tieBreaker` (required): repeats the first column used for sorting and comparison (`<=` or `>=`, depending on the ascending or descending order).
 * `pollDelay` (required): specifies the delay between query executions.
 * `monitoring`(optional): configures the monitoring parameters for the step.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
 
 Tips::
 * The `poll` step is generally used in conjunction with a `join` to assert data or inject data into a workflow.
-* The `query` parameter requires at least one sorting field (`tiebreaker` in the example) to filter the newest results and not fetch the same records repeatedly.
-* The latest known value for `tiebreaker` is used to filter out values already received from the database.
+* The `query` parameter requires at least one sorting field to filter the newest results and not fetch the same records repeatedly.
 * The output of the `poll` step is an `ElasticsearchDocument` that contains maps of column names to values. If `flatten` is called, the records are provided one by one to the next step; otherwise each poll batch remains complete.
+
+Reference Documentation::
 * Refer to
 https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-query-params[Elasticsearch Query Parameters] for more information on query parameters.
 * Refer to the https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html#search-after[Elasticsearch] documentation for further parameter and configuration information.
@@ -83,68 +80,76 @@ Functionality::
 The `save` step's input and step context are used to generate a list of documents that are forwarded to https://www.elastic.co/[Elasticsearch].
 
 Example::
-+
 [source,kotlin,linenumbers]
 ----
-elasticsearch().save {
-    documentsFactory = documentsFactory
-    client{
-        RestClient.builder(HttpHost("localhost", esPort, "http")).build()
+.elasticsearch()
+.save {
+    name = "save"
+    client {
+        RestClient.builder(HttpHost.create("http://localhost:9200")).build() 
     }
-	monitoring {
-	    events = false
-        meters = true
+    documents { _, input ->
+        listOf(
+            Document(
+                index = "battery-state",
+                id = input.primaryKey,
+                source = objectMapper.writeValueAsString(input)  
+            )
+        )
     }
 }
 ----
 Notable Parameters::
-* `documentsFactory`: defines the strategy to create documents to save from the input and step context.
+
 * `client`: configures the REST client to connect to https://www.elastic.co/[Elasticsearch].
-* `mapper`: configures the JSON Mapper to serialize the documents.
+* `documents`: defines the strategy to create documents to save from the input and step context.
 * `monitoring`(optional): configures the monitoring parameters for the step.
 
-Tip::
-Refer to the https://www.elastic.co/guide[Elasticsearch] documentation for further information on parameter configuration.
-
+Reference Documentation::
+Refer to the https://www.elastic.co/guide[Elasticsearch] documentation for further parameter information.
 
 === Search step
-on The `search` step within the `elasticsearch` plugin searches documents in the Elasticsearch database using a search query. 
+The `search` step within the `elasticsearch` plugin searches documents in the Elasticsearch database using a search query. 
 
 Ancestor::
 Step
  
 Functionality::
 The `search` step’s input and step context are used to generate a query; the batch of results is then forwarded to the next step(s).
-
-Example::
-+
+ 
+ Example::
 [source,kotlin,linenumbers]
 ----
-elasticsearch().search {
-    client(clientBuilder)
-    mapper(mapperConfigurer)
-    index(indicesFactory)
-    query(queryFactory)
-    queryParameters(paramsFactory)
-    monitoring {
-        all()
+.elasticsearch()
+.search {
+    name = "search"
+    client {
+        RestClient.builder(HttpHost.create("http://localhost:9200")).build()
     }
-         fetchAll()
-
+    index { _, _ -> listOf("battery-state") }   
+    query { _, input ->
+        """{
+            "query": {
+                "bool": {
+                    "must": [
+                        { "match": { "deviceId": "${input.input.deviceId}" }},
+                        { "term": { "timestamp": ${input.input.timestamp.epochSecond} }}
+                    ]
+                }
+            }
+        }"""
+    }  
+}
 ----
- 
+
 Notable parameters::
 * `client`: configures the REST client to connect to https://www.elastic.co/[Elasticsearch].
-* `query`: configures the builder for the JSON query to perform a search. 
 * `index`: sets the `elasticsearch` indices to use for the queries; defaults to `all`.
-* `queryParameters`(optional): adds parameters to the query. 
-* `mapper` configures the JSON Mapper to deserialize the documents.
+* `query`: configures the builder for the JSON query to perform a search. 
 * `monitoring`(optional): configures the monitoring parameters for the step.
-* `fetchAll`: specifies that all the documents have to be fetched, even over the result-sized window.
- 
-Tips::
-* `fetchAll` must be combined with either a scroll activation or a sorting definition in the query. Refer to the current; The latter case uses `search` after to page all the data. New data coming between two requests will be fetched. The requests stops when the number of fetched documents reaches the total hits of the latest response. Note that this could lead to an infinite step execution if data are added to the results set in `elasticsearch` on a regular basis.
-* Refer to the https://www.elastic.co/guide[Elasticsearch] documentation for further information on parameter configuration.
+
+Reference Documentation::
+* Refer to the https://www.elastic.co/guide[Elasticsearch] documentation for further parameter and configuration information.
 * For specifics on `queryParameters` refer to https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-query-paramsElastic[Elasticsearch Query Parameters].
 * For specifics on `search` parameters, refer to 
- https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html[Elasticsearch Search Parameters] 
+ https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html[Elasticsearch Search Parameters].
