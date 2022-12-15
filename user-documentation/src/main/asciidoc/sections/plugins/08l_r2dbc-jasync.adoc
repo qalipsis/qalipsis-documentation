@@ -26,6 +26,8 @@ Supported steps::
 * <<Save step,`save`>>: saves a batch of records generated from the input and step context.
 * <<Search step,`search`>>: searches records and builds a query from the input and step context.
 
+Example scenarios using a combination of `r2dbc-jasync` supported steps are provided https://github.com/qalipsis/qalipsis-examples/tree/master/r2dbc-jasync[GitHub].
+
 === Poll step 
 The `poll` step within the `r2bc-jasync` plugin polls the newest records from the database, respecting a delay between each execution of a select query.
 
@@ -35,34 +37,27 @@ Scenario
 Functionality::
 The `poll` step is created only once in a scenario; it is then used throughout the scenario as called. The `poll` step within the `r2b-jaysync` plugin uses a strategy of “delivered at least once”.
 
-
 Example::
-[source,kotlin]
++
+[source,kotlin,linenumbers]
 ----
 r2dbcJasync().poll {
-	protocol(Protocol. POSTGRESQL)
-	connection {
- 		port = 5432
- 		username = "dbuser"
-		password = "dbpassword"
-		database = "thedatabase"
-	}
-
-	query("""select username, "timestamp" from buildingentries where action = ? order by "timestamp"""")
-		parameters("ENTERING")
-		pollDelay(Duration.ofSeconds(1))
-		monitoring {
-			events = false
-            meters = true
-		}		
+    protocol(Protocol.POSTGRESQL)
+    connection {
+        database = "qalipsis_db"
+        port = jdbc:mysql://localhost:5432;
+        username = "JohnAmes"
+        password = "Fortune3018"
     }
+    query("select * from ${"qalipsis_db"} order by \"${"timestamp"}\"")
+    pollDelay(Duration.ofSeconds(1))
+}
 ----
+
 Notable parameters::
 * `connection` (required): specifies the connection parameters. 
 * `query` (required): specifies a query respecting the requirements of the target database (https://mariadb.org/[MariaDB],  https://www.mysql.com[MySQL], https://www.postgresql.org/[PostgreSQL],).
-* `parameters` (optional): binds values to the clauses of the prepared query.
 * `pollDelay` (required): specifies the delay between query executions.
-`tieBreaker` (required): repeats the first column used for sorting and comparison ( `<=` or `>=`, depending on the ascending or descending order).
 * `monitoring`(optional): configures the monitoring parameters for the step.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
 
@@ -70,8 +65,9 @@ Tips::
 * Use the `poll` step with a join operator when you need to verify the values saved by your tested system in the database.
 * `query` requires at least one sorting field (known as `tiebreaker` in the example) to filter the newest results and not fetch the same records repeatedly.
 * The latest known value for the `tiebreaker` is used to filter out the values already received directly from the database.
-* Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for further parameter and configuration information.
 
+Reference documentation::
+Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for further parameter and configuration information.
 
 === Save step 
 The `save` step within the `r2bc-jasync` plugin persists a batch of records into an SQL table using a prepared statement.
@@ -84,25 +80,40 @@ The `save` step's input and step context are used to generate the table and the 
 
 Example::
 +
-[source,kotlin]
+[source,kotlin,linenumbers]
 ----
-r2dbcJasync().save {
-	protocol(Protocol. POSTGRESQL)
-	connection {
- 		port = 5432
- 		username = "dbuser"
-		password = "dbpassword"
-		database = "thedatabase"
-	}
-	tableName{ ctx, input -> "my_table" }
-	columns{ ctx, input -> listOf("firstname", "surname", "registration") }
-	values{ ctx, input -> list(
-        JasyncSaveRecord("john", "doe", "265edfg2g5"),
-        JasyncSaveRecord("alice", "foo", "3763gdw8"),
-        JasyncSaveRecord("bob", "bar", "627twh762")
-    )}
-	monitoring {
-	  	events = false
+.r2dbcJasync()   
+.save {
+    protocol(Protocol.POSTGRESQL)
+    connection {
+        database = "qalipsis_db"
+        port = jdbc:mysql://localhost:5432
+        username = "JohnAmes"
+        password = "Fortune3018"
+    }
+    tableName { _, _ ->
+        "qalipsis_table"
+    }
+    columns { _, _ ->
+        listOf(
+            "id",
+            "device_id",
+            "timestamp",
+            "battery_level"
+        )
+    }
+    values { _, input ->
+        listOf(
+            JasyncSaveRecord(
+                input.primaryKey(),
+                input.deviceId,
+                input.timestamp.epochSecond,
+                input.batteryLevel
+            )
+        )
+    }
+    monitoring {
+        events = false
         meters = true
     }
 }
@@ -114,9 +125,10 @@ Notable parameters::
 
 Tips::
 * Use the `save` step after a `collect()` step in order to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.
-* The `save` step is extremely flexible; table, columns and values might depend on the context and input value received from the previous step
-* Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for further parameter and configuration information.
+* The `save` step is extremely flexible; table, columns and values might depend on the context and input value received from the previous step.
 
+Reference documentation::
+Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for further parameter and configuration information.
 
 === Search step 
 The `search` step within the `r2bc-jasync` plugin searches records in the database using a search query.
@@ -127,24 +139,25 @@ Step
 Functionality::
 The `search` step’s input and step context are used to generate a prepared statement and the values to complete it; the batch of results is then forwarded to the next step(s).
 
- Example::
+Example::
 +
-[source,kotlin]
+[source,kotlin,linenumbers]
 ----
-r2dbcJasync().search {
-	protocol(Protocol. POSTGRESQL)
-	connection {
- 		port = 5432
- 		username = "dbuser"
-		password = "dbpassword"
-		database = "thedatabase"
-	}
-	query { ctx, input -> """select username, "timestamp" from buildingentries where action = ? order by "timestamp"""" }
-	parameters { ctx, input -> listOf("ENTERING") }
-
-	monitoring {
-	  	events = false
-    	meters = true
+.r2dbcJasync()
+.search {
+    protocol(Protocol.MARIADB)
+    connection {
+        database = "qalipsis_db"
+        port = jdbc:mysql://localhost:5432
+        username = "JohnAmes"
+        password = "Fortune3018"
+    }
+    query { _, _ ->
+        val request = "SELECT DISTINCT * from ${qalipsis_db} where ${"timestamp"} = ? AND ${"device_id"} = ?"
+        request
+    }
+    parameters { _, input ->
+        listOf(input.timestamp.epochSecond, input.deviceId)
     }
 }
 ----
@@ -155,6 +168,9 @@ Notable parameters::
 * `parameters` (optional): binds values to the clauses of the prepared query.
 * `monitoring`(optional): configures the monitoring parameters for the step.
 
-Tips::
-* Use the `search` step after a `collect` step in order to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.
-* Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for further parameter and configuration information.
+Tip::
+Use the `search` step after a `collect` step in order to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.
+
+Reference documentation::
+Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for further parameter and configuration information.
+
