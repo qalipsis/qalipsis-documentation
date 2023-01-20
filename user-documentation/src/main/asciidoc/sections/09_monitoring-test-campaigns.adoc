@@ -149,7 +149,7 @@ Upon successful creation, the following text is displayed in the modal window: â
 ==== Updating a series
 
 
-== Terminal Monitoring
+== Control Panel Monitoring
 
 
 
