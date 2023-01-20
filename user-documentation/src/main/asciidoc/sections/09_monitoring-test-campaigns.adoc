@@ -78,6 +78,7 @@ The `Report` screen is accessible from the Tenant #2 left sidebar.
 More information on reports will be provided at a later date.
 
 
+
 ===== Access Series pages
 The `Series` screen is accessible from the Tenant #2 left sidebar.
 The Series' screen allows the user view current series information, update or duplicate a series, and create a new series.

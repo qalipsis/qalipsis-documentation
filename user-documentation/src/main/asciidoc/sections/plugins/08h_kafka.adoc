@@ -14,18 +14,18 @@ Namespace in scenario::
 
 Client library::
 Kafka: refer to https://kafka.apache.org/[Apache Kafka]
-+
 
 Supported steps::
 * <<Consume step,`consume`>>: consumes data from topics of an Apache Kafka cluster.
 * <<Produce step,`produce`>>: pushes data to topics of the Apache Kafka cluster.
 
+An example scenario that uses a combination of the `kafka` `consume` and `produce` steps is provided on https://github.com/qalipsis/qalipsis-examples/tree/master/kafka[GitHub].
+
 === Consume step
-The `consume` step within the `kafka` plugin polls data from topics of an Apache Kafka cluster and forwards the data to the next step, either in batches or individually.
+The `consume` step within the `kafka` plugin polls data from topics of an Apache Kafka cluster and forwards the data to the next step, either in batches or individually. The `consume` step:
 
-This step is generally used in conjunction with a left join to assert data or inject data into a workflow.
-
-The `consume` step supports multithreading (concurrent consumers) using the `concurrency` property.
+* is generally used in conjunction with a left join to assert data or inject data into a workflow.
+* supports multithreading (concurrent consumers) using the `concurrency` property.
 
 Ancestor::
 Scenario
@@ -37,23 +37,22 @@ Example::
 +
 [source,kotlin,linenumbers]
 ----
-kafka().consume {
-   name = "kafka-consumer"
-   bootstrap(bootstrap)
-   topics(testProducerTopic)
-   groupId("kafka-left")
-   pollTimeout(100)
-   offsetReset(OffsetResetStrategy.EARLIEST)
+kafka().consume {  
+    bootstrap("localhost:9092")
+    topics("battery_state")  
+    groupId("kafka-example")
+    offsetReset(OffsetResetStrategy.EARLIEST) 
+    pollTimeout(Duration.ofSeconds(1))
 }
 ----
- 
+
 Notable parameters::
 * `bootstrap`: configures the bootstrap hosts of the `Kafka` cluster; defaults to localhost:9092.
 * `groupId`: defines the consumer group.
 * `pollTimeout` defines the consumer poll timeout to wait for records; defaults to 1 second.
 * `offsetReset` (required): defines the strategy to apply when the consumer starts consuming messages from the queue. 
-* `maxPolledRecords`: defines the maximum number of records returned in a unique poll batch; defaults to 500.
 * `pollDelay` (required): specifies the delay between query executions.
+* `maxPolledRecords`(optional): defines the maximum number of records returned in a unique poll batch; defaults to 500.
 * `monitoring`(optional): configures the monitoring parameters for the step.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
 
@@ -64,9 +63,12 @@ Tips::
 ** `OffsetResetStrategy.LATEST`: starts consuming messages when the  consumer starts, ignoring all previous messages in the queue.
 +
 `OffsetResetStrategy.LATEST` is the default. 
-* Refer to the https://kafka.apache.org/[APACHE KAFKA] documentation for further parameter and configuration information. 
+
+Reference documentation::
+Refer to the https://kafka.apache.org/[Apache KAFKA] documentation for further parameter and configuration information. 
  
 === Produce step
+
 The `produce` step within the `kafka` plugin pushes data onto topics of the Kafka broker and forwards the data as input to the next step.
 
 Ancestor::
@@ -76,38 +78,35 @@ Functionality::
 The `produce` step's input and step context are used to generate values to complete the step. The batch of results, or a single result, is then forwarded to the next step(s).
 
 Example::
-+
 [source,kotlin,linenumbers]
 ----
-kafka().produce(
-   Serdes.ByteArray().serializer(),
-   Serdes.String().serializer()
-) {
-   name = "kafka-producer"
-   bootstrap(bootstrap)
-   clientName("producer")
-   records { _, input ->
-       listOf(
-           KafkaProducerRecord(
-               topic = producerTopic,
-               value = "Produced ${input.record.value!!}"
-           )
-       )
-   }
-        monitoring {
-            events = true
-            meters = false
-        }
-}
+            .kafka()
+            .produce(
+                keySerializer = Serdes.String().serializer(),
+                valueSerializer = Serdes.String().serializer()
+            ) {
+                bootstrap("localhost:9092")
+                clientName("producer")
+                records { _, input ->
+                    listOf(
+                        KafkaProducerRecord(
+                            ServerConfiguration.TOPIC,
+                            value = objectMapper.writeValueAsString(input),
+                            key = input.primaryKey
+                        )
+                    )
+                }
+            }
 ----
- 
+
 Notable parameters::
-* `Serdes.ByteArray().serializer()`: describes how to serialize the record keys to send  to `kafka`.
-* `Serdes.String().serializer()`: describes how to serialize the record values to send to `kafka`.
+* `keySerializer`: describes how to serialize the record keys to send  to `kafka`.
+* `valueSerializer`: describes how to serialize the record values to send to `kafka`.
 * `bootstrap` configures the bootstrap hosts of the Kafka cluster; defaults to `localhost:9092`.
 * `clientName` defines the name of the `kafka` client
 * `records` (required): generates and configures a list of produced records.
 * `monitoring`(optional): configures the monitoring parameters for the step.
 
-Tip::
-* Refer to the https://kafka.apache.org/documentation/[APACHE KAFKA] documentation for further parameter and configuration information. 
+Reference documentation::
+Refer to the https://kafka.apache.org/documentation/[Apache KAFKA] documentation for further parameter and configuration information. 
+
