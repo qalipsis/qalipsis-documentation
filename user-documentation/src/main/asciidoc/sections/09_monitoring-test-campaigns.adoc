@@ -1,38 +1,29 @@
 = Monitoring Campaigns
 
-
-
 == Overview
 QALIPSIS aims at giving insights into the behavior of the tested system from a performance perspective.
 
 The insights are provided to users by way of dashboards with detailed values and graphical results of the performed operations.
 
-== QALIPSIS Graphical User Interface (GUI)
-
-=== Logging in to the QALIPSIS User Interface (UI)
+=== Logging in to QALIPSIS
 . Navigate to the Qualipsis Welcome page (https://alpha.qalipsis.io)
 . Enter your Username and Password.
 +
-If a Tenant selection message is displayed, select one of the available tenants from the drop-down menu. 
+Select the tenant to use from the drop down box.
+. Click on 'Submit' to log into QALIPSIS.
 +
-If a Tenant selection message is not displayed, you will be logged in to the dashboard with the tenant you were using in your most recent login.
-
+If a Tenant selection message is not displayed, you will be logged in to QALIPSIS   with the tenant you were using in your most recent login.
++
 You can can select a different tenant at any time once you are logged into the User Interface.
 
-* Tenant#1 allows access to the _Campaign_, _Reports_, and _Series_ screens.
-* Tenant#2 allows access to the Admin screens.
+* Tenant#1 allows access to the _Campaign_  and _Series_ pages.
+* Tenant#2 allows access to the _Admin_ pages.
 +
-. Press the `Continue` button to open the Qalipsis User Interface.
+. Press the `Continue` button to open the QALIPSIS dashboard.
 
-=== Navigating the QALIPSIS user interface
+=== Navigating the QALIPSIS Interface
 ==== Left sidebar
 When you are logged into QALIPSIS, a left sidebar ia displayed.  The sidebar allows access to notifications, your profile settings, and to other areas of the User Inteface depending on your selected tenant and profile permissions.
-
-===== View notifications 
-Click on `Notifications` to display the _Notification Modal_window. 
-
-* You can view active notifications.
-* You can delete a notification by selecting it and clicking on the displayed trash can icon.
 
 ===== Change to a differnt tenant
 . Click on your name near the bottom of the sidebar to open the _Tenant Modal_ window. 
@@ -40,7 +31,6 @@ Click on `Notifications` to display the _Notification Modal_window.
 ** With Tenant #1 selected, the _Campaign_, _Reports_, and _Series_ screens are accessible by clicking on the appropriate link near the top of the sidebar.
 ** With Tenant #2 selected, the `Admin` area of the interface is accessible (if you have `Admin` permissions).
 
-  
 ===== View/Update Your profile
 From the Tenant #1 sidebar:
 
@@ -59,31 +49,22 @@ From the Tenant #1 sidebar:
 . Enter your new password in the `New Password` and `Comfirm Password` fields.
 . Click om `Save changes`. to save your new password. 
 
-
 ===== Logout 
 . click on your name at the bottom of the left sidebar to open the _Tenant Modal_ window.
 . Click on the `settings` icon.
 . Click the `Logout` button.
 You will be logged out and returned to the _Welcome_ screen.
  
-
 ===== Access Campaign pages
 The `Campaign` screen is accessible from the Tenant #2 left sidebar.
 The `Campaign` screen allows the user to view current campaign data, update a campaign, and create a new campaign. 
-Refer to  <<Displaying campaign Data>>, <<Creating a campaign>>, and <<Updating a campaign>> for more details.
-
-
-===== Access Reports
-The `Report` screen is accessible from the Tenant #2 left sidebar. 
-More information on reports will be provided at a later date.
-
+Refer to  <<Displaying campaign Data>> and <<Configuring and running a campaign>> for more details.
 
 ===== Access Series pages
 The `Series` screen is accessible from the Tenant #2 left sidebar.
 The Series' screen allows the user view current series information, update or duplicate a series, and create a new series.
 
 Refer to  <<Viewing series information>>, <<Creating a series>>, and <<Updating a series>> for more details.
-
 
 ===== Access Admin Functions
 From the Tenant2 screen (if you have `Admin` permissions):
@@ -94,12 +75,10 @@ From the `Update User` window, user information can be updated and modified and 
 
 More options will be available from the Admin area of the GUI in the near future.
 
+=== Working with campaigns
 
-
-=== Campaign pages
-
-==== Displaying campaign Data
-. Login to QALIPSIS as Tenantt#1.
+==== Displaying campaign data
+. Login to QALIPSIS as Tenant #1.
 . Click on Campaign in the left sidebar.
 +
 A table listing all existing and planned campaigns is displayed.
@@ -111,9 +90,9 @@ A table listing all existing and planned campaigns is displayed.
 +
 * A report box is displayed at the top of the screen.
 +
-The top line displays the info for the total campaign; the following lines display information for scenarios within the campaign.
+The top line in the report box displays information for the  whole campaign; the following lines display information for each scenario within the campaign.
 
-** Click the `View more` tooltip on the right side of the report box to expand the box display all scenarios in the campaign.
+** Click the `View more` tooltip on the right side of the report box to expand the report box to display all scenarios in the campaign.
 ** Click the `More details` tooltip to display the info for the total campaign in a dropdown box.
 ** Click on the `Campiagn Summary` dropdown filter to select the scenario information to display in the report box.
 
@@ -121,93 +100,78 @@ The top line displays the info for the total campaign; the following lines displ
 Below the filter cards, a chart is displayed with the x-axis displaying time and the y-axis displaying minion count.
 Select one or more filter cards to display the generated data for the selected filter.
 
+==== Configuring and running a campaign
+. Click on the `+Campaign` button near the top right of the `Campaign` page.
++
+A page will open displaying the campaign name, a settings icon, a search field, and a table listing scenarios that are available to run in the campaign.
+  
+. Optionally, rename the campaign by hovering over the `New Campaign` title and selecting the pen icon to edit the name.
+  
+. Select the checkbox to the left of each scenario that you want to include in your campaign. 
++
+Note that the scenarios displayed have a default configuration.  
++
+If you want to view and/or update the scenario to better suit your test, click on the `Custom Settings`  buttom to the right of the scenario. 
++
+‘Changes are saved for the current campaign and doesn’t affect the default Series settings'
 
+. Optionally, configure the canpaign with custom run-time values.
+.. Click on the arrow next to the  ‘Run immediately’ button at the bottom of the page.
++ 
+The `custom running` modal window opens.
 
-==== Creating a campaign
-==== Updating a campaign
+..  Select the date you want to start the campaign using the datepicker. 
++ 
+The date format is [Month dd, yyyy]
+.. Select the time zone for the campaign start time from the  ‘Time zone’ dropdown.
++
+The time zone format is [(UTC+hh:mm) Сontinent/ City].
 
+.. If you want the campaign to run more than once, select a frequecy from the [Frequency] drop down. 
++
+The frequecy options are `Daily`, `Weekly`, and `Monthly`.
++ 
+`Daily` runs the campaign at the previoulsy selected time each day.
++
+Weekly runs the campaign on the selected day(s) every week at the previoulsy selected time of day.
++
+Monthly runs the campaign each selected day(s) of every month at the previously selected time. 
 
+=== Working with series
 
-=== Series pages
+==== Viewing and updating series information
+You can update a series if you are the owner and/or have write permissions.
 
-==== Viewing series information
+. Login as Tenant #1.
+. Click on `Series` in the left sidebar menu.
++
+The _Series_ page opens and displays a table listing currently defined series by name, Type…
+. Click on athe name of the series you want to update. 
++
+The _New series_ modal window opens. 
+. Enter the required data into the appropriate fields.
+. Click on the `Create` button.
++
+The following text is displayed in the modal window: '[Series Name] has just been created!'. 
+. Close the _New series_ modal window to return to the Series page.  
++
+The newly created series is displayed in the table.
 
-==== Creating a series
+==== Creating a new series
 You can create a series if your profile has write permissions.
 You can update a series if you are the owner and/or have write permissions.
 
-Login as Tenant 1.
-Click on Series in the left sidebar menu.
-The “Series' page opens displaying a table listing current series by name, Type…
-Click on the ‘+New series’ button near the top right corner of the page.
-The New series creation screen opens. The fields listed in the table below are provided for data input.
-Enter the data into the appropriate fields.
-Click on the “Create’ button.
-Upon successful creation, the following text is displayed in the modal window: “'[Series Name] has just created!' is displayed. The series is created
-
-
-==== Updating a series
-
-
-== Control Panel Monitoring
-
-
-
-== Definitions 
-In QALIPSIS, each step generates different kinds of metadata that supply different levels of detail
-about the behavior and performances of the system.
-
-* The lowest level of detail is built on meters, using http://micrometer.io[Micrometer Application Monitoring].
-** The test system generates meters and publishes them on a regular basis into a time-series database.
-** When the meters are published, the values are aggregated into averages, maximum and minimum. 
-** The published meters can be queried from the database or displayed on the dashboards.
-* For maximum relevance, the meters are linked to the context of their measurement: name of scenario, campaign, step.
+. Login as Tenant #1.
+. Click on `Series` in the left sidebar menu.
 +
-In essence, meters represent the behavior or performance of a step or operation over a short period of time as defined in the meter's configuration. 
-
-** The shorter the time period that a meter represents, the more data will be saved into the time-series database.
-** The data can only be fetched and reported from the time-series database where they were saved. They are not available in a QALIPSIS scenario. 
-** In QALIPSIS, the `Micrometer` meters (Counters, Timers, Gauges) are attached to a single campaign and should be created and removed according to the campaign lifecycle. 
+The _Series_ page opens and displays a table listing currently defined series by name, Type…
+. Click on the ‘+New series’ button near the top right corner of the page.
 +
-* The intermediate level of detail is built on events that are directly saved into a time-series database.
+The _New series_ modal window opens. 
+. Enter the required data into the appropriate fields.
+. Click on the `Create` button.
 +
-In essence, an event represents an operation to be executed or the result of an operation at a given point in time.
-
-** Events can be compared to logs as managed by log4j and logback, and apply a similar concept for configuration. 
-** Events are described by a severity, a name, and values. 
+The following text is displayed in the modal window: '[Series Name] has just been created!'. 
+. Close the  _New series_ modal window to return to the Series page.  
 +
-* Both meters and events can be tagged to specify the scenario, campaign, and test step that they are related to.
-
-* The highest level of detail is built on step execution meters. 
-+
-In essence, step execution meters are primitive values and Java durations.
-+
-** Step execution meters are directly provided as an output from one step to another. 
-** Step execution meters make it possible to verify the performances and the success of an operation directly in the scenario, in order to decide whether next steps should be executed or not.
-
-== Configuring monitoring within the step specification
-All step specifications have a monitoring function. 
-* Step monitoring is disabled by default to avoid generating unnecessary data.
-* Enable step monitoring to monitor events and/or meters:
-
-[source,kotlin,line numbers]
-----
-    mystep{
-        monitoring{
-            events = true
-            meters = false
-        }    
-    }
-----
-
-Optionally, enable simultaneous monitoring of steps and meters:
-[source,kotlin,line numbers]
-----
-    mystep{
-        monitoring{
-            all()
-        }    
-    }
-----
-
- 
+The newly created series is displayed in the table.
