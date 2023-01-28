@@ -2,5 +2,5 @@
 .gradle
 user-documentation/src/main/asciidoc/sections/.vscode/settings.json
 user-documentation/src/main/asciidoc/sections/.vscode/spellright.dict
-/user-documentation/build/
-/.idea/
+.idea/
+*/build/
