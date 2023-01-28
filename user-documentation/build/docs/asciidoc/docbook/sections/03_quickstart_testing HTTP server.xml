@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?asciidoc-toc maxdepth="2"?>
+<?asciidoc-numbered?>
+<book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
+<info>
+<title>Quickstart guide</title>
+<subtitle>Testing an HTTP server with QALIPSIS</subtitle>
+<date>2023-01-16</date>
+</info>
+<preface>
+<title></title>
+<simpara>In this quickstart guide, you will learn how to test a very simple echo-like HTTP service using QALIPSIS.</simpara>
+</preface>
+<chapter xml:id="_before-you-get-started">
+<title>Before you get started</title>
+<simpara>Before starting, you need:</simpara>
+<itemizedlist>
+<listitem>
+<simpara>A general understanding of the <xref linkend="QALIPSIS Core Concepts"/>.</simpara>
+</listitem>
+<listitem>
+<simpara>Java 11 SDK or above installed on your system.</simpara>
+</listitem>
+<listitem>
+<simpara>Docker installed on your system.</simpara>
+</listitem>
+</itemizedlist>
+</chapter>
+<chapter xml:id="_what-this-guide-covers">
+<title>What this guide covers</title>
+<simpara>This guide will take you through the following steps for testing a simple HTTP service:</simpara>
+<orderedlist numeration="arabic">
+<listitem>
+<simpara>Start an HTTP server and a docker environment for the project.</simpara>
+</listitem>
+<listitem>
+<simpara>Generate a project archive.</simpara>
+</listitem>
+<listitem>
+<simpara>Configure a scenario skeleton.</simpara>
+</listitem>
+<listitem>
+<simpara>Add steps to the scenario.</simpara>
+<orderedlist numeration="loweralpha">
+<listitem>
+<simpara>An <literal>HTTP</literal> step to send requests to the server.</simpara>
+</listitem>
+<listitem>
+<simpara>A <literal>verify</literal> step  that asserts that the server&#8217;s response is  "OK" and to verify the server&#8217;s responses.</simpara>
+</listitem>
+<listitem>
+<simpara>An <literal>HTTP WITH</literal> step that reuses the HTTP connection.</simpara>
+</listitem>
+<listitem>
+<simpara>A second <literal>assertion</literal> step to verify the server&#8217;s responses.</simpara>
+</listitem>
+</orderedlist>
+</listitem>
+<listitem>
+<simpara>Execute the scenario using <link xl:href="https://docs.gradle.org/current/userguide/what_is_gradle.html">Gradle</link> and view the report.</simpara>
+</listitem>
+<listitem>
+<simpara>Create a Java archive of your project so that you can transport it as needed and run it anywhere.</simpara>
+</listitem>
+<listitem>
+<simpara><xref linkend="_enable-event-logging"/> to allow you to view errors in the report.</simpara>
+</listitem>
+</orderedlist>
+</chapter>
+<chapter xml:id="_start-an-http-server">
+<title>Start an HTTP server</title>
+<orderedlist numeration="arabic">
+<listitem>
+<simpara>Create a file named <literal>docker-compose.yml</literal> in your working directory with the following content:</simpara>
+<programlisting language="kotlin" linenumbering="numbered">version: '3.5'
+services:
+  http-punching-ball:
+    image: aerisconsulting/http-punching-ball
+    command:
+      - "--https=true"
+      - "--ssl-key=http-server.key"
+      - "--ssl-cert=http-server.crt"
+    ports:
+      - "18080:8080"
+      - "18443:8443"</programlisting>
+</listitem>
+<listitem>
+<simpara>Start the created docker environment with the command <literal>docker compose up -d</literal>.</simpara>
+</listitem>
+</orderedlist>
+</chapter>
+<chapter xml:id="_create-a-project">
+<title>Create a project</title>
+<orderedlist numeration="arabic">
+<listitem>
+<simpara>In your browser, open the website <link xl:href="https://bootstrap.qalipsis.io">Bootstrap QALIPSIS</link>.</simpara>
+</listitem>
+<listitem>
+<simpara>Verify that your system has the pre-requisites listed on the <link xl:href="https://bootstrap.qalipsis.io">Bootstrap QALIPSIS</link> page.</simpara>
+</listitem>
+<listitem>
+<simpara>In the "Name" field, enter "Quickstart".</simpara>
+</listitem>
+<listitem>
+<simpara>In the "plugins" menu, select <literal>netty</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara>In the assertions libraries menu, select <literal>Kotest</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara>Click <literal>Generate</literal>. An archive containing a skeleton of the project is proposed for download.</simpara>
+</listitem>
+<listitem>
+<simpara>Download the proposed project archive.</simpara>
+</listitem>
+</orderedlist>
+<simpara>[ insert graphic/screenshot of the Bootstrap QALIPSIS page ]</simpara>
+</chapter>
+<chapter xml:id="_prepare-a-scenario">
+<title>Prepare a scenario</title>
+<section xml:id="_edit-the-downloaded-scenario-skeleton">
+<title>Edit the downloaded scenario skeleton</title>
+<orderedlist numeration="arabic">
+<listitem>
+<simpara>Open the downloaded project archive in your IDE.</simpara>
+</listitem>
+<listitem>
+<simpara>Edit the file <literal>src/main/kotlin/Quickstart.kt</literal>.</simpara>
+</listitem>
+</orderedlist>
+<simpara>The scenario skeleton should be displayed:</simpara>
+<programlisting language="kotlin" linenumbering="numbered">package quickstart
+import io.qalipsis.api.annotations.Scenario
+class Quickstart{
+    @Scenario
+    fun quickstart() {
+        scenario("quickstart") {
+            minionsCount = 1
+            rampUp {
+            }
+        }
+    .start()
+    }
+}</programlisting>
+</section>
+<section xml:id="_configure-the-scenario-basics">
+<title>Configure the scenario basics</title>
+<simpara>Configure the scenario to inject 10,000 minions at a rate of 100 minions every 500 ms.</simpara>
+<programlisting language="kotlin" linenumbering="numbered">        scenario("quickstart-http") {
+            minionsCount = 10000
+            rampUp {
+                regular(periodMs = 500, minionsCountProLaunch = 100)
+            }
+        }
+        .start()</programlisting>
+</section>
+<section xml:id="_add-steps-to-the-scenario">
+<title>Add steps to the scenario</title>
+<simpara>Add and configure steps within the scenario that will send an HTTP request to the server and verify that the server&#8217;s response is as expected.</simpara>
+<section xml:id="_send-an-http-request">
+<title>Send an HTTP request</title>
+<simpara>Add an <literal>http</literal> step to the scenario that will send a POST request to the server.</simpara>
+<programlisting language="kotlin" linenumbering="unnumbered">        .start() <co xml:id="CO1-1"/>
+        .netty() <co xml:id="CO1-2"/>
+        .http {  <co xml:id="CO1-3"/>
+            name = "quickstart-http-post"  <co xml:id="CO1-4"/>
+            connect {  <co xml:id="CO1-5"/>
+                url("http://localhost:18080")
+                version = HttpVersion.HTTP_1_1
+            }
+            request { _,_ -&gt;  <co xml:id="CO1-6"/>
+                    SimpleHttpRequest(HttpMethod.POST, "/echo").body(
+                    "Hello World!",
+                    HttpHeaderValues.TEXT_PLAIN
+                    )
+            }
+            report {
+                reportErrors = true  <co xml:id="CO1-7"/>
+            }
+        }</programlisting>
+<calloutlist>
+<callout arearefs="CO1-1">
+<para>Specifies the starting point for load injection.</para>
+</callout>
+<callout arearefs="CO1-2">
+<para>Accesses the <literal>netty</literal> namespace.</para>
+</callout>
+<callout arearefs="CO1-3">
+<para>Calls the the <literal>http</literal> operator</para>
+</callout>
+<callout arearefs="CO1-4">
+<para>Gives the <literal>http</literal> step a name.</para>
+</callout>
+<callout arearefs="CO1-5">
+<para>Configures the HTPP connection to the server.</para>
+</callout>
+<callout arearefs="CO1-6">
+<para>Configures the HTTP request (HTTP method, path and body) that will be sent to the server.</para>
+</callout>
+<callout arearefs="CO1-7">
+<para>Enables reporting of errors for the <literal>http</literal> step.</para>
+</callout>
+</calloutlist>
+<simpara>Execute the scenario using Gradle: <literal>./gradlew run</literal>. This allows you to observe requests logged by the HTTP server. However, it does not verify that the server is returning what you expect.</simpara>
+<simpara>[ insert screen shot here of the report]</simpara>
+</section>
+<section xml:id="_verify-the-servers-response">
+<title>Verify the server&#8217;s response</title>
+<simpara>To verify that the server is returning what you expect, add a <literal>verify</literal> step to the scenario, just after the <literal>http</literal> step.</simpara>
+<programlisting language="kotlin" linenumbering="numbered">        .start()
+        .netty()
+        .http {  <co xml:id="CO2-1"/>
+            // ...
+        }
+        .verify { result -&gt;
+            assertSoftly {
+                result.asClue {
+                    it.response shouldNotBe null
+                    it.response!!.asClue { response -&gt;
+                        response.status shouldBe HttpResponseStatus.OK  <co xml:id="CO2-2"/>
+                        response.body shouldContainOnlyOnce "Hello World!"  <co xml:id="CO2-3"/>
+                        response.body shouldContainOnlyOnce "POST"
+                    }
+                    it.meters.asClue { meters -&gt;
+                        meters.timeToFirstByte!! shouldBeLessThanOrEqualTo Duration.ofSeconds(1)
+                        meters.timeToLastByte!! shouldBeLessThanOrEqualTo Duration.ofSeconds(2)
+                    }
+                }
+            }
+        }.configure {
+            name = "verify-post" <co xml:id="CO2-4"/>
+        }</programlisting>
+<calloutlist>
+<callout arearefs="CO2-1">
+<para>Place holder for the http step (<literal>quickstart-http-post</literal>) configuration parameters.</para>
+</callout>
+<callout arearefs="CO2-2">
+<para>Verifies that the HTTP status of the response is <literal>OK</literal>; the step uses <literal>io.netty.handler.codec.http.HttpResponseStatus</literal> for the verification.</para>
+</callout>
+<callout arearefs="CO2-3 CO2-4">
+<para>Verifies that the body of the response contains the string  ("Hello World!") sent in the request.</para>
+</callout>
+</calloutlist>
+<simpara>At this point, if you execute the updated scenario, a log file will display showing the status of each response and confirmation that that server is posting the "Hello World!" string.</simpara>
+</section>
+<insert screen shot of results xml:id="_reuse-the-http-connection">
+<title>Reuse the HTTP connection</title>
+<simpara>You can strengthen the relevance of your test by:</simpara>
+<orderedlist numeration="arabic">
+<listitem>
+<simpara>Adding an <literal>httpWith</literal> step to the scenario that reuses the original HTTP connection (<literal>quickstart-http-post</literal>).</simpara>
+<simpara>The same minions that passed through  the first <literal>http</literal> step  will pass through  the  <literal>httpWith</literal> step.</simpara>
+</listitem>
+<listitem>
+<simpara>Adding a second <literal>verify</literal> step to assert that the response from the server is as expected.</simpara>
+</listitem>
+</orderedlist>
+<programlisting language="kotlin" linenumbering="numbered">...
+            configure {
+                name = "verify-post"
+            }
+            .netty()  <co xml:id="CO3-1"/>
+            .httpWith("quickstart-http-post") {  <co xml:id="CO3-2"/>
+                report {
+                    reportErrors = true
+                }
+                request { _, _ -&gt;
+                    SimpleHttpRequest(HttpMethod.PATCH, "/echo").body(
+                        "Hello World!",
+                        HttpHeaderValues.TEXT_PLAIN
+                    )
+                }
+            }.verify { result -&gt;
+                assertSoftly {
+                    result.asClue {
+                        it.response shouldNotBe null
+                        it.response!!.asClue { response -&gt;
+                            response.status shouldBe HttpResponseStatus.OK <co xml:id="CO3-3"/>
+                            response.body shouldContainOnlyOnce "Hello World!" <co xml:id="CO3-4"/>
+                            response.body shouldContainOnlyOnce "PATCH" <co xml:id="CO3-5"/>
+                        }
+                        it.meters.asClue { meters -&gt;
+                            meters.timeToFirstByte!! shouldBeLessThanOrEqualTo Duration.ofMillis(100)
+                            meters.timeToLastByte!! shouldBeLessThanOrEqualTo Duration.ofMillis(200)
+                        }
+                    }
+                }
+            }.configure {
+                name = "verify-patch"
+            }</programlisting>
+<calloutlist>
+<callout arearefs="CO3-1">
+<para>Accesses the <literal>netty</literal> namespace.</para>
+</callout>
+<callout arearefs="CO3-2">
+<para>Calls the <literal>httpWith</literal> operator and specifies the previous <literal>http</literal> connection to reuse ("quickstart-http-post").</para>
+<simpara>Note that there is no need to specify parameters for the`httpWith` connection since it reuses the parameters from the previous <literal>http</literal> connection.</simpara>
+</callout>
+<callout arearefs="CO3-3">
+<para>Verifies that the HTTP status of the response is <literal>OK</literal>; the step uses <literal>io.netty.handler.codec.http.HttpResponseStatus</literal> for the verification.</para>
+</callout>
+<callout arearefs="CO3-4">
+<para>Verifies that the body of the response contains the string  ("Hello World!") sent in the request.</para>
+</callout>
+<callout arearefs="CO3-5">
+<para>Not sure I understand what this line of code does&#8230;&#8203;</para>
+</callout>
+</calloutlist>
+</insert screen shot of results>
+</section>
+<section xml:id="_execute-the-scenario">
+<title>Execute the scenario</title>
+<simpara>Execute your updated scenario as a Gradle project.</simpara>
+<simpara>A couple of seconds after execution, a report (similar to the one below) will display on your console.</simpara>
+<screen linenumbering="unnumbered">============================================================
+=====================  CAMPAIGN REPORT =====================
+============================================================
+
+Campaign...........................quickstart-http-4fb6244cd3
+Start..............................2022-03-30T16:41:02.597973Z
+End................................2022-03-30T16:41:53.411602Z
+Duration...........................50 seconds
+Configured minions.................10000
+Completed minions..................10000
+Successful steps executions........39832
+Failed steps executions............42
+Status.............................FAILED
+
+
+
+=====================  SCENARIO REPORT =====================
+Scenario...........................quickstart-http
+Start..............................2022-03-30T16:41:02.597973Z
+End................................2022-03-30T16:41:53.411602Z
+Duration...........................50 seconds
+Configured minions.................10000
+Completed minions..................10000
+Successful steps executions........39832
+Failed steps executions............42
+Status.............................FAILED
+Messages:
+- ERROR:  step 'quickstart-http-post' - "Success: 9958, Execution errors: 42"
+- INFO:   step 'verify-post' - "Success: 9958, Failures (verification errors): 0, Errors (execution errors): 0"
+- INFO:   step '_622niod959' - "Success: 9958, Execution errors: 0"
+- ERROR:  step 'verify-patch' - "Success: 9926, Failures (verification errors): 32, Errors (execution errors): 0"</screen>
+<itemizedlist>
+<listitem>
+<simpara>Note that the information for the whole campaign as well as for each scenario is displayed.</simpara>
+</listitem>
+<listitem>
+<simpara>In the example above, there are errors, which explains why the execution failed.</simpara>
+</listitem>
+<listitem>
+<simpara>To understand the errors, refer to  <link linkend="_enable-event-logging">Enable Event Logging</link> .</simpara>
+</listitem>
+</itemizedlist>
+</section>
+<section xml:id="_create-an-archive-of-your-scenario">
+<title>Create an archive of your scenario</title>
+<simpara>Execute the statement <literal>./gradlew assemble</literal>.</simpara>
+<simpara>A JAR archive ending with <literal>-qalipsis.jar</literal> is created in the folder <literal>build/libs</literal>.
+This archive contains all dependencies and is self-sufficient to execute your scenario on any machine with
+a Java Runtime Environment installed.</simpara>
+<simpara>To execute your scenario:
+. Open a terminal and navigate to the folder where the JAR archive is stored.
+. Move the JAR  archive out of the <literal>build</literal> folder; this will avoid accidental deletion of the archive.
+. Execute the command <literal>java -jar quickstart-&lt;your-version&gt;-qalipsis.jar</literal>.</simpara>
+</section>
+<section xml:id="_enable-event-logging">
+<title>Enable event logging</title>
+<simpara>To know the details of the failures
+In current directory, create a folder called <literal>config</literal>.
+In this new folder, create a file called <literal>qalipsis.yml</literal> with the following content:</simpara>
+<programlisting language="yaml" linenumbering="unnumbered">events:
+  root: warn
+  export:
+    slf4j:
+      enabled: true</programlisting>
+<simpara>This enables the logging of the events with severity WARN and higher to a file called <literal>qalipsis-events.log</literal>.</simpara>
+<simpara>Execute your scenario again; the events file is created and contains the details of the individual failed assertions:</simpara>
+<screen linenumbering="unnumbered">2022-03-31T06:33:55.937Z  WARN --- step.assertion.failure;io.qalipsis.plugins.netty.tcp.ConnectionAndRequestResult@1e869276
+MetersImpl(timeToSuccessfulConnect=null, timeToFailedConnect=null, timeToSuccessfulTlsConnect=null, timeToFailedTlsConnect=null, bytesCountToSend=85, sentBytes=85, timeToFirstByte=PT0.10696475S, timeToLastByte=PT0.1163375S, receivedBytes=394)
+PT0.10696475S should be &lt;= PT0.1S;campaign=quickstart-campaign-4d39026fd7,minion=quickstart-http-62qr1n87xx,scenario=quickstart,dag=dag-1,step=verify-patch,context-creation=2022-03-31T06:33:55.730Z,parent-step=_629qthims5,_ step-type=Verification,iteration=0,attempts-after-failure=0,isExhausted=true,isTail=true,isCompleted=true_
+2022-03-31T06:33:56.916Z  WARN --- step.assertion.failure;io.qalipsis.plugins.netty.tcp.ConnectionAndRequestResult@19a03b37
+MetersImpl(timeToSuccessfulConnect=null, timeToFailedConnect=null, timeToSuccessfulTlsConnect=null, timeToFailedTlsConnect=null, bytesCountToSend=85, sentBytes=85, timeToFirstByte=PT0.128673083S, timeToLastByte=PT0.128737375S, receivedBytes=394)
+PT0.128673083S should be &lt;= PT0.1S;campaign=quickstart-campaign-4d39026fd7,minion=quickstart-http-62sqemkv8j,scenario=quickstart,dag=dag-1,step=verify-patch,context-creation=2022-03-31T06:33:56.735Z,parent-step=_629qthims5,_ step-type=Verification,iteration=0,attempts-after-failure=0,isExhausted=true,isTail=true,isCompleted=true_</screen>
+<simpara>Essentially, you want to view the following pertinent parts of the message:</simpara>
+<screen linenumbering="unnumbered">2022-03-31T06:33:55.937Z ... PT0.10696475S should be &lt;= PT0.1S ... campaign=quickstart-campaign-4d39026fd7,... scenario=quickstart,... step=verify-patch</screen>
+<itemizedlist>
+<listitem>
+<simpara>The exact instant when the failed assertion occurred:</simpara>
+<simpara><literal>2022-03-31T06:33:55</literal> (March 31, 2022 at 06:33:55 UTC) in the example above.</simpara>
+</listitem>
+<listitem>
+<simpara>The reason for the failure:</simpara>
+<simpara><literal>PT0.10696475S should be &#8656; PT0.1S</literal></simpara>
+</listitem>
+<listitem>
+<simpara>The campaign (<literal>quickstart-campaign-4d39026fd7</literal>), scenario (<literal>quickstart</literal>-http), and verification step (verify-patch) where the failed assertion occurred.</simpara>
+</listitem>
+</itemizedlist>
+</section>
+</chapter>
+<chapter xml:id="_next-steps">
+<title>Next steps</title>
+<itemizedlist>
+<listitem>
+<simpara>Discover how to push events to a database, making them easier to view and analyze.</simpara>
+</listitem>
+<listitem>
+<simpara>Work through other QALIPSIS Quickstart Guides:</simpara>
+<itemizedlist>
+<listitem>
+<simpara>quickstart 1</simpara>
+</listitem>
+<listitem>
+<simpara>quickstart 2</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</itemizedlist>
+</chapter>
+</book>

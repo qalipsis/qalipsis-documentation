@@ -1,11 +1,22 @@
-= Monitoring Campaigns
+= Configuring and Monitoring Test Campaigns
 
 == Overview
-QALIPSIS aims at giving insights into the behavior of the tested system from a performance perspective.
 
-The insights are provided to users by way of dashboards with detailed values and graphical results of the performed operations.
+The QALIPSIS GUI allows you to create, configure, run, monitor and view results of test campaigns from your browser.
+You can configure campaigns and run them immediately, at a future time, or on a recurring schedule.
 
-=== Logging in to QALIPSIS
+* You can view in-process campaign results in real time.
+* You can view finalized reports of a previous campaign's data on static reports and on an interactive time-series chart.   
+
+The following topics are discussed in this section:
+
+* <<Logging in to QALIPSIS>>
+* <<Navigating the QALIPSIS Interface>>
+* <<Creating and updating a series>>
+* <<Configuring and running a campaign>>
+* <<Displaying campaign data>>
+
+== Logging in to QALIPSIS
 . Navigate to the Qualipsis Welcome page (https://alpha.qalipsis.io)
 . Enter your Username and Password.
 +
@@ -21,17 +32,20 @@ You can can select a different tenant at any time once you are logged into the U
 +
 . Press the `Continue` button to open the QALIPSIS dashboard.
 
-=== Navigating the QALIPSIS Interface
-==== Left sidebar
-When you are logged into QALIPSIS, a left sidebar ia displayed.  The sidebar allows access to notifications, your profile settings, and to other areas of the User Inteface depending on your selected tenant and profile permissions.
+== Navigating the QALIPSIS Interface
 
-===== Change to a differnt tenant
+When you are logged into QALIPSIS, a left sidebar is displayed and remains displayed throughout your session.  
+The paragraphs 
+
+image::left-sidebar.PNG[]
+ 
+=== Change to a differnt tenant
 . Click on your name near the bottom of the sidebar to open the _Tenant Modal_ window. 
 . Select an availablet tenant to use for the current session.
-** With Tenant #1 selected, the _Campaign_, _Reports_, and _Series_ screens are accessible by clicking on the appropriate link near the top of the sidebar.
+** With Tenant #1 selected, the _Campaign_ and _Series_ screens are accessible by clicking on the appropriate link near the top of the sidebar.
 ** With Tenant #2 selected, the `Admin` area of the interface is accessible (if you have `Admin` permissions).
 
-===== View/Update Your profile
+=== View/Update Your profile
 From the Tenant #1 sidebar:
 
 . Click on your name at the bottom of the left sidebar to open the  _Tenant Modal_ window.
@@ -39,7 +53,7 @@ From the Tenant #1 sidebar:
 . Click on `My profile` to open the _My Profile_ page.
 . Make changes to your profile and click on `Save changes`.
 
-===== Change your password
+=== Change your password
 From the Tenant #1 sidebar:
 
 . Click on your name at the bottom of the left sidebar to open the  _Tenant Modal_ window.
@@ -49,58 +63,34 @@ From the Tenant #1 sidebar:
 . Enter your new password in the `New Password` and `Comfirm Password` fields.
 . Click om `Save changes`. to save your new password. 
 
-===== Logout 
+=== Logout 
 . click on your name at the bottom of the left sidebar to open the _Tenant Modal_ window.
 . Click on the `settings` icon.
 . Click the `Logout` button.
 You will be logged out and returned to the _Welcome_ screen.
  
-===== Access Campaign pages
+=== Access Campaign pages
 The `Campaign` screen is accessible from the Tenant #2 left sidebar.
 The `Campaign` screen allows the user to view current campaign data, update a campaign, and create a new campaign. 
 Refer to  <<Displaying campaign Data>> and <<Configuring and running a campaign>> for more details.
 
-===== Access Series pages
+=== Access Series pages
 The `Series` screen is accessible from the Tenant #2 left sidebar.
 The Series' screen allows the user view current series information, update or duplicate a series, and create a new series.
 
 Refer to  <<Viewing series information>>, <<Creating a series>>, and <<Updating a series>> for more details.
 
-===== Access Admin Functions
-From the Tenant2 screen (if you have `Admin` permissions):
+=== Access Admin Functions
+From the Tenant2 sidebar (if you have `Admin` permissions):
 . Click on the `Admin` button to display the _Users_ screen.
 . Click on a user's name to open the `Update User` window.
 
-From the `Update User` window, user information can be updated and modified and the Roles (permissions) set.
+From the `Update User` window, user information can be updated and modified and the roles (permissions) set.
 
-More options will be available from the Admin area of the GUI in the near future.
+More options will be available from the `Admin` area of the GUI in the near future.
 
-=== Working with campaigns
 
-==== Displaying campaign data
-. Login to QALIPSIS as Tenant #1.
-. Click on Campaign in the left sidebar.
-+
-A table listing all existing and planned campaigns is displayed.
-
-* Click on any column title to sort the table by ascending/descending order.
-* Search for a specific campaign by clicking on the magnifying glass icon near the top right of the screen and entering the name (or partial name) of the campaign.
-
-. Click on the name of a campaign to display the _Campaign details_ page.
-+
-* A report box is displayed at the top of the screen.
-+
-The top line in the report box displays information for the  whole campaign; the following lines display information for each scenario within the campaign.
-
-** Click the `View more` tooltip on the right side of the report box to expand the report box to display all scenarios in the campaign.
-** Click the `More details` tooltip to display the info for the total campaign in a dropdown box.
-** Click on the `Campiagn Summary` dropdown filter to select the scenario information to display in the report box.
-
-* Below the report box, a row of filter cards are displayed with the individual events and meters that are logged for the campaign. Each card includes the Name, Type, and display Color.
-Below the filter cards, a chart is displayed with the x-axis displaying time and the y-axis displaying minion count.
-Select one or more filter cards to display the generated data for the selected filter.
-
-==== Configuring and running a campaign
+== Configuring and running a campaign
 . Click on the `+Campaign` button near the top right of the `Campaign` page.
 +
 A page will open displaying the campaign name, a settings icon, a search field, and a table listing scenarios that are available to run in the campaign.
@@ -109,7 +99,7 @@ A page will open displaying the campaign name, a settings icon, a search field, 
   
 . Select the checkbox to the left of each scenario that you want to include in your campaign. 
 +
-Note that the scenarios displayed have a default configuration.  
+Note that each scenarios listed has a default configuration.  
 +
 If you want to view and/or update the scenario to better suit your test, click on the `Custom Settings`  buttom to the right of the scenario. 
 +
@@ -137,34 +127,47 @@ Weekly runs the campaign on the selected day(s) every week at the previoulsy sel
 +
 Monthly runs the campaign each selected day(s) of every month at the previously selected time. 
 
-=== Working with series
+== Displaying campaign data
 
-==== Viewing and updating series information
+. Login to QALIPSIS as Tenant #1.
+. Click on Campaign in the left sidebar.
++
+A table listing all existing and planned campaigns is displayed.
+
+* Click on any column title to sort the table by ascending/descending order.
+* Search for a specific campaign by clicking on the magnifying glass icon near the top right of the screen and entering the name (or partial name) of the campaign.
+
+. Click on the name of a campaign to display the _Campaign details_ page.
++
+* A report box is displayed at the top of the screen.
++
+The top line in the report box displays information for the  whole campaign; the following lines display information for each scenario within the campaign.
+
+** Click the `View more` tooltip on the right side of the report box to expand the report box to display all scenarios in the campaign.
+** Click the `More details` tooltip to display the info for the total campaign in a dropdown box.
+** Click on the `Campiagn Summary` dropdown filter to select the scenario information to display in the report box.
+
+* Below the report box, a row of filter cards is displayed with the individual events and meters that are logged for the campaign. 
++
+Refer to link:05_steps.adoc[`Step Specifications`] or <<Creating and updating series>> for guidance creating filtering steps. 
++
+Each card includes the Name, Type, and display color.
+
+* Below the row of filter cards, a chart is displayed with the x-axis displaying time and the y-axis displaying minion count.
+
+Select one or more series cards to display the generated data for that series.
+
+== Creating and updating series
+Series are defined events and meters that are logged while a campaign is in progress. 
+You can create a series if your profile has write permissions. 
 You can update a series if you are the owner and/or have write permissions.
+
+* Creating a series
 
 . Login as Tenant #1.
 . Click on `Series` in the left sidebar menu.
 +
-The _Series_ page opens and displays a table listing currently defined series by name, Type…
-. Click on athe name of the series you want to update. 
-+
-The _New series_ modal window opens. 
-. Enter the required data into the appropriate fields.
-. Click on the `Create` button.
-+
-The following text is displayed in the modal window: '[Series Name] has just been created!'. 
-. Close the _New series_ modal window to return to the Series page.  
-+
-The newly created series is displayed in the table.
-
-==== Creating a new series
-You can create a series if your profile has write permissions.
-You can update a series if you are the owner and/or have write permissions.
-
-. Login as Tenant #1.
-. Click on `Series` in the left sidebar menu.
-+
-The _Series_ page opens and displays a table listing currently defined series by name, Type…
+The _Series_ page opens and displays a table listing currently defined series.
 . Click on the ‘+New series’ button near the top right corner of the page.
 +
 The _New series_ modal window opens. 
@@ -173,5 +176,22 @@ The _New series_ modal window opens.
 +
 The following text is displayed in the modal window: '[Series Name] has just been created!'. 
 . Close the  _New series_ modal window to return to the Series page.  
++
+The newly created series is displayed in the table.
+
+* Updating a series
+
+. Login as Tenant #1.
+. Click on `Series` in the left sidebar menu.
++
+The _Series_ page opens and displays a table listing currently defined series.
+. Click on athe name of the series you want to update. 
++
+The _New series_ modal window opens. 
+. Enter the required data into the appropriate fields.
+. Click on the `Create` button.
++
+The following text is displayed in the modal window: '[Series Name] has just been created!'. 
+. Close the _New series_ modal window to return to the Series page.  
 +
 The newly created series is displayed in the table.

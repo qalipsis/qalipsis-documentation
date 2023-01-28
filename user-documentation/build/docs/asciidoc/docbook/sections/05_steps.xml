@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?asciidoc-toc maxdepth="2"?>
+<?asciidoc-numbered?>
+<book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
+<info>
+<title>Step specifications</title>
+<date>2023-01-16</date>
+</info>
+<chapter xml:id="_defining-and-configuring-a-step-specification">
+<title>Defining and configuring a step specification</title>
+<simpara>A step specification is defined, depending on the step nature and function, as either:</simpara>
+<itemizedlist>
+<listitem>
+<simpara>The root of a scenario (the first step after .start()).</simpara>
+<simpara>or</simpara>
+</listitem>
+<listitem>
+<simpara>The successor of a previous step.</simpara>
+</listitem>
+</itemizedlist>
+<simpara>In the example below, <literal>my-tcp</literal> is the root step; <literal>reuse-tcp</literal> is a successor step.</simpara>
+<programlisting language="kotlin" linenumbering="numbered">scenario("hello-netty-udp-world") {
+    minionsCount = 100
+    rampUp {
+        regular(100, minionsCount) // Start all at once.
+    }
+    .start()
+    .netty()
+    .tcp { // This step is the root of the scenario.
+        name = "my-tcp"
+        connect {
+            address("localhost", 3000)
+            noDelay = true
+        }
+        request { tcpRequest1 }
+        metrics { connectTime = true }
+    }
+    .reuseTcp("my-tcp") {
+        name = "reuse-tcp" // This step is a successor of the previos step and receives the previos step's output as its input.
+        iterate(20, Duration.ofMillis(100))
+        request { tcpRequest2 }
+    }
+}</programlisting>
+<simpara>A step specification is configured such that:</simpara>
+<itemizedlist>
+<listitem>
+<simpara>The step receives the configuration closure {} as a parameter (as in <literal>.tcp</literal> and <literal>.reuse-tcp</literal> in the example above).</simpara>
+</listitem>
+<listitem>
+<simpara><literal>.configure</literal> is called after the step as in the example below:</simpara>
+</listitem>
+</itemizedlist>
+<programlisting language="kotlin" linenumbering="numbered">    reuseTcp("my-tcp") {
+        request { tcpRequest2 }
+    }.configure {
+        name = "reuse-tcp"
+        iterate(20, Duration.ofMillis(100))
+        retryPolicy(instanceOfRetryPolicy)
+        timeout(2000)
+    }</programlisting>
+</chapter>
+<chapter xml:id="_step-context">
+<title>Step context</title>
+<simpara>A step context is the mechanism by which:</simpara>
+<itemizedlist>
+<listitem>
+<simpara>Data received from the previous step is transported as input to the next steps. The next steps transform the data and provides it as output. The output is forwarded to the next steps as input.</simpara>
+</listitem>
+<listitem>
+<simpara>Prior errors are transported through a step.</simpara>
+</listitem>
+</itemizedlist>
+</chapter>
+<chapter xml:id="_common-load-distribution-steps">
+<title>Common load distribution steps</title>
+<section xml:id="_fan-out">
+<title>Fan-out</title>
+<simpara>To split a branch and add two or more concurrent steps as successors, execute a <literal>.split</literal>.</simpara>
+<simpara>In the example below, <literal>Anystep</literal> receives the output of the previous step as input. <literal>Anystep</literal> transforms its input per its step configuration. The transformed data is provided as input to both the <emphasis>map</emphasis> and the <emphasis>flatten</emphasis> steps.   The <emphasis>map</emphasis> and the <emphasis>flatten</emphasis> steps each do something different with the data.</simpara>
+<programlisting language="kotlin" linenumbering="numbered">    Anystep { }
+        .split {
+            map { ... }
+                .validate{ ... }
+        }
+            .flatten()
+                .filterNotNull()</programlisting>
+<simpara>A graphical representation of the above example is shown below. Note that both branches run concurrently, in no defined execution order.</simpara>
+<informalexample>
+<simpara>create and include fan-out distribution graphic here&#8594; more like a flowchart</simpara>
+</informalexample>
+<warning>
+<simpara>If the entity returned by the step providing the data before the <literal>.split</literal> (<literal>Anystep()</literal> in the example) is liable to change, do not change it in one branch, as this would have side-effects on the other branch. Consider creating a deep clone of the record that is to be changed to avoid this issue.</simpara>
+</warning>
+</section>
+<section xml:id="_fan-injoins">
+<title>Fan-in/joins</title>
+<simpara>Fan-in/Join functions allow the user to re-join split branches of a scenario or to verify data from different sources.</simpara>
+<simpara>You can join the branches in one of two ways:</simpara>
+<itemizedlist>
+<listitem>
+<simpara>Use the name of a concurrent step.</simpara>
+</listitem>
+<listitem>
+<simpara>Create a step directly in the join.</simpara>
+</listitem>
+</itemizedlist>
+<simpara>The following example uses the name of a concurrent step:</simpara>
+<programlisting language="kotlin" linenumbering="numbered">    Anystep { }
+        .innerJoin&lt;EntityWithKey, EntityWithId&gt;(
+            on = { "${it.key}" },
+            with = "my-datasource-poll-step", // The step `my-datasource-poll-step` is declared in a parallel branch (or earlier in the same branch) and provides an output of type `EntityWithId` with a field `id` being a string in this example.
+            having = { it.id } // Closure to extract the key from the right side, which should match the left side value.
+        )
+        .map { } // The result is a `Pair&lt;EntityWithKey, EntityWithId&gt;` where string representation of `key` of the `EntityWithKey` equals to the field `id` of the `EntityWithId`.</programlisting>
+<simpara>Records coming from the right side are kept in a cache until one comes from the left side with the same key. Once used, they are evicted from the cache.</simpara>
+<simpara>When a flow comes from the left side but has no corresponding record yet coming from the right, it waits until the defined timeout on the step.
+Refer to <xref linkend="_defining-and-configuring-a-step-specification"/> for more details.</simpara>
+<simpara>The step context after the join inherits from the one coming from the left. Below is the graphical representation:</simpara>
+<informalexample>
+<simpara>insert operators-inner-join graphic here</simpara>
+</informalexample>
+<simpara>The following example creates a step directly in the join:</simpara>
+<programlisting language="kotlin" linenumbering="numbered">    Anystep  { }
+        .innerJoin&lt;EntityWithKey, EntityWithId&gt;(
+            on = { "${it.key}" },
+            with = {
+                r2dbc().poll{
+
+                }
+            },
+            having = { it.id }
+        )
+        .map {}</programlisting>
+<simpara>This method is similar to naming a concurrent step except that a step is created in the join. The receiver of the <literal>with</literal> is the scenario.</simpara>
+</section>
+<section xml:id="_error-processing-steps">
+<title>Error processing steps</title>
+<simpara>When an error occurs when executing a step, after all the potential retries, the step context being carried from top to bottom is marked as "exhausted".</simpara>
+<simpara>From that point of the process, only the steps relevant for error processing are executed, the others are simply bypassed.</simpara>
+<simpara>The steps relevant for error processing include:</simpara>
+<itemizedlist>
+<listitem>
+<simpara><literal>catchError</literal>: takes the collection of errors as parameter to process them.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>catchExhaustedContext</literal>: takes the full exhausted step context as parameter, where you can also set the <literal>isExhausted</literal> flag to <literal>false</literal> in order execute next steps.</simpara>
+</listitem>
+</itemizedlist>
+</section>
+</chapter>
+<chapter xml:id="_operators">
+<title>Operators</title>
+<simpara>QALIPSIS provides default operators to tweak the execution of your scenario, that do not require the addition of plugins to your classpath.</simpara>
+<simpara>Out-of-the-box QALIPSIS operators perform a variety of functions including data transformation, data filtering, data verification, altering the behavior of the data, etc. Together with user-defined operators the list of operators is infinite.</simpara>
+<simpara>Some of the commonly used operators are defined in this section.</simpara>
+<section xml:id="_timing-operators">
+<title>Timing operators</title>
+<simpara>This section provides an explanation and examples  of the <literal>delay</literal>, <literal>pace</literal>, <literal>acceleratingPace</literal>, and <literal>constantPace</literal> timing operators.</simpara>
+<itemizedlist>
+<listitem>
+<simpara><literal>delay</literal> adds a constant delay before executing the next step, keeping the same execution pace as previous step.</simpara>
+</listitem>
+</itemizedlist>
+<informalexample>
+<simpara>insert example and create and insert delay graphic here</simpara>
+</informalexample>
+<itemizedlist>
+<listitem>
+<simpara><literal>pace</literal> ensures that the next step is executed at an expected pace, whatever the pace of the input is. The calculation applies independently to each minion.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>acceleratingPace</literal> reduces the waiting interval for each iteration; to slow down the pace, use an accelerator lower than 1.</simpara>
+</listitem>
+</itemizedlist>
+<informalexample>
+<simpara>insert example and create and insert acceleratingPace graphic here</simpara>
+</informalexample>
+<itemizedlist>
+<listitem>
+<simpara><literal>constantPace</literal> applies a constant pace to execute the successor steps.</simpara>
+</listitem>
+</itemizedlist>
+<informalexample>
+<simpara>insert example and create and insert constantPace graphic here</simpara>
+</informalexample>
+</section>
+<section xml:id="_filter-operators">
+<title>Filter operators</title>
+<simpara>This section provides an explanation and examples of the <literal>filter</literal>, <literal>validate</literal>, and <literal>verify</literal> filter operators.</simpara>
+<itemizedlist>
+<listitem>
+<simpara><literal>filter</literal> removes the step contexts having an input not matching the filter specification. Filter is a silent equivalent of validate; it does not generate an error and does not mark the step context as exhausted.</simpara>
+<informalexample>
+<simpara>provide an example and insert <literal>filter(is even)</literal> graphic here</simpara>
+</informalexample>
+</listitem>
+<listitem>
+<simpara><literal>validate</literal> validates the input. If errors are returned, the step context is marked as exhausted and can then only be processed by error processing steps.</simpara>
+<informalexample>
+<simpara>Provide an example and insert <literal>validate(is even)</literal> graphic here</simpara>
+</informalexample>
+</listitem>
+<listitem>
+<simpara><literal>verify</literal> validates assertions rather than the input data quality/safety that is validated by <literal>validate</literal>.</simpara>
+<informalexample>
+<simpara>Provide an example and insert <literal>verify(assetThat(it).isEven())</literal> graphic here</simpara>
+</informalexample>
+</listitem>
+</itemizedlist>
+</section>
+<section xml:id="_transformation-operators">
+<title>Transformation operators</title>
+<simpara>flatThis section provides an explanation and examples  of the <literal>flatMap</literal>, <literal>flatten</literal>, <literal>map</literal>, <literal>mapWithContext</literal>, and <literal>onEach</literal> transformation operators.</simpara>
+<itemizedlist>
+<listitem>
+<simpara><literal>flatMap</literal> converts a collective input into a single element in the output, with a user-defined strategy.</simpara>
+</listitem>
+</itemizedlist>
+<informalexample>
+<simpara>provide an example and insert <literal>flatMap</literal> graphic here</simpara>
+</informalexample>
+<itemizedlist>
+<listitem>
+<simpara><literal>flatten</literal> converts a collective input into a single element in the output for a known collective type (array, iterable, etc.), keeping each item unchanged.</simpara>
+</listitem>
+</itemizedlist>
+<informalexample>
+<simpara>Provide an example and insert <literal>flatten</literal> graphic here</simpara>
+</informalexample>
+<itemizedlist>
+<listitem>
+<simpara><literal>map</literal> converts each element into another element in the output.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>mapWithContext</literal> provides the same capability as <literal>map</literal> but with the step context as an additional argument.</simpara>
+</listitem>
+</itemizedlist>
+<informalexample>
+<simpara>Provide an example of <literal>map</literal> and <literal>mapWithContext</literal>  and insert a graphic here</simpara>
+</informalexample>
+<itemizedlist>
+<listitem>
+<simpara><literal>onEach</literal> executes one or several statements on each element of the input and forwards them unchanged to the output.</simpara>
+</listitem>
+</itemizedlist>
+<informalexample>
+<simpara>Provide an example of <literal>onEach</literal> and insert a graphic here</simpara>
+</informalexample>
+</section>
+<section xml:id="_caching-operators">
+<title>Caching operators</title>
+<simpara>This section provides an explanation and examples of the <literal>shelve</literal> and <literal>unshelve</literal> caching operators.</simpara>
+<itemizedlist>
+<listitem>
+<simpara><literal>shelve</literal> caches the provided values in a shared cache.</simpara>
+<simpara>When using a distributed architecture, make sure the cached value can be serialized by the used implementation of shared state registry. The ID of the minion is automatically added to the key to avoid collision.</simpara>
+<informalexample>
+<simpara>Provide an example of <literal>shelve</literal> and insert a graphic here</simpara>
+</informalexample>
+</listitem>
+<listitem>
+<simpara><literal>unshelve</literal> fetches one or more records from the shared state registry, previously shelved with the provided keys for the same minion.</simpara>
+</listitem>
+</itemizedlist>
+<informalexample>
+<simpara>Provide an example of <literal>unshelve</literal> and insert a graphic here</simpara>
+</informalexample>
+</section>
+<section xml:id="_flow-operators">
+<title>Flow operators</title>
+<simpara>This section provides an explanation and examples of the <literal>pipe</literal>, <literal>blackHole</literal>, and <literal>stage</literal> flow operators.</simpara>
+<itemizedlist>
+<listitem>
+<simpara><literal>pipe</literal> simply forwards the input to the output.</simpara>
+</listitem>
+</itemizedlist>
+<informalexample>
+<simpara>Provide an example of <literal>pipe</literal> and insert a graphic here</simpara>
+</informalexample>
+<itemizedlist>
+<listitem>
+<simpara><literal>blackHole</literal> consumes the input and provides no output.</simpara>
+<informalexample>
+<simpara>Provide an example of <literal>blackhole</literal> and insert a graphic here</simpara>
+</informalexample>
+</listitem>
+<listitem>
+<simpara><literal>stage</literal> groups a linear graph of steps.</simpara>
+<simpara>Stages are not mandatory in a scenario, but provide a convenient way to iterate steps. In the example below, after <literal>flatten()</literal> is completed it repeats 5 times starting at the first map:</simpara>
+</listitem>
+</itemizedlist>
+<screen>    stage("my-stage") {
+        map { it * 3 }
+        .map { arrayOf(it, it + 100) }
+        .flatten()
+    }.configure {
+        iterate(5)
+    }</screen>
+<informalexample>
+<simpara> insert a <literal>stage</literal> graphic here if helpful</simpara>
+</informalexample>
+</section>
+<section xml:id="_combining-operators">
+<title>Combining operators</title>
+<simpara>The most often used combining operator is <literal>collect</literal>.</simpara>
+<simpara><literal>collect</literal> collects inputs across all the minions and releases them as a list within the latest received step context.</simpara>
+<simpara>This operator&#8217;s function is the opposite of <literal>flatten</literal>.</simpara>
+<informalexample>
+<simpara> insert a collect example and a graphic here if helpful</simpara>
+</informalexample>
+</section>
+</chapter>
+</book>

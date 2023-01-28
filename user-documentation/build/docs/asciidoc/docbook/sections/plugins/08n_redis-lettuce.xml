@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?asciidoc-toc maxdepth="2"?>
+<?asciidoc-numbered?>
+<book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
+<info>
+<title>redis-lettuce plugin</title>
+<date>2022-12-18</date>
+</info>
+<chapter xml:id="_redis-lettuce-plugin">
+<title>redis-lettuce plugin</title>
+<simpara>The redis-lettuce plugin connects QALIPSIS to <link xl:href="https://redis.io/">Redis</link>.</simpara>
+<variablelist>
+<varlistentry>
+<term>Technology addressed</term>
+<listitem>
+<simpara>Redis: <link xl:href="https://redis.io/">https://redis.io/</link></simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Dependency</term>
+<listitem>
+<simpara><literal>io.qalipsis:plugin-redis-lettuce</literal></simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Namespace in scenario</term>
+<listitem>
+<simpara><literal>redisLettuce()</literal></simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Client library</term>
+<listitem>
+<simpara>Lettuce: refer to <link xl:href="https://lettuce.io/">Lettuce</link>.</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Supported steps</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><link linkend="_poll-step"><literal>poll</literal></link>: polls the newest data periodically.</simpara>
+</listitem>
+<listitem>
+<simpara><link linkend="_save-step"><literal>save</literal></link>: saves a batch of records generated from the input and step context.</simpara>
+</listitem>
+<listitem>
+<simpara><link linkend="_consume-step"><literal>consume</literal></link>: consumes data from <literal>redis</literal> streams.</simpara>
+</listitem>
+<listitem>
+<simpara><link linkend="_produce-step"><literal>produce</literal></link>: pushes messages to <literal>redis</literal> streams.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+</variablelist>
+<section xml:id="_poll-step">
+<title>Poll step</title>
+<simpara>The <literal>poll</literal> step within the <literal>redis-lettuce</literal> plugin polls the newest records from a <literal>redis</literal> key, with a delay between each execution of polling.</simpara>
+<variablelist>
+<varlistentry>
+<term>Ancestor</term>
+<listitem>
+<simpara>Scenario</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Functionality</term>
+<listitem>
+<simpara>The <literal>poll</literal> step is created only once in a scenario; it is then used throughout the scenario as called.</simpara>
+<itemizedlist>
+<listitem>
+<simpara>The <literal>KeyOrPattern</literal> to be used in the poll is set to one of the following valid values: <literal>scan</literal>, <literal>sscan</literal>, <literal>hscan</literal>, <literal>zscan</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara>The native <literal>redis-lettuce</literal> command is called using the <literal>KeyOrPattern</literal> provided.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Example</term>
+<listitem>
+<programlisting language="kotlin" linenumbering="numbered">.redisLettuce()
+  pollHscan {
+    name = "poll.hscanacl"
+    connection {
+      nodes = “localhost:6379”
+      database = 0
+      redisConnectionType = RedisConnectionType.CLUSTER
+      authPassword = "pass"
+      authUser = "user"
+    }
+    KeyOrPattern("hscan-test-acl")
+    pollDelay(Duration.ofSeconds(1))
+    monitoring {
+      events = false
+      meters = false
+    }
+  }</programlisting>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Notable parameters</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><literal>Connection</literal>(required): specifies the connection parameters.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>redisConnectionType</literal> (required): indicates the connection type as <literal>SINGLE</literal>, <literal>CLUSTER</literal> or <literal>SENTINEL</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>KeyOrPattern</literal> (required): specifies the key or pattern that will be polled after each <literal>pollDelay</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>pollDelay</literal> (required): specifies the delay between query executions.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>broadcast</literal> (optional): specifies the broadcast parameters for the step.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Tips</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara>Use the <literal>poll</literal> step with a join operator when you need to verify the values saved by your tested system in the database.</simpara>
+</listitem>
+<listitem>
+<simpara>In addition to HSCAN (<literal>polllHscan</literal> in the example), the <literal>poll</literal> step also supports the following <literal>redis</literal> commands: SCAN (<literal>pollScan</literal>), SSCAN (<literal>pollSscan</literal>), and ZSCAN (<literal>pollZscan</literal>).</simpara>
+</listitem>
+<listitem>
+<simpara>If <literal>redisConnectionType</literal> is set to <literal>SENTINEL</literal>, the parameter masterId is necessary. For more information, refer to: <link xl:href="https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel">Redis discovery using Redis Sentinel</link>.</simpara>
+</listitem>
+<listitem>
+<simpara>Refer to the  <link xl:href="https://redis.io/docs/">Redis</link> documentation for further parameter and configuration information.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
+<section xml:id="_save-step">
+<title>Save step</title>
+<simpara>The <literal>save</literal> step within the <literal>redis-lettuce</literal> plugin persists a batch of records into <literal>redis</literal>.</simpara>
+<variablelist>
+<varlistentry>
+<term>Ancestor</term>
+<listitem>
+<simpara>Step</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Functionality</term>
+<listitem>
+<simpara>The <literal>save</literal> step&#8217;s input and step context are used to generate a valid <literal>redis</literal> command and the values to complete it; the batch of results is then forwarded to the next step(s). The records are saved individually.</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Example</term>
+<listitem>
+<programlisting language="kotlin" linenumbering="numbered">.redisLettuce().save {
+  name = "save"
+  connection {
+    nodes = “localhost:6379”
+    database = 0
+    redisConnectionType = RedisConnectionType.SINGLE
+    authPassword = "password"
+    authUser = "user"
+  }
+  records { _, _ -&gt;
+    listOf(
+      ValueRecord(
+        key = "key",
+        value = "value"
+      ),
+      HashRecord(
+        key = "hash",
+        value = mapOf("key" to "value")
+      )
+    )
+  }
+  monitoring {
+    events = true
+    meters = true
+  }
+}</programlisting>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Notable parameters</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><literal>Connection</literal>(required): specifies the connection parameters.</simpara>
+<itemizedlist>
+<listitem>
+<simpara><literal>redisConnectionType</literal> (required): indicates the connection type as <literal>SINGLE</literal>, <literal>CLUSTER</literal> or <literal>SENTINEL</literal>.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+<listitem>
+<simpara><literal>records</literal> (required): generates and configures a list of saved records.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Tips</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara>The <literal>save</literal> step supports the following <literal>redis</literal> commands: SET, SADD, HSET, ZADD. The provided command may depend on the context and input value received from the previous step.</simpara>
+</listitem>
+<listitem>
+<simpara>If the <literal>redisConnectionType</literal> is set to <literal>SENTINEL</literal>, the parameter <literal>masterId</literal> is necessary. For more information, refer to <link xl:href="https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel">Redis discovery using Redis Sentinel</link>.</simpara>
+</listitem>
+<listitem>
+<simpara>Refer to the  <link xl:href="https://redis.io/docs/">Redis</link> documentation for further parameter and configuration information.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
+<section xml:id="_consume-step">
+<title>Consume step</title>
+<simpara>The <literal>consume</literal> step within the <literal>redis-lettuce</literal> plugin records data from <literal>redis</literal> streams.</simpara>
+<variablelist>
+<varlistentry>
+<term>Ancestor</term>
+<listitem>
+<simpara>Scenario</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Functionality</term>
+<listitem>
+<simpara>The <literal>consume</literal> step creates a consumer group in a <literal>redis</literal> stream with the provided <literal>connection</literal>, consumer <literal>group</literal> name, and <literal>concurrency</literal>. If <literal>concurrency</literal> is set to 1, records are transmitted sequentially to the next step.</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Example</term>
+<listitem>
+<programlisting language="kotlin" linenumbering="numbered">.redisLettuce()
+  .streamsConsume {
+    name = "consumer"
+    connection {
+      nodes = “localhost:6379”
+      database = 0
+      redisConnectionType = RedisConnectionType.CLUSTER
+      authPassword = "password"
+      authUser = "user"
+    }
+    concurrency(5)
+    group("consumer-test-1")
+    streamKey("test")
+    offset(“FROM_BEGINNING”)
+    monitoring {
+      events = false
+      meters = false
+    }
+  }</programlisting>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Notable parameters</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><literal>connection</literal>(required): configures the connection to Qalipsis.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>redisConnectionType</literal> (required): indicates the connection type as <literal>SINGLE</literal>, <literal>CLUSTER</literal> or <literal>SENTINEL</literal>. The default is <literal>SINGLE</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>concurrency</literal>(required): configures the level of coroutines consuming the Redis streams.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>offset</literal>(required): sets the offset value to <literal>FROM_BEGINNING</literal>, <literal>LAST_CONSUMED</literal> or <literal>LATEST</literal> for each topic and consumer group.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>broadcast</literal> (optional): specifies the broadcast parameters for the step.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>pollDelay</literal> (required): specifies the delay between query executions.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Tips</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara>If <literal>redisConnectionType</literal> is set to <literal>SENTINEL</literal>, the parameter <literal>masterId</literal> is necessary. For more information, refer to: <link xl:href="https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel">Redis discovery using Redis Sentinel</link>.</simpara>
+</listitem>
+<listitem>
+<simpara>If <literal>concurrency</literal> is set to more than 1, the records transmitted to the next step may not be in sequence.</simpara>
+</listitem>
+<listitem>
+<simpara>Refer to the  <link xl:href="https://redis.io/docs/">Redis</link> documentation for further parameter and configuration information.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
+<section xml:id="_produce-step">
+<title>Produce step</title>
+<simpara>The <literal>produce</literal> step within the <literal>redis-lettuce</literal> plugin produces records into the Redis streams.</simpara>
+<variablelist>
+<varlistentry>
+<term>Ancestor</term>
+<listitem>
+<simpara>Step</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Functionality</term>
+<listitem>
+<simpara>The <literal>produce</literal> step produces a batch of records into one or more <literal>redis</literal> stream topics. The record values may be provided by previous step(s).</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Example</term>
+<listitem>
+<programlisting language="kotlin" linenumbering="numbered">.redisLettuce().streamsProduce {
+  name = "producer"
+  connection {
+    nodes = “localhost:6379”
+    database = 0
+    redisConnectionType = RedisConnectionType.CLUSTER
+    authPassword = "password"
+    authUser = "user"
+  }
+  records { _, input -&gt;
+    listOf(
+      LettuceStreamsProduceRecord(
+        key = "producer.test",
+        value = mapOf("test" to input.value.values.first())
+        )
+      )
+  }
+  monitoring {
+    events = true
+    meters = true
+  }
+}</programlisting>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Notable parameters</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><literal>redisConnectionType</literal> (required): sets the connection type as <literal>SINGLE</literal>, <literal>CLUSTER</literal> or <literal>SENTINEL</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>records</literal> (required): generates and configures a list of produced records.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Tips</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara>If <literal>redisConnectionType</literal> is set to <literal>SENTINEL</literal>, the parameter <literal>masterId</literal> is necessary. For more information, refer to: <link xl:href="https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel">Redis discovery using Redis Sentinel</link>.</simpara>
+</listitem>
+<listitem>
+<simpara>Refer to the  <link xl:href="https://redis.io/docs/">Redis</link> documentation for further parameter and configuration information.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
+</chapter>
+</book>

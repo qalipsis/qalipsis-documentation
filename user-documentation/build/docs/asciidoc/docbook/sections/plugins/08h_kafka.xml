@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?asciidoc-toc maxdepth="2"?>
+<?asciidoc-numbered?>
+<book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
+<info>
+<title>kafka plugin</title>
+<date>2022-12-18</date>
+</info>
+<chapter xml:id="_kafka-plugin">
+<title>kafka plugin</title>
+<section xml:id="_overview">
+<title>Overview</title>
+<simpara>The <literal>kafka</literal> plugin connects QALIPSIS to an <link xl:href="https://kafka.apache.org/">APACHE Kafka</link> cluster.</simpara>
+<variablelist>
+<varlistentry>
+<term>Technology addressed</term>
+<listitem>
+<simpara>Kafka: <link xl:href="https://kafka.apache.org/">https://kafka.apache.org/</link></simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Dependency</term>
+<listitem>
+<simpara><literal>io.qalipsis:plugin-kafka</literal></simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Namespace in scenario</term>
+<listitem>
+<simpara><literal>kafka()</literal></simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Client library</term>
+<listitem>
+<simpara>Kafka: refer to <link xl:href="https://kafka.apache.org/">Apache Kafka</link></simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Supported steps</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><link linkend="_consume-step"><literal>consume</literal></link>: consumes data from topics of an Apache Kafka cluster.</simpara>
+</listitem>
+<listitem>
+<simpara><link linkend="_produce-step"><literal>produce</literal></link>: pushes data to topics of the Apache Kafka cluster.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
+<section xml:id="_consume-step">
+<title>Consume step</title>
+<simpara>The <literal>consume</literal> step within the <literal>kafka</literal> plugin polls data from topics of an Apache Kafka cluster and forwards the data to the next step, either in batches or individually.</simpara>
+<simpara>This step is generally used in conjunction with a left join to assert data or inject data into a workflow.</simpara>
+<simpara>The <literal>consume</literal> step supports multithreading (concurrent consumers) using the <literal>concurrency</literal> property.</simpara>
+<variablelist>
+<varlistentry>
+<term>Ancestor</term>
+<listitem>
+<simpara>Scenario</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Functionality</term>
+<listitem>
+<simpara>The <literal>consume</literal> step starts a polling loop for the designated <literal>client</literal>, using the provided subscription <literal>topics</literal> name, or <literal>topicsPattern</literal> and <literal>groupId</literal>. When new records appear, <literal>consume</literal> polls them and sends them to the next step(s).</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Example</term>
+<listitem>
+<programlisting language="kotlin" linenumbering="numbered">kafka().consume {
+   name = "kafka-consumer"
+   bootstrap(bootstrap)
+   topics(testProducerTopic)
+   groupId("kafka-left")
+   pollTimeout(100)
+   offsetReset(OffsetResetStrategy.EARLIEST)
+}</programlisting>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Notable parameters</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><literal>bootstrap</literal>: configures the bootstrap hosts of the <literal>Kafka</literal> cluster; defaults to localhost:9092.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>groupId</literal>: defines the consumer group.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>pollTimeout</literal> defines the consumer poll timeout to wait for records; defaults to 1 second.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>offsetReset</literal> (required): defines the strategy to apply when the consumer starts consuming messages from the queue.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>maxPolledRecords</literal>: defines the maximum number of records returned in a unique poll batch; defaults to 500.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>pollDelay</literal> (required): specifies the delay between query executions.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>broadcast</literal> (optional): specifies the broadcast parameters for the step.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Tips</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara>Use the <literal>consume</literal> step with a left join to assert data or inject data into a workflow.</simpara>
+</listitem>
+<listitem>
+<simpara>Valid <literal>offsetReset</literal> strategies are:</simpara>
+<itemizedlist>
+<listitem>
+<simpara><literal>OffsetResetStrategy.EARLIEST</literal>: starts consuming messages from the beginning of the queue.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>OffsetResetStrategy.LATEST</literal>: starts consuming messages when the  consumer starts, ignoring all previous messages in the queue.</simpara>
+<simpara><literal>OffsetResetStrategy.LATEST</literal> is the default.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+<listitem>
+<simpara>Refer to the <link xl:href="https://kafka.apache.org/">APACHE KAFKA</link> documentation for further parameter and configuration information.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
+<section xml:id="_produce-step">
+<title>Produce step</title>
+<simpara>The <literal>produce</literal> step within the <literal>kafka</literal> plugin pushes data onto topics of the Kafka broker and forwards the data as input to the next step.</simpara>
+<variablelist>
+<varlistentry>
+<term>Ancestor</term>
+<listitem>
+<simpara>Scenario</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Functionality</term>
+<listitem>
+<simpara>The <literal>produce</literal> step&#8217;s input and step context are used to generate values to complete the step. The batch of results, or a single result, is then forwarded to the next step(s).</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Example</term>
+<listitem>
+<programlisting language="kotlin" linenumbering="numbered">kafka().produce(
+   Serdes.ByteArray().serializer(),
+   Serdes.String().serializer()
+) {
+   name = "kafka-producer"
+   bootstrap(bootstrap)
+   clientName("producer")
+   records { _, input -&gt;
+       listOf(
+           KafkaProducerRecord(
+               topic = producerTopic,
+               value = "Produced ${input.record.value!!}"
+           )
+       )
+   }
+        monitoring {
+            events = true
+            meters = false
+        }
+}</programlisting>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Notable parameters</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><literal>Serdes.ByteArray().serializer()</literal>: describes how to serialize the record keys to send  to <literal>kafka</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>Serdes.String().serializer()</literal>: describes how to serialize the record values to send to <literal>kafka</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>bootstrap</literal> configures the bootstrap hosts of the Kafka cluster; defaults to <literal>localhost:9092</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>clientName</literal> defines the name of the <literal>kafka</literal> client</simpara>
+</listitem>
+<listitem>
+<simpara><literal>records</literal> (required): generates and configures a list of produced records.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Tip</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara>Refer to the <link xl:href="https://kafka.apache.org/documentation/">APACHE KAFKA</link> documentation for further parameter and configuration information.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
+</chapter>
+</book>

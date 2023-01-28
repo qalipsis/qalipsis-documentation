@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?asciidoc-toc maxdepth="2"?>
+<?asciidoc-numbered?>
+<book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
+<info>
+<title>Introduction</title>
+<date>2023-01-16</date>
+</info>
+<chapter xml:id="_overview">
+<title>Overview</title>
+<simpara>QALIPSIS is an enterprise-grade load and performance-testing tool especially designed for distributed systems. It is a step above other load test applications that merely evaluate your system internally.</simpara>
+<itemizedlist>
+<listitem>
+<simpara>QALIPSIS is developer-centric with a low learning curve that makes it easy to use and extremely efficient.</simpara>
+</listitem>
+<listitem>
+<simpara>QALIPSIS is developed in Kotlin to gain the benefits of the Java ecosystem and provide seamless system performance.</simpara>
+</listitem>
+<listitem>
+<simpara>The basic out-of-the box QALIPSIS tool is completely free of charge.</simpara>
+<simpara>Commercial-licensed-based plugins, the cloud-based application, and other premium extensions are not included in the basic out-of-the box QALIPSIS tool.</simpara>
+</listitem>
+<listitem>
+<simpara>QALIPSIS is designed to test the performance of distributed and monolithic systems.</simpara>
+</listitem>
+<listitem>
+<simpara>QALIPSIS collects data from operating systems, databases, and monitoring tools.</simpara>
+</listitem>
+<listitem>
+<simpara>QALIPSIS cross-checks system metrics and performs data verification to ensure that the test systems is performing as expected.</simpara>
+</listitem>
+</itemizedlist>
+</chapter>
+<chapter xml:id="_features">
+<title>Features</title>
+<section xml:id="_user-friendly-interface">
+<title>User-friendly interface</title>
+<simpara>The QALIPSIS Graphical User Interface (GUI) allows users, depending on their role, to configure and run load tests with capabilities including, but not limited to:</simpara>
+<itemizedlist>
+<listitem>
+<simpara>Start/Stop</simpara>
+</listitem>
+<listitem>
+<simpara>Configure the Load Distribution</simpara>
+</listitem>
+<listitem>
+<simpara>Increase/Decrease the Number of Simulated Users</simpara>
+</listitem>
+<listitem>
+<simpara>View Reports</simpara>
+</listitem>
+<listitem>
+<simpara>Schedule a Test</simpara>
+</listitem>
+</itemizedlist>
+</section>
+<section xml:id="_automation-friendly-performance-verification">
+<title>Automation friendly performance verification</title>
+<simpara>Using the Command Line Interface (CLI) or the Gradle plugin, you can automatically and repeatedly verify the condition and performance of your system.</simpara>
+</section>
+<section xml:id="_developer-friendly-plug-ins">
+<title>Developer friendly plug-ins</title>
+<simpara>Downloading a ready-to-use project for your IDE is made easier on QALIPSIS, consequently integrating with popular DevOps tools to test your software and track the impact of recent changes.</simpara>
+</section>
+<section xml:id="_aggregated-assertions">
+<title>Aggregated assertions</title>
+<simpara>Aggregated assertions allow you to verify the overall results on a scenario. You can define thresholds to make a test succeed or fail and immediately get insights about the performance and consistency of your tested system.</simpara>
+</section>
+<section xml:id="_testing-performance-and-geographical-distribution">
+<title>Testing, performance, and geographical distribution</title>
+<itemizedlist>
+<listitem>
+<simpara>QALIPSIS can test distributed systems.</simpara>
+</listitem>
+<listitem>
+<simpara>QALIPSIS can perform as a distributed system.</simpara>
+</listitem>
+<listitem>
+<simpara>QALIPSIS can simulate load from several geographic locations to run comparisons based on location.</simpara>
+</listitem>
+</itemizedlist>
+</section>
+<section xml:id="_live-results">
+<title>Live results</title>
+<simpara>QALIPSIS events and meters provide extended details of load-test operations, providing users with various options for accessing the results. The results visualizations and dashboards, with details of each test-case execution, provide valuable insight for identifying the bottlenecks in your applications and uncovering the components and conditions of failures.</simpara>
+</section>
+<section xml:id="_concurrent-load-simulations">
+<title>Concurrent load simulations</title>
+<simpara>QALIPSIS simulates the load from thousands to millions of users (e.g., website visitors, connected IoT devices, etc.) and cross-verifies successive values from different sources including requests, responses, infrastructure metrics, messaging platforms and databases.</simpara>
+</section>
+<section xml:id="_operating-system-independent">
+<title>Operating system independent</title>
+<simpara>QALIPSIS load and performance testing can be performed from any operating system supporting Java with the same impressive results.</simpara>
+</section>
+</chapter>
+<chapter xml:id="_benefits">
+<title>Benefits</title>
+<simpara>QALIPSIS was designed with distributed systems and current developer practices in mind. It provides a testing framework to allow developers to work in a real-world environment, writing and running load tests without a steep learning curve.</simpara>
+<section xml:id="_for-developers">
+<title>For developers</title>
+<simpara>QALIPSIS empowers developers to:</simpara>
+<itemizedlist>
+<listitem>
+<simpara>Choose their own testing tools and preferred programming language for writing load-test scenarios.</simpara>
+</listitem>
+<listitem>
+<simpara>Cross-verify data from different sources: bring responses to requests, infrastructure metrics, middleware events and database records in the same port to compare them and verify that they match your expectations.</simpara>
+</listitem>
+<listitem>
+<simpara>Unlock the full power of the Java ecosystem by making use of any library, protocol or system.</simpara>
+</listitem>
+<listitem>
+<simpara>Reuse pieces of their own software to faster develop scenarios.</simpara>
+</listitem>
+<listitem>
+<simpara>Simulate users, third-party software and IoT devices.</simpara>
+</listitem>
+<listitem>
+<simpara>Simulate real-user and device behavior to make load tests more relevant.</simpara>
+</listitem>
+<listitem>
+<simpara>Generate detailed and relevant results by using distributed tracing markers to follow the complete execution workflow from end to end.</simpara>
+</listitem>
+<listitem>
+<simpara>Customize reports and dashboards.</simpara>
+</listitem>
+<listitem>
+<simpara>Perform tests on development machines, containers and virtual machines with excellent results.</simpara>
+</listitem>
+<listitem>
+<simpara>Integrate their standard DevOps workflow for performance testing before the deployment of health checks on production environments.</simpara>
+</listitem>
+<listitem>
+<simpara>Create a scenario in just a few minutes by enabling utilization of any Java library of choice (such as JUnit, Hamcrest, AssertJ) or pieces of software or proprietary libraries.</simpara>
+</listitem>
+<listitem>
+<simpara>Test non-http technologies using numerous plug-ins, such as databases and messaging platforms.</simpara>
+</listitem>
+</itemizedlist>
+</section>
+<section xml:id="_for-it-operations-teams">
+<title>For IT operations teams</title>
+<simpara>QALIPSIS provides IT Operations teams solutions to:</simpara>
+<itemizedlist>
+<listitem>
+<simpara>Monitor how deployments and other IT operations can affect the availability and overall performance of the system.</simpara>
+</listitem>
+<listitem>
+<simpara>Expose bottlenecks and find correlations between load and resource consumption by unifying the verification of load-test and infrastructure metrics.</simpara>
+</listitem>
+<listitem>
+<simpara>Identify issues before users and customers do by verifying the size and configuration of the system&#8217;s infrastructure.</simpara>
+</listitem>
+<listitem>
+<simpara>Examine how the system performs during normal and peak loads by running load tests from different geographic locations at varying times.</simpara>
+</listitem>
+<listitem>
+<simpara>Generate exceptional results on virtual engines, containers and conventional development machines.</simpara>
+</listitem>
+<listitem>
+<simpara>Allow for implementation and integration of verifications in their standard DevOps workflow.</simpara>
+</listitem>
+</itemizedlist>
+</section>
+</chapter>
+</book>
