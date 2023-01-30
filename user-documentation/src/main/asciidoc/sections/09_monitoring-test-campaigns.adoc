@@ -1,4 +1,4 @@
-= Monitoring a test campaign
+= Monitoring Test Campaigns
 
 == Overview
 QALIPSIS aims at giving insights of the behavior of the tested system, from a performance perspective.
@@ -7,8 +7,8 @@ Those insights are provided to the users via dashboards and detailed values desc
 
 == Definitions
 * <<Meters,Meters>>
+* <<Step Execution Meters, Step Execution Meters>>
 * <<Events,Events>>
-* <<Step execution meters, Step execution meters>>
 
 === Meters
 Behaviors and Results Reported via the Campaign Dashboard
@@ -45,10 +45,8 @@ Note: the suffices below are proposed with -documents which has to be adapted to
 
 . When the operation is not to save but push records, you can replace the save word by a more adequate one, like produce, push,… and the same applies received.
 
-=== Events
-*To be provided*.
 
-=== Step execution meters
+=== Step Execution Meters
 In QALIPSIS, each step generates a different kinds of metadata, to supply different level of details on the overall behavior and performances of the system.
 
 The highest level is built upon meters, using the library Micrometer Application Monitoring . You can read more in the official documentation. Long story made short, the meters represent the behavior or performance of a step or operation, over a short period of time which depends on the configuration. The shorter, the more data will be saved into the time-series database. Those values can then only be fetched and reported from the time-series database where they were saved. They are not available as such in a QALIPSIS scenario. In QALIPSIS, the Micrometer meters (Counters, Timers, Gauges) are attached to a single campaign and should be created and removed according to the campaign lifecycle. More on that in the dedicated section below.
@@ -59,7 +57,7 @@ Meters and events have in common that they can be tagged, which allows to specif
 
 The most detail of insights is made of the step execution meters. Those values are primitive values and Java durations, that are directly provided as an output from a step to another. They make it possible to verify the performances and the success of an operation directly in the scenario, in order to decide whether next steps should be executed or not.
 
-:mag: Meters
+:mag: ​Meters
 The meters are generated using Micrometer Application Monitoring, which claims to be the “slf4j” for monitoring. And actually, this allows to very easily generates meters and publish them on a regular basis into a time-series database. When published, the values collected in the meantime are aggregated into averages, maximum and minimum. 
 
 Those meters can later be directly queried from the database or displayed into dashboards. To allow a maximal relevance, the meters have to be linked to the context of their measurement: name of scenario, campaign, step.
@@ -71,7 +69,8 @@ The name of a meter is a dash-separated string, made of three parts:
 * The name of the plugin (cassandra, elasticsearch, redis-lettuce).
 * The type of the step (save, search, poll).
 * The suffix of the meter, as explained in the next section.
-(source,kotlin,linenumbers)
+
+[source,kotlin,linenumbers]
 ----
 private val eventPrefix = "cassandra.save"
 private val meterPrefix = "cassandra-save"
@@ -106,10 +105,10 @@ override suspend fun stop(context: StepStartStopContext) {
     }
 }
 ----
-In the example above, you can see that the meters are nullable and only created when the meterRegistry of type io.micrometer.core.instrument.MeterRegistry is not null - injected in the step constructor, when converter the specification to a step, only if the configuration flag metersis set to true. The tags are passed from the start and stop context onto the identification of the meters to allow their search, aggregation and analysis relatively to different dimensions (step, campaign, scenario). When the step is stopped, the meters have to be removed from the meter registry to avoid them to be further published.
+In the example above, you can see that the meters are nullable and only created when the meterRegistry of type io.micrometer.core.instrument.MeterRegistry is not null - injected in the step constructor, when converter the specification to a step, only if the configuration flag meter is set to true. The tags are passed from the start and stop context onto the identification of the meters to allow their search, aggregation and analysis relatively to different dimensions (step, campaign, scenario). When the step is stopped, the meters have to be removed from the meter registry to avoid them to be further published.
 
 ==== What should be measured?
-Generally, the following items need to be measured:
+Generally, the following things have to be measured:
 
 * Request based operations (HTTP, TCP,…)
 ** Each request to be sent with the suffix -sending-request
@@ -142,7 +141,7 @@ Note: the suffices below are proposed with -documents which has to be adapted to
 * When the operation is not to save but push records, you can replace the save word by a more adequate one, like produce, push,… and the same applies received.
 
 :microscope: Events
-The events are logged using an instance of io.qalipsis.api.events.EventsLogger the step - injected in the step constructor, when converter the specification to a step, only if the configuration flag eventsis set to true.
+The events are logged using an instance of io.qalipsis.api.events.EventsLogger the step - injected in the step constructor, when converter the specification to a step, only if the configuration flag event is set to true.
 
 The name of a meter is a dot-separated string, made of three parts:
 
@@ -229,9 +228,9 @@ Below are suggestions for the names of the fields.
 ** timeToFailure
 ** timeToFirstByte
 ** timeToLastByte
-** timeToSuccesfullConnection
+** timeToSuccessfulConnection
 ** timeToFailedConnection
-** timeToSuccesfullHandshake
+** timeToSuccessfulHandshake
 ** timeToFailedHandshake
 
 * Counters
@@ -283,5 +282,6 @@ MyStep(
   meterRegistry = supplyIf(spec.monitoringConfig.meters) { meterRegistry }
 )
 ----
-
  
+=== Events
+Event Descriptions and information will be provided in the near future.
