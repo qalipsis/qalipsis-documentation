@@ -17,41 +17,41 @@ The following topics are discussed in this section:
 * <<Displaying campaign data>>
 
 == Logging in to QALIPSIS
-. Navigate to the QALIPSIS Welcome page (https://alpha.qalipsis.io)
+
+image::GUI\Tenant-select-Login.jpg[float="right"]
+
+. Navigate to the QALIPSIS Welcome page according to the installation details provided by your administrator.
++
+QALIPSIS Cloud is available at https://app.qalipsis.io.
 . Enter your Username and Password.
 +
-Select the tenant to use from the drop down box.
+If your user profile is eligible for several organizations, select the tenant to use from the drop down box.
 +
-* Tenant#1 allows access to the _Campaign_  and _Series_ pages.
-* Tenant#2 allows access to the _Admin_ pages.
-+
-. Click on 'Submit' to log into QALIPSIS.
-
-image::GUI\Tenant-select-Login[align="center"]
+. Click btn:[Submit] to log into QALIPSIS.
 
 *Notes*::
 
-* If a Tenant selection message is not displayed, you will be logged in to QALIPSIS  with the tenant you were using in your most recent login.
-* You can can select a different tenant at any time that you are logged into QALIPSIS.
+* If a Tenant selection message is not displayed, you will be logged in to QALIPSIS with the tenant you were using in your most recent login.
+* You can can select a different tenant at any time that you are logged into QALIPSIS, using the bottom-left panel.
 
 == Navigating QALIPSIS
-When you log into QALIPSIS, the _Home_ page of the GUI and a left sidebar is displayed.
+When you log into QALIPSIS, the _Home_ page of the GUI and a left sidebar are displayed.
 
 === Left Sidebar
-* Near the top of the sidebar, a menu is displayed.  The contents of the menu depends on the tenant you are currently using and your profile permissions.
+* Near the top of the sidebar, a menu is displayed. The contents of the menu depends on your profile permissions.
 +
-image::GUI\tenant-sidebars.jpg[align="center"]
+image::GUI\tenant-sidebars-resized.jpg[float="right"]
 +
-From the displayed menu you several options.
+From the displayed menu you have several options.
 
 ** <<Access campaign information and functions>>
 ** <<Access Series information and functions>>
 ** <<Access administrative functions>>
 +
-* Near the bottom of the sidebar, your user name are displayed with your current tenant. 
+* Near the bottom of the sidebar, your user name is displayed with your current tenant. 
 Click  on the your name to display the _Tenant Modal_ window.
 
-image::GUI\tenant-modal-window.jpg[align="center"]
+image::GUI\tenant-modal-window-resized.jpg[align="center"]
 
 From the _Tenant Modal_ you have a few options.
 
@@ -65,8 +65,7 @@ Note:: The left sidebar remains displayed throughout your session.
 === Change to a different tenant
 . Click on your name near the bottom of the sidebar to open the _Tenant Modal_ window. 
 . Select an available tenant to use for the current session.
-** With Tenant #1 selected, the _Campaign_ and _Series_ screens are accessible by clicking on the appropriate link near the top of the sidebar.
-** With Tenant #2 selected, the `Admin` area of the interface is accessible (if you have `Admin` permissions).
+
 
 === View/Update Your profile
 . Click on your name at the bottom of the left sidebar to open the  _Tenant Modal_ window.
@@ -82,17 +81,17 @@ image::GUI\ggllcprofile.jpg[align="center"]
 . Click on `My profile` to open the _My Profile_ page.
 . Click on `Change password`.
 . Enter your new password in the `New Password` and `Comfirm Password` fields.
-. Click om `Save changes` to save your new password. 
+. Click on `Save changes` to save your new password. 
 
 === Logout 
 . Click on your name at the bottom of the left sidebar to open the _Tenant Modal_ window.
 . Click on the `settings` icon.
-. Click the *Logout* button.
+. Click the btn:[Logout] button.
 You will be logged out and returned to the _Welcome_ screen.
  
 === Access campaign information and functions 
-The `Campaign` page is accessible from the Tenant #1 left sidebar.
-From the `Campaign` page, you can view current campaign data, update a campaign, and create a new campaign. 
+The `campaign page is accessible from the left side bar.
+From the `Campaign` page, you can view current or past campaign data and create a new campaign. 
 
 Further details are provided later in this documentation.
 
@@ -100,10 +99,10 @@ Further details are provided later in this documentation.
 * <<Displaying campaign data>> 
 
 === Access Series information and functions
-The `Series` screen is accessible from the Tenant #1 left sidebar.
+The `Series` screen is accessible from the left sidebar.
 The Series' screen allows the user view current series information, update or duplicate a series, and create a new series.
 
-image::GUI\seriespage.jpg[align="center"]
+image::GUI\series-page-resized.jpg[align="center"]
 
 Further details are provided later in this documentation.  
 
@@ -112,26 +111,28 @@ Further details are provided later in this documentation.
 * <<Updating a series>> 
 
 === Access administrative functions  
-From the Tenant2 sidebar (if you have `Admin` permissions):
+From the left sidebar (if you have `Admin` permissions):
 
-. Click on the *Admin* button to display the _Users_ screen.
+. Click on *Admin* to display the _Users_ screen.
 . Click on a user's name to open the _Update User_ window.
 
 From the _Update User_` window, user information can be updated and modified and roles (permissions) set.
 
 More options will be available from the Admin` area of the GUI in the near future.
 
-image::GUI\userspage.jpg[align="center"]
+image::GUI\userspage-resized.jpg[align="center"]
 
 == Working with series data and filters
 Series are defined events and meters that are logged while a campaign is in progress.
 
 * The logged events and meters can be graphically displayed 
 * You can create a series if your profile has write permissions. 
-* You can update a series if you are the owner and/or have write permissions.
+* You can update a series if one of the following is true.
+** You are the owner
+** The owner has shared it in write mode and you have write permissions.
 
 === Creating a series
-From the Tenant #1 sidebar:
+From the Tenant sidebar:
 
 . Click on `Series` to open the _Series_ page.
 +
@@ -139,12 +140,14 @@ The _Series_  page displays a table listing currently defined series.
 +
 image::GUI\seriespage.jpg[align="center"]
 +
-. Click on the *+New serie*s button near the top right corner of the page.
+. Click the btn:[+New series] button near the top right corner of the page.
 +
 The _New series_ modal window opens. 
 . Enter the required data into the appropriate fields.
++
+Note that only numeric fields can be used with an operation. The the other types, only the count of provided values can be configured.
   
-. Click on the *Create* button.
+. Click the btn:[Create] button.
 +
 The following text is displayed in the modal window: '[Series Name] has just been created!'. 
 . Close the  _New series_ modal window to return to the Series page.  
@@ -152,7 +155,6 @@ The following text is displayed in the modal window: '[Series Name] has just bee
 The newly created series is displayed in the table.
 
 === Updating a series
-. Login as Tenant #1.
 . Click on *Series* in the left sidebar menu.
 +
 The _Series_ page opens and displays a table listing currently defined series.
@@ -160,12 +162,12 @@ The _Series_ page opens and displays a table listing currently defined series.
 +
 The _Update series_ modal window opens. 
 . Enter the required data into the appropriate fields.
-. Click on the *Update* button.
+. Click the btn:[Update] button.
 . Close the _Update series_ modal window to return to the Series page.  
 
 == Configuring and running a campaign
 
-. Click on the *+Campaign* button near the top right of the `Campaign` page.
+. Click the btn:[+Campaign] button near the top right of the `Campaign` page.
 +
 The New Campaign window will open displaying the campaign name, a settings icon, a search field, and a table listing scenarios that are available to run in the campaign.
 
@@ -177,16 +179,14 @@ image::GUI\new-campaign.jpg[align="center"]
 +
 Each scenario has a default configuration.  
 +
-. To configure a scenario to better suit your specific test, click on the *Configure* button to the right of the scenario. 
+. To configure a scenario to better suit your specific requirements, click the btn:[Configure] button to the right of the scenario. 
 
 . Update the fields on the _Scenario Configuration_ window.
 . Click  *Apply* and close the window. 
 +
 Scenario changes are saved for the current campaign and do not affect the scenario's default settings.
 
-. Choose when you want to run your campaign.
-
-* Click the *Run immediately* button to start the campaign immediately with the the default run-time configuration. 
+. Click the btn:[Run immediately] button to start the campaign. 
 +
 Campaign data is displayed in real-time in the report window and on the time-series chart.
 
@@ -195,29 +195,9 @@ Campaign data is displayed in real-time in the report window and on the time-ser
 
 image::GUI\Checkout-stresstest campaign details.jpg[align="center"]
 
-* Click on the arrow next to the *Run immediately* button to configure custom runtimes. 
-+ 
-The `custom running` modal window opens.
-
-**  Select the date you want to start the campaign using the date picker tool. 
-+ 
-The date format is [Month dd, yyyy]
-**Select the time zone for the campaign start time from the  ‘Time zone’ dropdown.
-+
-The time zone format is [(UTC+hh:mm) Continent/ City].
-
-** If you want the campaign to run more than once, select a frequency from the [Frequency] drop down. 
-+
-*** The frequency options are `Daily`, `Weekly`, and `Monthly`.
-+ 
-*** `Daily` runs the campaign at the previously selected time each day.
-+
-*** `Weekly` runs the campaign on the selected day(s) every week at the previously selected time of day.
-+
-*** `Monthly` runs the campaign each selected day(s) of every month at the previously selected time. 
 
 == Displaying campaign data
-. Login to QALIPSIS as Tenant #1.
+. From the left sidebar:
 . Click on *Campaign* in the left sidebar.
 +
 A table listing all existing and planned campaigns is displayed.
@@ -237,7 +217,7 @@ The top line in the report box displays information for the  whole campaign; the
 
 * Below the report box, a row of filter cards is displayed with the individual events and meters that are logged for the campaign. 
 +
-Refer to link:05_steps.adoc[`Step Specifications`] or <<Creating and updating series>> for guidance creating filtering steps. 
+Refer to link:05_steps.adoc[`Step Specifications`] or <<Creating a series>> for guidance creating filtering steps. 
 +
 Each card includes the Name, Type, and display color.
 
