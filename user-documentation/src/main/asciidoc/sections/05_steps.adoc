@@ -176,7 +176,7 @@ Provide an example and insert `validate(is even)` graphic here
 Provide an example and insert `verify(assetThat(it).isEven())` graphic here
 
 === Transformation operators
-flatThis section provides an explanation and examples  of the `flatMap`, `flatten`, `map`, `mapWithContext`, and `onEach` transformation operators.
+This section provides an explanation and examples  of the `flatMap`, `flatten`, `map`, `mapWithContext`, and `onEach` transformation operators.
 
 * `flatMap` converts a collective input into a single element in the output, with a user-defined strategy.
 

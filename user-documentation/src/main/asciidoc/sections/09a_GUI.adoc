@@ -18,9 +18,6 @@ The following topics are discussed in this section:
 * <<Displaying campaign data>>
 
 == Logging in to QALIPSIS
-
-image::GUI\Tenant-select-Login.jpg[float="right"]
-
 . Navigate to the QALIPSIS Welcome page according to the installation details provided by your administrator.
 +
 QALIPSIS Cloud is available at https://app.qalipsis.io.
@@ -41,8 +38,6 @@ When you log into QALIPSIS, the _Home_ page of the GUI and a left sidebar are di
 === Left Sidebar
 * Near the top of the sidebar, a menu is displayed. The contents of the menu depends on your profile permissions.
 +
-image::GUI\tenant-sidebars-resized.jpg[float="right"]
-+
 From the displayed menu you have several options.
 
 ** <<Access campaign information and functions>>
@@ -51,9 +46,7 @@ From the displayed menu you have several options.
 +
 * Near the bottom of the sidebar, your user name is displayed with your current tenant. 
 Click  on the your name to display the _Tenant Modal_ window.
-
-image::GUI\tenant-modal-window-resized.jpg[align="center"]
-
++
 From the _Tenant Modal_ you have a few options.
 
 ** <<Change to a different tenant>>
@@ -67,14 +60,11 @@ Note:: The left sidebar remains displayed throughout your session.
 . Click on your name near the bottom of the sidebar to open the _Tenant Modal_ window. 
 . Select an available tenant to use for the current session.
 
-
 === View/Update Your profile
 . Click on your name at the bottom of the left sidebar to open the  _Tenant Modal_ window.
 . Click on the `settings` icon.
 . Click on `My profile` to open the _My Profile_ page.
 . Make changes to your profile and click on `Save changes`.
-
-image::GUI\ggllcprofile.jpg[align="center"]
 
 === Change your password
 . Click on your name at the bottom of the left sidebar to open the  _Tenant Modal_ window.
@@ -100,10 +90,9 @@ Further details are provided later in this documentation.
 * <<Displaying campaign data>> 
 
 === Access Series information and functions
+Series are data sets that are preconfigured to monitor and display relevant campaign data.
 The `Series` screen is accessible from the left sidebar.
 The Series' screen allows the user view current series information, update or duplicate a series, and create a new series.
-
-image::GUI\series-page-resized.jpg[align="center"]
 
 Further details are provided later in this documentation.  
 
@@ -121,10 +110,8 @@ From the _Update User_` window, user information can be updated and modified and
 
 More options will be available from the Admin` area of the GUI in the near future.
 
-image::GUI\userspage-resized.jpg[align="center"]
-
 == Working with series data and filters
-Series are defined events and meters that are logged while a campaign is in progress.
+Series are data sets that are preconfigured to monitor and display relevant campaign data.
 
 * The logged events and meters can be graphically displayed 
 * You can create a series if your profile has write permissions. 
@@ -138,8 +125,6 @@ From the Tenant sidebar:
 . Click on `Series` to open the _Series_ page.
 +
 The _Series_  page displays a table listing currently defined series.
-+
-image::GUI\seriespage.jpg[align="center"]
 +
 . Click the btn:[+New series] button near the top right corner of the page.
 +
@@ -172,7 +157,6 @@ The _Update series_ modal window opens.
 +
 The New Campaign window will open displaying the campaign name, a settings icon, a search field, and a table listing scenarios that are available to run in the campaign.
 
-image::GUI\new-campaign.jpg[align="center"]
 
 . Optionally, rename the campaign by hovering over the `New Campaign` title and selecting the pen icon to edit the name.
   
@@ -193,9 +177,6 @@ Campaign data is displayed in real-time in the report window and on the time-ser
 
 ** Minion count is displayed by default.
 ** Select one or more series cards to display the generated data for that series.
-
-image::GUI\Checkout-stresstest campaign details.jpg[align="center"]
-
 
 == Displaying campaign data
 . From the left sidebar:
@@ -226,4 +207,3 @@ Each card includes the Name, Type, and display color.
 
 Select one or more series cards to display the generated data for that series.
 
-image::GUI\Checkout-stresstest campaign details.jpg[align="center"]

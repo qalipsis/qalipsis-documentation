@@ -8,7 +8,6 @@ Those insights are provided to the users via dashboards and detailed values desc
 == Definitions
 * <<Meters,Meters>>
 * <<Step Execution Meters, Step Execution Meters>>
-* <<Events,Events>>
 
 === Meters
 Behaviors and Results Reported via the Campaign Dashboard
@@ -283,5 +282,3 @@ MyStep(
 )
 ----
  
-=== Events
-Event Descriptions and information will be provided in the near future.
