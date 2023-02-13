@@ -53,6 +53,10 @@ include::{includedir}/sections/09_monitoring-test-campaigns.adoc[]
 
 <<<<
 
+include::{includedir}/sections/09a_GUI.adoc[]
+
+<<<<
+
 include::{includedir}/sections/10_glossary.adoc[]
 
 <<<<
