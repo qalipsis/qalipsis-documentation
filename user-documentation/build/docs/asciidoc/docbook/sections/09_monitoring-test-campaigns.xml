@@ -4,82 +4,83 @@
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
 <title>Monitoring Test Campaigns</title>
-<date>2023-01-30</date>
+<date>2023-02-13</date>
 </info>
 <chapter xml:id="_overview">
 <title>Overview</title>
-<simpara>QALIPSIS aims at giving insights of the behavior of the tested system, from a performance perspective.</simpara>
-<simpara>Those insights are provided to the users via dashboards and detailed values describing the performed operations.</simpara>
+<simpara>QALIPSIS aims at giving insights about the behavior of the tested system from a performance perspective.</simpara>
+<simpara>The insights are provided to users by way of dashboards and detailed values describing the performed operations.</simpara>
 </chapter>
 <chapter xml:id="_definitions">
 <title>Definitions</title>
+<simpara>In QALIPSIS, each step generates different kinds of metadata that supply different levels of detail
+about the behavior and performances of the system.</simpara>
 <itemizedlist>
 <listitem>
-<simpara><link linkend="_meters">Meters</link></simpara>
+<simpara>The highest level of detail is built on <link linkend="_meters">meters</link>, using the <link xl:href="http://micrometer.io">Micrometer Application Monitoring</link> library.</simpara>
+<simpara>In essence, meters represent the behavior or performance of a step or operation over a short period of time as defined in  the meter&#8217;s configuration.</simpara>
+<itemizedlist>
+<listitem>
+<simpara>The shorter the time period that a meter represents, the more data will be saved into the time-series database.</simpara>
 </listitem>
 <listitem>
-<simpara><link linkend="_step-execution-meters">Step Execution Meters</link></simpara>
+<simpara>The data can only be fetched and reported from the time-series database where they were saved. They are not available  in a QALIPSIS scenario.</simpara>
 </listitem>
 <listitem>
-<simpara><link linkend="_events">Events</link></simpara>
+<simpara>In QALIPSIS, the Micrometer meters (Counters, Timers, Gauges) are attached to a single campaign and should be created and removed according to the campaign lifecycle.</simpara>
+<simpara>Refer to <xref linkend="_meters"/> for more information.</simpara>
 </listitem>
 </itemizedlist>
-<section xml:id="_meters">
-<title>Meters</title>
-<simpara>Behaviors and Results Reported via the Campaign Dashboard
-Request based operations (HTTP, TCP, etc.)</simpara>
+</listitem>
+<listitem>
+<simpara>The intermediate level of detail is built on <link linkend="_events">events</link> that are directly saved into a time-series database.</simpara>
+<simpara>In essence, an event represents an operation to be executed at a given point in time.</simpara>
 <itemizedlist>
 <listitem>
-<simpara>Each request to be sent with the suffix -sending-request.</simpara>
+<simpara>Events can be compared to logs as managed by log4j and logback, and apply a similar concept for configuration.</simpara>
 </listitem>
 <listitem>
-<simpara>The size of each request to be sent with the suffix -sending-bytes.</simpara>
+<simpara>Events are described by a severity, a log name, and values.</simpara>
+<simpara>Refer to <xref linkend="_events"/> for more information.</simpara>
+</listitem>
+</itemizedlist>
 </listitem>
 <listitem>
-<simpara>Each request that succeeds with the suffix -successful-request.</simpara>
+<simpara>Both meters and events can be tagged to specify the scenario, campaign, and test step that they are related to.</simpara>
 </listitem>
 <listitem>
-<simpara>The size of each request that was successfully sent with the suffix -sent-bytes.</simpara>
+<simpara>The highest level of detail is built on <link linkend="_step-execution-meters-2">step execution meters</link>.</simpara>
+<simpara>In essence, step execution meters are primitive values and Java durations.</simpara>
+<itemizedlist>
+<listitem>
+<simpara>Step execution meters are directly provided as an output from one step to another.</simpara>
 </listitem>
 <listitem>
-<simpara>Each request that fails with the suffix -failed-request.</simpara>
+<simpara>Step execution meters make it possible to verify the performances and the success of an operation directly in the scenario, in order to decide whether next steps should be executed or not.</simpara>
+<simpara>Refer to <xref linkend="_step-execution-meters-2"/> for more more information.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</itemizedlist>
+</chapter>
+<chapter xml:id="_meters">
+<title>Meters</title>
+<section xml:id="_overview-2">
+<title>Overview</title>
+<simpara>Meters are generated using <link xl:href="http://micrometer.io">Micrometer Application Monitoring</link>.</simpara>
+<itemizedlist>
+<listitem>
+<simpara><literal>Micrometer Application Monitoring</literal> allows the test system to generate meters and publish them on a regular basis into a time-series database.</simpara>
 </listitem>
 <listitem>
-<simpara>The time to the first byte of the response (when the response starts to be received) with the suffix -receiving.</simpara>
+<simpara>When the meters are published, the values are aggregated into averages, maximum and minimum.</simpara>
 </listitem>
 <listitem>
-<simpara>The time to the last byte of the response (when the response is completely received) with the suffix -received-response.</simpara>
+<simpara>The published meters can be queried from the database or displayed on the dashboards.</simpara>
 </listitem>
 <listitem>
-<simpara>The size of each response that was successfully received with the suffix -received-bytes.</simpara>
+<simpara>For maximum relevance, the meters have to be linked to the context of their measurement: name of scenario, campaign, step.</simpara>
 <orderedlist numeration="arabic">
-<listitem>
-<simpara>When the connection, handshake or other preparation are part of the operation, more details can be provided, they can also be measured as the requests area.</simpara>
-<orderedlist numeration="loweralpha">
-<listitem>
-<simpara>Records based operations (Database saving, polling, searching).</simpara>
-<simpara>Note: the suffices below are proposed with -documents which has to be adapted to own terminology of the developed steps (record for a SQL database, document for Elasticsearch or MongoDB…)</simpara>
-</listitem>
-<listitem>
-<simpara>The number of records to be saved with the suffix -saving-documents</simpara>
-</listitem>
-<listitem>
-<simpara>The number of records actually saved with the suffix -saved-documents</simpara>
-</listitem>
-<listitem>
-<simpara>The number of records that could not be saved with the suffix -failed-documents</simpara>
-</listitem>
-<listitem>
-<simpara>The time to receive a complete successful response with the suffix -time-to-response</simpara>
-</listitem>
-<listitem>
-<simpara>The time to receive a failure with the suffix -time-to-failure</simpara>
-</listitem>
-<listitem>
-<simpara>The number of received records actually saved with the suffix -received-documents</simpara>
-</listitem>
-</orderedlist>
-</listitem>
 <listitem>
 <simpara>When the size in bytes is available for the records or documents, you will also add the relevant counters with the suffices -saving-bytes, -saved-bytes and -received-bytes.</simpara>
 </listitem>
@@ -105,7 +106,7 @@ To do such, the meters have to be created in the start stage of a campaign and s
 * The name of the plugin (cassandra, elasticsearch, redis-lettuce).
 * The type of the step (save, search, poll).
 * The suffix of the meter, as explained in the next section.</simpara>
-<programlisting language="kotlin" linenumbering="numbered">private val eventPrefix = "cassandra.save"
+<programlisting language="kotlin" linenumbering="numbered">private val eventPrefix = "cassandra.save" <co xml:id="CO1-1"/>
 private val meterPrefix = "cassandra-save"
 private var recordsToBeSent: Counter? = null
 private var timeToSuccess: Timer? = null
@@ -113,7 +114,7 @@ private var timeToFailure: Timer? = null
 private var savedDocuments: Counter? = null
 private var failedDocuments: Counter? = null
 
-override suspend fun start(context: StepStartStopContext) {
+override suspend fun start(context: StepStartStopContext) { <co xml:id="CO1-2"/>
     meterRegistry?.apply {
         val tags = context.toMetersTags()
         recordsToBeSent = counter("$meterPrefix-saving-documents", tags)
@@ -123,7 +124,8 @@ override suspend fun start(context: StepStartStopContext) {
         failedDocuments = counter("$meterPrefix-failed-documents", tags)
     }
 }
-override suspend fun stop(context: StepStartStopContext) {
+
+override suspend fun stop(context: StepStartStopContext) { <co xml:id="CO1-3"/>
     meterRegistry?.apply {
         remove(recordsToBeSent!!)
         remove(timeToSuccess!!)
@@ -137,56 +139,112 @@ override suspend fun stop(context: StepStartStopContext) {
         failedDocuments = null
     }
 }</programlisting>
+<calloutlist>
+<callout arearefs="CO1-1">
+<para>Configure the meter values and variables.</para>
+</callout>
+<callout arearefs="CO1-2">
+<para>Start the meter.</para>
+</callout>
+<callout arearefs="CO1-3">
+<para>stop the meter.</para>
+</callout>
+</calloutlist>
 <simpara>In the example above, you can see that the meters are nullable and only created when the meterRegistry of type io.micrometer.core.instrument.MeterRegistry is not null - injected in the step constructor, when converter the specification to a step, only if the configuration flag meter is set to true. The tags are passed from the start and stop context onto the identification of the meters to allow their search, aggregation and analysis relatively to different dimensions (step, campaign, scenario). When the step is stopped, the meters have to be removed from the meter registry to avoid them to be further published.</simpara>
 <section xml:id="_what-should-be-measured">
 <title>What should be measured?</title>
 <simpara>Generally, the following things have to be measured:</simpara>
+<simpara>In the example above, you can see that the meters are nullable and only created when the <literal>meterRegistry</literal> of type <literal>io.micrometer.core.instrument.MeterRegistry</literal> is not null - injected in the step constructor, when converter the specification to a step, only if the configuration flag <literal>meter</literal> is set to true. The tags are passed from the start and stop context onto the identification of the meters to allow their search, aggregation and analysis relatively to different dimensions (step, campaign, scenario). When the step is stopped, the meters have to be removed from the meter registry to avoid them to be further published.</simpara>
+</section>
+</section>
+<section xml:id="_meter-parameters-that-should-be-measured">
+<title>Meter parameters that should be measured</title>
+<section xml:id="_request-based-operations-http-tcp-etc">
+<title>Request based operations (HTTP, TCP, etc.)</title>
+<simpara>For request based operations, each request must be sent with the suffix <literal>-sending-request</literal>.
+You can request to measure the following parameters:</simpara>
 <itemizedlist>
 <listitem>
-<simpara>Request based operations (HTTP, TCP,…)</simpara>
+<simpara>The size of each request:  must be sent with the suffix <literal>-sending-bytes</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara>For each request that succeeds responds with the suffix <literal>-successful-request</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara>The size of each request that was successfully sent with the suffix <literal>-sent-bytes</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara>Each request that fails with the suffix <literal>-failed-request</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara>The time to the first byte of the response (when the response starts to be received) with the suffix <literal>-receiving</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara>The time to the last byte of the response (when the response is completely received) with the suffix <literal>-received-response</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara>The size of each response that was successfully received with the suffix <literal>-received-bytes</literal>.</simpara>
+<variablelist>
+<varlistentry>
+<term>Note: </term>
+<listitem>
+<simpara>When the connection, handshake, or other preparation??? are part of the operation, more details can be provided via the dashboard and the parameters can be measured as requests are submitted.</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+</listitem>
+</itemizedlist>
+</section>
+<section xml:id="_records-based-operations-database-saving-polling-searching">
+<title>Records based operations (Database saving, polling, searching).</title>
+<simpara>The  suffixes below are proposed as <literal>-documents</literal>; the suffix that is used depends on the terminology of the developed steps (-records for a SQL database, -documents for Elasticsearch or MongoDB, etc.).</simpara>
 <itemizedlist>
 <listitem>
-<simpara>Each request to be sent with the suffix -sending-request</simpara>
+<simpara>The number of records to be saved with the suffix <literal>-saving-documents</literal>.</simpara>
 </listitem>
 <listitem>
-<simpara>The size of each request to be sent with the suffix -sending-bytes</simpara>
+<simpara>The number of records actually saved with the suffix <literal>-saved-documents</literal>.</simpara>
 </listitem>
 <listitem>
-<simpara>Each request that succeeds with the suffix -successful-request</simpara>
+<simpara>The number of records that could not be saved with the suffix <literal>-failed-documents.</literal></simpara>
 </listitem>
 <listitem>
-<simpara>The size of each request that was successfully sent with the suffix -sent-bytes</simpara>
+<simpara>The time to receive a complete successful response with the suffix <literal>-time-to-response</literal>.</simpara>
 </listitem>
 <listitem>
-<simpara>Each request that fails with the suffix -failed-request</simpara>
+<simpara>The time to receive a failure with the suffix <literal>-time-to-failure</literal>.</simpara>
 </listitem>
 <listitem>
-<simpara>The time to the first byte of the response (when the response starts to be received) with the suffix -receiving</simpara>
+<simpara>The number of received records actually saved with the suffix <literal>-received-documents</literal>.</simpara>
+<variablelist>
+<varlistentry>
+<term>Notes: </term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara>When the size in bytes is available for the records or documents, you must also add the relevant counters with the suffixes <literal>-saving-bytes</literal>, <literal>-saved-bytes</literal> and <literal>-received-bytes</literal>.</simpara>
 </listitem>
 <listitem>
-<simpara>The time to the last byte of the response (when the response is completely received) with the suffix -received-response</simpara>
+<simpara>When the operation is to push records rather than save them, replace <literal>save</literal> with a more appropriate word, such as <literal>produce</literal> or <literal>push</literal>.</simpara>
 </listitem>
 <listitem>
-<simpara>The size of each response that was successfully received with the suffix -received-bytes</simpara>
-</listitem>
-<listitem>
-<simpara>When the connection, handshake or other preparation are part of the operation, more details can be provided, they can also be measured as the requests are.</simpara>
+<simpara>When the operation is to pull records rather than save them, replace  <literal>receive</literal> word with a more appropriate word, such as <literal>consume</literal> or <literal>pull</literal>.</simpara>
 </listitem>
 </itemizedlist>
 </listitem>
-<listitem>
-<simpara>Records based operations (Database saving, polling, searching)</simpara>
-<simpara>Note: the suffices below are proposed with -documents which has to be adapted to own terminology of the developed steps (record for a SQL database, document for Elasticsearch or MongoDB…)</simpara>
+</varlistentry>
+</variablelist>
+</listitem>
+</itemizedlist>
+</section>
+</section>
+</chapter>
+<chapter xml:id="_events">
+<title>Events</title>
+<section xml:id="_overview-3">
+<title>Overview</title>
+<simpara><literal>events</literal> are logged using an instance of <literal>io.qalipsis.api.events.EventsLogger</literal>;  the step - injected in the step constructor, when converter the specification to a step, only if the configuration flag <literal>events</literal> is set to true.</simpara>
 <itemizedlist>
-<listitem>
-<simpara>The number of records to be saved with the suffix -saving-documents</simpara>
-</listitem>
-<listitem>
-<simpara>The number of records actually saved with the suffix -saved-documents</simpara>
-</listitem>
-<listitem>
-<simpara>The number of records that could not be saved with the suffix -failed-documents</simpara>
-</listitem>
 <listitem>
 <simpara>The time to receive a complete successful response with the suffix -time-to-response</simpara>
 </listitem>
@@ -195,14 +253,14 @@ override suspend fun stop(context: StepStartStopContext) {
 </listitem>
 <listitem>
 <simpara>The number of received records actually saved with the suffix -received-documents</simpara>
-</listitem>
-</itemizedlist>
-</listitem>
+<itemizedlist>
 <listitem>
 <simpara>When the size in bytes is available for the records or documents, you will also add the relevant counters with the suffices -saving-bytes, -saved-bytes and -received-bytes.</simpara>
 </listitem>
 <listitem>
 <simpara>When the operation is not to save but push records, you can replace the save word by a more adequate one, like produce, push,… and the same applies received.</simpara>
+</listitem>
+</itemizedlist>
 </listitem>
 </itemizedlist>
 <simpara>The events are logged using an instance of io.qalipsis.api.events.EventsLogger the step - injected in the step constructor, when converter the specification to a step, only if the configuration flag event is set to true.</simpara>
@@ -217,120 +275,97 @@ override suspend fun stop(context: StepStartStopContext) {
 <listitem>
 <simpara>The suffix of the meter, as explained in the next section.</simpara>
 </listitem>
-</itemizedlist>
-<simpara>eventsLogger?.debug("cassandra.save.saving-documents", records.size, tags = contextEventTags)</simpara>
-<itemizedlist>
 <listitem>
+<simpara>The name of the plugin (cassandra, elasticsearch, redis-lettuce).</simpara>
+</listitem>
+<listitem>
+<simpara>The type of step (save, search, poll)</simpara>
+</listitem>
+<listitem>
+<simpara>The suffix of the meter.</simpara>
+<programlisting language="kotlin" linenumbering="numbered">eventsLogger?.debug("cassandra.save.saving-documents", records.size, tags = contextEventTags)</programlisting>
+</listitem>
+</itemizedlist>
 <simpara>A single event can bring several values of different types that relate to the same thing:</simpara>
 <itemizedlist>
 <listitem>
-<simpara>the size of a response and the time to receive it</simpara>
+<simpara>The size of a response and the time to receive it</simpara>
 </listitem>
 <listitem>
-<simpara>the time to a failure and the cause of the failure</simpara>
+<simpara>The time to a failure and the cause of the failure</simpara>
 </listitem>
 </itemizedlist>
-</listitem>
-</itemizedlist>
-<simpara>In that case, those values are passed as an array:</simpara>
+<simpara>If an event brings several values those values are passed as an array:</simpara>
 <programlisting language="kotlin" linenumbering="numbered">eventsLogger?.info(
     "cassandra.save.saved-documents",
     arrayOf(savedDocumentsCount, timeToResponse),
     tags = stepContext.toEventTags()
 )</programlisting>
-<simpara>Note that, as with meters, the context must be provided as tags, which contains the identifiers of the scenario, the campaign, the step as well as the minion, the iteration of the step for that minion and the state of the context (exhausted or not).</simpara>
+<simpara>As with meters, the event context must be provided as tags, which contain the identifiers of the scenario, the campaign, the step as well as the minion, the iteration of the step for that minion and the state of the context (exhausted or not).</simpara>
 </section>
-<section xml:id="_which-event-level-should-be-used">
-<title>Which event level should be used?</title>
+<section xml:id="_event-levels">
+<title>Event levels</title>
 <itemizedlist>
 <listitem>
-<simpara>trace, is rarely used, especially not in steps, because it helps more to investigate issues in the Qalipsis engine.</simpara>
+<simpara><literal>trace</literal>: rarely used, especially in steps; helps to investigate issues in the Qalipsis engine.</simpara>
 </listitem>
 <listitem>
-<simpara>debug for events before the operation of the step occurs,</simpara>
+<simpara><literal>debug</literal>: used for events before the operation of the step occurs.</simpara>
 </listitem>
 <listitem>
-<simpara>info for information after the operation of step occurred (time to response, number of records successfully sent or received), generally used to later create dashboards and get insights of the performances</simpara>
+<simpara><literal>info</literal>: for information after the operation of the step occurred (time to response, number of records successfully sent or received); generally used to create dashboards and get insights into the the performance of the system.</simpara>
 </listitem>
 <listitem>
-<simpara>warn for failures that should not abort the test campaign,</simpara>
+<simpara><literal>warn</literal> for failures that should not abort the test campaign.</simpara>
 </listitem>
 <listitem>
-<simpara>error are extremely rare and only used when the error is so critical that the test campaign should not carry on.</simpara>
+<simpara><literal>error</literal> is extremely rare and only used when the failure is so critical that the test campaign should be aborted.</simpara>
 </listitem>
 </itemizedlist>
 </section>
-<section xml:id="_what-should-be-measured-2">
-<title>What should be measured?</title>
-<simpara>Generally, the following things have to be measured.</simpara>
-<itemizedlist>
-<listitem>
-<simpara>Request based operations (HTTP, TCP,…)</simpara>
-<itemizedlist>
-<listitem>
+<section xml:id="_event-parameters-that-should-be-measured">
+<title>Event parameters that should be measured</title>
+<section xml:id="_request-based-operations-http-tcp">
+<title>Request based operations (HTTP, TCP,…)</title>
 <simpara>The preparation of the operation to perform:</simpara>
-</listitem>
-<listitem>
 <simpara>When the request is sent at once, each request to be sent with the suffix .sending-request and severity INFO, which must contain the size in bytes of the request</simpara>
-</listitem>
-<listitem>
 <simpara>When the request might be chunked or sent in several pieces onto the wire, .sending-request with severity INFO is generated for each request to send and the size of each chunk the suffix .sending-bytes and severity TRACE</simpara>
-</listitem>
-<listitem>
 <simpara>When the request is sent at once, each request successfully sent with the suffix .sent-request and severity INFO, which must contain the size in bytes of the request</simpara>
-</listitem>
-<listitem>
 <simpara>When the request might be chunked or sent in several pieces onto the wire, .sent-request with severity INFO is generated for each request to send and the size of each chunk the suffix .sent-bytes and severity TRACE</simpara>
-</listitem>
-<listitem>
 <simpara>Each request that fails with the suffix .failed-request and severity WARN, with the exception of the failure and the time between the request and the reception of the failure</simpara>
-</listitem>
-<listitem>
 <simpara>The time to the first byte of the response (when the response starts to be received) with the suffix .receiving and severity DEBUG</simpara>
-</listitem>
-<listitem>
 <simpara>The time to the last byte of the response (when the response starts to be received) and the number of received bytes with the suffix .received-response and severity DEBUG</simpara>
-</listitem>
+<variablelist>
+<varlistentry>
+<term>Note: </term>
 <listitem>
-<simpara>When the connection, handshake or other preparation are part of the operation, more details can be provided, they can also be measured as the requests are.</simpara>
+<simpara>When the connection, handshake, or other preparation??? are part of the operation, more details can be provided via the dashboard and the parameters can be measured as requests are submitted.</simpara>
 </listitem>
-</itemizedlist>
-</listitem>
-<listitem>
-<simpara>Records based operations (Database saving, polling, searching)</simpara>
-<simpara>Note: the suffices below are proposed with -documents which has to be adapted to own terminology of the developed steps (record for a SQL database, document for Elasticsearch or MongoDB…)</simpara>
-<itemizedlist>
-<listitem>
+</varlistentry>
+</variablelist>
+</section>
+<section xml:id="_records-based-operations-database-saving-polling-searching-2">
+<title>Records based operations (Database saving, polling, searching)</title>
+<simpara>Note: the suffixes below are proposed with -documents which has to be adapted to own terminology of the developed steps (record for a SQL database, document for Elasticsearch or MongoDB…)</simpara>
 <simpara>The number of records to be saved with the suffix .saving-documents and severity DEBUG</simpara>
-</listitem>
-<listitem>
 <simpara>The time to receive a complete successful response and the number of records with the suffix .success and severity INFO</simpara>
-</listitem>
-<listitem>
 <simpara>If a single request can lead to partial success, the saved records are saved with the suffix .saved-documents and severity INFO and the failed ones with the suffix .failed-documents and severity WARN</simpara>
-</listitem>
-<listitem>
 <simpara>The time to receive a failure and the exception with the suffix .failure and severity WARN</simpara>
-</listitem>
-<listitem>
 <simpara>The number of actually received records and the time to received all of them  with the suffix .received-documents and severity INFO</simpara>
-</listitem>
-<listitem>
 <simpara>When the size in bytes is available for the records or documents, you will also add the relevant counters with the suffices .saving-bytes, .saved-bytes and .received-bytes.</simpara>
-</listitem>
-<listitem>
 <simpara>When the operation is not to save but push records, you can replace the save word by a more adequate one, like produce, push,… and the same applies for received.</simpara>
-</listitem>
-</itemizedlist>
-</listitem>
-</itemizedlist>
+</section>
+</section>
+</chapter>
+<chapter xml:id="_step-execution-meters-2">
+<title>Step execution meters</title>
 <simpara>The step execution meters are directly returned into a wrapper, itself contained in an object transporting the result of the step:</simpara>
 <programlisting language="kotlin" linenumbering="numbered">CassandraSearchResult(
     input = input,
     rows = results,
     meters = CassandraQueryMeters(results.size, timeToResponse)
 )
-
+[source,kotlin,line numbers]
 data class CassandraQueryMeters(
     var recordsCount: Int,
     var timeToResponse: Duration? = null
@@ -371,10 +406,12 @@ data class CassandraQueryMeters(
 <simpara>Counters</simpara>
 <itemizedlist>
 <listitem>
-<simpara>recordsToSend, recordsToSave, recordsToProduce…, or you can also use bytesCount, documents instead of records to match the plugin terminology</simpara>
+<simpara>recordsToSend, recordsToSave, recordsToProduce</simpara>
+<simpara>Use bytesCount in place of records as needed to to match the plugin terminology.</simpara>
 </listitem>
 <listitem>
-<simpara>sentRecords, savedRecords, producedRecords,… or you can also use bytesCount, documents instead of records to match the plugin terminology</simpara>
+<simpara>sentRecords, savedRecords, producedRecords</simpara>
+<simpara>Use bytesCount in place of records as needed to to match the plugin terminology.</simpara>
 </listitem>
 <listitem>
 <simpara>receivedRecords, consumedRecords</simpara>
@@ -388,44 +425,51 @@ data class CassandraQueryMeters(
 </itemizedlist>
 </listitem>
 </itemizedlist>
-<simpara>Then you are free to propose further details for the step execution meters, in order to increase the possibilities for analysis.</simpara>
-<simpara>What should be measured?
-See the values in the section Events just above. All the ones you put in the events have to be provided to the next step.</simpara>
-<simpara>How to configure the monitoring in the step specification?
-All the specification should have a function called monitoring, taking a block as parameter:</simpara>
-<programlisting language="kotlin" linenumbering="numbered">fun monitoring(monitoringConfig: StepMonitoringConfiguration.() -&gt; Unit)**
-// Implementaton of io.qalipsis.api.steps.StepMonitoringConfiguration
-/**
- * Configuration of the metrics and events to record for a step.
- *
- * @property events when set to true, records the events, defaults to false.
- * @property meters when set to true, records meters, defaults to false.
- *
- * @author Eric Jessé
- */
+<simpara>You have the option to propose further details for the step execution meters in order to increase the possibilities for analysis.</simpara>
+<section xml:id="_what-should-be-measured-2">
+<title>What should be measured?</title>
+<simpara>See the values in the section Events just above. All the ones you put in the events have to be provided to the next step.</simpara>
+</section>
+</chapter>
+<chapter xml:id="_configuring-monitoring-within-the-step-specification">
+<title>Configuring monitoring within the step specification.</title>
+<simpara>All the specification should have a function called monitoring, taking a block as parameter:</simpara>
+<programlisting language="kotlin" linenumbering="numbered">fun monitoring(monitoringConfig: StepMonitoringConfiguration.() -&gt; Unit)** <co xml:id="CO2-1"/>
 @Spec
 data class StepMonitoringConfiguration(
     var events: Boolean = false,
-    var meters: Boolean = false
+    var meters: Boolean = false (2)
 ) {
-    /**
-     * Enables the record of both events and meters.
-     */
+
     fun all() {
         events = true
         meters = true
     }
 }</programlisting>
-<simpara>Later, the events logger and meter registry are provided to the step only if the relevant flag is enabled:</simpara>
+<calloutlist>
+<callout arearefs="CO2-1">
+<para>Implementation of io.qalipsis.api.steps.StepMonitoringConfiguration</para>
+<itemizedlist>
+<listitem>
+<simpara>Configuration of the metrics and events to record for a step.</simpara>
+</listitem>
+<listitem>
+<simpara>@property events when set to true, records the events, defaults to false.</simpara>
+</listitem>
+<listitem>
+<simpara>@property meters when set to true, records meters, defaults to false.</simpara>
+</listitem>
+<listitem>
+<simpara>@author Eric Jessé</simpara>
+<literallayout class="monospaced"> &lt;2&gt; Enables the monitoring of events and meters.
+Later, the events logger and meter registry are provided to the step only if the relevant flag is enabled:</literallayout>
 <programlisting language="kotlin" linenumbering="numbered">MyStep(
   eventsLogger = supplyIf(spec.monitoringConfig.events) { eventsLogger },
   meterRegistry = supplyIf(spec.monitoringConfig.meters) { meterRegistry }
 )</programlisting>
-</section>
-</section>
-<section xml:id="_events">
-<title>Events</title>
-<simpara>Event Descriptions and information will be provided in the near future.</simpara>
-</section>
+</listitem>
+</itemizedlist>
+</callout>
+</calloutlist>
 </chapter>
 </book>

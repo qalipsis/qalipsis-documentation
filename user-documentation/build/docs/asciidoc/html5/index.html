@@ -2370,18 +2370,32 @@ p.tableblock.header {
 <li><a href="#_monitoring-test-campaigns">Monitoring Test Campaigns</a>
 <ul class="sectlevel1">
 <li><a href="#_overview-14">Overview</a></li>
-<li><a href="#_definitions">Definitions</a>
+<li><a href="#_definitions">Definitions</a></li>
+<li><a href="#_meters">Meters</a>
 <ul class="sectlevel2">
-<li><a href="#_meters">Meters</a></li>
+<li><a href="#_overview-15">Overview</a></li>
 <li><a href="#_step-execution-meters">Step Execution Meters</a></li>
-<li><a href="#_events">Events</a></li>
+<li><a href="#_meter-parameters-that-should-be-measured">Meter parameters that should be measured</a></li>
 </ul>
 </li>
+<li><a href="#_events">Events</a>
+<ul class="sectlevel2">
+<li><a href="#_overview-16">Overview</a></li>
+<li><a href="#_event-levels">Event levels</a></li>
+<li><a href="#_event-parameters-that-should-be-measured">Event parameters that should be measured</a></li>
+</ul>
+</li>
+<li><a href="#_step-execution-meters-2">Step execution meters</a>
+<ul class="sectlevel2">
+<li><a href="#_what-should-be-measured-2">What should be measured?</a></li>
+</ul>
+</li>
+<li><a href="#_configuring-monitoring-within-the-step-specification">Configuring monitoring within the step specification.</a></li>
 </ul>
 </li>
 <li><a href="#_qalipsis-gui">QALIPSIS GUI</a>
 <ul class="sectlevel1">
-<li><a href="#_overview-15">Overview</a></li>
+<li><a href="#_overview-17">Overview</a></li>
 <li><a href="#_logging-in-to-qalipsis">Logging in to QALIPSIS</a></li>
 <li><a href="#_navigating-qalipsis">Navigating QALIPSIS</a>
 <ul class="sectlevel2">
@@ -4834,7 +4848,7 @@ Provide an example and insert <code>verify(assetThat(it).isEven())</code> graphi
 <div class="sect2">
 <h3 id="_transformation-operators"><a class="link" href="#_transformation-operators">Transformation operators</a></h3>
 <div class="paragraph">
-<p>flatThis section provides an explanation and examples  of the <code>flatMap</code>, <code>flatten</code>, <code>map</code>, <code>mapWithContext</code>, and <code>onEach</code> transformation operators.</p>
+<p>This section provides an explanation and examples  of the <code>flatMap</code>, <code>flatten</code>, <code>map</code>, <code>mapWithContext</code>, and <code>onEach</code> transformation operators.</p>
 </div>
 <div class="ulist">
 <ul>
@@ -9957,93 +9971,112 @@ Scenario and Step</p>
 <h2 id="_overview-14"><a class="link" href="#_overview-14">Overview</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>QALIPSIS aims at giving insights of the behavior of the tested system, from a performance perspective.</p>
+<p>QALIPSIS aims at giving insights about the behavior of the tested system from a performance perspective.</p>
 </div>
 <div class="paragraph">
-<p>Those insights are provided to the users via dashboards and detailed values describing the performed operations.</p>
+<p>The insights are provided to users by way of dashboards and detailed values describing the performed operations.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="_definitions"><a class="link" href="#_definitions">Definitions</a></h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>In QALIPSIS, each step generates different kinds of metadata that supply different levels of detail
+about the behavior and performances of the system.</p>
+</div>
 <div class="ulist">
 <ul>
 <li>
-<p><a href="#_meters">Meters</a></p>
+<p>The highest level of detail is built on <a href="#_meters">meters</a>, using the <a href="http://micrometer.io">Micrometer Application Monitoring</a> library.</p>
+<div class="paragraph">
+<p>In essence, meters represent the behavior or performance of a step or operation over a short period of time as defined in  the meter&#8217;s configuration.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The shorter the time period that a meter represents, the more data will be saved into the time-series database.</p>
 </li>
 <li>
-<p><a href="#_step-execution-meters">Step Execution Meters</a></p>
+<p>The data can only be fetched and reported from the time-series database where they were saved. They are not available  in a QALIPSIS scenario.</p>
 </li>
 <li>
-<p><a href="#_events">Events</a></p>
+<p>In QALIPSIS, the Micrometer meters (Counters, Timers, Gauges) are attached to a single campaign and should be created and removed according to the campaign lifecycle.</p>
+<div class="paragraph">
+<p>Refer to <a href="#_meters">Meters</a> for more information.</p>
+</div>
 </li>
 </ul>
 </div>
-<div class="sect2">
-<h3 id="_meters"><a class="link" href="#_meters">Meters</a></h3>
+</li>
+<li>
+<p>The intermediate level of detail is built on <a href="#_events">events</a> that are directly saved into a time-series database.</p>
 <div class="paragraph">
-<p>Behaviors and Results Reported via the Campaign Dashboard
-Request based operations (HTTP, TCP, etc.)</p>
+<p>In essence, an event represents an operation to be executed at a given point in time.</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Each request to be sent with the suffix -sending-request.</p>
+<p>Events can be compared to logs as managed by log4j and logback, and apply a similar concept for configuration.</p>
 </li>
 <li>
-<p>The size of each request to be sent with the suffix -sending-bytes.</p>
+<p>Events are described by a severity, a log name, and values.</p>
+<div class="paragraph">
+<p>Refer to <a href="#_events">Events</a> for more information.</p>
+</div>
+</li>
+</ul>
+</div>
 </li>
 <li>
-<p>Each request that succeeds with the suffix -successful-request.</p>
+<p>Both meters and events can be tagged to specify the scenario, campaign, and test step that they are related to.</p>
 </li>
 <li>
-<p>The size of each request that was successfully sent with the suffix -sent-bytes.</p>
+<p>The highest level of detail is built on <a href="#_step-execution-meters-2">step execution meters</a>.</p>
+<div class="paragraph">
+<p>In essence, step execution meters are primitive values and Java durations.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Step execution meters are directly provided as an output from one step to another.</p>
 </li>
 <li>
-<p>Each request that fails with the suffix -failed-request.</p>
+<p>Step execution meters make it possible to verify the performances and the success of an operation directly in the scenario, in order to decide whether next steps should be executed or not.</p>
+<div class="paragraph">
+<p>Refer to <a href="#_step-execution-meters-2">Step execution meters</a> for more more information.</p>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_meters"><a class="link" href="#_meters">Meters</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_overview-15"><a class="link" href="#_overview-15">Overview</a></h3>
+<div class="paragraph">
+<p>Meters are generated using <a href="http://micrometer.io">Micrometer Application Monitoring</a>.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Micrometer Application Monitoring</code> allows the test system to generate meters and publish them on a regular basis into a time-series database.</p>
 </li>
 <li>
-<p>The time to the first byte of the response (when the response starts to be received) with the suffix -receiving.</p>
+<p>When the meters are published, the values are aggregated into averages, maximum and minimum.</p>
 </li>
 <li>
-<p>The time to the last byte of the response (when the response is completely received) with the suffix -received-response.</p>
+<p>The published meters can be queried from the database or displayed on the dashboards.</p>
 </li>
 <li>
-<p>The size of each response that was successfully received with the suffix -received-bytes.</p>
+<p>For maximum relevance, the meters have to be linked to the context of their measurement: name of scenario, campaign, step.</p>
 <div class="olist arabic">
 <ol class="arabic">
-<li>
-<p>When the connection, handshake or other preparation are part of the operation, more details can be provided, they can also be measured as the requests area.</p>
-<div class="olist loweralpha">
-<ol class="loweralpha" type="a">
-<li>
-<p>Records based operations (Database saving, polling, searching).</p>
-<div class="paragraph">
-<p>Note: the suffices below are proposed with -documents which has to be adapted to own terminology of the developed steps (record for a SQL database, document for Elasticsearch or MongoDB…)</p>
-</div>
-</li>
-<li>
-<p>The number of records to be saved with the suffix -saving-documents</p>
-</li>
-<li>
-<p>The number of records actually saved with the suffix -saved-documents</p>
-</li>
-<li>
-<p>The number of records that could not be saved with the suffix -failed-documents</p>
-</li>
-<li>
-<p>The time to receive a complete successful response with the suffix -time-to-response</p>
-</li>
-<li>
-<p>The time to receive a failure with the suffix -time-to-failure</p>
-</li>
-<li>
-<p>The number of received records actually saved with the suffix -received-documents</p>
-</li>
-</ol>
-</div>
-</li>
 <li>
 <p>When the size in bytes is available for the records or documents, you will also add the relevant counters with the suffices -saving-bytes, -saved-bytes and -received-bytes.</p>
 </li>
@@ -10124,8 +10157,9 @@ To do such, the meters have to be created in the start stage of a campaign and s
 30
 31
 32
+33
 </pre></td>
-  <td class="code"><pre>private val eventPrefix = &quot;cassandra.save&quot;
+  <td class="code"><pre>private val eventPrefix = &quot;cassandra.save&quot; <i class="conum" data-value="1"></i><b>(1)</b>
 private val meterPrefix = &quot;cassandra-save&quot;
 private var recordsToBeSent: Counter? = null
 private var timeToSuccess: Timer? = null
@@ -10133,7 +10167,7 @@ private var timeToFailure: Timer? = null
 private var savedDocuments: Counter? = null
 private var failedDocuments: Counter? = null
 
-override suspend fun start(context: StepStartStopContext) {
+override suspend fun start(context: StepStartStopContext) { <i class="conum" data-value="2"></i><b>(2)</b>
     meterRegistry?.apply {
         val tags = context.toMetersTags()
         recordsToBeSent = counter(&quot;$meterPrefix-saving-documents&quot;, tags)
@@ -10143,7 +10177,8 @@ override suspend fun start(context: StepStartStopContext) {
         failedDocuments = counter(&quot;$meterPrefix-failed-documents&quot;, tags)
     }
 }
-override suspend fun stop(context: StepStartStopContext) {
+
+override suspend fun stop(context: StepStartStopContext) { <i class="conum" data-value="3"></i><b>(3)</b>
     meterRegistry?.apply {
         remove(recordsToBeSent!!)
         remove(timeToSuccess!!)
@@ -10160,6 +10195,22 @@ override suspend fun stop(context: StepStartStopContext) {
 </tr></table></code></pre>
 </div>
 </div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Configure the meter values and variables.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Start the meter.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>stop the meter.</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>In the example above, you can see that the meters are nullable and only created when the meterRegistry of type io.micrometer.core.instrument.MeterRegistry is not null - injected in the step constructor, when converter the specification to a step, only if the configuration flag meter is set to true. The tags are passed from the start and stop context onto the identification of the meters to allow their search, aggregation and analysis relatively to different dimensions (step, campaign, scenario). When the step is stopped, the meters have to be removed from the meter registry to avoid them to be further published.</p>
 </div>
@@ -10168,58 +10219,114 @@ override suspend fun stop(context: StepStartStopContext) {
 <div class="paragraph">
 <p>Generally, the following things have to be measured:</p>
 </div>
+<div class="paragraph">
+<p>In the example above, you can see that the meters are nullable and only created when the <code>meterRegistry</code> of type <code>io.micrometer.core.instrument.MeterRegistry</code> is not null - injected in the step constructor, when converter the specification to a step, only if the configuration flag <code>meter</code> is set to true. The tags are passed from the start and stop context onto the identification of the meters to allow their search, aggregation and analysis relatively to different dimensions (step, campaign, scenario). When the step is stopped, the meters have to be removed from the meter registry to avoid them to be further published.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_meter-parameters-that-should-be-measured"><a class="link" href="#_meter-parameters-that-should-be-measured">Meter parameters that should be measured</a></h3>
+<div class="sect3">
+<h4 id="_request-based-operations-http-tcp-etc"><a class="link" href="#_request-based-operations-http-tcp-etc">Request based operations (HTTP, TCP, etc.)</a></h4>
+<div class="paragraph">
+<p>For request based operations, each request must be sent with the suffix <code>-sending-request</code>.
+You can request to measure the following parameters:</p>
+</div>
 <div class="ulist">
 <ul>
 <li>
-<p>Request based operations (HTTP, TCP,…)</p>
-<div class="ulist">
-<ul>
-<li>
-<p>Each request to be sent with the suffix -sending-request</p>
+<p>The size of each request:  must be sent with the suffix <code>-sending-bytes</code>.</p>
 </li>
 <li>
-<p>The size of each request to be sent with the suffix -sending-bytes</p>
+<p>For each request that succeeds responds with the suffix <code>-successful-request</code>.</p>
 </li>
 <li>
-<p>Each request that succeeds with the suffix -successful-request</p>
+<p>The size of each request that was successfully sent with the suffix <code>-sent-bytes</code>.</p>
 </li>
 <li>
-<p>The size of each request that was successfully sent with the suffix -sent-bytes</p>
+<p>Each request that fails with the suffix <code>-failed-request</code>.</p>
 </li>
 <li>
-<p>Each request that fails with the suffix -failed-request</p>
+<p>The time to the first byte of the response (when the response starts to be received) with the suffix <code>-receiving</code>.</p>
 </li>
 <li>
-<p>The time to the first byte of the response (when the response starts to be received) with the suffix -receiving</p>
+<p>The time to the last byte of the response (when the response is completely received) with the suffix <code>-received-response</code>.</p>
 </li>
 <li>
-<p>The time to the last byte of the response (when the response is completely received) with the suffix -received-response</p>
-</li>
-<li>
-<p>The size of each response that was successfully received with the suffix -received-bytes</p>
-</li>
-<li>
-<p>When the connection, handshake or other preparation are part of the operation, more details can be provided, they can also be measured as the requests are.</p>
+<p>The size of each response that was successfully received with the suffix <code>-received-bytes</code>.</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Note: </dt>
+<dd>
+<p>When the connection, handshake, or other preparation??? are part of the operation, more details can be provided via the dashboard and the parameters can be measured as requests are submitted.</p>
+</dd>
+</dl>
+</div>
 </li>
 </ul>
 </div>
-</li>
-<li>
-<p>Records based operations (Database saving, polling, searching)</p>
+</div>
+<div class="sect3">
+<h4 id="_records-based-operations-database-saving-polling-searching"><a class="link" href="#_records-based-operations-database-saving-polling-searching">Records based operations (Database saving, polling, searching).</a></h4>
 <div class="paragraph">
-<p>Note: the suffices below are proposed with -documents which has to be adapted to own terminology of the developed steps (record for a SQL database, document for Elasticsearch or MongoDB…)</p>
+<p>The  suffixes below are proposed as <code>-documents</code>; the suffix that is used depends on the terminology of the developed steps (-records for a SQL database, -documents for Elasticsearch or MongoDB, etc.).</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>The number of records to be saved with the suffix -saving-documents</p>
+<p>The number of records to be saved with the suffix <code>-saving-documents</code>.</p>
 </li>
 <li>
-<p>The number of records actually saved with the suffix -saved-documents</p>
+<p>The number of records actually saved with the suffix <code>-saved-documents</code>.</p>
 </li>
 <li>
-<p>The number of records that could not be saved with the suffix -failed-documents</p>
+<p>The number of records that could not be saved with the suffix <code>-failed-documents.</code></p>
 </li>
+<li>
+<p>The time to receive a complete successful response with the suffix <code>-time-to-response</code>.</p>
+</li>
+<li>
+<p>The time to receive a failure with the suffix <code>-time-to-failure</code>.</p>
+</li>
+<li>
+<p>The number of received records actually saved with the suffix <code>-received-documents</code>.</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Notes: </dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>When the size in bytes is available for the records or documents, you must also add the relevant counters with the suffixes <code>-saving-bytes</code>, <code>-saved-bytes</code> and <code>-received-bytes</code>.</p>
+</li>
+<li>
+<p>When the operation is to push records rather than save them, replace <code>save</code> with a more appropriate word, such as <code>produce</code> or <code>push</code>.</p>
+</li>
+<li>
+<p>When the operation is to pull records rather than save them, replace  <code>receive</code> word with a more appropriate word, such as <code>consume</code> or <code>pull</code>.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_events"><a class="link" href="#_events">Events</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_overview-16"><a class="link" href="#_overview-16">Overview</a></h3>
+<div class="paragraph">
+<p><code>events</code> are logged using an instance of <code>io.qalipsis.api.events.EventsLogger</code>;  the step - injected in the step constructor, when converter the specification to a step, only if the configuration flag <code>events</code> is set to true.</p>
+</div>
+<div class="ulist">
+<ul>
 <li>
 <p>The time to receive a complete successful response with the suffix -time-to-response</p>
 </li>
@@ -10228,15 +10335,16 @@ override suspend fun stop(context: StepStartStopContext) {
 </li>
 <li>
 <p>The number of received records actually saved with the suffix -received-documents</p>
-</li>
-</ul>
-</div>
-</li>
+<div class="ulist">
+<ul>
 <li>
 <p>When the size in bytes is available for the records or documents, you will also add the relevant counters with the suffices -saving-bytes, -saved-bytes and -received-bytes.</p>
 </li>
 <li>
 <p>When the operation is not to save but push records, you can replace the save word by a more adequate one, like produce, push,… and the same applies received.</p>
+</li>
+</ul>
+</div>
 </li>
 </ul>
 </div>
@@ -10257,30 +10365,41 @@ override suspend fun stop(context: StepStartStopContext) {
 <li>
 <p>The suffix of the meter, as explained in the next section.</p>
 </li>
+<li>
+<p>The name of the plugin (cassandra, elasticsearch, redis-lettuce).</p>
+</li>
+<li>
+<p>The type of step (save, search, poll)</p>
+</li>
+<li>
+<p>The suffix of the meter.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="kotlin"><table class="CodeRay"><tr>
+  <td class="line-numbers"><pre>1
+</pre></td>
+  <td class="code"><pre>eventsLogger?.debug(&quot;cassandra.save.saving-documents&quot;, records.size, tags = contextEventTags)</pre></td>
+</tr></table></code></pre>
+</div>
+</div>
+</li>
 </ul>
 </div>
 <div class="paragraph">
-<p>eventsLogger?.debug("cassandra.save.saving-documents", records.size, tags = contextEventTags)</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
 <p>A single event can bring several values of different types that relate to the same thing:</p>
+</div>
 <div class="ulist">
 <ul>
 <li>
-<p>the size of a response and the time to receive it</p>
+<p>The size of a response and the time to receive it</p>
 </li>
 <li>
-<p>the time to a failure and the cause of the failure</p>
-</li>
-</ul>
-</div>
+<p>The time to a failure and the cause of the failure</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>In that case, those values are passed as an array:</p>
+<p>If an event brings several values those values are passed as an array:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -10300,105 +10419,101 @@ override suspend fun stop(context: StepStartStopContext) {
 </div>
 </div>
 <div class="paragraph">
-<p>Note that, as with meters, the context must be provided as tags, which contains the identifiers of the scenario, the campaign, the step as well as the minion, the iteration of the step for that minion and the state of the context (exhausted or not).</p>
+<p>As with meters, the event context must be provided as tags, which contain the identifiers of the scenario, the campaign, the step as well as the minion, the iteration of the step for that minion and the state of the context (exhausted or not).</p>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_which-event-level-should-be-used"><a class="link" href="#_which-event-level-should-be-used">Which event level should be used?</a></h4>
+<div class="sect2">
+<h3 id="_event-levels"><a class="link" href="#_event-levels">Event levels</a></h3>
 <div class="ulist">
 <ul>
 <li>
-<p>trace, is rarely used, especially not in steps, because it helps more to investigate issues in the Qalipsis engine.</p>
+<p><code>trace</code>: rarely used, especially in steps; helps to investigate issues in the Qalipsis engine.</p>
 </li>
 <li>
-<p>debug for events before the operation of the step occurs,</p>
+<p><code>debug</code>: used for events before the operation of the step occurs.</p>
 </li>
 <li>
-<p>info for information after the operation of step occurred (time to response, number of records successfully sent or received), generally used to later create dashboards and get insights of the performances</p>
+<p><code>info</code>: for information after the operation of the step occurred (time to response, number of records successfully sent or received); generally used to create dashboards and get insights into the the performance of the system.</p>
 </li>
 <li>
-<p>warn for failures that should not abort the test campaign,</p>
+<p><code>warn</code> for failures that should not abort the test campaign.</p>
 </li>
 <li>
-<p>error are extremely rare and only used when the error is so critical that the test campaign should not carry on.</p>
+<p><code>error</code> is extremely rare and only used when the failure is so critical that the test campaign should be aborted.</p>
 </li>
 </ul>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_event-parameters-that-should-be-measured"><a class="link" href="#_event-parameters-that-should-be-measured">Event parameters that should be measured</a></h3>
 <div class="sect3">
-<h4 id="_what-should-be-measured-2"><a class="link" href="#_what-should-be-measured-2">What should be measured?</a></h4>
+<h4 id="_request-based-operations-http-tcp"><a class="link" href="#_request-based-operations-http-tcp">Request based operations (HTTP, TCP,…)</a></h4>
 <div class="paragraph">
-<p>Generally, the following things have to be measured.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Request based operations (HTTP, TCP,…)</p>
-<div class="ulist">
-<ul>
-<li>
 <p>The preparation of the operation to perform:</p>
-</li>
-<li>
-<p>When the request is sent at once, each request to be sent with the suffix .sending-request and severity INFO, which must contain the size in bytes of the request</p>
-</li>
-<li>
-<p>When the request might be chunked or sent in several pieces onto the wire, .sending-request with severity INFO is generated for each request to send and the size of each chunk the suffix .sending-bytes and severity TRACE</p>
-</li>
-<li>
-<p>When the request is sent at once, each request successfully sent with the suffix .sent-request and severity INFO, which must contain the size in bytes of the request</p>
-</li>
-<li>
-<p>When the request might be chunked or sent in several pieces onto the wire, .sent-request with severity INFO is generated for each request to send and the size of each chunk the suffix .sent-bytes and severity TRACE</p>
-</li>
-<li>
-<p>Each request that fails with the suffix .failed-request and severity WARN, with the exception of the failure and the time between the request and the reception of the failure</p>
-</li>
-<li>
-<p>The time to the first byte of the response (when the response starts to be received) with the suffix .receiving and severity DEBUG</p>
-</li>
-<li>
-<p>The time to the last byte of the response (when the response starts to be received) and the number of received bytes with the suffix .received-response and severity DEBUG</p>
-</li>
-<li>
-<p>When the connection, handshake or other preparation are part of the operation, more details can be provided, they can also be measured as the requests are.</p>
-</li>
-</ul>
 </div>
-</li>
-<li>
-<p>Records based operations (Database saving, polling, searching)</p>
 <div class="paragraph">
-<p>Note: the suffices below are proposed with -documents which has to be adapted to own terminology of the developed steps (record for a SQL database, document for Elasticsearch or MongoDB…)</p>
+<p>When the request is sent at once, each request to be sent with the suffix .sending-request and severity INFO, which must contain the size in bytes of the request</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
+<div class="paragraph">
+<p>When the request might be chunked or sent in several pieces onto the wire, .sending-request with severity INFO is generated for each request to send and the size of each chunk the suffix .sending-bytes and severity TRACE</p>
+</div>
+<div class="paragraph">
+<p>When the request is sent at once, each request successfully sent with the suffix .sent-request and severity INFO, which must contain the size in bytes of the request</p>
+</div>
+<div class="paragraph">
+<p>When the request might be chunked or sent in several pieces onto the wire, .sent-request with severity INFO is generated for each request to send and the size of each chunk the suffix .sent-bytes and severity TRACE</p>
+</div>
+<div class="paragraph">
+<p>Each request that fails with the suffix .failed-request and severity WARN, with the exception of the failure and the time between the request and the reception of the failure</p>
+</div>
+<div class="paragraph">
+<p>The time to the first byte of the response (when the response starts to be received) with the suffix .receiving and severity DEBUG</p>
+</div>
+<div class="paragraph">
+<p>The time to the last byte of the response (when the response starts to be received) and the number of received bytes with the suffix .received-response and severity DEBUG</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Note: </dt>
+<dd>
+<p>When the connection, handshake, or other preparation??? are part of the operation, more details can be provided via the dashboard and the parameters can be measured as requests are submitted.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_records-based-operations-database-saving-polling-searching-2"><a class="link" href="#_records-based-operations-database-saving-polling-searching-2">Records based operations (Database saving, polling, searching)</a></h4>
+<div class="paragraph">
+<p>Note: the suffixes below are proposed with -documents which has to be adapted to own terminology of the developed steps (record for a SQL database, document for Elasticsearch or MongoDB…)</p>
+</div>
+<div class="paragraph">
 <p>The number of records to be saved with the suffix .saving-documents and severity DEBUG</p>
-</li>
-<li>
+</div>
+<div class="paragraph">
 <p>The time to receive a complete successful response and the number of records with the suffix .success and severity INFO</p>
-</li>
-<li>
+</div>
+<div class="paragraph">
 <p>If a single request can lead to partial success, the saved records are saved with the suffix .saved-documents and severity INFO and the failed ones with the suffix .failed-documents and severity WARN</p>
-</li>
-<li>
+</div>
+<div class="paragraph">
 <p>The time to receive a failure and the exception with the suffix .failure and severity WARN</p>
-</li>
-<li>
+</div>
+<div class="paragraph">
 <p>The number of actually received records and the time to received all of them  with the suffix .received-documents and severity INFO</p>
-</li>
-<li>
+</div>
+<div class="paragraph">
 <p>When the size in bytes is available for the records or documents, you will also add the relevant counters with the suffices .saving-bytes, .saved-bytes and .received-bytes.</p>
-</li>
-<li>
+</div>
+<div class="paragraph">
 <p>When the operation is not to save but push records, you can replace the save word by a more adequate one, like produce, push,… and the same applies for received.</p>
-</li>
-</ul>
 </div>
-</li>
-</ul>
 </div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_step-execution-meters-2"><a class="link" href="#_step-execution-meters-2">Step execution meters</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
 <p>The step execution meters are directly returned into a wrapper, itself contained in an object transporting the result of the step:</p>
 </div>
@@ -10421,7 +10536,7 @@ override suspend fun stop(context: StepStartStopContext) {
     rows = results,
     meters = CassandraQueryMeters(results.size, timeToResponse)
 )
-
+[source,kotlin,line numbers]
 data class CassandraQueryMeters(
     var recordsCount: Int,
     var timeToResponse: Duration? = null
@@ -10473,10 +10588,16 @@ data class CassandraQueryMeters(
 <div class="ulist">
 <ul>
 <li>
-<p>recordsToSend, recordsToSave, recordsToProduce…, or you can also use bytesCount, documents instead of records to match the plugin terminology</p>
+<p>recordsToSend, recordsToSave, recordsToProduce</p>
+<div class="paragraph">
+<p>Use bytesCount in place of records as needed to to match the plugin terminology.</p>
+</div>
 </li>
 <li>
-<p>sentRecords, savedRecords, producedRecords,… or you can also use bytesCount, documents instead of records to match the plugin terminology</p>
+<p>sentRecords, savedRecords, producedRecords</p>
+<div class="paragraph">
+<p>Use bytesCount in place of records as needed to to match the plugin terminology.</p>
+</div>
 </li>
 <li>
 <p>receivedRecords, consumedRecords</p>
@@ -10493,15 +10614,21 @@ data class CassandraQueryMeters(
 </ul>
 </div>
 <div class="paragraph">
-<p>Then you are free to propose further details for the step execution meters, in order to increase the possibilities for analysis.</p>
+<p>You have the option to propose further details for the step execution meters in order to increase the possibilities for analysis.</p>
 </div>
+<div class="sect2">
+<h3 id="_what-should-be-measured-2"><a class="link" href="#_what-should-be-measured-2">What should be measured?</a></h3>
 <div class="paragraph">
-<p>What should be measured?
-See the values in the section Events just above. All the ones you put in the events have to be provided to the next step.</p>
+<p>See the values in the section Events just above. All the ones you put in the events have to be provided to the next step.</p>
 </div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_configuring-monitoring-within-the-step-specification"><a class="link" href="#_configuring-monitoring-within-the-step-specification">Configuring monitoring within the step specification.</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>How to configure the monitoring in the step specification?
-All the specification should have a function called monitoring, taking a block as parameter:</p>
+<p>All the specification should have a function called monitoring, taking a block as parameter:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -10518,36 +10645,14 @@ All the specification should have a function called monitoring, taking a block a
 10
 11
 12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
 </pre></td>
-  <td class="code"><pre>fun monitoring(monitoringConfig: StepMonitoringConfiguration.() -&gt; Unit)**
-// Implementaton of io.qalipsis.api.steps.StepMonitoringConfiguration
-/**
- * Configuration of the metrics and events to record for a step.
- *
- * @property events when set to true, records the events, defaults to false.
- * @property meters when set to true, records meters, defaults to false.
- *
- * @author Eric Jessé
- */
+  <td class="code"><pre>fun monitoring(monitoringConfig: StepMonitoringConfiguration.() -&gt; Unit)** <i class="conum" data-value="1"></i><b>(1)</b>
 @Spec
 data class StepMonitoringConfiguration(
     var events: Boolean = false,
-    var meters: Boolean = false
+    var meters: Boolean = false (2)
 ) {
-    /**
-     * Enables the record of both events and meters.
-     */
+
     fun all() {
         events = true
         meters = true
@@ -10556,8 +10661,29 @@ data class StepMonitoringConfiguration(
 </tr></table></code></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>Later, the events logger and meter registry are provided to the step only if the relevant flag is enabled:</p>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Implementation of io.qalipsis.api.steps.StepMonitoringConfiguration
+<div class="ulist">
+<ul>
+<li>
+<p>Configuration of the metrics and events to record for a step.</p>
+</li>
+<li>
+<p>@property events when set to true, records the events, defaults to false.</p>
+</li>
+<li>
+<p>@property meters when set to true, records meters, defaults to false.</p>
+</li>
+<li>
+<p>@author Eric Jessé</p>
+<div class="literalblock">
+<div class="content">
+<pre> &lt;2&gt; Enables the monitoring of events and meters.
+Later, the events logger and meter registry are provided to the step only if the relevant flag is enabled:</pre>
+</div>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -10574,20 +10700,18 @@ data class StepMonitoringConfiguration(
 </tr></table></code></pre>
 </div>
 </div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_events"><a class="link" href="#_events">Events</a></h3>
-<div class="paragraph">
-<p>Event Descriptions and information will be provided in the near future.</p>
+</li>
+</ul>
+</div></td>
+</tr>
+</table>
 </div>
 <div style="page-break-after: always;"></div>
 </div>
 </div>
-</div>
 <h1 id="_qalipsis-gui" class="sect0"><a class="link" href="#_qalipsis-gui">QALIPSIS GUI</a></h1>
 <div class="sect1">
-<h2 id="_overview-15"><a class="link" href="#_overview-15">Overview</a></h2>
+<h2 id="_overview-17"><a class="link" href="#_overview-17">Overview</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The QALIPSIS GUI allows you to create, configure, run, monitor and view results of test campaigns from your browser.
@@ -10630,34 +10754,22 @@ You can configure campaigns and run them immediately, at a future time, or on a 
 <div class="sect1">
 <h2 id="_logging-in-to-qalipsis"><a class="link" href="#_logging-in-to-qalipsis">Logging in to QALIPSIS</a></h2>
 <div class="sectionbody">
-<div class="imageblock right">
-<div class="content">
-<img src="./images/GUI/Tenant-select-Login.jpg" alt="Tenant select Login">
-</div>
-</div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Navigate to the QALIPSIS Welcome page (<a href="https://alpha.qalipsis.io" class="bare">https://alpha.qalipsis.io</a>)</p>
+<p>Navigate to the QALIPSIS Welcome page according to the installation details provided by your administrator.</p>
+<div class="paragraph">
+<p>QALIPSIS Cloud is available at <a href="https://app.qalipsis.io" class="bare">https://app.qalipsis.io</a>.</p>
+</div>
 </li>
 <li>
 <p>Enter your Username and Password.</p>
 <div class="paragraph">
-<p>Select the tenant to use from the drop down box.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Tenant#1 allows access to the <em>Campaign</em>  and <em>Series</em> pages.</p>
-</li>
-<li>
-<p>Tenant#2 allows access to the <em>Admin</em> pages.</p>
-</li>
-</ul>
+<p>If your user profile is eligible for several organizations, select the tenant to use from the drop down box.</p>
 </div>
 </li>
 <li>
-<p>Click  <b class="button">Submit</b> to log into QALIPSIS.</p>
+<p>Click <b class="button">Submit</b> to log into QALIPSIS.</p>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Notes</strong></dt>
@@ -10665,10 +10777,10 @@ You can configure campaigns and run them immediately, at a future time, or on a 
 <div class="ulist">
 <ul>
 <li>
-<p>If a Tenant selection message is not displayed, you will be logged in to QALIPSIS  with the tenant you were using in your most recent login.</p>
+<p>If a Tenant selection message is not displayed, you will be logged in to QALIPSIS with the tenant you were using in your most recent login.</p>
 </li>
 <li>
-<p>You can can select a different tenant at any time that you are logged into QALIPSIS.</p>
+<p>You can can select a different tenant at any time that you are logged into QALIPSIS, using the bottom-left panel.</p>
 </li>
 </ul>
 </div>
@@ -10684,21 +10796,16 @@ You can configure campaigns and run them immediately, at a future time, or on a 
 <h2 id="_navigating-qalipsis"><a class="link" href="#_navigating-qalipsis">Navigating QALIPSIS</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>When you log into QALIPSIS, the <em>Home</em> page of the GUI and a left sidebar is displayed.</p>
+<p>When you log into QALIPSIS, the <em>Home</em> page of the GUI and a left sidebar are displayed.</p>
 </div>
 <div class="sect2">
 <h3 id="_left-sidebar"><a class="link" href="#_left-sidebar">Left Sidebar</a></h3>
 <div class="ulist">
 <ul>
 <li>
-<p>Near the top of the sidebar, a menu is displayed.  The contents of the menu depends on the tenant you are currently using and your profile permissions.</p>
-<div class="imageblock right">
-<div class="content">
-<img src="./images/GUI/tenant-sidebars-resized.jpg" alt="tenant sidebars resized">
-</div>
-</div>
+<p>Near the top of the sidebar, a menu is displayed. The contents of the menu depends on your profile permissions.</p>
 <div class="paragraph">
-<p>From the displayed menu you several options.</p>
+<p>From the displayed menu you have several options.</p>
 </div>
 <div class="ulist">
 <ul>
@@ -10715,16 +10822,8 @@ You can configure campaigns and run them immediately, at a future time, or on a 
 </div>
 </li>
 <li>
-<p>Near the bottom of the sidebar, your user name are displayed with your current tenant.
+<p>Near the bottom of the sidebar, your user name is displayed with your current tenant.
 Click  on the your name to display the <em>Tenant Modal</em> window.</p>
-</li>
-</ul>
-</div>
-<div class="imageblock text-center">
-<div class="content">
-<img src="./images/GUI/tenant-modal-window.jpg" alt="tenant modal window">
-</div>
-</div>
 <div class="paragraph">
 <p>From the <em>Tenant Modal</em> you have a few options.</p>
 </div>
@@ -10752,6 +10851,9 @@ Click  on the your name to display the <em>Tenant Modal</em> window.</p>
 </li>
 </ul>
 </div>
+</li>
+</ul>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_change-to-a-different-tenant"><a class="link" href="#_change-to-a-different-tenant">Change to a different tenant</a></h3>
@@ -10762,16 +10864,6 @@ Click  on the your name to display the <em>Tenant Modal</em> window.</p>
 </li>
 <li>
 <p>Select an available tenant to use for the current session.</p>
-<div class="ulist">
-<ul>
-<li>
-<p>With Tenant #1 selected, the <em>Campaign</em> and <em>Series</em> screens are accessible by clicking on the appropriate link near the top of the sidebar.</p>
-</li>
-<li>
-<p>With Tenant #2 selected, the <code>Admin</code> area of the interface is accessible (if you have <code>Admin</code> permissions).</p>
-</li>
-</ul>
-</div>
 </li>
 </ol>
 </div>
@@ -10794,11 +10886,6 @@ Click  on the your name to display the <em>Tenant Modal</em> window.</p>
 </li>
 </ol>
 </div>
-<div class="imageblock text-center">
-<div class="content">
-<img src="./images/GUI/ggllcprofile.jpg" alt="ggllcprofile">
-</div>
-</div>
 </div>
 <div class="sect2">
 <h3 id="_change-your-password"><a class="link" href="#_change-your-password">Change your password</a></h3>
@@ -10820,7 +10907,7 @@ Click  on the your name to display the <em>Tenant Modal</em> window.</p>
 <p>Enter your new password in the <code>New Password</code> and <code>Comfirm Password</code> fields.</p>
 </li>
 <li>
-<p>Click om <code>Save changes</code> to save your new password.</p>
+<p>Click on <code>Save changes</code> to save your new password.</p>
 </li>
 </ol>
 </div>
@@ -10845,8 +10932,8 @@ You will be logged out and returned to the <em>Welcome</em> screen.</p>
 <div class="sect2">
 <h3 id="_access-campaign-information-and-functions"><a class="link" href="#_access-campaign-information-and-functions">Access campaign information and functions</a></h3>
 <div class="paragraph">
-<p>The <code>Campaign</code> page is accessible from the Tenant #1 left sidebar.
-From the <code>Campaign</code> page, you can view current campaign data, update a campaign, and create a new campaign.</p>
+<p>The <code>campaign page is accessible from the left side bar.
+From the `Campaign</code> page, you can view current or past campaign data and create a new campaign.</p>
 </div>
 <div class="paragraph">
 <p>Further details are provided later in this documentation.</p>
@@ -10865,13 +10952,9 @@ From the <code>Campaign</code> page, you can view current campaign data, update 
 <div class="sect2">
 <h3 id="_access-series-information-and-functions"><a class="link" href="#_access-series-information-and-functions">Access Series information and functions</a></h3>
 <div class="paragraph">
-<p>The <code>Series</code> screen is accessible from the Tenant #1 left sidebar.
+<p>Series are data sets that are preconfigured to monitor and display relevant campaign data.
+The <code>Series</code> screen is accessible from the left sidebar.
 The Series' screen allows the user view current series information, update or duplicate a series, and create a new series.</p>
-</div>
-<div class="imageblock text-center">
-<div class="content">
-<img src="./images/GUI/seriespage.jpg" alt="seriespage">
-</div>
 </div>
 <div class="paragraph">
 <p>Further details are provided later in this documentation.</p>
@@ -10893,7 +10976,7 @@ The Series' screen allows the user view current series information, update or du
 <div class="sect2">
 <h3 id="_access-administrative-functions"><a class="link" href="#_access-administrative-functions">Access administrative functions</a></h3>
 <div class="paragraph">
-<p>From the Tenant2 sidebar (if you have <code>Admin</code> permissions):</p>
+<p>From the left sidebar (if you have <code>Admin</code> permissions):</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
@@ -10911,11 +10994,6 @@ The Series' screen allows the user view current series information, update or du
 <div class="paragraph">
 <p>More options will be available from the Admin` area of the GUI in the near future.</p>
 </div>
-<div class="imageblock text-center">
-<div class="content">
-<img src="./images/GUI/userspage.jpg" alt="userspage">
-</div>
-</div>
 </div>
 </div>
 </div>
@@ -10923,7 +11001,7 @@ The Series' screen allows the user view current series information, update or du
 <h2 id="_working-with-series-data-and-filters"><a class="link" href="#_working-with-series-data-and-filters">Working with series data and filters</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Series are defined events and meters that are logged while a campaign is in progress.</p>
+<p>Series are data sets that are preconfigured to monitor and display relevant campaign data.</p>
 </div>
 <div class="ulist">
 <ul>
@@ -10934,14 +11012,24 @@ The Series' screen allows the user view current series information, update or du
 <p>You can create a series if your profile has write permissions.</p>
 </li>
 <li>
-<p>You can update a series if you are the owner and/or have write permissions.</p>
+<p>You can update a series if one of the following is true.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>You are the owner</p>
+</li>
+<li>
+<p>The owner has shared it in write mode and you have write permissions.</p>
+</li>
+</ul>
+</div>
 </li>
 </ul>
 </div>
 <div class="sect2">
 <h3 id="_creating-a-series"><a class="link" href="#_creating-a-series">Creating a series</a></h3>
 <div class="paragraph">
-<p>From the Tenant #1 sidebar:</p>
+<p>From the Tenant sidebar:</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
@@ -10949,11 +11037,6 @@ The Series' screen allows the user view current series information, update or du
 <p>Click on <code>Series</code> to open the <em>Series</em> page.</p>
 <div class="paragraph">
 <p>The <em>Series</em>  page displays a table listing currently defined series.</p>
-</div>
-<div class="imageblock text-center">
-<div class="content">
-<img src="./images/GUI/seriespage.jpg" alt="seriespage">
-</div>
 </div>
 </li>
 <li>
@@ -10964,6 +11047,9 @@ The Series' screen allows the user view current series information, update or du
 </li>
 <li>
 <p>Enter the required data into the appropriate fields.</p>
+<div class="paragraph">
+<p>Note that only numeric fields can be used with an operation. The the other types, only the count of provided values can be configured.</p>
+</div>
 </li>
 <li>
 <p>Click the <b class="button">Create</b> button.</p>
@@ -10984,9 +11070,6 @@ The Series' screen allows the user view current series information, update or du
 <h3 id="_updating-a-series"><a class="link" href="#_updating-a-series">Updating a series</a></h3>
 <div class="olist arabic">
 <ol class="arabic">
-<li>
-<p>Login as Tenant #1.</p>
-</li>
 <li>
 <p>Click on <strong>Series</strong> in the left sidebar menu.</p>
 <div class="paragraph">
@@ -11024,15 +11107,6 @@ The Series' screen allows the user view current series information, update or du
 <p>The New Campaign window will open displaying the campaign name, a settings icon, a search field, and a table listing scenarios that are available to run in the campaign.</p>
 </div>
 </li>
-</ol>
-</div>
-<div class="imageblock text-center">
-<div class="content">
-<img src="./images/GUI/new-campaign.jpg" alt="new campaign">
-</div>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
 <li>
 <p>Optionally, rename the campaign by hovering over the <code>New Campaign</code> title and selecting the pen icon to edit the name.</p>
 </li>
@@ -11043,7 +11117,7 @@ The Series' screen allows the user view current series information, update or du
 </div>
 </li>
 <li>
-<p>To configure a scenario to better suit your specific test, click the <b class="button">Configure</b> button to the right of the scenario.</p>
+<p>To configure a scenario to better suit your specific requirements, click the <b class="button">Configure</b> button to the right of the scenario.</p>
 </li>
 <li>
 <p>Update the fields on the <em>Scenario Configuration</em> window.</p>
@@ -11055,11 +11129,7 @@ The Series' screen allows the user view current series information, update or du
 </div>
 </li>
 <li>
-<p>Choose when you want to run your campaign.</p>
-<div class="ulist">
-<ul>
-<li>
-<p>Click the <b class="button">Run immediately</b> button to start the campaign immediately with the the default run-time configuration.</p>
+<p>Click the <b class="button">Run immediately</b> button to start the campaign.</p>
 <div class="paragraph">
 <p>Campaign data is displayed in real-time in the report window and on the time-series chart.</p>
 </div>
@@ -11074,58 +11144,7 @@ The Series' screen allows the user view current series information, update or du
 </ul>
 </div>
 </li>
-</ul>
-</div>
-</li>
 </ol>
-</div>
-<div class="imageblock text-center">
-<div class="content">
-<img src="./images/GUI/Checkout-stresstest%20campaign%20details.jpg" alt="Checkout stresstest campaign details">
-</div>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Click the arrow next to the  <b class="button">Run immediately</b> button to configure custom runtimes.</p>
-<div class="paragraph">
-<p>The <code>custom running</code> modal window opens.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Select the date you want to start the campaign using the date picker tool.</p>
-<div class="paragraph">
-<p>The date format is [Month dd, yyyy]
-**Select the time zone for the campaign start time from the  ‘Time zone’ dropdown.</p>
-</div>
-<div class="paragraph">
-<p>The time zone format is [(UTC+hh:mm) Continent/ City].</p>
-</div>
-</li>
-<li>
-<p>If you want the campaign to run more than once, select a frequency from the [Frequency] drop down.</p>
-<div class="ulist">
-<ul>
-<li>
-<p>The frequency options are <code>Daily</code>, <code>Weekly</code>, and <code>Monthly</code>.</p>
-</li>
-<li>
-<p><code>Daily</code> runs the campaign at the previously selected time each day.</p>
-</li>
-<li>
-<p><code>Weekly</code> runs the campaign on the selected day(s) every week at the previously selected time of day.</p>
-</li>
-<li>
-<p><code>Monthly</code> runs the campaign each selected day(s) of every month at the previously selected time.</p>
-</li>
-</ul>
-</div>
-</li>
-</ul>
-</div>
-</li>
-</ul>
 </div>
 </div>
 </div>
@@ -11135,7 +11154,7 @@ The Series' screen allows the user view current series information, update or du
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Login to QALIPSIS as Tenant #1.</p>
+<p>From the left sidebar:</p>
 </li>
 <li>
 <p>Click on <strong>Campaign</strong> in the left sidebar.</p>
@@ -11179,7 +11198,7 @@ The Series' screen allows the user view current series information, update or du
 <li>
 <p>Below the report box, a row of filter cards is displayed with the individual events and meters that are logged for the campaign.</p>
 <div class="paragraph">
-<p>Refer to <a href="05_steps.adoc"><code>Step Specifications</code></a> or <a href="#Creating and updating series">[Creating and updating series]</a> for guidance creating filtering steps.</p>
+<p>Refer to <a href="05_steps.adoc"><code>Step Specifications</code></a> or <a href="#_creating-a-series">Creating a series</a> for guidance creating filtering steps.</p>
 </div>
 <div class="paragraph">
 <p>Each card includes the Name, Type, and display color.</p>
@@ -11195,11 +11214,6 @@ The Series' screen allows the user view current series information, update or du
 </div>
 <div class="paragraph">
 <p>Select one or more series cards to display the generated data for that series.</p>
-</div>
-<div class="imageblock text-center">
-<div class="content">
-<img src="./images/GUI/Checkout-stresstest%20campaign%20details.jpg" alt="Checkout stresstest campaign details">
-</div>
 </div>
 <div style="page-break-after: always;"></div>
 </div>
@@ -11478,7 +11492,7 @@ Work in progress
 <div id="footer">
 <div id="footer-text">
 Version 0.5.a-SNAPSHOT<br>
-Last updated 2023-01-30 00:18:18 -0500
+Last updated 2023-02-13 15:12:25 -0500
 </div>
 </div>
 <style>

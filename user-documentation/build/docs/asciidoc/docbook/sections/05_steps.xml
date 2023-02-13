@@ -4,7 +4,7 @@
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
 <title>Step specifications</title>
-<date>2023-01-28</date>
+<date>2023-02-13</date>
 </info>
 <chapter xml:id="_defining-and-configuring-a-step-specification">
 <title>Defining and configuring a step specification</title>
@@ -210,7 +210,7 @@ Refer to <xref linkend="_defining-and-configuring-a-step-specification"/> for mo
 </section>
 <section xml:id="_transformation-operators">
 <title>Transformation operators</title>
-<simpara>flatThis section provides an explanation and examples  of the <literal>flatMap</literal>, <literal>flatten</literal>, <literal>map</literal>, <literal>mapWithContext</literal>, and <literal>onEach</literal> transformation operators.</simpara>
+<simpara>This section provides an explanation and examples  of the <literal>flatMap</literal>, <literal>flatten</literal>, <literal>map</literal>, <literal>mapWithContext</literal>, and <literal>onEach</literal> transformation operators.</simpara>
 <itemizedlist>
 <listitem>
 <simpara><literal>flatMap</literal> converts a collective input into a single element in the output, with a user-defined strategy.</simpara>
