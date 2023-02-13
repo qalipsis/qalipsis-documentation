@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?asciidoc-toc maxdepth="2"?>
+<?asciidoc-numbered?>
+<book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
+<info>
+<title>Glossary</title>
+<date>2023-01-28</date>
+<author>
+<personname>
+<firstname>[cols="1,3"]</firstname>
+</personname>
+</author>
+<authorinitials>[</authorinitials>
+</info>
+<preface>
+<title></title>
+<informaltable frame="all" rowsep="1" colsep="1">
+<tgroup cols="1">
+<colspec colname="col_1" colwidth="100*"/>
+<tbody>
+<row>
+<entry align="left" valign="top"><simpara><emphasis role="strong">Term</emphasis></simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara><emphasis role="strong">Definition</emphasis></simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Assertion</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>A step within a scenario that perform cross-checks of data and durations from different sources.</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Batch</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>A collection of values, as opposed to a single value.</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Campaign</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>A single execution of one or a collection of scenarios, starting at a set time and running for a set period.</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Cluster</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>A set of pieces/nodes of the software that are executed in different locations or on different machines.</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Dependency Injection</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>A technique in which an object receives other objects that it depends on, called dependencies. A dependency injection involves four objects each having a different role:
+ * The service object that is injected into a client.
+ * The client object that receives the injected service.
+ * The interface object that defines how the client uses the service.
+* The injector object that constructs the services and injects them into the client.</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Directed Acyclic Graph (DAG)</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>A subpart of a scenario made up of a single continuous sequence of steps, to be executed in the same location by the same minions.</simpara>
+<itemizedlist>
+<listitem>
+<simpara>Root DAG: A DAG starting immediately under a scenario</simpara>
+</listitem>
+<listitem>
+<simpara>Frontend DAG: A DAG whose followers execute on a different factory.</simpara>
+</listitem>
+<listitem>
+<simpara>Backend DAG: A DAG that continues the execution workflow of a DAG hosted in a different factory.</simpara>
+</listitem>
+<listitem>
+<simpara>DAG Underload: A DAG that is executed by the number of minions set on the scenario.</simpara>
+</listitem>
+<listitem>
+<simpara>Singleton DAG: A DAG that is executed only once and supports infrastructure or optimization operations.</simpara>
+</listitem>
+</itemizedlist></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Directive</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>A single instruction published by a head to trigger an action in a factory.</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Event</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>A time-stamped snapshot within a step. There are several types of events that can be monitored, including
+the time to respond, the status of the response, the size of the payload to send, etc.</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Feedback</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>The factory reply to a directive; the feedback provides status of the directive&#8217;s progression and/or the result of the expected action.</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Input</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>The output of the previous step that is used in the current step&#8217;s execution.</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Load-injected tree</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>A branch of a scenario that receives load from  all of the minions.</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Meter/Step Meter</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><itemizedlist>
+<listitem>
+<simpara>A meter is a value aggregating step of the performance over a short period of time across all the minions.</simpara>
+</listitem>
+<listitem>
+<simpara>A step meter is a unique value representing the performance of a unique execution of a step by a minion (e.g., time to response or volume of data saved, etc.)</simpara>
+</listitem>
+</itemizedlist></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Minion</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>A virtual actor simulating a website user, an IoT device, or another system that interacts with the test system to inject load and verify performance.</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Monitoring/Time-series data</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>A set of records generated by the execution of a campaign that permit the analysis of the performance of the target system and the generation of dashboards.</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Node</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>A software entity of a QALIPSIS cluster. Nodes communicate with each other to exchange data.</simpara>
+<itemizedlist>
+<listitem>
+<simpara>Head: Node of a QALIPSIS cluster that coordinates and maintains the state of the cluster, orchestrating the factories and the campaigns.</simpara>
+</listitem>
+<listitem>
+<simpara>Factory: Node of a QALIPSIS cluster that executes the scenario to generate load to a target system and verify its behavior.</simpara>
+</listitem>
+</itemizedlist></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Operator</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>A command that allows you create or configure a scenario or a step.</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Output</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Any data that a step generates, which may be used to verify behavior or generate further load.</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Plugin</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>A technical extension designed to extend the core capabilities of QALIPSIS.</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Ramp-up</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>An operator that defines the pace that the minions are injected into the system. QALIPSIS out of the box ramping operators include:</simpara>
+<itemizedlist>
+<listitem>
+<simpara>Timeframe</simpara>
+</listitem>
+<listitem>
+<simpara>More</simpara>
+</listitem>
+<listitem>
+<simpara>Faster</simpara>
+</listitem>
+<listitem>
+<simpara>Regular</simpara>
+</listitem>
+</itemizedlist></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Report</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><itemizedlist>
+<listitem>
+<simpara>Step report: A consolidated view of the executions of a step.</simpara>
+</listitem>
+<listitem>
+<simpara>Campaign report: A consolidated view of the step reports.</simpara>
+</listitem>
+</itemizedlist></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Result</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>The record returned by a step when executed by a minion.
+The result contains values (e.g., records fetched from a database or a response to a request) and the step meters of the execution.
+The result is dispatched as output of the step context to the followers.</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Runner</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>A component in charge of triggering and orchestrating the flow of data from one step to the next.  The runner is responsible for ensuring that output data from each step is provided as input to the next step as appropriate. Each runner task is assigned to the minion that simulates the user or device executing it.</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Run-time parameters</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Scenario parameters that are set at run-time or execution of the scenario.</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Scenario</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Sequence of actions to be executed by minions or to poll data from a remote system.</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Selector</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>The Key/Value pair attached to a step to locate its execution in a factory owning the same pair.</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Specification</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>The configuration of a step or a scenario that describes the actions to perform and the sequence in which they are to be performed.</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Step</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>The central atomic components within each scenario. Steps are the challenges minions must complete in order to continue in the scenario.
+Each step has purpose.  There are several step types within QALIPSIS:</simpara>
+<itemizedlist>
+<listitem>
+<simpara>Error processing steps that contains information for handling a failed assertion or execution.</simpara>
+</listitem>
+<listitem>
+<simpara>Proxy steps that act as a middle man to forward the step execution to a follower, using convenient strategies.
+Operator steps that act on its data input or output before releasing it to the next step,</simpara>
+</listitem>
+<listitem>
+<simpara>Assertion steps that validate incoming or outgoing data.</simpara>
+</listitem>
+</itemizedlist></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Step context</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>A single execution of a single step by a single minion.
+minion  * Execution: A set of fields and values representing the single execution of a single minion on a single step.</simpara>
+<itemizedlist>
+<listitem>
+<simpara>Exhausted: After an execution failure, a step context is marked as exhausted, and this state is propagated to its descendants.</simpara>
+</listitem>
+<listitem>
+<simpara>Tail: A step context that represents the last one in the execution workflow of a single minion.</simpara>
+</listitem>
+</itemizedlist></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>Target system</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>An IT system that QALIPSIS injects load into in order to verify its ability to scale and support a high volume of users or data.</simpara></entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</preface>
+</book>

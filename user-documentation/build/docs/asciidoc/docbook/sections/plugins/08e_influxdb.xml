@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?asciidoc-toc maxdepth="2"?>
+<?asciidoc-numbered?>
+<book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
+<info>
+<title>influxdb plugin</title>
+<date>2023-01-28</date>
+</info>
+<chapter xml:id="_influxdb-plugin">
+<title>influxdb plugin</title>
+<section xml:id="_overview">
+<title>Overview</title>
+<simpara>The <literal>influxdb</literal> plugin connects QALIPSIS to <link xl:href="https://www.influxdata.com/">InfluxDB</link>.</simpara>
+<variablelist>
+<varlistentry>
+<term>Technologies addressed</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara>InfluxDB: <link xl:href="https://www.influxdata.com/">https://www.influxdata.com/</link></simpara>
+</listitem>
+<listitem>
+<simpara>Flux: <link xl:href="https://docs.influxdata.com/flux/v0.x/">https://docs.influxdata.com/flux/v0.x/</link></simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Dependency</term>
+<listitem>
+<simpara><literal>io.qalipsis:plugin-influxdb</literal></simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Namespace in scenario</term>
+<listitem>
+<simpara><literal>influxdb()</literal></simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Client library</term>
+<listitem>
+<simpara>influxdb-client-kotlin: refer to the <link xl:href="https://github.com/influxdata/influxdb-client-java/tree/master/client-kotlin">influxdb-client-kotlin</link>.</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Supported steps</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><link linkend="_poll-step"><literal>poll</literal></link>: polls the newest data periodically.</simpara>
+</listitem>
+<listitem>
+<simpara><link linkend="_save-step"><literal>save</literal></link>: saves a batch of records generated from the input and step context.</simpara>
+</listitem>
+<listitem>
+<simpara><link linkend="_search-step"><literal>search</literal></link>: searches records and builds a query from the input and step context.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+</variablelist>
+<simpara>Example scenarios using a combination of the <literal>influxdb</literal> supported steps are provided on <link xl:href="https://github.com/qalipsis/qalipsis-examples/tree/master/influxdb">GitHub</link>.</simpara>
+</section>
+<section xml:id="_poll-step">
+<title>Poll step</title>
+<simpara>The <literal>poll</literal> step within the <literal>influxdb()</literal> plugin polls the newest records from the database, with a delay between each execution of a select query.</simpara>
+<variablelist>
+<varlistentry>
+<term>Ancestor</term>
+<listitem>
+<simpara>Scenario</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Functionality</term>
+<listitem>
+<simpara>The <literal>poll</literal> step is created only once in a scenario; it is then used throughout the scenario as called. The <literal>poll</literal> step within the <literal>influxdb</literal> plugin uses a strategy of “delivered at least once”.</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Example</term>
+<listitem>
+<programlisting language="kotlin" linenumbering="numbered">influxdb().poll {
+    connect {
+        server(
+            url = "http://localhost:18086",
+            bucket = "iot",
+            org = "qalipsis"
+        )
+        basic(user = "DomFisher", password = "Calgary1987")
+    }
+    query(
+        """
+        from(bucket:"${iot}")
+            |&gt; range(start: -15m)
+            |&gt; filter(
+                fn: (r) =&gt; r._measurement == "battery_state"
+                )
+    """.trimIndent()
+    )
+    pollDelay(Duration.ofSeconds(1))
+}</programlisting>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Notable parameters</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><literal>connect</literal> (required): configures the connection to <link xl:href="https://www.influxdata.com/">InfluxDB</link>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>query</literal> (required): specifies a query respecting the requirements of <link xl:href="https://docs.influxdata.com/influxdb/v2.3/reference/api/">Flux v.2.0</link>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>parameters</literal> (optional): binds values to the clauses of the prepared query.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>pollDelay</literal> (required): specifies the delay between query executions.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>broadcast</literal> (optional): specifies the broadcast parameters for the step.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Tip</term>
+<listitem>
+<simpara>Use the <literal>poll</literal> step with a join operator to verify the values that the tested system saves to the database.</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Reference: Documentation</term>
+<listitem>
+<simpara>Refer to the <link xl:href="https://docs.influxdata.com/">InfluxDB</link> documentation for further parameter and configuration information.</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
+<section xml:id="_save-step">
+<title>Save step</title>
+<simpara>The <literal>save</literal> step within the <literal>influxdb()</literal> plugin persists a batch of records into the <literal>influxdb</literal> bucket using a specific <literal>points</literal> class.</simpara>
+<variablelist>
+<varlistentry>
+<term>Ancestor</term>
+<listitem>
+<simpara>Step</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Functionality</term>
+<listitem>
+<simpara>The <literal>save</literal> step&#8217;s input and step context are used to generate the bucket, the list of points with their measurement, and tags and fields, which are then combined and forwarded to the database.</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Example</term>
+<listitem>
+<programlisting language="kotlin" linenumbering="numbered">.save {
+    connect {
+        server(
+            url =  "http://localhost:18086",
+            bucket = "iot",
+            org = "qalipsis"
+        )
+        basic(user = "DomFisher", password = "Calgary1987")
+    }
+    query {
+        bucket = { _, _ -&gt; "iot" }
+        organization = { _, _ -&gt; "qalipsis" }
+        points = { _, input -&gt;
+            listOf(
+                Point.measurement("battery_state")
+                    .addField("battery_level", input.batteryLevel)
+                    .addTag("device_id", input.deviceId)
+                    .addTag("timestamp", input.timestamp.epochSecond.toString())
+            )
+        }
+    }
+}</programlisting>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Notable parameters</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><literal>connect</literal> (required): configures the connection to <link xl:href="https://www.influxdata.com/">InfluxDB</link>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Tips</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara>Use the <literal>save</literal> step after a <literal>collect</literal> step to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.</simpara>
+</listitem>
+<listitem>
+<simpara>The <literal>save</literal> step is extremely flexible: bucket, tags, measurement and fields might depend on the context and input value received from the previous step.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Reference documentation</term>
+<listitem>
+<simpara>Refer to the <link xl:href="https://docs.influxdata.com/">InfluxDB</link> documentation for further parameter and configuration information.</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
+<section xml:id="_search-step">
+<title>Search step</title>
+<simpara>The <literal>search</literal> step within the <literal>influxdb</literal> plugin searches records in the database using a search query.</simpara>
+<variablelist>
+<varlistentry>
+<term>Ancestor</term>
+<listitem>
+<simpara>Step</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Functionality</term>
+<listitem>
+<simpara>The <literal>search</literal> step&#8217;s input and step context are used to generate a query; the batch of results is then forwarded to the next step(s).</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Example</term>
+<listitem>
+</listitem>
+</varlistentry>
+</variablelist>
+<programlisting language="kotlin" linenumbering="numbered">.influxdb()
+.search {
+    connect {
+        server(
+            url = "http://localhost:18086",
+            bucket = "iot",
+            org = "qalipsis"
+        )
+        basic(user = "DomFisher", password = "Calgary1987")
+    }
+    query { _, input -&gt;
+        """
+            from(bucket: "${iot}")
+                    |&gt; range(start: -15m)
+                    |&gt; filter(
+                        fn: (r) =&gt; r._measurement == "${"battery_state"}" and
+                            r.${"device_id"} == "${input.deviceId}" and
+                            r.${"timestamp"} == "${input.timestamp.epochSecond}"
+                        )
+        """.trimIndent()
+    }
+}</programlisting>
+<variablelist>
+<varlistentry>
+<term>Notable parameters</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><literal>search</literal>: generates the search query from the step input and context.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>connect</literal> (required): configures the connection to <link xl:href="https://www.influxdata.com/">InfluxDB</link>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Tip</term>
+<listitem>
+<simpara>Use the <literal>search</literal> step after a <literal>collect</literal> step to reduce the number of queries executed onto the database and to reduce the load the scenario generates on the test system.</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Reference documentation</term>
+<listitem>
+<simpara>Refer to the <link xl:href="https://docs.influxdata.com/">InfluxDB</link> documentation for further parameter and configuration information.</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
+</chapter>
+</book>

@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?asciidoc-toc maxdepth="2"?>
+<?asciidoc-numbered?>
+<book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
+<info>
+<title>jackson plugin</title>
+<date>2023-01-28</date>
+</info>
+<chapter xml:id="_jackson-plugin">
+<title>jackson plugin</title>
+<section xml:id="_overview">
+<title>Overview</title>
+<simpara>The <literal>jackson</literal> plugin supports reading a (<link xl:href="https://github.com/FasterXML/jackson">JSON, XML or CSV</link>) file, converting the data to an object, and pushing the object to the next step.</simpara>
+<variablelist>
+<varlistentry>
+<term>Technologies addressed</term>
+<listitem>
+<simpara><link xl:href="https://github.com/FasterXML/jackson">Class JsonMapper</link></simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Dependency</term>
+<listitem>
+<simpara><literal>io.qalipsis:plugin-jackson</literal></simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Namespace in scenario</term>
+<listitem>
+<simpara><literal>jackson()</literal></simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Client library</term>
+<listitem>
+<simpara>JsonMapper: refer to <link xl:href="http://fasterxml.github.io/jackson-databind/javadoc/2.11/com/fasterxml/jackson/databind/json/JsonMapper.html">FasterXML</link>.</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Supported steps</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><link linkend="_csvtomap-and-csvtoobject">csvToMap and csvToObject</link>: reads a csv file, and converts the data to a Map (or an Object).</simpara>
+</listitem>
+<listitem>
+<simpara><link linkend="_jsontomap-and-jsontoobject">jsonToMap and jsonToObject</link>: reads a json file and converts the data to a Map (or Object).</simpara>
+</listitem>
+<listitem>
+<simpara><link linkend="_xmltoobject"><literal>xmlToObject</literal></link>: reads an xml file and converts the data to an object.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
+<section xml:id="_csvtomap-and-csvtoobject">
+<title>csvToMap and csvToObject</title>
+<simpara>The <literal>csvToMap</literal> and <literal>csvToObject</literal> steps within the <literal>jackson</literal> plugin read a CSV resource (file, classpath resource, URL) and returns each item as an instance of an Object or Map.</simpara>
+<variablelist>
+<varlistentry>
+<term>Ancestor</term>
+<listitem>
+<simpara>Step</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Functionality</term>
+<listitem>
+<simpara>The <literal>csvToMap</literal> and <literal>csvToObject</literal> step specification has a <literal>targetClass</literal> property to which the output lines should be mapped.
+The step reads a CSV file, converts the data to a <literal>map</literal> (or an <literal>object</literal>) and pushes the <literal>map</literal> (or <literal>object</literal>) to the next step.</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Example</term>
+<listitem>
+<programlisting language="kotlin" linenumbering="numbered">jackson().csvToMap {
+   classpath(file)
+   header {
+       escapeChar('E')
+       quoteChar('"')
+       columnSeparator(';')
+       withHeader()
+       allowComments()
+
+       column("1st value").double()
+       column("2th value").string().array(",")
+       column("3rd value").string(true)
+       column("4th value").string(true)
+   }
+}
+.jackson()
+.csvToObject(BatteryState::class) {
+   classpath("battery-levels.csv")
+   header {
+      column("deviceId")
+      column("timestamp")
+      column("batteryLevel").integer()
+   }
+   unicast()
+}</programlisting>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Notable parameters</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><literal>classpath(file)</literal>: reads the data from a specified class path resource; <literal>file</literal> is the path to the resource with the leading slash ignored.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>file(path)</literal>: reads the data from a specified plain file in the file system; <literal>path</literal> is the path to the file, either absolute or relative to the current working directory.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>url(url)</literal>: specifies and links to the <literal>url</literal> of the data resource.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>mapper</literal>: configures the JSON Mapper to deserialize the records.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Tip</term>
+<listitem>
+<simpara>Only one path (<literal>classpath(file)</literal>, <literal>file(path)</literal>, or <literal>url(url)</literal>) to the resource is allowed for each <literal>csvToObject</literal> or <literal>csvToMap</literal> step.</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Reference documentation</term>
+<listitem>
+<simpara>Refer to the <link xl:href="https://github.com/FasterXML/jackson">jackson</link> documentation for further congiguration and parameter information.</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
+<section xml:id="_xmltoobject">
+<title>xmlToObject</title>
+<simpara>The <literal>xmlToObject</literal> step within the <literal>jackson</literal> plugin reads an XML resource (classpath, file, or url) and returns each item as an instance of an object of the specified class.</simpara>
+<variablelist>
+<varlistentry>
+<term>Ancestor</term>
+<listitem>
+<simpara>Step</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Functionality</term>
+<listitem>
+<simpara>The <literal>xmlToObject</literal> step specification has a <literal>targetClass</literal> property to which the output lines should be mapped.
+The step reads an XML file, converts the data to an <literal>Object</literal>, and pushes the <literal>Object</literal> to the next step.</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Example</term>
+<listitem>
+<programlisting language="kotlin" linenumbering="numbered">jackson().xmlToObject(PojoForTest::class) {
+   classpath(file)
+}</programlisting>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Notable parameters</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><literal>classpath(file)</literal>: reads the data from a specified class path resource; <literal>file</literal> is the path to the resource with the leading slash ignored.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>file(path)</literal>: reads the data from a specified plain file in the file system; <literal>path</literal> is the path to the file, either absolute or relative to the current working directory.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>url(url)</literal>: specifies and links to the <literal>url</literal> of the data resource.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Tip</term>
+<listitem>
+<simpara>Only one path (<literal>classpath(file)</literal>, <literal>file(path)</literal>, or <literal>url(url)</literal>) to the resource is allowed for each <literal>xmlToObject</literal> step.</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Reference documentation</term>
+<listitem>
+<simpara>Refer to the <link xl:href="https://github.com/FasterXML/jackson">jackson</link> documentation for further congiguration and parameter information.</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
+<section xml:id="_jsontomap-and-jsontoobject">
+<title>jsonToMap and jsonToObject</title>
+<simpara>The <literal>jsonToMap</literal> and <literal>jsonToObject</literal> steps within the <literal>jackson</literal> plugin read a JSON resource (file, classpath resource, URL) and returns each item as an instance of <literal>map</literal> or <literal>object</literal>).</simpara>
+<variablelist>
+<varlistentry>
+<term>Ancestor</term>
+<listitem>
+<simpara>Step</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Functionality</term>
+<listitem>
+<simpara>The <literal>jsonToMap</literal> and  <literal>jsonToObject</literal> step specification has a <literal>targetClass</literal> property to which the output lines should be mapped. The step reads a JSON file, converts the data to a <literal>Map</literal> (or an <literal>Object</literal>)  and pushes the <literal>Map</literal> (or <literal>Object</literal>) to the next step.</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Example</term>
+<listitem>
+<programlisting language="kotlin" linenumbering="numbered">jackson().jsonToMap() {
+   classpath(file)
+}
+jackson().jsonToObject(PojoForTest::class) {
+   classpath(file)
+}</programlisting>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Notable parameters</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><literal>classpath(file)</literal>: reads the data from a specified <literal>path</literal> resource; <literal>file</literal> is the path to the resource with the leading slash ignored.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>file(path)</literal>: reads the data from a specified plain file in the file system; <literal>path</literal> is the path to the file, either absolute or relative to the current working directory.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>url(url): specifies and links to the `url</literal> of the data resource.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Tip</term>
+<listitem>
+<simpara>Only one path (<literal>classpath(file)</literal>, <literal>file(path)</literal>, or <literal>url(url)</literal>) to the resource is allowed for each <literal>jsnToObject</literal> or <literal>jsnToMap</literal> step.</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Reference documentation</term>
+<listitem>
+<simpara>Refer to the <link xl:href="https://github.com/FasterXML/jackson">jackson</link> documentation for further configuration and parameter information.</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
+</chapter>
+</book>

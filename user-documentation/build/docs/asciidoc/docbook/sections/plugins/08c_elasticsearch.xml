@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?asciidoc-toc maxdepth="2"?>
+<?asciidoc-numbered?>
+<book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
+<info>
+<title>elasticsearch plugin</title>
+<date>2023-01-28</date>
+</info>
+<chapter xml:id="_elasticsearch-plugin">
+<title>elasticsearch plugin</title>
+<section xml:id="_overview">
+<title>Overview</title>
+<simpara>The elasticsearch plugin connects QALIPSIS to <link xl:href="https://www.elastic.co/">Elasticsearch</link>.</simpara>
+<variablelist>
+<varlistentry>
+<term>Technology addressed</term>
+<listitem>
+<simpara>Elasticsearch: <link xl:href="https://www.elastic.co/">https://www.elastic.co/</link></simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Dependency</term>
+<listitem>
+<simpara><literal>io.qalipsis:plugin-elasticsearch</literal></simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Namespace in scenario</term>
+<listitem>
+<simpara><literal>elasticsearch()</literal></simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Client library</term>
+<listitem>
+<simpara>JAVA API:  refer to
+<link xl:href="https://www.elastic.co/guide/en/elasticsearch/client/java-api-client/8.1/connecting.html">Elasticsearch JAVA Client</link>.</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Supported steps</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><link linkend="poll step"><literal>poll</literal></link>: polls the newest data periodically.</simpara>
+</listitem>
+<listitem>
+<simpara><link linkend="save step"><literal>save</literal></link>: saves a batch records generated from the input and step context.</simpara>
+</listitem>
+<listitem>
+<simpara><link linkend="search step"><literal>search</literal></link>: searches records and builds a query from the input and step context.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+</variablelist>
+<simpara>Example scenarios using a combination of <literal>elastcisearch</literal> supported steps are provided on <link xl:href="https://github.com/qalipsis/qalipsis-examples/tree/master/elasticsearch">Github</link>.</simpara>
+</section>
+<section xml:id="_poll-step">
+<title>Poll step</title>
+<simpara>The <literal>poll</literal> step within the <literal>elasticsearch</literal> plugin periodically polls data from Elasticsearch. The output is a list of <literal>ElasticsearchDocument</literal> containing JSON data or deserialized to objects.</simpara>
+<variablelist>
+<varlistentry>
+<term>Ancestor</term>
+<listitem>
+<simpara>Scenario</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Functionality</term>
+<listitem>
+<simpara>The <literal>poll</literal> step is created only once in a scenario; it is then used throughout the scenario as called. The <literal>poll</literal> step within the elasticsearch plugin uses a strategy of “delivered exactly once”. The output of the <literal>poll</literal> step is an <literal>ElasticsearchDocument</literal> that contains maps of column to values.</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Example</term>
+<listitem>
+</listitem>
+</varlistentry>
+</variablelist>
+<programlisting language="kotlin" linenumbering="numbered">elasticsearch().poll {
+    name = "poll"
+    client { RestClient.builder(HttpHost.create("http://localhost:9200")).build() }
+    query {
+        """{
+            "query":{
+                "match_all":{}
+            },
+            "sort" : ["_score"]
+        }""".trimIndent()
+    }
+    index("battery-state")
+    pollDelay(Duration.ofSeconds(1))
+}</programlisting>
+<variablelist>
+<varlistentry>
+<term>Notable parameters</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><literal>index</literal>: sets the <literal>elasticsearch</literal> indices to use for the queries; defaults to <literal>all</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>client</literal>: configures the REST client to connect to <link xl:href="https://www.elastic.co/">Elasticsearch</link>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>query</literal>: configures the builder for the JSON query to perform the first poll.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>queryParameters</literal>(optional): adds parameters to the query.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>pollDelay</literal> (required): specifies the delay between query executions.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>broadcast</literal> (optional): specifies the broadcast parameters for the step.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Tips</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara>The <literal>poll</literal> step is generally used in conjunction with a <literal>join</literal> to assert data or inject data into a workflow.</simpara>
+</listitem>
+<listitem>
+<simpara>The <literal>query</literal> parameter requires at least one sorting field to filter the newest results and not fetch the same records repeatedly.</simpara>
+</listitem>
+<listitem>
+<simpara>The output of the <literal>poll</literal> step is an <literal>ElasticsearchDocument</literal> that contains maps of column names to values. If <literal>flatten</literal> is called, the records are provided one by one to the next step; otherwise each poll batch remains complete.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Reference Documentation</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara>Refer to
+<link xl:href="https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-query-params">Elasticsearch Query Parameters</link> for more information on query parameters.</simpara>
+</listitem>
+<listitem>
+<simpara>Refer to the <link xl:href="https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html#search-after">Elasticsearch</link> documentation for further parameter and configuration information.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
+<section xml:id="_save-step">
+<title>Save step</title>
+<simpara>The <literal>save</literal> step within the <literal>elasticsearch</literal> plugin persists a batch of documents into  <link xl:href="https://www.elastic.co/">Elasticsearch</link>.</simpara>
+<variablelist>
+<varlistentry>
+<term>Ancestor</term>
+<listitem>
+<simpara>Step</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Functionality</term>
+<listitem>
+<simpara>The <literal>save</literal> step&#8217;s input and step context are used to generate a list of documents that are forwarded to <link xl:href="https://www.elastic.co/">Elasticsearch</link>.</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Example</term>
+<listitem>
+</listitem>
+</varlistentry>
+</variablelist>
+<programlisting language="kotlin" linenumbering="numbered">.elasticsearch()
+.save {
+    name = "save"
+    client {
+        RestClient.builder(HttpHost.create("http://localhost:9200")).build()
+    }
+    documents { _, input -&gt;
+        listOf(
+            Document(
+                index = "battery-state",
+                id = input.primaryKey,
+                source = objectMapper.writeValueAsString(input)
+            )
+        )
+    }
+}</programlisting>
+<variablelist>
+<varlistentry>
+<term>Notable Parameters</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><literal>client</literal>: configures the REST client to connect to <link xl:href="https://www.elastic.co/">Elasticsearch</link>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>documents</literal>: defines the strategy to create documents to save from the input and step context.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Reference Documentation</term>
+<listitem>
+<simpara>Refer to the <link xl:href="https://www.elastic.co/guide">Elasticsearch</link> documentation for further parameter information.</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
+<section xml:id="_search-step">
+<title>Search step</title>
+<simpara>The <literal>search</literal> step within the <literal>elasticsearch</literal> plugin searches documents in the Elasticsearch database using a search query.</simpara>
+<variablelist>
+<varlistentry>
+<term>Ancestor</term>
+<listitem>
+<simpara>Step</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Functionality</term>
+<listitem>
+<simpara>The <literal>search</literal> step’s input and step context are used to generate a query; the batch of results is then forwarded to the next step(s).</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Example</term>
+<listitem>
+</listitem>
+</varlistentry>
+</variablelist>
+<programlisting language="kotlin" linenumbering="numbered">.elasticsearch()
+.search {
+    name = "search"
+    client {
+        RestClient.builder(HttpHost.create("http://localhost:9200")).build()
+    }
+    index { _, _ -&gt; listOf("battery-state") }
+    query { _, input -&gt;
+        """{
+            "query": {
+                "bool": {
+                    "must": [
+                        { "match": { "deviceId": "${input.input.deviceId}" }},
+                        { "term": { "timestamp": ${input.input.timestamp.epochSecond} }}
+                    ]
+                }
+            }
+        }"""
+    }
+}</programlisting>
+<variablelist>
+<varlistentry>
+<term>Notable parameters</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><literal>client</literal>: configures the REST client to connect to <link xl:href="https://www.elastic.co/">Elasticsearch</link>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>index</literal>: sets the <literal>elasticsearch</literal> indices to use for the queries; defaults to <literal>all</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>query</literal>: configures the builder for the JSON query to perform a search.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Reference Documentation</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara>Refer to the <link xl:href="https://www.elastic.co/guide">Elasticsearch</link> documentation for further parameter and configuration information.</simpara>
+</listitem>
+<listitem>
+<simpara>For specifics on <literal>queryParameters</literal> refer to <link xl:href="https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-query-paramsElastic">Elasticsearch Query Parameters</link>.</simpara>
+</listitem>
+<listitem>
+<simpara>For specifics on <literal>search</literal> parameters, refer to
+<link xl:href="https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html">Elasticsearch Search Parameters</link>.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
+</chapter>
+</book>

@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?asciidoc-toc maxdepth="2"?>
+<?asciidoc-numbered?>
+<book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
+<info>
+<title>r2dbc-jasync plugin</title>
+<date>2023-01-28</date>
+</info>
+<chapter xml:id="_r2dbc-jasync-plugin">
+<title>r2dbc-jasync plugin</title>
+<section xml:id="_overview">
+<title>Overview</title>
+<simpara>The <literal>r2dbc-jasync</literal> plugin connects QALIPSIS to <link xl:href="https://mariadb.org/">MariaDB</link>, <link xl:href="https://www.mysql.com">MySQL</link> and <link xl:href="https://www.postgresql.org/">PostgreSQL</link>.</simpara>
+<variablelist>
+<varlistentry>
+<term>Technologies addressed</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara>MariaDB: <link xl:href="https://mariadb.org/">https://mariadb.org/</link></simpara>
+</listitem>
+<listitem>
+<simpara>MySQL: <link xl:href="https://www.mysql.com">https://www.mysql.com</link></simpara>
+</listitem>
+<listitem>
+<simpara>PostgreSQL: <link xl:href="https://www.postgresql.org/">https://www.postgresql.org/</link></simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Dependency</term>
+<listitem>
+<simpara><literal>io.qalipsis:plugin-r2dbc-jasync</literal></simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Namespace in scenario</term>
+<listitem>
+<simpara><literal>r2dbcJasync()</literal></simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Client library</term>
+<listitem>
+<simpara>Jasync-sql: refer to <link xl:href="https://github.com/jasync-sql/jasync-sql">jasync-sql</link></simpara>
+<simpara>Jasync-sql is an asynchronous database driver for PostgreSQL and MySQL written in kotlin.</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Supported steps</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><link linkend="_poll-step"><literal>poll</literal></link>: polls the newest data periodically.</simpara>
+</listitem>
+<listitem>
+<simpara><link linkend="_save-step"><literal>save</literal></link>: saves a batch of records generated from the input and step context.</simpara>
+</listitem>
+<listitem>
+<simpara><link linkend="_search-step"><literal>search</literal></link>: searches records and builds a query from the input and step context.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+</variablelist>
+<simpara>Example scenarios using a combination of <literal>r2dbc-jasync</literal> supported steps are provided <link xl:href="https://github.com/qalipsis/qalipsis-examples/tree/master/r2dbc-jasync">GitHub</link>.</simpara>
+</section>
+<section xml:id="_poll-step">
+<title>Poll step</title>
+<simpara>The <literal>poll</literal> step within the <literal>r2bc-jasync</literal> plugin polls the newest records from the database, respecting a delay between each execution of a select query.</simpara>
+<variablelist>
+<varlistentry>
+<term>Ancestor</term>
+<listitem>
+<simpara>Scenario</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Functionality</term>
+<listitem>
+<simpara>The <literal>poll</literal> step is created only once in a scenario; it is then used throughout the scenario as called. The <literal>poll</literal> step within the <literal>r2b-jaysync</literal> plugin uses a strategy of “delivered at least once”.</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Example</term>
+<listitem>
+<programlisting language="kotlin" linenumbering="numbered">r2dbcJasync().poll {
+    protocol(Protocol.POSTGRESQL)
+    connection {
+        database = "qalipsis_db"
+        port = jdbc:mysql://localhost:5432;
+        username = "JohnAmes"
+        password = "Fortune3018"
+    }
+    query("select * from ${"qalipsis_db"} order by \"${"timestamp"}\"")
+    pollDelay(Duration.ofSeconds(1))
+}</programlisting>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Notable parameters</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><literal>connection</literal> (required): specifies the connection parameters.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>query</literal> (required): specifies a query respecting the requirements of the target database (<link xl:href="https://mariadb.org/">MariaDB</link>,  <link xl:href="https://www.mysql.com">MySQL</link>, <link xl:href="https://www.postgresql.org/">PostgreSQL</link>,).</simpara>
+</listitem>
+<listitem>
+<simpara><literal>pollDelay</literal> (required): specifies the delay between query executions.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>broadcast</literal> (optional): specifies the broadcast parameters for the step.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Tips</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara>Use the <literal>poll</literal> step with a join operator when you need to verify the values saved by your tested system in the database.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>query</literal> requires at least one sorting field (known as <literal>tiebreaker</literal> in the example) to filter the newest results and not fetch the same records repeatedly.</simpara>
+</listitem>
+<listitem>
+<simpara>The latest known value for the <literal>tiebreaker</literal> is used to filter out the values already received directly from the database.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Reference documentation</term>
+<listitem>
+<simpara>Refer to <link xl:href="https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections">Configuring and Managing Connections</link> for further parameter and configuration information.</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
+<section xml:id="_save-step">
+<title>Save step</title>
+<simpara>The <literal>save</literal> step within the <literal>r2bc-jasync</literal> plugin persists a batch of records into an SQL table using a prepared statement.</simpara>
+<variablelist>
+<varlistentry>
+<term>Ancestor</term>
+<listitem>
+<simpara>Step</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Functionality</term>
+<listitem>
+<simpara>The <literal>save</literal> step&#8217;s input and step context are used to generate the table and the list of columns and their values, which are then combined and forwarded to the database.</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Example</term>
+<listitem>
+<programlisting language="kotlin" linenumbering="numbered">.r2dbcJasync()
+.save {
+    protocol(Protocol.POSTGRESQL)
+    connection {
+        database = "qalipsis_db"
+        port = jdbc:mysql://localhost:5432
+        username = "JohnAmes"
+        password = "Fortune3018"
+    }
+    tableName { _, _ -&gt;
+        "qalipsis_table"
+    }
+    columns { _, _ -&gt;
+        listOf(
+            "id",
+            "device_id",
+            "timestamp",
+            "battery_level"
+        )
+    }
+    values { _, input -&gt;
+        listOf(
+            JasyncSaveRecord(
+                input.primaryKey(),
+                input.deviceId,
+                input.timestamp.epochSecond,
+                input.batteryLevel
+            )
+        )
+    }
+    monitoring {
+        events = false
+        meters = true
+    }
+}</programlisting>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Notable parameters</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><literal>connection</literal> (required): specifies the connection parameters.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Tips</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara>Use the <literal>save</literal> step after a <literal>collect()</literal> step in order to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.</simpara>
+</listitem>
+<listitem>
+<simpara>The <literal>save</literal> step is extremely flexible; table, columns and values might depend on the context and input value received from the previous step.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Reference documentation</term>
+<listitem>
+<simpara>Refer to <link xl:href="https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections">Configuring and Managing Connections</link> for further parameter and configuration information.</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
+<section xml:id="_search-step">
+<title>Search step</title>
+<simpara>The <literal>search</literal> step within the <literal>r2bc-jasync</literal> plugin searches records in the database using a search query.</simpara>
+<variablelist>
+<varlistentry>
+<term>Ancestor</term>
+<listitem>
+<simpara>Step</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Functionality</term>
+<listitem>
+<simpara>The <literal>search</literal> step’s input and step context are used to generate a prepared statement and the values to complete it; the batch of results is then forwarded to the next step(s).</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Example</term>
+<listitem>
+<programlisting language="kotlin" linenumbering="numbered">.r2dbcJasync()
+.search {
+    protocol(Protocol.MARIADB)
+    connection {
+        database = "qalipsis_db"
+        port = jdbc:mysql://localhost:5432
+        username = "JohnAmes"
+        password = "Fortune3018"
+    }
+    query { _, _ -&gt;
+        val request = "SELECT DISTINCT * from ${qalipsis_db} where ${"timestamp"} = ? AND ${"device_id"} = ?"
+        request
+    }
+    parameters { _, input -&gt;
+        listOf(input.timestamp.epochSecond, input.deviceId)
+    }
+}</programlisting>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Notable parameters</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><literal>connection</literal> (required): specifies the connection parameters.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>query</literal>: generates a prepared statement from the step&#8217;s context and input.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>parameters</literal> (optional): binds values to the clauses of the prepared query.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Tip</term>
+<listitem>
+<simpara>Use the <literal>search</literal> step after a <literal>collect</literal> step in order to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Reference documentation</term>
+<listitem>
+<simpara>Refer to <link xl:href="https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections">Configuring and Managing Connections</link> for further parameter and configuration information.</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
+</chapter>
+</book>

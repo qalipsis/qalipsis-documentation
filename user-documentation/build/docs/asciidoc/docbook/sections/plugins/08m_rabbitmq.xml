@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?asciidoc-toc maxdepth="2"?>
+<?asciidoc-numbered?>
+<book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
+<info>
+<title>rabbitmq plugins</title>
+<date>2023-01-28</date>
+</info>
+<chapter xml:id="_rabbitmq-plugins">
+<title>rabbitmq plugins</title>
+<section xml:id="_overview">
+<title>Overview</title>
+<simpara>The rabbitmq plugin connects QALIPSIS to the <link xl:href="https://www.rabbitmq.com/">RabbitMQ</link> broker.</simpara>
+<variablelist>
+<varlistentry>
+<term>Technology addressed</term>
+<listitem>
+<simpara>RabbitMQ: <link xl:href="https://www.rabbitmq.com/">https://www.rabbitmq.com/</link></simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Dependency</term>
+<listitem>
+<simpara><literal>io.qalipsis:plugin-rabbitmq</literal></simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Namespace in scenario</term>
+<listitem>
+<simpara><literal>rabbitmq()</literal></simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Client library</term>
+<listitem>
+<simpara>RabbitMQ: refer to <link xl:href="https://www.rabbitmq.com/">rabbitMQ</link></simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Supported steps</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><link linkend="_consume-step"><literal>consume</literal></link>: polls data from the <literal>rabbitmq</literal> broker.</simpara>
+</listitem>
+<listitem>
+<simpara><link linkend="_produce-step"><literal>produce</literal></link>: pushes data to the rabbitmq broker.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+</variablelist>
+<simpara>An example scenario that uses a combination of the <literal>rabbitmq</literal> <literal>consume</literal> and <literal>produce</literal> steps is provided on <link xl:href="https://github.com/qalipsis/qalipsis-examples/tree/master/rabbitmq">GitHub</link>.</simpara>
+</section>
+<section xml:id="_consume-step">
+<title>Consume step</title>
+<simpara>The <literal>consume</literal> step within the <literal>rabbitmq</literal> plugin consumes data from queues of the rabbitmq broker and forwards the data to the next step.</simpara>
+<simpara>This step is generally used in conjunction with <literal>join</literal> to assert data or inject data into a workflow.</simpara>
+<simpara>This step supports multithreading concurrent consumers using  the <literal>concurrency()</literal> property.  When the concurrency is set to more than 1, the sequence of the records transmitted to the next step in no longer guaranteed.</simpara>
+<simpara>To learn more, visit the <link xl:href="https://www.rabbitmq.com/#getstarted">RabbitMQ</link> website.</simpara>
+<variablelist>
+<varlistentry>
+<term>Ancestor</term>
+<listitem>
+<simpara>Scenario</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Functionality</term>
+<listitem>
+<simpara>The <literal>consume</literal> step starts a polling loop for consumption of the designated queue.  As new records appear, <literal>consume</literal> polls them and sends them to the next step.</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Example</term>
+<listitem>
+<programlisting language="kotlin" linenumbering="numbered">rabbitmq().
+  consume {
+    queue("user")
+    connection {
+      host = "localhost"
+      port = 5672
+      password = "Ceila1995"
+      username = "PaulSmith"
+    }
+    concurrency(2)
+    prefetchCount (11)
+}</programlisting>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Notable parameters</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><literal>queue</literal>: defines the name of the queue to consume.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>connection</literal>: configures the connection to the RabbitMQ broker; defaults to <literal>localhost:5672</literal></simpara>
+</listitem>
+<listitem>
+<simpara><literal>concurrency:</literal> defines the number of concurrent channels producing messages to RabbitMQ; defaults to 1.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>prefetchCount</literal>: defines the prefetch count value; defaults to 10.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>broadcast</literal> (optional): specifies the broadcast parameters for the step.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Tip</term>
+<listitem>
+<simpara>Use the <literal>consume</literal> step with <literal>join</literal> to assert data or inject data into a workflow.</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Reference documentation</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara>Learn more about <literal>prefetchCount</literal> by reading the  <link xl:href="https://www.rabbitmq.com/consumer-prefetch.html">RabbitMQ Prefetch</link> documentation.</simpara>
+</listitem>
+<listitem>
+<simpara>To configure the <literal>consume</literal> step, consult the <link xl:href="https://www.rabbitmq.com/documentation.html">rabbitMQ</link> documentation.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
+<section xml:id="_produce-step">
+<title>Produce step</title>
+<simpara>The <literal>produce</literal> step within the <literal>rabbitmq</literal> plugin provides messages to the <literal>rabbitmq</literal> broker using a query; the messages are then forwarded as input to the next step.</simpara>
+<variablelist>
+<varlistentry>
+<term>Ancestor</term>
+<listitem>
+<simpara>Scenario</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Functionality</term>
+<listitem>
+<simpara>The <literal>produce</literal> step&#8217;s input and step context are used to generate the values to complete the step; results are then forwarded to the next step(s).</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Example</term>
+<listitem>
+</listitem>
+</varlistentry>
+</variablelist>
+<programlisting language="kotlin" linenumbering="numbered">.rabbitmq()
+.produce {
+    connection {
+      host = "localhost"
+      port = 5672
+      password = "Ceila1995"
+      username = "PaulSmith"
+
+    }
+    records { _, input -&gt;
+        listOf(
+            RabbitMqProducerRecord(
+                exchange = "battery_state",
+                routingKey = "battery_state",
+                props = null,
+                value = objectMapper.writeValueAsBytes(input)
+            )
+        )
+    }
+}</programlisting>
+<variablelist>
+<varlistentry>
+<term>Notable parameters</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><literal>concurrency</literal>(optional): defines the number of concurrent channels producing messages to <literal>rabbitmq</literal>; defaults to <literal>1</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>connection</literal>: configures the connection to the <literal>rabbitmq</literal> broker; defaults to <literal>localhost:5672</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>records</literal>: configures and generates a list of produced records.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Reference documentation</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara>For more information on configuring the connection to <literal>rabbitmq</literal>, refer to  <link xl:href="https://www.rabbitmq.com/api-guide.html#connecting">Connecting to RabbitMQ</link>.</simpara>
+</listitem>
+<listitem>
+<simpara>For more information on configuring the <literal>produce</literal> step, refer to the <link xl:href="https://www.rabbitmq.com/documentation.html">rabbitMQ</link> documentation.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
+</chapter>
+</book>

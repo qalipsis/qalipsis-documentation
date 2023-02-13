@@ -1,0 +1,518 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?asciidoc-toc maxdepth="2"?>
+<?asciidoc-numbered?>
+<book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
+<info>
+<title>QALIPSIS GUI</title>
+<date>2023-02-01</date>
+</info>
+<chapter xml:id="_overview">
+<title>Overview</title>
+<simpara>The QALIPSIS GUI allows you to create, configure, run, monitor and view results of test campaigns from your browser.
+You can configure campaigns and run them immediately, at a future time, or on a recurring schedule.</simpara>
+<itemizedlist>
+<listitem>
+<simpara>You can view in-process campaign results in real time.</simpara>
+</listitem>
+<listitem>
+<simpara>You can view finalized reports of a previous campaign&#8217;s data on static reports and on an interactive time-series chart.</simpara>
+</listitem>
+</itemizedlist>
+<simpara>The following topics are discussed in this section:</simpara>
+<itemizedlist>
+<listitem>
+<simpara><xref linkend="_logging-in-to-qalipsis"/></simpara>
+</listitem>
+<listitem>
+<simpara><xref linkend="_navigating-qalipsis"/></simpara>
+</listitem>
+<listitem>
+<simpara><xref linkend="_working-with-series-data-and-filters"/></simpara>
+</listitem>
+<listitem>
+<simpara><xref linkend="_configuring-and-running-a-campaign"/></simpara>
+</listitem>
+<listitem>
+<simpara><xref linkend="_displaying-campaign-data"/></simpara>
+</listitem>
+</itemizedlist>
+</chapter>
+<chapter xml:id="_logging-in-to-qalipsis">
+<title>Logging in to QALIPSIS</title>
+<informalfigure>
+<mediaobject>
+<imageobject>
+<imagedata fileref="GUI/Tenant-select-Login.jpg"/>
+</imageobject>
+<textobject><phrase>Tenant select Login</phrase></textobject>
+</mediaobject>
+</informalfigure>
+<orderedlist numeration="arabic">
+<listitem>
+<simpara>Navigate to the QALIPSIS Welcome page (<link xl:href="https://alpha.qalipsis.io">https://alpha.qalipsis.io</link>)</simpara>
+</listitem>
+<listitem>
+<simpara>Enter your Username and Password.</simpara>
+<simpara>Select the tenant to use from the drop down box.</simpara>
+<itemizedlist>
+<listitem>
+<simpara>Tenant#1 allows access to the <emphasis>Campaign</emphasis>  and <emphasis>Series</emphasis> pages.</simpara>
+</listitem>
+<listitem>
+<simpara>Tenant#2 allows access to the <emphasis>Admin</emphasis> pages.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+<listitem>
+<simpara>Click  <guibutton>Submit</guibutton> to log into QALIPSIS.</simpara>
+<variablelist>
+<varlistentry>
+<term><emphasis role="strong">Notes</emphasis></term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara>If a Tenant selection message is not displayed, you will be logged in to QALIPSIS  with the tenant you were using in your most recent login.</simpara>
+</listitem>
+<listitem>
+<simpara>You can can select a different tenant at any time that you are logged into QALIPSIS.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+</variablelist>
+</listitem>
+</orderedlist>
+</chapter>
+<chapter xml:id="_navigating-qalipsis">
+<title>Navigating QALIPSIS</title>
+<simpara>When you log into QALIPSIS, the <emphasis>Home</emphasis> page of the GUI and a left sidebar is displayed.</simpara>
+<section xml:id="_left-sidebar">
+<title>Left Sidebar</title>
+<itemizedlist>
+<listitem>
+<simpara>Near the top of the sidebar, a menu is displayed.  The contents of the menu depends on the tenant you are currently using and your profile permissions.</simpara>
+<informalfigure>
+<mediaobject>
+<imageobject>
+<imagedata fileref="GUI/tenant-sidebars-resized.jpg"/>
+</imageobject>
+<textobject><phrase>tenant sidebars resized</phrase></textobject>
+</mediaobject>
+</informalfigure>
+<simpara>From the displayed menu you several options.</simpara>
+<itemizedlist>
+<listitem>
+<simpara><xref linkend="_access-campaign-information-and-functions"/></simpara>
+</listitem>
+<listitem>
+<simpara><xref linkend="_access-series-information-and-functions"/></simpara>
+</listitem>
+<listitem>
+<simpara><xref linkend="_access-administrative-functions"/></simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+<listitem>
+<simpara>Near the bottom of the sidebar, your user name are displayed with your current tenant.
+Click  on the your name to display the <emphasis>Tenant Modal</emphasis> window.</simpara>
+</listitem>
+</itemizedlist>
+<informalfigure>
+<mediaobject>
+<imageobject>
+<imagedata fileref="GUI/tenant-modal-window.jpg" align="center"/>
+</imageobject>
+<textobject><phrase>tenant modal window</phrase></textobject>
+</mediaobject>
+</informalfigure>
+<simpara>From the <emphasis>Tenant Modal</emphasis> you have a few options.</simpara>
+<itemizedlist>
+<listitem>
+<simpara><xref linkend="_change-to-a-different-tenant"/></simpara>
+</listitem>
+<listitem>
+<simpara><xref linkend="_viewupdate-your-profile"/></simpara>
+</listitem>
+<listitem>
+<simpara><xref linkend="_change-your-password"/></simpara>
+</listitem>
+<listitem>
+<simpara><xref linkend="_logout"/></simpara>
+<variablelist>
+<varlistentry>
+<term>Note</term>
+<listitem>
+<simpara>The left sidebar remains displayed throughout your session.</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+</listitem>
+</itemizedlist>
+</section>
+<section xml:id="_change-to-a-different-tenant">
+<title>Change to a different tenant</title>
+<orderedlist numeration="arabic">
+<listitem>
+<simpara>Click on your name near the bottom of the sidebar to open the <emphasis>Tenant Modal</emphasis> window.</simpara>
+</listitem>
+<listitem>
+<simpara>Select an available tenant to use for the current session.</simpara>
+<itemizedlist>
+<listitem>
+<simpara>With Tenant #1 selected, the <emphasis>Campaign</emphasis> and <emphasis>Series</emphasis> screens are accessible by clicking on the appropriate link near the top of the sidebar.</simpara>
+</listitem>
+<listitem>
+<simpara>With Tenant #2 selected, the <literal>Admin</literal> area of the interface is accessible (if you have <literal>Admin</literal> permissions).</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</orderedlist>
+</section>
+<section xml:id="_viewupdate-your-profile">
+<title>View/Update Your profile</title>
+<orderedlist numeration="arabic">
+<listitem>
+<simpara>Click on your name at the bottom of the left sidebar to open the  <emphasis>Tenant Modal</emphasis> window.</simpara>
+</listitem>
+<listitem>
+<simpara>Click on the <literal>settings</literal> icon.</simpara>
+</listitem>
+<listitem>
+<simpara>Click on <literal>My profile</literal> to open the <emphasis>My Profile</emphasis> page.</simpara>
+</listitem>
+<listitem>
+<simpara>Make changes to your profile and click on <literal>Save changes</literal>.</simpara>
+</listitem>
+</orderedlist>
+<informalfigure>
+<mediaobject>
+<imageobject>
+<imagedata fileref="GUI/ggllcprofile.jpg" align="center"/>
+</imageobject>
+<textobject><phrase>ggllcprofile</phrase></textobject>
+</mediaobject>
+</informalfigure>
+</section>
+<section xml:id="_change-your-password">
+<title>Change your password</title>
+<orderedlist numeration="arabic">
+<listitem>
+<simpara>Click on your name at the bottom of the left sidebar to open the  <emphasis>Tenant Modal</emphasis> window.</simpara>
+</listitem>
+<listitem>
+<simpara>Click on the <literal>settings</literal> icon.</simpara>
+</listitem>
+<listitem>
+<simpara>Click on <literal>My profile</literal> to open the <emphasis>My Profile</emphasis> page.</simpara>
+</listitem>
+<listitem>
+<simpara>Click on <literal>Change password</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara>Enter your new password in the <literal>New Password</literal> and <literal>Comfirm Password</literal> fields.</simpara>
+</listitem>
+<listitem>
+<simpara>Click om <literal>Save changes</literal> to save your new password.</simpara>
+</listitem>
+</orderedlist>
+</section>
+<section xml:id="_logout">
+<title>Logout</title>
+<orderedlist numeration="arabic">
+<listitem>
+<simpara>Click on your name at the bottom of the left sidebar to open the <emphasis>Tenant Modal</emphasis> window.</simpara>
+</listitem>
+<listitem>
+<simpara>Click on the <literal>settings</literal> icon.</simpara>
+</listitem>
+<listitem>
+<simpara>Click the <guibutton>Logout</guibutton> button.
+You will be logged out and returned to the <emphasis>Welcome</emphasis> screen.</simpara>
+</listitem>
+</orderedlist>
+</section>
+<section xml:id="_access-campaign-information-and-functions">
+<title>Access campaign information and functions</title>
+<simpara>The <literal>Campaign</literal> page is accessible from the Tenant #1 left sidebar.
+From the <literal>Campaign</literal> page, you can view current campaign data, update a campaign, and create a new campaign.</simpara>
+<simpara>Further details are provided later in this documentation.</simpara>
+<itemizedlist>
+<listitem>
+<simpara><xref linkend="_configuring-and-running-a-campaign"/></simpara>
+</listitem>
+<listitem>
+<simpara><xref linkend="_displaying-campaign-data"/></simpara>
+</listitem>
+</itemizedlist>
+</section>
+<section xml:id="_access-series-information-and-functions">
+<title>Access Series information and functions</title>
+<simpara>The <literal>Series</literal> screen is accessible from the Tenant #1 left sidebar.
+The Series' screen allows the user view current series information, update or duplicate a series, and create a new series.</simpara>
+<informalfigure>
+<mediaobject>
+<imageobject>
+<imagedata fileref="GUI/seriespage.jpg" align="center"/>
+</imageobject>
+<textobject><phrase>seriespage</phrase></textobject>
+</mediaobject>
+</informalfigure>
+<simpara>Further details are provided later in this documentation.</simpara>
+<itemizedlist>
+<listitem>
+<simpara><xref linkend="_working-with-series-data-and-filters"/></simpara>
+</listitem>
+<listitem>
+<simpara><xref linkend="_creating-a-series"/></simpara>
+</listitem>
+<listitem>
+<simpara><xref linkend="_updating-a-series"/></simpara>
+</listitem>
+</itemizedlist>
+</section>
+<section xml:id="_access-administrative-functions">
+<title>Access administrative functions</title>
+<simpara>From the Tenant2 sidebar (if you have <literal>Admin</literal> permissions):</simpara>
+<orderedlist numeration="arabic">
+<listitem>
+<simpara>Click on <emphasis role="strong">Admin</emphasis> to display the <emphasis>Users</emphasis> screen.</simpara>
+</listitem>
+<listitem>
+<simpara>Click on a user&#8217;s name to open the <emphasis>Update User</emphasis> window.</simpara>
+</listitem>
+</orderedlist>
+<simpara>From the <emphasis>Update User</emphasis>` window, user information can be updated and modified and roles (permissions) set.</simpara>
+<simpara>More options will be available from the Admin` area of the GUI in the near future.</simpara>
+<informalfigure>
+<mediaobject>
+<imageobject>
+<imagedata fileref="GUI/userspage.jpg" align="center"/>
+</imageobject>
+<textobject><phrase>userspage</phrase></textobject>
+</mediaobject>
+</informalfigure>
+</section>
+</chapter>
+<chapter xml:id="_working-with-series-data-and-filters">
+<title>Working with series data and filters</title>
+<simpara>Series are defined events and meters that are logged while a campaign is in progress.</simpara>
+<itemizedlist>
+<listitem>
+<simpara>The logged events and meters can be graphically displayed</simpara>
+</listitem>
+<listitem>
+<simpara>You can create a series if your profile has write permissions.</simpara>
+</listitem>
+<listitem>
+<simpara>You can update a series if you are the owner and/or have write permissions.</simpara>
+</listitem>
+</itemizedlist>
+<section xml:id="_creating-a-series">
+<title>Creating a series</title>
+<simpara>From the Tenant #1 sidebar:</simpara>
+<orderedlist numeration="arabic">
+<listitem>
+<simpara>Click on <literal>Series</literal> to open the <emphasis>Series</emphasis> page.</simpara>
+<simpara>The <emphasis>Series</emphasis>  page displays a table listing currently defined series.</simpara>
+<informalfigure>
+<mediaobject>
+<imageobject>
+<imagedata fileref="GUI/seriespage.jpg" align="center"/>
+</imageobject>
+<textobject><phrase>seriespage</phrase></textobject>
+</mediaobject>
+</informalfigure>
+</listitem>
+<listitem>
+<simpara>Click the <guibutton>+New series</guibutton> button near the top right corner of the page.</simpara>
+<simpara>The <emphasis>New series</emphasis> modal window opens.</simpara>
+</listitem>
+<listitem>
+<simpara>Enter the required data into the appropriate fields.</simpara>
+</listitem>
+<listitem>
+<simpara>Click the <guibutton>Create</guibutton> button.</simpara>
+<simpara>The following text is displayed in the modal window: '[Series Name] has just been created!'.</simpara>
+</listitem>
+<listitem>
+<simpara>Close the  <emphasis>New series</emphasis> modal window to return to the Series page.</simpara>
+<simpara>The newly created series is displayed in the table.</simpara>
+</listitem>
+</orderedlist>
+</section>
+<section xml:id="_updating-a-series">
+<title>Updating a series</title>
+<orderedlist numeration="arabic">
+<listitem>
+<simpara>Login as Tenant #1.</simpara>
+</listitem>
+<listitem>
+<simpara>Click on <emphasis role="strong">Series</emphasis> in the left sidebar menu.</simpara>
+<simpara>The <emphasis>Series</emphasis> page opens and displays a table listing currently defined series.</simpara>
+</listitem>
+<listitem>
+<simpara>Click on the name of the series you want to update.</simpara>
+<simpara>The <emphasis>Update series</emphasis> modal window opens.</simpara>
+</listitem>
+<listitem>
+<simpara>Enter the required data into the appropriate fields.</simpara>
+</listitem>
+<listitem>
+<simpara>Click the <guibutton>Update</guibutton> button.</simpara>
+</listitem>
+<listitem>
+<simpara>Close the <emphasis>Update series</emphasis> modal window to return to the Series page.</simpara>
+</listitem>
+</orderedlist>
+</section>
+</chapter>
+<chapter xml:id="_configuring-and-running-a-campaign">
+<title>Configuring and running a campaign</title>
+<orderedlist numeration="arabic">
+<listitem>
+<simpara>Click the <guibutton>+Campaign</guibutton> button near the top right of the <literal>Campaign</literal> page.</simpara>
+<simpara>The New Campaign window will open displaying the campaign name, a settings icon, a search field, and a table listing scenarios that are available to run in the campaign.</simpara>
+</listitem>
+</orderedlist>
+<informalfigure>
+<mediaobject>
+<imageobject>
+<imagedata fileref="GUI/new-campaign.jpg" align="center"/>
+</imageobject>
+<textobject><phrase>new campaign</phrase></textobject>
+</mediaobject>
+</informalfigure>
+<orderedlist numeration="arabic">
+<listitem>
+<simpara>Optionally, rename the campaign by hovering over the <literal>New Campaign</literal> title and selecting the pen icon to edit the name.</simpara>
+</listitem>
+<listitem>
+<simpara>Select the checkbox to the left of each scenario that you want to include in your campaign.</simpara>
+<simpara>Each scenario has a default configuration.</simpara>
+</listitem>
+<listitem>
+<simpara>To configure a scenario to better suit your specific test, click the <guibutton>Configure</guibutton> button to the right of the scenario.</simpara>
+</listitem>
+<listitem>
+<simpara>Update the fields on the <emphasis>Scenario Configuration</emphasis> window.</simpara>
+</listitem>
+<listitem>
+<simpara>Click  <emphasis role="strong">Apply</emphasis> and close the window.</simpara>
+<simpara>Scenario changes are saved for the current campaign and do not affect the scenario&#8217;s default settings.</simpara>
+</listitem>
+<listitem>
+<simpara>Choose when you want to run your campaign.</simpara>
+<itemizedlist>
+<listitem>
+<simpara>Click the <guibutton>Run immediately</guibutton> button to start the campaign immediately with the the default run-time configuration.</simpara>
+<simpara>Campaign data is displayed in real-time in the report window and on the time-series chart.</simpara>
+<itemizedlist>
+<listitem>
+<simpara>Minion count is displayed by default.</simpara>
+</listitem>
+<listitem>
+<simpara>Select one or more series cards to display the generated data for that series.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</itemizedlist>
+</listitem>
+</orderedlist>
+<informalfigure>
+<mediaobject>
+<imageobject>
+<imagedata fileref="GUI/Checkout-stresstest%20campaign%20details.jpg" align="center"/>
+</imageobject>
+<textobject><phrase>Checkout stresstest campaign details</phrase></textobject>
+</mediaobject>
+</informalfigure>
+<itemizedlist>
+<listitem>
+<simpara>Click the arrow next to the  <guibutton>Run immediately</guibutton> button to configure custom runtimes.</simpara>
+<simpara>The <literal>custom running</literal> modal window opens.</simpara>
+<itemizedlist>
+<listitem>
+<simpara>Select the date you want to start the campaign using the date picker tool.</simpara>
+<simpara>The date format is [Month dd, yyyy]
+**Select the time zone for the campaign start time from the  ‘Time zone’ dropdown.</simpara>
+<simpara>The time zone format is [(UTC+hh:mm) Continent/ City].</simpara>
+</listitem>
+<listitem>
+<simpara>If you want the campaign to run more than once, select a frequency from the [Frequency] drop down.</simpara>
+<itemizedlist>
+<listitem>
+<simpara>The frequency options are <literal>Daily</literal>, <literal>Weekly</literal>, and <literal>Monthly</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>Daily</literal> runs the campaign at the previously selected time each day.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>Weekly</literal> runs the campaign on the selected day(s) every week at the previously selected time of day.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>Monthly</literal> runs the campaign each selected day(s) of every month at the previously selected time.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</itemizedlist>
+</listitem>
+</itemizedlist>
+</chapter>
+<chapter xml:id="_displaying-campaign-data">
+<title>Displaying campaign data</title>
+<orderedlist numeration="arabic">
+<listitem>
+<simpara>Login to QALIPSIS as Tenant #1.</simpara>
+</listitem>
+<listitem>
+<simpara>Click on <emphasis role="strong">Campaign</emphasis> in the left sidebar.</simpara>
+<simpara>A table listing all existing and planned campaigns is displayed.</simpara>
+<itemizedlist>
+<listitem>
+<simpara>Click on any column title to sort the table by ascending/descending order.</simpara>
+</listitem>
+<listitem>
+<simpara>Search for a specific campaign by clicking on the magnifying glass icon near the top right of the screen and entering the name (or partial name) of the campaign.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+<listitem>
+<simpara>Click on the name of a campaign to display the <emphasis>Campaign details</emphasis> page.</simpara>
+<itemizedlist>
+<listitem>
+<simpara>A report box is displayed at the top of the screen.</simpara>
+<simpara>The top line in the report box displays information for the  whole campaign; the following lines display information for each scenario within the campaign.</simpara>
+<itemizedlist>
+<listitem>
+<simpara>Click the <literal>View more</literal> tooltip on the right side of the report box to expand the report box to display all scenarios in the campaign.</simpara>
+</listitem>
+<listitem>
+<simpara>Click the <literal>More details</literal> tooltip to display the info for the total campaign in a dropdown box.</simpara>
+</listitem>
+<listitem>
+<simpara>Click on the <literal>Campiagn Summary</literal> dropdown filter to select the scenario information to display in the report box.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+<listitem>
+<simpara>Below the report box, a row of filter cards is displayed with the individual events and meters that are logged for the campaign.</simpara>
+<simpara>Refer to <link xl:href="05_steps.adoc"><literal>Step Specifications</literal></link> or <xref linkend="Creating and updating series"/> for guidance creating filtering steps.</simpara>
+<simpara>Each card includes the Name, Type, and display color.</simpara>
+</listitem>
+<listitem>
+<simpara>Below the row of filter cards, a time-series chart is displayed with the x-axis displaying the elapsed time  and the y-axis displaying series data.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</orderedlist>
+<simpara>Select one or more series cards to display the generated data for that series.</simpara>
+<informalfigure>
+<mediaobject>
+<imageobject>
+<imagedata fileref="GUI/Checkout-stresstest%20campaign%20details.jpg" align="center"/>
+</imageobject>
+<textobject><phrase>Checkout stresstest campaign details</phrase></textobject>
+</mediaobject>
+</informalfigure>
+</chapter>
+</book>
