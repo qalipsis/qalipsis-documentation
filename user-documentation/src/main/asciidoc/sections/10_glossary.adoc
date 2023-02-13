@@ -1,4 +1,4 @@
-== Glossary
+= Glossary
 [cols="1,3"]
 
 |===

@@ -111,7 +111,7 @@ Notable parameters::
 * `monitoring`(optional): configures the monitoring parameters for the step.
 * `deserialize`: specifies the class to use to deserialize the body of the response.
 
-Tip::
+Reference Documentation::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
 === HTTP WITH step
@@ -139,7 +139,7 @@ Notable parameters::
 ** `monitoring`(optional): configures the monitoring parameters for the step.
 * `deserialize`: specifies the class to use to deserialize the body of the response.
 
-Tip:: 
+Reference Documentation:: 
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
 === CLOSE HTTP step
@@ -162,7 +162,7 @@ Notable parameters::
 * `closeHttp` (required)  specifies the  name of an `HTTP` step owning the `HTTP` connection to close. 
 * `monitoring`(optional): configures the monitoring parameters for the step.
 
-Tip::
+Reference Documentation::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
 === MQTT publish step 
@@ -202,7 +202,11 @@ To be provided.
  
 Notable Parameters::
  To be provided.
+
 Tip(s)::
+To be provided
+
+Reference Documentation::
 To be provided   
 
 === TCP step
@@ -274,7 +278,7 @@ Notable parameters::
 ** `size`: number of constant connections maintained in the pool.
 ** `checkHealthBeforeUse`: verifies the health of the connection when polled from the pool and before it is used.
 
-Tip::
+Reference Documentation::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
 === TCP WITH step 
@@ -300,7 +304,7 @@ Notable parameters::
 * `request`: a factory to create the request to exchange, using the step context and the input as arguments.
 * `monitoring`(optional): configures the monitoring parameters for the step.
 
-Tip::
+Reference Documentation::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
 === CLOSE TCP step 
@@ -325,7 +329,7 @@ Notable parameters::
 * `closeHttp` (required):  specifies the  name of the `HTTP` step to close. 
 * `monitoring`(optional): configures the monitoring parameters for the step.
 
-Tip::
+Reference Documentation::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
 === UDP step 
@@ -338,7 +342,6 @@ Scenario and Step
 
 Functionality::
 The `UDP` step creates a UDP Datagram packet from the `request` and sends it to the remote endpoint and expects a response.
-
 
 Example::
 +
@@ -373,5 +376,5 @@ Notable parameters::
 ** `nettyChannelOptions`: overwrites the options of the `netty` channel, use with care.
 *  `monitoring`(optional): configures the monitoring parameters for the step.
 
-Tip::
+Reference Documentation::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.

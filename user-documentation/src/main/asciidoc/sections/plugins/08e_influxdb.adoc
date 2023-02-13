@@ -22,6 +22,8 @@ Supported steps::
 * <<Save step,`save`>>: saves a batch of records generated from the input and step context.
 * <<Search step,`search`>>: searches records and builds a query from the input and step context.
 
+Example scenarios using a combination of the `influxdb` supported steps are provided on https://github.com/qalipsis/qalipsis-examples/tree/master/influxdb[GitHub].
+
 === Poll step 
 The `poll` step within the `influxdb()` plugin polls the newest records from the database, with a delay between each execution of a select query.
 
@@ -36,30 +38,40 @@ Example::
 [source,kotlin,linenumbers]
 ----
 influxdb().poll {
-    name = "poll.in"
     connect {
-        server("http://localhost:8080", BUCKET, ORGANIZATION)
-        basic("user", "passpasspass")
+        server(
+            url = "http://localhost:18086",
+            bucket = "iot",
+            org = "qalipsis"
+        )
+        basic(user = "DomFisher", password = "Calgary1987")
     }
-    query("from(bucket: \"$BUCKET\") |> range(start: 0) |> filter(fn: (r) => (r[\"tag\"] == \"IN\") |> sort([\”_time\”], desc: false")
+    query(
+        """
+        from(bucket:"${iot}")
+            |> range(start: -15m)
+            |> filter(
+                fn: (r) => r._measurement == "battery_state" 
+                )               
+    """.trimIndent()
+    )
     pollDelay(Duration.ofSeconds(1))
 }
 ----
+
 Notable parameters::
 * `connect` (required): configures the connection to https://www.influxdata.com/[InfluxDB].
 * `query` (required): specifies a query respecting the requirements of https://docs.influxdata.com/influxdb/v2.3/reference/api/[Flux v.2.0]. 
-* `tieBreaker` (required): repeats the first field used for sorting and comparison (`<=` or `>=`, depending on the ascending or descending order).
 * `parameters` (optional): binds values to the clauses of the prepared query.
 * `pollDelay` (required): specifies the delay between query executions.
 * `monitoring`(optional): configures the monitoring parameters for the step.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
 
-Tips::
-* Use the `poll` step with a join operator to verify the values that the tested system saves to the database.
-* The `token` can be created automatically using your password and username.
-* `query` requires at least one sorting field (`tiebreaker` in the example) to filter the newest results and not fetch the same records repeatedly.
-* The latest known value for `tiebreaker` filters out the values already received directly from the database.
-* Refer to the https://docs.influxdata.com/[InfluxDB] documentation for further parameter and configuration information.
+Tip::
+Use the `poll` step with a join operator to verify the values that the tested system saves to the database.
+
+Reference: Documentation::
+Refer to the https://docs.influxdata.com/[InfluxDB] documentation for further parameter and configuration information.
  
 === Save step
 The `save` step within the `influxdb()` plugin persists a batch of records into the `influxdb` bucket using a specific `points` class.
@@ -74,26 +86,26 @@ Example::
 +
 [source,kotlin,linenumbers]
 ----
-influxdb().save {
-   connect {
+.save {
+    connect {
         server(
-           url = "http://localhost:8080",
-           bucket = "test", 
-           org = "testtesttest"
-           )
-         basic(
-           user = "user", 
-           password  = "passpasspass"
-           )
+            url =  "http://localhost:18086",
+            bucket = "iot",
+            org = "qalipsis"
+        )
+        basic(user = "DomFisher", password = "Calgary1987")
     }
     query {
-        bucket = bucketName
-        organization = orgName
-        points = pointSupplier
-    }
-    monitoring {
-        events = true
-        meters = false
+        bucket = { _, _ -> "iot" }
+        organization = { _, _ -> "qalipsis" }
+        points = { _, input ->
+            listOf(
+                Point.measurement("battery_state")
+                    .addField("battery_level", input.batteryLevel)
+                    .addTag("device_id", input.deviceId)
+                    .addTag("timestamp", input.timestamp.epochSecond.toString())
+            )
+        }
     }
 }
 ----
@@ -103,10 +115,10 @@ Notable parameters::
 
 Tips::
 * Use the `save` step after a `collect` step to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.
-* The step is extremely flexible: bucket, tags, measurement and fields might depend on the context and input value received from the previous step.
-* `token` can be created automatically using your password and username.
-* Refer to the https://docs.influxdata.com/[InfluxDB] documentation for further parameter and configuration information.
+* The `save` step is extremely flexible: bucket, tags, measurement and fields might depend on the context and input value received from the previous step.
 
+Reference documentation::
+Refer to the https://docs.influxdata.com/[InfluxDB] documentation for further parameter and configuration information.
 
 === Search step 
 The `search` step within the `influxdb` plugin searches records in the database using a search query.
@@ -117,38 +129,41 @@ Step
 Functionality::
 The `search` step's input and step context are used to generate a query; the batch of results is then forwarded to the next step(s).
 
+
 Example::
-+
 [source,kotlin,linenumbers]
 ----
-influxdb().search {
-connect {
-   InfluxDBClientKotlinFactory.create(
-       InfluxDBClientOptions.builder()
-           .url("http://localhost:8080")
-           .authenticate(“username”, “password”.toCharArray())
-           .org(“organizationName”)
-           .build()
-   )
-}
-search {
-   connectionConfig = { _, _ -> influxDbSearchStepConnectionImpl }
-   query = { _, _ -> "query" }
-}
-monitoring {
-   events = true
-   meters = false
-}
+.influxdb()
+.search {
+    connect {
+        server(
+            url = "http://localhost:18086",
+            bucket = "iot",
+            org = "qalipsis"
+        )
+        basic(user = "DomFisher", password = "Calgary1987")
+    }
+    query { _, input ->
+        """
+            from(bucket: "${iot}")
+                    |> range(start: -15m)
+                    |> filter(
+                        fn: (r) => r._measurement == "${"battery_state"}" and
+                            r.${"device_id"} == "${input.deviceId}" and
+                            r.${"timestamp"} == "${input.timestamp.epochSecond}"
+                        )               
+        """.trimIndent()
+    }
 }
 ----
+
 Notable parameters::
 * `search`: generates the search query from the step input and context.
 * `connect` (required): configures the connection to https://www.influxdata.com/[InfluxDB]. 
 * `monitoring`(optional): configures the monitoring parameters for the step.
 
-Tips::
-* Use the `search` step after a `collect` step to reduce the number of queries executed onto the database and to reduce the load the scenario generates on the test system.
-* `token` can be created automatically using your password and username.
-* Refer to the https://docs.influxdata.com/[InfluxDB] documentation for further parameter and configuration information.
+Tip::
+Use the `search` step after a `collect` step to reduce the number of queries executed onto the database and to reduce the load the scenario generates on the test system.
 
-
+Reference documentation::
+Refer to the https://docs.influxdata.com/[InfluxDB] documentation for further parameter and configuration information.

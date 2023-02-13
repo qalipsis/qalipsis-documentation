@@ -11,9 +11,9 @@ or
 In the example below, `my-tcp` is the root step; `reuse-tcp` is a successor step.
 [source,kotlin,linenumbers]
 ----
-scenario("hello-netty-udp-world") {
+scenario {
     minionsCount = 100
-    rampUp {
+    profile {
         regular(100, minionsCount) // Start all at once.
     }
     .start()
@@ -61,10 +61,10 @@ A step context is the mechanism by which:
 === Fan-out
 To split a branch and add two or more concurrent steps as successors, execute a `.split`.
 
-In the example below, `Anystep` receives the output of the previous step as input. `Anystep` transforms its input per its step configuration. The transformed data is provided as input to both the _map_ and the _flatten_ steps.   The _map_ and the _flatten_ steps each do something different with the data.
+In the example below, `anyStep` receives the output of the previous step as input. `anyStep` transforms its input per its step configuration. The transformed data is provided as input to both the _map_ and the _flatten_ steps.   The _map_ and the _flatten_ steps each do something different with the data.
 [source,kotlin,linenumbers]
 ----
-    Anystep { }
+    anyStep { }
         .split { 
             map { ... } 
                 .validate{ ... }
@@ -76,7 +76,7 @@ A graphical representation of the above example is shown below. Note that both b
 [example]
 create and include fan-out distribution graphic here-> more like a flowchart
 
-WARNING: If the entity returned by the step providing the data before the `.split` (`Anystep()` in the example) is liable to change, do not change it in one branch, as this would have side-effects on the other branch. Consider creating a deep clone of the record that is to be changed to avoid this issue. 
+WARNING: If the entity returned by the step providing the data before the `.split` (`anyStep()` in the example) is liable to change, do not change it in one branch, as this would have side-effects on the other branch. Consider creating a deep clone of the record that is to be changed to avoid this issue. 
 
 === Fan-in/joins
 Fan-in/Join functions allow the user to re-join split branches of a scenario or to verify data from different sources.
@@ -90,7 +90,7 @@ The following example uses the name of a concurrent step:
 
 [source,kotlin,linenumbers]
 ----
-    Anystep { } 
+    anyStep { } 
         .innerJoin<EntityWithKey, EntityWithId>(
             on = { "${it.key}" }, 
             with = "my-datasource-poll-step", // The step `my-datasource-poll-step` is declared in a parallel branch (or earlier in the same branch) and provides an output of type `EntityWithId` with a field `id` being a string in this example.
@@ -111,7 +111,7 @@ insert operators-inner-join graphic here
 The following example creates a step directly in the join:
 [source,kotlin,linenumbers]
 ----
-    Anystep  { }
+    anyStep  { }
         .innerJoin<EntityWithKey, EntityWithId>(
             on = { "${it.key}" },
             with = { 
@@ -176,7 +176,7 @@ Provide an example and insert `validate(is even)` graphic here
 Provide an example and insert `verify(assetThat(it).isEven())` graphic here
 
 === Transformation operators
-flatThis section provides an explanation and examples  of the `flatMap`, `flatten`, `map`, `mapWithContext`, and `onEach` transformation operators.
+This section provides an explanation and examples  of the `flatMap`, `flatten`, `map`, `mapWithContext`, and `onEach` transformation operators.
 
 * `flatMap` converts a collective input into a single element in the output, with a user-defined strategy.
 
