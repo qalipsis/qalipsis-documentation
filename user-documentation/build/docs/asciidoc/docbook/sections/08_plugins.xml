@@ -4,7 +4,7 @@
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
 <title>Plugins</title>
-<date>2022-08-24</date>
+<date>2022-08-28</date>
 </info>
 <chapter xml:id="_introduction">
 <title>Introduction</title>
@@ -82,9 +82,9 @@
 <simpara>QALIPSIS provides several plugins targeting different technologies, systems and protocols.</simpara>
 <simpara>To use a plugin, add the related dependency to your project:</simpara>
 <simpara>Gradle - Groovy DSL:</simpara>
-<programlisting language="groovy" linenumbering="unnumbered">implementation group:'io.qalipsis', name: 'plugin-XXX', version: '0.5.a-SNAPSHOT'</programlisting>
+<programlisting language="groovy" linenumbering="unnumbered">implementation group:'io.qalipsis', name: 'plugin-XXX', version: '0.5.e-SNAPSHOT'</programlisting>
 <simpara>Gradle - Kotlin DSL:</simpara>
-<programlisting language="kotlin" linenumbering="unnumbered">implementation("io.qalipsis:plugin-XXX:0.5.a-SNAPSHOT")</programlisting>
+<programlisting language="kotlin" linenumbering="unnumbered">implementation("io.qalipsis:plugin-XXX:0.5.e-SNAPSHOT")</programlisting>
 </chapter>
 <chapter xml:id="_qalipsis-available-plugins">
 <title>QALIPSIS available plugins</title>
@@ -94,11 +94,11 @@
 <itemizedlist>
 <listitem>
 <simpara>Gradle - Groovy DSL:</simpara>
-<simpara><literal>implementation group:'io.qalipsis', name: 'plugin-XXX', version: '0.5.a-SNAPSHOT</literal></simpara>
+<simpara><literal>implementation group:'io.qalipsis', name: 'plugin-XXX', version: '0.5.e-SNAPSHOT</literal></simpara>
 </listitem>
 <listitem>
 <simpara>Gradle - Kotlin DSL:</simpara>
-<simpara><literal>implementation("io.qalipsis:plugin-XXX:0.5.a-SNAPSHOT")</literal></simpara>
+<simpara><literal>implementation("io.qalipsis:plugin-XXX:0.5.e-SNAPSHOT")</literal></simpara>
 </listitem>
 </itemizedlist>
 <informaltable frame="all" rowsep="1" colsep="1">

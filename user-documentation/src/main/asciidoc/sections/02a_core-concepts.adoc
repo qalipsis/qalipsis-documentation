@@ -85,11 +85,10 @@ Each step has a unique configuration depending on the purpose of the step. The s
 . Delivers output data.
 
 
-Steps are configured using core operators:
+Steps are configured using core operators to achieve:
 
-* Assertions
+* Assertions and verifications
 * Timing
-* Creating
 * Conditional
 * Converting
 * Error Handling
@@ -100,7 +99,7 @@ Steps are configured using core operators:
 * Flow
 * User-defined
 
-Refer to the <<Steps>> section of this manual for details.
+Refer to the <<Step specifications>> section of this manual for details.
 
 == Assertions 
 Assertions perform checks within the scenario by:

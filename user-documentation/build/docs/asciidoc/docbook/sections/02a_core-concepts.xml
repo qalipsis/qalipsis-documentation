@@ -4,7 +4,7 @@
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
 <title>QALIPSIS core concepts</title>
-<date>2023-02-13</date>
+<date>2023-02-18</date>
 </info>
 <chapter xml:id="_overview">
 <title>Overview</title>
@@ -151,16 +151,13 @@
 <simpara>Delivers output data.</simpara>
 </listitem>
 </orderedlist>
-<simpara>Steps are configured using core operators:</simpara>
+<simpara>Steps are configured using core operators to achieve:</simpara>
 <itemizedlist>
 <listitem>
-<simpara>Assertions</simpara>
+<simpara>Assertions and verifications</simpara>
 </listitem>
 <listitem>
 <simpara>Timing</simpara>
-</listitem>
-<listitem>
-<simpara>Creating</simpara>
 </listitem>
 <listitem>
 <simpara>Conditional</simpara>
@@ -190,7 +187,7 @@
 <simpara>User-defined</simpara>
 </listitem>
 </itemizedlist>
-<simpara>Refer to the <xref linkend="_steps"/> section of this manual for details.</simpara>
+<simpara>Refer to the <xref linkend="Step specifications"/> section of this manual for details.</simpara>
 </chapter>
 <chapter xml:id="_assertions">
 <title>Assertions</title>

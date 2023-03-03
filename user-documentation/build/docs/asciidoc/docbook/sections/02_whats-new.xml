@@ -4,13 +4,13 @@
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
 <title>What&#8217;s new</title>
-<date>2022-08-13</date>
+<date>2023-02-18</date>
 </info>
 <preface>
 <title></title>
-<simpara>QALIPSIS 1.0 is the initial product release.</simpara>
-<simpara>QALIPSIS 1.0 is designed with the scalability and simplicity required to perform load-tests and performance verification on both distributed and stand-alone systems</simpara>
-<simpara>With QALIPSIS 1.0:</simpara>
+<simpara>QALIPSIS 0.6 is the initial product release.</simpara>
+<simpara>QALIPSIS 0.6 is designed with the scalability and simplicity required to perform load, efficiency and end-to-end verification on both distributed and stand-alone systems</simpara>
+<simpara>With QALIPSIS 0.6:</simpara>
 <itemizedlist>
 <listitem>
 <simpara>You can create scenarios with different branches and running with many minions.</simpara>
@@ -19,8 +19,8 @@
 <simpara>You can use its many native steps and plugins to fire load on your system and feed QALIPSIS with data to verify load strength.</simpara>
 </listitem>
 </itemizedlist>
-<simpara>QALIPSIS 1.0 runs standalone and distributed. A history of events and metrics can be logged or saved in Elasticsearch, TimescaleDB and InfluxDB. Plugins for other tools will be available in future releases.</simpara>
+<simpara>QALIPSIS 0.6 runs embedded, standalone and distributed. A history of events and metrics can be logged or saved in different tools like Elasticsearch, Graphite, TimescaleDB and InfluxDB. Plugins for other platforms will be available in future releases.</simpara>
 <simpara>Future releases of QALIPSIS will include more plugins, more steps for load injection and verifications as well as other improvements.</simpara>
-<simpara>Feedback on this release, including bugs and suggested enhancements, is welcome and may be sent to the QALIPSIS team at {link to the GitHub issues page}.</simpara>
+<simpara>Feedback on this release, including bugs and suggested enhancements, is welcome and may be sent to the QALIPSIS team at <link xl:href="https://github.com/qalipsis">Github</link>.</simpara>
 </preface>
 </book>

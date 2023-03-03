@@ -4,7 +4,7 @@
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
 <title>rabbitmq plugins</title>
-<date>2023-02-13</date>
+<date>2023-01-28</date>
 </info>
 <chapter xml:id="_rabbitmq-plugins">
 <title>rabbitmq plugins</title>

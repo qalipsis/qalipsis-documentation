@@ -4,13 +4,13 @@
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
 <title>Dependency injection</title>
-<date>2023-02-13</date>
+<date>2022-11-09</date>
 </info>
 <preface>
 <title></title>
 <simpara>QALIPSIS relies on the <link xl:href="https://docs.micronaut.io/latest/guide/index.html#ioc">Dependency injection framework</link> from Micronaut and supports the injection of dependencies in the constructors of the scenario declaring classes and methods annotated with <literal>@Scenario</literal>.</simpara>
 <warning>
-<simpara>Ensure you have the following dependency in the project where your beans or factories are compiled: <literal>kapt("io.qalipsis:api-processors:0.5.a-SNAPSHOT")</literal></simpara>
+<simpara>Ensure you have the following dependency in the project where your beans or factories are compiled: <literal>kapt("io.qalipsis:api-processors:0.5.e-SNAPSHOT")</literal></simpara>
 </warning>
 </preface>
 <chapter xml:id="_injecting-a-singleton-bean">
