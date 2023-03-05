@@ -25,6 +25,10 @@ include::{includedir}/sections/02a_core-concepts.adoc[]
 
 <<<<
 
+include::{includedir}/sections/02b_installation.adoc[]
+
+<<<<
+
 include::{includedir}/sections/03_quickstart_testing HTTP server.adoc[]
 
 <<<<
@@ -45,11 +49,11 @@ include::{includedir}/sections/07_dependency-injection.adoc[]
 
 <<<<
 
-include::{includedir}/sections/08_plugins.adoc[]
+include::{includedir}/sections/07a_monitoring-test-campaigns.adoc[]
 
 <<<<
 
-include::{includedir}/sections/09_monitoring-test-campaigns.adoc[]
+include::{includedir}/sections/08_plugins.adoc[]
 
 <<<<
 
