@@ -72,28 +72,26 @@ The value for the speed factor is defined the same as for load factor.
 
 === External property sources
 
-QALIPSIS uses Micronaut's runtime underneath.
-Hence, you can use its mechanism of https://docs.micronaut.io/latest/guide/index.html#propertySource[Externalized Configuration with Property Sources].
+QALIPSIS uses Micronaut’s runtime underneath. Hence, you can use its mechanism of https://docs.micronaut.io/latest/guide/index.html#propertySource[Externalized Configuration with Property Sources].
 
-You can overwrite the default configuration and add your own properties by creating a file called `qalipsis-config.yml` either in the class path or in the working directory or both. 
+The configuration files contain all of the settings that are relevant for QALIPSIS to run. Included in the settings the parameters for logging and monitoring data exports, data sources for the Head node, executor sizes, etc.
 
-Both the default configuration and the  `qalipsis-config.yml` file can specify the same parameters; however, the `qalipsis-config.yml` has precedence.
+You can overwrite the default Qalipsis configuration and include your own properties by creating a file named qalipsis.{extension} or config/qalipsis.{extension} in the classpath or in the working directory or both. The {extension} can be either of the following:
 
-=== Injecting values into your scenario
+* YAML documents (use the extension yaml or yml)
+* JSON documents (use the extension json)
+* flat properties (use the extension properties)
 
-You can inject values into your scenario or its declaring class using the annotation `@io.qalipsis.api.annotations.Property` as in the following example:
+Yaml or yml files have more precedence over a json file and json files have more precedence over a properties file. In a situation, when we have two YAML files with the same name and located in the same directory, the file with the yaml extension has precedence over the one with yml extension.
 
-[source,kotlin, linenumbers]
-----
-class EcommercePurchase(@Property("ecommerce-purchase.load") private val numberOfMinions: Int) {
+You can specify the same parameters in different environment sources, however the levels of precedence of the configuration sources determines the configuration values that are prioritized.
 
-    @Scenario("login-select-and-checkout")
-    fun fromLoginToCheckout(@Property("ecommerce-purchase.action-pace") actionPaceDuration: Duration) {
-        scenario {
-            minionsCount = numberOfMinions
-        }
-        .constantPace(actionPaceDuration.toMillis())
-        
-    }
-}
-----
+The precedence of the configuration sources, from lowest to highest levels is outlined below:
+
+* Default configuration embedded in QALIPSIS artifacts
+* Class path files:  the files in /config have precedence over those in the root
+* Working directory files: the files in /config have precedence over those in the root -OS Environment variables
+** Java System properties(-DmyArg=value)
+** Command line arguments (using -c “myArg=value”).
+
+
