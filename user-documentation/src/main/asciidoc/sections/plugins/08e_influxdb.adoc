@@ -167,3 +167,37 @@ Use the `search` step after a `collect` step to reduce the number of queries exe
 
 Reference documentation::
 Refer to the https://docs.influxdata.com/[InfluxDB] documentation for further parameter and configuration information.
+
+== Configuration of influxdb events and meters for monitoring
+=== Events
+
+Configuration namespace::
+`events.export.influxdb`
+
+Parameters::
+* `enabled`: boolean flag that activates/deactivates event publishing to `influxdb`; defaults to `false`; *must* be set to `true`.
+* `url`: string URL to the `influxdb` instance; defaults to `http://localhost:8086`.
+* `minLevel`: minimum accepted level of events; defaults to INFO; allowable values are `EventLevel`values: TRACE, DEBUG, INFO, WARN, ERROR, OFF. 
+* `lingerPeriod`: maximum period between publication of events to `influxdb`; positive duration, defaults to `10s`.
+* `batchSize`: maximum number of events buffered between two publications of events to `influxdb`; positive integer; defaults to `2000`.
+* `publishers`: number of concurrent publication of events that can run; positive integer; defaults to `1` (no concurrency).
+* `username`: name of the user for basic authentication when connecting to `influxdb`; defaults to `user`.
+* `password`: password of the user for basic authentication when connecting to `influxdb`; defaults to `passpasspass`.
+* `org`: name of the organization to use for basic authentication when connecting to `influxdb`; defaults to `qalipsis`.
+* `bucket`: password of the bucket to use for saving events to `influxdb`; defaults to `qalipsis-event`.
+
+=== Meters
+
+Configuration namespace::
+`meters.export.influxdb`
+
+Parameters::
+* enabled`: boolean flag that activates/deactivates meter publishing to `influxdb`; defaults to `false`; *must* be set to `true`.
+* `step`(optional): The step size (reporting frequency); defaults to `PT10S`.
+* `url`: string URL to the `influxdb` instance; defaults to `http://localhost:8086`.
+* `org`: name of the organization to use for basic authentication when connecting to `influxdb`; defaults to `qalipsis`.
+* `bucket`: password of the bucket to use for saving meters to `influxdb`; defaults to `qalipsis-meter`.
+
+
+
+=== Examples

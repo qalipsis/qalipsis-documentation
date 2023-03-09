@@ -1,6 +1,6 @@
-== elasticsearch plugin
+= elasticsearch plugin
 
-=== Overview
+== Overview
 The elasticsearch plugin connects QALIPSIS to https://www.elastic.co/[Elasticsearch].
 
 Technology addressed::
@@ -24,7 +24,7 @@ Supported steps::
 
 Example scenarios using a combination of `elastcisearch` supported steps are provided on https://github.com/qalipsis/qalipsis-examples/tree/master/elasticsearch[Github].
 
-=== Poll step
+== Poll step
 The `poll` step within the `elasticsearch` plugin periodically polls data from Elasticsearch. The output is a list of `ElasticsearchDocument` containing JSON data or deserialized to objects. 
 
 Ancestor::
@@ -57,7 +57,7 @@ Notable parameters::
 * `query`: configures the builder for the JSON query to perform the first poll.
 * `queryParameters`(optional): adds parameters to the query. 
 * `pollDelay` (required): specifies the delay between query executions.
-* `monitoring`(optional): configures the monitoring parameters for the step.
+* `monitoring`(optional): configures the monitoring parameters for the step. See <<Configuration of events and meters for monitoring>>.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
 
 Tips::
@@ -70,7 +70,7 @@ Reference Documentation::
 https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-query-params[Elasticsearch Query Parameters] for more information on query parameters.
 * Refer to the https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html#search-after[Elasticsearch] documentation for further parameter and configuration information.
 
-=== Save step 
+== Save step 
 The `save` step within the `elasticsearch` plugin persists a batch of documents into  https://www.elastic.co/[Elasticsearch].
 
 Ancestor::
@@ -103,12 +103,12 @@ Notable Parameters::
 
 * `client`: configures the REST client to connect to https://www.elastic.co/[Elasticsearch].
 * `documents`: defines the strategy to create documents to save from the input and step context.
-* `monitoring`(optional): configures the monitoring parameters for the step.
+* `monitoring`(optional): configures the monitoring parameters for the step. See <<Configuration of events and meters for monitoring>>.
 
 Reference Documentation::
 Refer to the https://www.elastic.co/guide[Elasticsearch] documentation for further parameter information.
 
-=== Search step
+== Search step
 The `search` step within the `elasticsearch` plugin searches documents in the Elasticsearch database using a search query. 
 
 Ancestor::
@@ -146,10 +146,51 @@ Notable parameters::
 * `client`: configures the REST client to connect to https://www.elastic.co/[Elasticsearch].
 * `index`: sets the `elasticsearch` indices to use for the queries; defaults to `all`.
 * `query`: configures the builder for the JSON query to perform a search. 
-* `monitoring`(optional): configures the monitoring parameters for the step.
-
+* `monitoring`(optional): configures the monitoring parameters for the step. See <<Configuration of events and meters for monitoring>>.
 Reference Documentation::
 * Refer to the https://www.elastic.co/guide[Elasticsearch] documentation for further parameter and configuration information.
 * For specifics on `queryParameters` refer to https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-query-paramsElastic[Elasticsearch Query Parameters].
 * For specifics on `search` parameters, refer to 
  https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html[Elasticsearch Search Parameters].
+
+== Configuration of elasticsearch events and meters for monitoring
+=== Events
+
+Configuration namespace::
+`events.export.elasticsearch`
+
+Parameters::
+* `enabled`: boolean flag that activates/deactivates event publishing to `elasticsearch`; defaults to `false`; *must* be set to `true`.
+* `minLevel`: minimal accepted level of events; defaults to INFO; allowable values are `EventLevel`values: TRACE, DEBUG, INFO, WARN, ERROR, OFF. 
+* `urls`: list of URLs to the `elasticsearch` instances; defaults to http://localhost:9200.
+* `pathPrefix`: string prefix used to demarcate url paths; defaults to /.
+* `indexPrefix`: string prefix to use for the created indices containing the events; defaults to `qalipsis-events`.
+* `refreshInterval`: string delay to refresh the indices in `elasticsearch`; defaults to `10s`.
+* `storeSource`: boolean flag identifies whether the source of documents is stored with the values; set to `true` for yes and `false` for no; defaults to `false`.
+* `indexDatePattern`: string format of the date part of the index as supported by [java.time.format.DateTimeFormatter]; defaults to yyyy-MM-dd.
+* `lingerPeriod`: maximum period between publication of events to `elasticsearch`; positive duration, defaults to `10s`.
+* `batchSize`: maximum number of events buffered between two publications of events to `elasticsearch`; positive integer; defaults to `2000`.
+* `publishers`: number of concurrent publication of events that can run; positive integer; defaults to `1` (no concurrency).
+* `username`: name of the user for basic authentication when connecting to `elasticsearch`.
+* `password`: password of the user for basic authentication when connecting to `elasticsearch`.
+* `shards`: number of shards to apply on the created indices for events; positive integer; defaults to `1`.
+* `replicas`: number of replicas to apply on the created indices for events; defaults to `0`.
+* `proxy`: URL of the http proxy to use to access `elasticsearch`.
+
+=== Meters
+
+Configuration namespace::
+`meters.export.elasticsearch`
+
+Parameters::
+* enabled`: boolean flag that activates/deactivates meter publishing to `elasticsearch`; defaults to `false`; *must* be set to `true`.
+* `step`(optional): The step size (reporting frequency) to use; defaults to `PT10S`.
+* `urls`: list of urls to the `elasticsearch` instances; defaults to http://localhost:9200.
+* `host`: defaults to the value of `urls` above.
+* `index`: string value to use for creation of index containing the meters; defaults to `qalipsis-meters`.
+* `indexDateFormat`: string format of the date part of the index as supported by [java.time.format.DateTimeFormatter]; defaults to yyyy-MM-dd.
+* `autoCreateIndex`: boolean flag to enable/disable auto creation of `index`; defaults to `true`.
+
+
+
+=== Examples

@@ -102,7 +102,7 @@ Example::
 Notable parameters::
 * `keySerializer`: describes how to serialize the record keys to send  to `kafka`.
 * `valueSerializer`: describes how to serialize the record values to send to `kafka`.
-* `bootstrap` configures the bootstrap hosts of the Kafka cluster; defaults to `localhost:9092`.
+* `bootstrap` configures the bootstrap hosts of the `kafka` cluster; defaults to `localhost:9092`.
 * `clientName` defines the name of the `kafka` client
 * `records` (required): generates and configures a list of produced records.
 * `monitoring`(optional): configures the monitoring parameters for the step.
@@ -110,3 +110,35 @@ Notable parameters::
 Reference documentation::
 Refer to the https://kafka.apache.org/documentation/[Apache KAFKA] documentation for further parameter and configuration information. 
 
+== Configuration of kafka events and meters for monitoring
+=== Events
+
+Configuration namespace::
+`events.export.kafka`
+
+Parameters::
+* `enabled`: boolean flag that activates/deactivates event publishing to `kafka`; defaults to `false`; *must* be set to `true`.
+* `minLevel`: minimal accepted level of events; defaults to INFO; allowable values are `EventLevel`values: TRACE, DEBUG, INFO, WARN, ERROR, OFF. 
+* `bootstrap`: bootstraps (string of host and port pair) of the `kafka` broker; defaults to `localhost:9092`.
+* `topic`: string name of the topic to write the events to; defaults to `qalipsis-events`.
+* `durationAsNano`: boolean flag that activates/deactivates converting the duration to nanoseconds; defaults to `false` (converts to milliseconds).
+* `lingerPeriod`: maximum period between two publications of events to `kafka`; positive duration; defaults to `10s`.
+* `batchSize`: maximum number of events buffered between two publications of events to `kafka`; positive integer; defaults to `2`.
+* `configuration`: key, value configuration parameters of type `Properties`, for the `kafka` producer.
+
+=== Meters
+
+Configuration namespace::
+`meters.export.kafka`
+
+Parameters::
+* `enabled`: boolean flag that activates/deactivates meter publishing to `kafka`; defaults to `false`; *must* be set to `true`.
+* `step`: The step size (reporting frequency); defaults to `PT10S`.
+* `bootstrap.servers`: bootstraps (string of host and port pair) of the `Kafka` broker; defaults to `localhost:9092`.
+* `topic`: string name of the topic to write events to; defaults to `qalipsis-meters`.
+* `linger.ms`: maximum period between two batches of events; positive duration; defaults to `5000`.
+* `batchSize`: maximum number of events buffered between two publications of events to `kafka`; positive integer; defaults to `800000` (in bytes).
+* `delivery.timeout.ms`: maixumum integer value in milliseconds before time out.; defaults to `10000`.
+* `configuration`: key, value configuration parameters of type `Properties`, for the `kafka` producer.
+
+=== Examples
