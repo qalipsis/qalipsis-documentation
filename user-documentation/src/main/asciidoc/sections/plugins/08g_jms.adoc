@@ -1,7 +1,7 @@
-== jms plugin
+= JMS plugin
 
-=== Overview
-The `jms` plugin connects QALIPSIS to a messaging platform that supports https://www.oracle.com/java/technologies/java-message-service.html[JMS].
+== Overview
+The JMS plugin connects QALIPSIS to a messaging platform that supports https://www.oracle.com/java/technologies/java-message-service.html[JMS].
 
 Technology addressed::
 JMS: https://www.oracle.com/java/technologies/java-message-service.html[]
@@ -19,12 +19,11 @@ https://docs.oracle.com/javaee/7/api/javax/jms/package-summary.html[Java Interfa
 Supported steps::
 * <<Consume step,`consume`>>: consumes data from a messaging platform supporting JMS.
 * <<Produce step,`produce`>>: pushes data to a messaging platform supporting JMS.
++
+An example scenario that uses a combination of the supported steps is provided on https://github.com/qalipsis/qalipsis-examples/tree/main/jms[GitHub].
 
-An example scenario that uses a combination of the `jms` `consume` and `produce` steps is provided on https://github.com/qalipsis/qalipsis-examples/tree/master/jms[GitHub].
-
-
-=== Consume step 
-The `consume` step within the `jms` plugin consumes records from https://activemq.apache.org/[ActiveMQ].
+== Consume step 
+The `consume` step within the JMS plugin consumes records from https://activemq.apache.org/[ActiveMQ].
  
 Ancestor::
 Scenario
@@ -61,8 +60,8 @@ The https://activemq.apache.org/[ActiveMQ] connection can be configured for eith
 Reference documentation::
 Refer to the  https://www.oracle.com/java/technologies/java-message-service.html[JMS] documentation for for further parameter and configuration information.
  
-=== Produce step
-The `produce` step within the `jms` plugin produces records in https://activemq.apache.org/[ActiveMQ] using https://www.oracle.com/java/technologies/java-message-service.html[JMS].
+== Produce step
+The `produce` step within the JMS plugin produces records in https://activemq.apache.org/[ActiveMQ] using https://www.oracle.com/java/technologies/java-message-service.html[JMS].
  
 Ancestor::
 Step

@@ -1,8 +1,8 @@
-== influxdb plugin
+= InfluxDB plugin
 
-=== Overview
+== Overview
 
-The `influxdb` plugin connects QALIPSIS to https://www.influxdata.com/[InfluxDB].
+The InfluxDB plugin connects QALIPSIS to https://www.influxdata.com/[InfluxDB].
 
 Technologies addressed::
 * InfluxDB: https://www.influxdata.com/[]
@@ -21,17 +21,17 @@ Supported steps::
 * <<Poll step,`poll`>>: polls the newest data periodically.
 * <<Save step,`save`>>: saves a batch of records generated from the input and step context.
 * <<Search step,`search`>>: searches records and builds a query from the input and step context.
++
+Example scenarios using a combination of the supported steps are provided on https://github.com/qalipsis/qalipsis-examples/tree/main/influxdb[Github].
 
-Example scenarios using a combination of the `influxdb` supported steps are provided on https://github.com/qalipsis/qalipsis-examples/tree/master/influxdb[GitHub].
-
-=== Poll step 
-The `poll` step within the `influxdb()` plugin polls the newest records from the database, with a delay between each execution of a select query.
+== Poll step 
+The `poll` step within the InfluxDB plugin polls the newest records from the database, with a delay between each execution of a select query.
 
 Ancestor::
 Scenario
 
 Functionality::
-The `poll` step is created only once in a scenario; it is then used throughout the scenario as called. The `poll` step within the `influxdb` plugin uses a strategy of “delivered at least once”.
+The `poll` step is created only once in a scenario; it is then used throughout the scenario as called. The `poll` step within the InfluxDB plugin uses a strategy of “delivered at least once”.
 
 Example::
 +
@@ -73,8 +73,8 @@ Use the `poll` step with a join operator to verify the values that the tested sy
 Reference: Documentation::
 Refer to the https://docs.influxdata.com/[InfluxDB] documentation for further parameter and configuration information.
  
-=== Save step
-The `save` step within the `influxdb()` plugin persists a batch of records into the `influxdb` bucket using a specific `points` class.
+== Save step
+The `save` step within the InfluxDB plugin persists a batch of records into the InfluxDB bucket using a specific `points` class.
 
 Ancestor::
 Step
@@ -120,8 +120,8 @@ Tips::
 Reference documentation::
 Refer to the https://docs.influxdata.com/[InfluxDB] documentation for further parameter and configuration information.
 
-=== Search step 
-The `search` step within the `influxdb` plugin searches records in the database using a search query.
+== Search step 
+The `search` step within the InfluxDB plugin searches records in the database using a search query.
 
 Ancestor::
 Step
@@ -168,23 +168,23 @@ Use the `search` step after a `collect` step to reduce the number of queries exe
 Reference documentation::
 Refer to the https://docs.influxdata.com/[InfluxDB] documentation for further parameter and configuration information.
 
-== Configuration of influxdb events and meters for monitoring
+== Configuration of publication of events and meters to InfluxDB
 === Events
 
 Configuration namespace::
 `events.export.influxdb`
 
 Parameters::
-* `enabled`: boolean flag that activates/deactivates event publishing to `influxdb`; defaults to `false`; *must* be set to `true`.
-* `url`: string URL to the `influxdb` instance; defaults to `http://localhost:8086`.
+* `enabled`: boolean flag that activates/deactivates event publishing to InfluxDB; defaults to `false`; *must* be set to `true`.
+* `url`: string URL to the InfluxDB instance; defaults to `http://localhost:8086`.
 * `minLevel`: minimum accepted level of events; defaults to INFO; allowable values are `EventLevel`values: TRACE, DEBUG, INFO, WARN, ERROR, OFF. 
-* `lingerPeriod`: maximum period between publication of events to `influxdb`; positive duration, defaults to `10s`.
-* `batchSize`: maximum number of events buffered between two publications of events to `influxdb`; positive integer; defaults to `2000`.
+* `lingerPeriod`: maximum period between publication of events to InfluxDB; positive duration, defaults to `10s`.
+* `batchSize`: maximum number of events buffered between two publications of events to InfluxDB; positive integer; defaults to `2000`.
 * `publishers`: number of concurrent publication of events that can run; positive integer; defaults to `1` (no concurrency).
-* `username`: name of the user for basic authentication when connecting to `influxdb`; defaults to `user`.
-* `password`: password of the user for basic authentication when connecting to `influxdb`; defaults to `passpasspass`.
-* `org`: name of the organization to use for basic authentication when connecting to `influxdb`; defaults to `qalipsis`.
-* `bucket`: password of the bucket to use for saving events to `influxdb`; defaults to `qalipsis-event`.
+* `username`: name of the user for basic authentication when connecting to InfluxDB; defaults to `user`.
+* `password`: password of the user for basic authentication when connecting to InfluxDB; defaults to `passpasspass`.
+* `org`: name of the organization to use for basic authentication when connecting to InfluxDB; defaults to `qalipsis`.
+* `bucket`: password of the bucket to use for saving events to InfluxDB; defaults to `qalipsis-event`.
 
 === Meters
 
@@ -192,11 +192,11 @@ Configuration namespace::
 `meters.export.influxdb`
 
 Parameters::
-* enabled`: boolean flag that activates/deactivates meter publishing to `influxdb`; defaults to `false`; *must* be set to `true`.
+* enabled`: boolean flag that activates/deactivates meter publishing to InfluxDB; defaults to `false`; *must* be set to `true`.
 * `step`(optional): The step size (reporting frequency); defaults to `PT10S`.
-* `url`: string URL to the `influxdb` instance; defaults to `http://localhost:8086`.
-* `org`: name of the organization to use for basic authentication when connecting to `influxdb`; defaults to `qalipsis`.
-* `bucket`: password of the bucket to use for saving meters to `influxdb`; defaults to `qalipsis-meter`.
+* `url`: string URL to the InfluxDB instance; defaults to `http://localhost:8086`.
+* `org`: name of the organization to use for basic authentication when connecting to InfluxDB; defaults to `qalipsis`.
+* `bucket`: password of the bucket to use for saving meters to InfluxDB; defaults to `qalipsis-meter`.
 
 
 

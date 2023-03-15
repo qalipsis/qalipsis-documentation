@@ -6,7 +6,7 @@ QALIPSIS aims at giving insights about the behavior of the tested system from a 
 The insights are provided to users by way of dashboards and detailed values describing the performed operations.
 
 == Definitions 
-In QALIPSIS, each step generates different kinds of metadata that provides insight on the overall behvior and performances of the system.
+In QALIPSIS, each step generates different kinds of metadata that provides insight on the overall behavior and performances of the system.
 
 * The highest level of detail is built on meters, using the http://micrometer.io[Micrometer Application Monitoring] library. 
 +
@@ -36,9 +36,9 @@ In essence, step execution meters are primitive values and Java durations.
 To be able to evaluate and analyze the performance and failures of your system during a campaign, you need to monitor events and meters at different levels and export the monitored data.
 
 === Enabling monitoring in steps
-Scenarios within campaighns are made up of steps.  By default, monitoring is disabled for each step.
+Scenarios within campaigns are made up of steps.  By default, monitoring is disabled for each step.
 Note that not all steps are conducive monitoring. For example, there would be nothing to monitor in a delay step.
-However, load genaerating and assertion steps genarate data that is important to monitor.
+However, load generating and assertion steps generate data that is important to monitor.
 
 QALIPSIS allows you to enable monitoring and configure the different levels of data that you want to record for each step.
 
@@ -88,19 +88,19 @@ meters.export.enabled=true
 
 Plugin steps must be also configured to export monitoring data. As at the time of this writing, the following plugins are supported:
 
-* Graphite: Refer to the link:plugins/08d_graphite.adoc[graphite plugin] section for details.
-* Elasticsearch: Refer to the link:plugins/08c_elasticsearch.adoc[elasticsearch plugin]  section for details. 
-* Kafka: Refer to the link:plugins/08h_kafka.adoc[kafka plugin]  section for details.  
-* Timescaledb: Refer to the link:plugins/08d_timescaledb.adoc[Timescaledb plugin] section for details.
-* Influxdb: Refer to the link:plugins/08e_Influxdb.adoc[influxdb plugin]  section for details.
+* Graphite: Refer to the link:plugins/08d_graphite.adoc[Graphite plugin] section for details.
+* Elasticsearch: Refer to the link:plugins/08c_elasticsearch.adoc[Elasticsearch plugin]  section for details. 
+* Kafka: Refer to the link:plugins/08h_kafka.adoc[Kafka plugin]  section for details.  
+* TimescaleDB: Refer to the link:plugins/08d_timescaledb.adoc[TimescaleDB plugin] section for details.
+* InfluxDB: Refer to the link:plugins/08e_Influxdb.adoc[InfluxDB plugin]  section for details.
 
 
 NOTE: It is important to balance the count of publishers (when configurable) with amount of event data that steps generate.  If the amount of data is too large for the publishers to keep up with there may be unwanted side-effects. For example, the events buffer size may increase enough to cause memory issues and/or QALIPSIS may  need time to exit after the end of a campaign to empty the buffers.
 
-=== Exporting specifc event data 
+=== Exporting specific event data 
 Qalipsis events are very similar to, and can be configured as, logs. The major difference is that Qalipsis events are filtered based on event name and specified `EventLevel`. You can select a minimum level of event that is to be filtered, based upon the name of the events. 
 
-EventLevel paramters::
+EventLevel parameters::
 
 * TRACE (default): all events are kept.
 * DEBUG: only events with `EventLevel`  DEBUG, INFO, WARN, or ERROR are kept.

@@ -1,6 +1,6 @@
-== redis-lettuce plugin
+= Redis-lettuce plugin
 
-The redis-lettuce plugin connects QALIPSIS to https://redis.io/[Redis].
+The Redis-lettuce plugin connects QALIPSIS to https://redis.io/[Redis].
 
 Technology addressed::
 Redis: https://redis.io/[]
@@ -17,13 +17,13 @@ Lettuce: refer to https://lettuce.io/[Lettuce].
 Supported steps::
 * <<Poll step,`poll`>>: polls the newest data periodically.
 * <<Save step,`save`>>: saves a batch of records generated from the input and step context.
-* <<Consume step,`consume`>>: consumes data from `redis` streams.
-* <<Produce step,`produce`>>: pushes messages to `redis` streams.
+* <<Consume step,`consume`>>: consumes data from Redis streams.
+* <<Produce step,`produce`>>: pushes messages to Redis streams.
 
-Example scenarios using a combination of `redis` supported steps are provided on https://github.com/qalipsis/qalipsis-examples/tree/master/redis[Github].
+Example scenarios using a combination of the supported steps are provided on https://github.com/qalipsis/qalipsis-examples/tree/master/redis[Github].
 
-=== Poll step 
-The `poll` step within the `redis-lettuce` plugin polls the newest records from a `redis` key, with a delay between each execution of polling.
+== Poll step 
+The `poll` step within the Redis-lettuce plugin polls the newest records from a Redis key, with a delay between each execution of polling.
 
 Ancestor::
 Scenario
@@ -31,7 +31,7 @@ Scenario
 Functionality::
 The `poll` step is created only once in a scenario; it is then used throughout the scenario as called.
 * The `KeyOrPattern` to be used in the poll is set to one of the following valid values: `scan`, `sscan`, `hscan`, `zscan`.
-* The native `redis-lettuce` command is called using the `KeyOrPattern` provided.
+* The native Redis-lettuce command is called using the `KeyOrPattern` provided.
 
 Example::
 +
@@ -60,21 +60,21 @@ Notable parameters::
 
 Tips::
 * Use the `poll` step with a join operator when you need to verify the values saved by your tested system in the database.
-* In addition to SSCAN (`pollSscan` in the example), the `poll` step also supports the following `redis` commands: HSCAN (`polllHscan`) SCAN (`pollScan`), and ZSCAN (`pollZscan`). 
+* In addition to SSCAN (`pollSscan` in the example), the `poll` step also supports the following Redis commands: HSCAN (`polllHscan`) SCAN (`pollScan`), and ZSCAN (`pollZscan`). 
 
 Reference documentation::
-* For more informationon on the `SENTINEL` `redisConnectionType`, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]. 
+* For more information on the `SENTINEL` `redisConnectionType`, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]. 
 * Refer to the  https://redis.io/docs/[Redis] documentation for further parameter and configuration information.
 
 
-=== Save step 
-The `save` step within the `redis-lettuce` plugin persists a batch of records into `redis`.
+== Save step 
+The `save` step within the Redis-lettuce plugin persists a batch of records into Redis.
 
 Ancestor::
 Step
 
 Functionality::
-The `save` step's input and step context are used to generate a valid `redis` command and the values to complete it; the batch of results is then forwarded to the next step(s). The records are saved individually.
+The `save` step's input and step context are used to generate a valid Redis command and the values to complete it; the batch of results is then forwarded to the next step(s). The records are saved individually.
 
 Example::
 +
@@ -111,21 +111,21 @@ Notable parameters::
 * `monitoring`(optional): configures the monitoring parameters for the step.
 
 Tip::
-* The `save` step supports the following `redis` commands: SET, SADD, HSET, ZADD. The provided command may depend on the context and input value received from the previous step.
+* The `save` step supports the following Redis commands: SET, SADD, HSET, ZADD. The provided command may depend on the context and input value received from the previous step.
 * If the `redisConnectionType` is set to `SENTINEL`, the parameter `masterId` is necessary. 
 
 Reference documentation::
-* For more informationon on the `SENTINEL` `redisConnectionType`, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]. 
+* For more information on the `SENTINEL` `redisConnectionType`, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]. 
 * Refer to the  https://redis.io/docs/[Redis] documentation for further parameter and configuration information.
 
-=== Consume step
-The `consume` step within the `redis-lettuce` plugin records data from `redis` streams.
+== Consume step
+The `consume` step within the Redis-lettuce plugin records data from Redis streams.
 
 Ancestor::
 Scenario 
 
 Functionality::
-The `consume` step creates a consumer group in a `redis` stream with the provided `connection`, consumer `group` name, and `concurrency`. If `concurrency` is set to 1, records are transmitted sequentially to the next step.
+The `consume` step creates a consumer group in a Redis stream with the provided `connection`, consumer `group` name, and `concurrency`. If `concurrency` is set to 1, records are transmitted sequentially to the next step.
 
 Example::
 +
@@ -157,17 +157,17 @@ Tip::
 If `redisConnectionType` is set to `SENTINEL`, the parameter `masterId` is necessary. 
 
 Reference documentation::
-* For more informationon on the `SENTINEL` `redisConnectionType`, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]. 
+* For more information on the `SENTINEL` `redisConnectionType`, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]. 
 * Refer to the  https://redis.io/docs/[Redis] documentation for further parameter and configuration information.
 
-=== Produce step
-The `produce` step within the `redis-lettuce` plugin produces records into the Redis streams.
+== Produce step
+The `produce` step within the Redis-lettuce plugin produces records into the Redis streams.
 
 Ancestor::
 Step
 
 Functionality::
-The `produce` step produces a batch of records into one or more `redis` stream topics. The record values may be provided by previous step(s).
+The `produce` step produces a batch of records into one or more Redis stream topics. The record values may be provided by previous step(s).
 
 Example::
 +
@@ -209,5 +209,5 @@ Tip::
 * If `redisConnectionType` is set to `SENTINEL`, the parameter `masterId` is necessary. 
 
 Reference documentation::
-* For more informationon on the `SENTINEL` `redisConnectionType`, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]. 
+* For more information on the `SENTINEL` `redisConnectionType`, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]. 
 * Refer to the  https://redis.io/docs/[Redis] documentation for further parameter and configuration information.

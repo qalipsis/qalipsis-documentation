@@ -1,7 +1,7 @@
-== mongodb plugin
+= MongoDB plugin
 
-=== Overview
-The `mongodb` plugin connects QALIPSIS to https://mongodb.com/[MongoDb].
+== Overview
+The MongoDB plugin connects QALIPSIS to https://mongodb.com/[MongoDb].
 
 Technology addressed::
 MongoDB: https://mongodb.com/[]
@@ -16,20 +16,21 @@ Client library::
 MongoDB Reactive Streams Driver: refer to https://www.mongodb.com/docs/drivers/reactive-streams/[MongoDB Java Reactive Streams].
 
 Supported steps::
++
 * <<Poll step,`poll`>>: polls the newest data periodically.
 * <<Save step,`save`>>: saves a batch of documents generated from the input and step context.
 * <<Search step,`search`>>: searches documents and builds a query from the input and step context.
++
+Example scenarios using a combination of the supported steps are provided on https://github.com/qalipsis/qalipsis-examples/tree/main/mongodb[GitHub].
 
-Example scenarios using a combination of `mongodb` supported steps are provided on https://github.com/qalipsis/qalipsis-examples/tree/master/mongodb[GitHub].
-
-=== Poll step
-The `poll` step within the `mongodb` plugin polls the newest records from a database table, with a delay between each execution.
+== Poll step
+The `poll` step within the MongoDB plugin polls the newest records from a database table, with a delay between each execution.
 
 Ancestor::
 Scenario
 
 Functionality::
-The `poll` step is created only once in a scenario;  it is then used throughout the scenario as called. The `poll` step within the `mongodb` plugin uses a strategy of “delivered at least once”. 
+The `poll` step is created only once in a scenario;  it is then used throughout the scenario as called. The `poll` step within the MongoDB plugin uses a strategy of “delivered at least once”. 
 
 Example::
 +
@@ -68,8 +69,8 @@ Tips::
 Reference Documentation::
 Refer to the https://www.mongodb.com/docs/[Mongodb] documentation for further parameter and configuration information.
 
-=== Save step
-The `save` step within the 'mongodb` plugin persists a batch of documents into MongoDB.
+== Save step
+The `save` step within the MongoDB plugin persists a batch of documents into MongoDB.
 
 Ancestor::
 Step
@@ -112,8 +113,8 @@ Tips::
 Reference Documentation::
 Refer to the  https://www.mongodb.com/docs/[Mongodb] documentation for further parameter and configuration information.
 
-=== Search step 
-The `search` step within the `mongodb` plugin searches records in the database using a search query.
+== Search step 
+The `search` step within the MongoDB plugin searches records in the database using a search query.
 
 Ancestor::
 Step

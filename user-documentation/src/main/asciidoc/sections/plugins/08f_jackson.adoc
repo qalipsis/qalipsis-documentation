@@ -1,7 +1,7 @@
-== jackson plugin
+= Jackson plugin
 
-=== Overview
-The `jackson` plugin supports reading a (https://github.com/FasterXML/jackson[JSON, XML or CSV]) file, converting the data to an object, and pushing the object to the next step.
+== Overview
+The Jackson plugin supports reading a (https://github.com/FasterXML/jackson[JSON, XML or CSV]) file, converting the data to an object, and pushing the object to the next step.
 
 Technologies addressed::
 https://github.com/FasterXML/jackson[Class JsonMapper]
@@ -20,8 +20,8 @@ Supported steps::
 * <<jsonToMap and jsonToObject, jsonToMap and jsonToObject>>: reads a json file and converts the data to a Map (or Object).
 * <<xmlToObject,`xmlToObject`>>: reads an xml file and converts the data to an object.
 
-=== csvToMap and csvToObject
-The `csvToMap` and `csvToObject` steps within the `jackson` plugin read a CSV resource (file, classpath resource, URL) and returns each item as an instance of an Object or Map.
+== csvToMap and csvToObject
+The `csvToMap` and `csvToObject` steps within the Jackson plugin read a CSV resource (file, classpath resource, URL) and returns each item as an instance of an Object or Map.
  
 Ancestor::
  Step
@@ -71,10 +71,10 @@ Tip::
 Only one path (`classpath(file)`, `file(path)`, or `url(url)`) to the resource is allowed for each `csvToObject` or `csvToMap` step.
 
 Reference documentation::
-Refer to the https://github.com/FasterXML/jackson[jackson] documentation for further congiguration and parameter information.
+Refer to the https://github.com/FasterXML/jackson[Jackson] documentation for further configuration and parameter information.
 
-=== xmlToObject
-The `xmlToObject` step within the `jackson` plugin reads an XML resource (classpath, file, or url) and returns each item as an instance of an object of the specified class.
+== xmlToObject
+The `xmlToObject` step within the Jackson plugin reads an XML resource (classpath, file, or url) and returns each item as an instance of an object of the specified class.
 
 Ancestor::
  Step
@@ -101,10 +101,10 @@ Tip::
 Only one path (`classpath(file)`, `file(path)`, or `url(url)`) to the resource is allowed for each `xmlToObject` step.
 
 Reference documentation::
-Refer to the https://github.com/FasterXML/jackson[jackson] documentation for further congiguration and parameter information.
+Refer to the https://github.com/FasterXML/jackson[Jackson] documentation for further configuration and parameter information.
 
-=== jsonToMap and jsonToObject
-The `jsonToMap` and `jsonToObject` steps within the `jackson` plugin read a JSON resource (file, classpath resource, URL) and returns each item as an instance of `map` or `object`).
+== jsonToMap and jsonToObject
+The `jsonToMap` and `jsonToObject` steps within the Jackson plugin read a JSON resource (file, classpath resource, URL) and returns each item as an instance of `map` or `object`).
  
 Ancestor::
 Step
@@ -133,4 +133,4 @@ Tip::
 Only one path (`classpath(file)`, `file(path)`, or `url(url)`) to the resource is allowed for each `jsnToObject` or `jsnToMap` step.
 
 Reference documentation::
-Refer to the https://github.com/FasterXML/jackson[jackson] documentation for further configuration and parameter information.
+Refer to the https://github.com/FasterXML/jackson[Jackson] documentation for further configuration and parameter information.

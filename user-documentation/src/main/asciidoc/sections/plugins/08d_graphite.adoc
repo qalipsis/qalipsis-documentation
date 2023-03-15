@@ -1,7 +1,7 @@
-== graphite plugin
+= Graphite plugin
 
-=== Overview
-The `https://github.com/graphite-project/graphite-web[graphite]` plugin connects or supports...
+== Overview
+The `https://github.com/graphite-project/graphite-web[Graphite]` plugin connects or supports...
  
 Technology addressed::
 
@@ -13,15 +13,14 @@ Namespace in scenario::
 `graphite()`
 
 Client library::
-graphite: refer to https://github.com/graphite-project/graphite-web[Graphite]
+
 
 Supported steps::
 Step1
 
 
-An example scenario that uses a combination of the `graphite`  steps is provided on https://github.com/qalipsis/qalipsis-examples/tree/master/graphite[GitHub].
 
-=== Step1
+== Step1
 
 Ancestor::
 Scenario
@@ -45,29 +44,29 @@ Reference documentation::
 Refer to the https://github.com/graphite-project/graphite-web/tree/master/docs[Graphite] documentation for further parameter and configuration information. 
 
  
-== Configuration of graphite events and meters for monitoring
+== Configuration of publication of events and meters to Graphite.
 === Events
 
-Comfiguration namespace::
+Configuration namespace::
 `events.export.graphite`
 
 Parameters::
-* `enabled`: boolean flag that activates/deactivates event publishing to `graphite`; defaults to `false`; *must* be set to `true`.
+* `enabled`: boolean flag that activates/deactivates event publishing to Graphite; defaults to `false`; *must* be set to `true`.
 * `minLevel`: minimal accepted level of events; defaults to INFO; allowable values are `EventLevel`values: TRACE, DEBUG, INFO, WARN, ERROR, OFF. 
 * `host`(required): defaults to localhost; cannot be blank.
 * `port`(required): positive integer; defaults to 2004
-* `protocol`: the GraphiteProtocol type; defualt is PICKLE; available choices are PICKLE PLAINTEXT.
+* `protocol`: the GraphiteProtocol type; default is PICKLE; available choices are PICKLE PLAINTEXT.
 * `batchSize`: maximum number of events buffered between two publications of events to Graphite; positive integer; defaults to `2`.
 * `lingerPeriod`: maximum period between two publications of events to Graphite; positive duration; defaults to `10s`.
-* `publishers`: maximim number of concurrent publication of events to Graphite; positive integer; defaults to `2`.
+* `publishers`: maximum number of concurrent publication of events to Graphite; positive integer; defaults to `2`.
 
 === Meters
 
-NConfiguration namespace::
+Configuration namespace::
 `meters.export.graphite`
 
 Parameters::
-* `enabled`: boolean flag that activates/deactivates meter publishing to `graphite`; defaults to `false`; *must* be set to `true`.
+* `enabled`: boolean flag that activates/deactivates meter publishing to Graphite; defaults to `false`; *must* be set to `true`.
 * `host`(required): defaults to localhost; cannot be blank.
 * `port`(required): positive integer; defaults to `2004`.
 * `step`(optional): The step size (reporting frequency); defaults to `PT10S`.

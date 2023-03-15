@@ -1,7 +1,7 @@
-== cassandra plugin
+= Cassandra plugin
 
-=== Overview
-The `cassandra` plugin connects QALIPSIS to https://cassandra.apache.org/_/index.html[Apache Cassandra].
+== Overview
+The Cassandra plugin connects QALIPSIS to https://cassandra.apache.org/_/index.html[Apache Cassandra].
 
 Technologies addressed::
 * Cassandra: https://cassandra.apache.org/_/index.html[Apache Cassandra]
@@ -23,17 +23,17 @@ Supported steps::
 * <<poll step,`poll`>>: polls the newest data periodically.
 * <<Save step,`save`>>: saves records generated from the input and step context.
 * <<Search step,`search`>>: searches records and builds a query from the input and step context.
-
-Example scenarios using a combination of `cassandra` supported steps are provided on https://github.com/qalipsis/qalipsis-examples/tree/master/cassandra[Github].
++
+Example scenarios using a combination of the supported steps are provided on https://github.com/qalipsis/qalipsis-examples/tree/main/cassandra[Github].
  
-=== Poll step
-The `poll` step within the `cassandra` plugin polls the newest records from the database table.
+== Poll step
+The `poll` step within the Cassandra plugin polls the newest records from the database table.
 
 Ancestor::
 Scenario or step
 
 Functionality::
-The `poll` step is created only once in a scenario; it is then used throughout the scenario as called. The `poll` step within the `cassandra` plugin uses a strategy of “delivered at least once."
+The `poll` step is created only once in a scenario; it is then used throughout the scenario as called. The `poll` step within the Cassandra plugin uses a strategy of “delivered at least once."
 
 Example::
 [source,kotlin,linenumbers]
@@ -53,7 +53,7 @@ cassandra().poll {
     pollDelay(Duration.ofSeconds(1))
 }
 ----
- Notable parameters::
+Notable parameters::
 * `connect` (required): configures the connection to https://cassandra.apache.org[Apache Cassandra]
 * `keyspace`(required): the outermost object that determines how data replicates on nodes.
 * `query` (required): defines the prepared statement to execute when polling.
@@ -71,8 +71,8 @@ Tips::
 Reference documentation::
 Refer to the https://cassandra.apache.org/doc/latest[Apache Cassandra] documentation further parameter and configuration information.
 
-=== Save step
-The `save` step within the `cassandra` plugin persists records into a cassandra database using the save query with Cassandra Query Language (CQL).
+== Save step
+The `save` step within the Cassandra plugin persists records into a Cassandra database using the save query with Cassandra Query Language (CQL).
 
 Ancestor::
  Step
@@ -128,8 +128,8 @@ Tips::
 Reference documentation::
 Refer to the https://cassandra.apache.org/doc/latest[Apache Cassandra] documentation for further parameter and configuration information.
 
-=== Search step
-The `search` step within the `cassandra` plugin searches records in the database using a search query.
+== Search step
+The `search` step within the Cassandra plugin searches records in the database using a search query.
 
 Ancestor::
 step

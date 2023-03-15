@@ -1,8 +1,8 @@
-== timescaledb plugin
+= TimescaleDB plugin
 
-=== Overview
+== Overview
 
-The `timescaledb` plugin connects QALIPSIS to https://docs.timescale.com/timescaledb/latest[TimescaleDB].
+The TimescaleDB plugin connects QALIPSIS to https://docs.timescale.com/timescaledb/latest[TimescaleDB].
 
 Technologies addressed::
 * PSQL: https://www.postgresql.org/
@@ -18,116 +18,24 @@ Client library::
 https://docs.timescale.com/keywords/Toolkit/
 
 
-Supported steps::
-* <<Poll step,`poll`>>: polls the newest data periodically.
-* <<Save step,`save`>>: saves a batch of records generated from the input and step context.
-* <<Search step,`search`>>: searches records and builds a query from the input and step context.
-
-Example scenarios using a combination of the `timescaledb` supported steps are provided on https://github.com/qalipsis/qalipsis-examples/tree/master/timescaledb[GitHub].
-
-=== Poll step 
-The `poll` step within the `timescaledb()` plugin polls the newest records from the database, with a delay between each execution of a select query.
-
-Ancestor::
-Scenario
-
-Functionality::
-The `poll` step is created only once in a scenario; it is then used throughout the scenario as called. The `poll` step within the `timescaledb` plugin uses a strategy of “delivered at least once”.
-
-Example::
-+
-[source,kotlin,linenumbers]
-----
-
-----
-
-Notable parameters::
-* `monitoring`(optional): configures the monitoring parameters for the step. Refer to <<Configuration of timescaledb events and meters for monitoring>>.
-
-Tip::
-Use the `poll` step with a join operator to verify the values that the tested system saves to the database.
-
-Reference: Documentation::
-Refer to the https://docs.timescale.com/[Timescale] documentation for further parameter and configuration information.
- 
-=== Save step
-The `save` step within the `timescaledb()` plugin persists a batch of records into the `timescaledb` bucket using a specific `points` class.
-
-Ancestor::
-Step
-
-Functionality::
-The `save` step's input and step context are used to generate the bucket, the list of points with their measurement, and tags and fields, which are then combined and forwarded to the database.
-
-Example::
-+
-[source,kotlin,linenumbers]
-----
-
-
-
-
-
-----
-Notable parameters::
-* `connect` (required): configures the connection to https://docs.timescale.com/timescaledb/latest//[timescaledb].
-* `monitoring`(optional): configures the monitoring parameters for the step. Refer to <<Configuration of timescaledb events and meters for monitoring>>.
-
-Tips::
-* Use the `save` step after a `collect` step to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.
-* The `save` step is extremely flexible: bucket, tags, measurement and fields might depend on the context and input value received from the previous step.
-
-Reference documentation::
-Refer to the Refer to the https://docs.timescale.com/[Timescale] documentation for further parameter and configuration information. 
-
-=== Search step 
-The `search` step within the `timescaledb` plugin searches records in the database using a search query.
-
-Ancestor::
-Step
-
-Functionality::
-The `search` step's input and step context are used to generate a query; the batch of results is then forwarded to the next step(s).
-
-
-Example::
-[source,kotlin,linenumbers]
-----
-
-
-
-----
-
-Notable parameters::
-* `search`: generates the search query from the step input and context.
-* `connect` (required): configures the connection to https://docs.timescale.com/timescaledb/latest//[timescaledb]. 
-* `monitoring`(optional): configures the monitoring parameters for the step. Refer to <<Configuration of timescaledb events and meters for monitoring>>.
-
-Tip::
-Use the `search` step after a `collect` step to reduce the number of queries executed onto the database and to reduce the load the scenario generates on the test system.
-
-Reference documentation::
-Refer to the https://docs.timescale.com/[Timescale] documentation for further parameter and configuration information.
-
-== Configuration of timescaledb events and meters for monitoring
+== Configuration of publication of events and meters to TimescaleDB.
 === Events
 
 Configuration namespace::
 `events.export.timescaledb`
 
 Parameters::
-* `enabled`: boolean flag that activates/deactivates event publishing to `timescaledb`; defaults to `false`; *must* be set to `true`.
+* `enabled`: boolean flag that activates/deactivates event publishing to TimescaleDB; defaults to `false`; *must* be set to `true`.
 * `minLevel`: minimum accepted level of events; defaults to INFO; allowable values are `EventLevel`values: TRACE, DEBUG, INFO, WARN, ERROR, OFF; cannot be null.
-* `lingerPeriod`: maximum period between publication of events to `timescaledb`; positive duration, defaults to `10s`.
-* `batchSize`: maximum number of events buffered between two publications of events to `timescaledb`; positive integer; defaults to `2000`.
+* `lingerPeriod`: maximum period between publication of events to TimescaleDB; positive duration, defaults to `10s`.
+* `batchSize`: maximum number of events buffered between two publications of events toTimescaleDB; positive integer; defaults to `2000`.
 * `publishers`: number of concurrent publication of events that can run; positive integer; defaults to `1` (no concurrency).
 * `host`: defaults to localhost; cannot be blank.
 * `port`: positive integer; defaults to `5432`.
-* `username`: name of the user for basic authentication when connecting to `timescaledb`; defaults to `qalipsis_user`.
-* `password`: password of the user for basic authentication when connecting to `timescaledb`; defaults to `qalipsis_pwd`.
+* `username`: name of the user for basic authentication when connecting to TimescaleDB; defaults to `qalipsis_user`.
+* `password`: password of the user for basic authentication when connecting to TimescaleDB; defaults to `qalipsis_pwd`.
 * `schema`: string name of the schema; defaults to `events`; cannot be blank.
 * `database`: string name of the database; defaults to `qalipsis`; cannot be blank.
-
 
 === Meters
 
@@ -135,11 +43,11 @@ Configuration namespace::
 `meters.export.timescaledb`
 
 Parameters::
-* enabled`: boolean flag that activates/deactivates meter publishing to `timescaledb`; defaults to `false`; *must* be set to `true`.
+* enabled`: boolean flag that activates/deactivates meter publishing to TimescaleDB; defaults to `false`; *must* be set to `true`.
 * `host`: defaults to localhost; cannot be blank.
 * `port`: positive integer; defaults to `5432`.
-* `username`: name of the user for basic authentication when connecting to `timescaledb`; defaults to `qalipsis_user`.
-* `password`: password of the user for basic authentication when connecting to `timescaledb`; defaults to `qalipsis_pwd`.
+* `username`: name of the user for basic authentication when connecting to TimescaleDB; defaults to `qalipsis_user`.
+* `password`: password of the user for basic authentication when connecting to TimescaleDB; defaults to `qalipsis_pwd`.
 * `schema`: string name of the schema; defaults to `events`; cannot be blank.
 * `database`: string name of the database; defaults to `qalipsis`; cannot be blank.
 * `step`(optional): the step size (reporting frequency); defaults to `PT10S`.
