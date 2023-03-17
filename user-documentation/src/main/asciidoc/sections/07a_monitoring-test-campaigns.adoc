@@ -37,8 +37,7 @@ To be able to evaluate and analyze the performance and failures of your system d
 
 === Enabling monitoring in steps
 Scenarios within campaigns are made up of steps.  By default, monitoring is disabled for each step.
-Note that not all steps are conducive monitoring. For example, there would be nothing to monitor in a delay step.
-However, load generating and assertion steps generate data that is important to monitor.
+Note that not all steps are suitable for monitoring. For example, there would be nothing to monitor in a delay step. However, load-generating and assertion steps generate data that is important to monitor.
 
 QALIPSIS allows you to enable monitoring and configure the different levels of data that you want to record for each step.
 
@@ -86,16 +85,15 @@ events.export.enabled=true
 meters.export.enabled=true
 ----
 
-Plugin steps must be also configured to export monitoring data. As at the time of this writing, the following plugins are supported:
+Plugin steps must also be configured to export monitoring data. At the time of this writing, the following plugins are supported:
 
 * Graphite: Refer to the link:plugins/08d_graphite.adoc[Graphite plugin] section for details.
 * Elasticsearch: Refer to the link:plugins/08c_elasticsearch.adoc[Elasticsearch plugin]  section for details. 
 * Kafka: Refer to the link:plugins/08h_kafka.adoc[Kafka plugin]  section for details.  
 * TimescaleDB: Refer to the link:plugins/08d_timescaledb.adoc[TimescaleDB plugin] section for details.
-* InfluxDB: Refer to the link:plugins/08e_Influxdb.adoc[InfluxDB plugin]  section for details.
+* InfluxDB: Refer to the link:plugins/08e_Influxdb.adoc[InfluxDB plugin] section for details.
 
-
-NOTE: It is important to balance the count of publishers (when configurable) with amount of event data that steps generate.  If the amount of data is too large for the publishers to keep up with there may be unwanted side-effects. For example, the events buffer size may increase enough to cause memory issues and/or QALIPSIS may  need time to exit after the end of a campaign to empty the buffers.
+NOTE: It is important to balance the count of publishers (when configurable) with the amount of event data that steps generate.  If the amount of data is too large for the publishers to keep up with, there may be unwanted side effects. For example, the events buffer size may increase enough to cause memory issues and QALIPSIS may need time to exit after the end of a campaign to empty the buffers.
 
 === Exporting specific event data 
 Qalipsis events are very similar to, and can be configured as, logs. The major difference is that Qalipsis events are filtered based on event name and specified `EventLevel`. You can select a minimum level of event that is to be filtered, based upon the name of the events. 
@@ -120,4 +118,4 @@ events:
 ----
 <1> All events with levels of INFO or higher (WARN, ERROR) are kept.
 <2> All events starting with elasticsearch. are kept.
-<3> Events with names starting with cassandra.poll. are only kept if their level is DEBUG or higher; cassandra.poll:TRACE events are not kept.
+<3> Events with names starting with cassandra.poll. are only kept if their level is DEBUG or higher; cassandra.poll: TRACE events are not kept.

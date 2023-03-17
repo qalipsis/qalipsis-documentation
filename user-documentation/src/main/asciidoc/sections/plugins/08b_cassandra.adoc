@@ -40,27 +40,26 @@ Example::
 ----
 cassandra().poll {
     connect {
-        servers = listOf("localhost:9042")
-        keyspace = "iot"
-        datacenterName = "datacenter1"                           
+        servers = list-of("localhost:9042")
+        key-space = "iot"
+        datacenter-name = "datacenter1"                           
     }
     query("SELECT deviceid, timestamp, batterylevel FROM devices WHERE company = ? ORDER BY timestamp")
     parameters("ACME Inc.")
-    tieBreaker {
+    tie-breaker {
         name = "timestamp"
         type = GenericType.INSTANT
     }
-    pollDelay(Duration.ofSeconds(1))
+    poll-delay(Duration.ofSeconds(1))
 }
 ----
 Notable parameters::
 * `connect` (required): configures the connection to https://cassandra.apache.org[Apache Cassandra]
-* `keyspace`(required): the outermost object that determines how data replicates on nodes.
+* `key-space`(required): the outermost object that determines how data replicates on nodes.
 * `query` (required): defines the prepared statement to execute when polling.
 * `parameters` (optional): binds values to the clauses of the prepared query.
-* `tieBreaker` (required): repeats the first column used for sorting and comparison (`<=` or `>=`, depending on the ascending or descending order).
-* `pollDelay` (required): specifies the delay between query executions.
-* `monitoring`(optional): configures the monitoring parameters for the step.
+* `tie-breaker` (required): repeats the first column used for sorting and comparison (`<=` or `>=`, depending on the ascending or descending order).
+* `poll-delay` (required): specifies the delay between query executions.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
 
 Tips::
@@ -86,9 +85,9 @@ Example::
 .cassandra() 
 .save {
     connect {   
-        servers = listOf("localhost:9042")
-        keyspace = "iot"
-        datacenterName = "datacenter1"
+        servers = list-of("localhost:9042")
+        key-space = "iot"
+        datacenter-name = "datacenter1"
     }
 
     table { _, _ ->   
@@ -96,7 +95,7 @@ Example::
     }
 
     columns { _, _ ->    
-        listOf(
+        list-of(
             "company",
             "deviceid",
             "timestamp,
@@ -105,12 +104,12 @@ Example::
     }
                
     rows { _, input ->    
-        listOf(
+        list-of(
             CassandraSaveRow(
                 "'ACME Inc.'",
-                "'${input.deviceId}'",
+                "'${input.device-id}'",
                 "'${input.timestamp}'",
-                input.batteryLevel
+                input.battery-level
             )
         )
     }
@@ -118,8 +117,7 @@ Example::
 ----
 Notable parameters::
 * `connect` (required): configures the connection to https://cassandra.apache.org[Apache Cassandra].
-* `keyspace`(required): the outermost object that determines how data replicates on nodes.
-* `monitoring`(optional): configures the monitoring parameters for the step.
+* `key-space`(required): the outermost object that determines how data replicates on nodes.
 
 Tips::
 * Use the `save` after a `collect` step in order to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.
@@ -144,24 +142,23 @@ Example::
     name = "search"
 
     connect {
-        servers = listOf("localhost:9042")
-        keyspace = "test_keyspace"
-        datacenterName = "test_datacenter"
+        servers = list-of("localhost:9042")
+        key-space = "test_keyspace"
+        datacenter-name = "test_datacenter"
     }
     query { _, _ ->
-        "SELECT * FROM "batteryState" WHERE  "company"= ? AND "deviceid"" = ? AND timestamp = ?"
+        "SELECT * FROM "battery-state" WHERE  "company"= ? AND "deviceid"" = ? AND timestamp = ?"
     }
     parameters { _, input ->
-        listOf("ACME Inc.", input.input.deviceId, input.input.timestamp)
+        list-of("ACME Inc.", input.input.device-id, input.input.timestamp)
     }
 }
 ----
 Notable parameters::
 * `connect` (required): configures the connection to  https://cassandra.apache.org[Apache Cassandra].
-* `keyspace`(required): the outermost object that determines how data replicates on nodes.
+* `key-space`(required): the outermost object that determines how data replicates on nodes.
 * `query` (required): defines the prepared statement to execute when searching.
 * `parameters`: (optional): binds values to the clauses of the prepared query.
-* `monitoring`(optional): configures the monitoring parameters for the step.
 
 Tips::
 * Use the `search` step after a `collect()` step to reduce the number of queries executed onto the database and to reduce the load the scenario generates on the test system.

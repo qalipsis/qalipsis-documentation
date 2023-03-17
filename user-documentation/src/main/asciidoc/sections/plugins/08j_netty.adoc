@@ -43,35 +43,35 @@ Functionality::
 +
 * When the step is kept open without limit, a <<CLOSE TCP step,`CLOSE TCP`>> step must be executed to properly close the connections and avoid saturation of the system.
 +
-Be aware that the number of open connections that can be concurrently maintained depends on the configuration of your operating system. If there are issues with maintaining open connections, try adapting the limits of the file descriptors.
+Be aware that the number of open connections that can be concurrently maintained depends on the configuration of your operating system. If there are issues maintaining open connections, try adapting the limits of the file descriptors.
 
 Example::
 +
 [source,kotlin,linenumbers]
 ----
 netty().http {
-   request { context, input -> SimpleHttpRequest(HttpMethod.HEAD, "/head") }
+   request { context, input -> Simple-http-request(Http-method.HEAD, "/head") }
    connect {
        url("https://my-website.com:8080/test")
-       connectTimeout = Duration.ofSeconds(5)
+       connect-timeout = Duration.of-seconds(5)
        inflate()
        charset(Charsets.ISO_8859_1)
-       maxContentLength(123)
-       followRedirections(15)
-       noDelay = false
-       keepConnectionAlive = false
+       max-content-length(123)
+       follow-redirections(15)
+       no-delay = false
+       keep-connection-alive = false
        tls {
-           disableCertificateVerification = true
+           disable-certificate-verification = true
        }
        proxy {
-           type = HttpProxyType.SOCKS5
+           type = Http-proxy-type.SOCKS5
            address("my-proxy", 9876)
        }
-       followRedirections(5)
+       follow-redirections(5)
    }
    pool {
        size = 143
-       checkHealthBeforeUse = true
+       check-health-before-use = true
    }
    monitoring {
        events = true
@@ -85,30 +85,33 @@ Notable parameters::
 * `connect`: configures the connection to the remote endpoint.
 ** `version`: version of the HTTP protocol to use: `HTTP_1_1` or `HTTP_2_0`,; defaults to `HTTP_1_1`.
 ** `url`: the root URL, the path of the request is appended to it.
-** `connectTimeout`: limit duration to fully establish the connection; defaults to 10 seconds.
-** `readTimeout`: limit duration to receive a response and read it totally after a request; defaults to 10 seconds.
-** `shutdownTimeout`: limit duration to close a connection; defaults to 10 seconds.
-** `sendBufferSize`: the size of the buffer used to prepare the data to send; defaults to 1024 bytes.
-** `receiveBufferSize`: the size of the buffer to receive the data of the response; defaults to 1024 bytes.
-** `nettyChannelOptions`: overwrites the options of the Netty channel, use with care.
-** `noDelay`: disables the Nagle Algorithm; defaults to true.
-** `keepConnectionAlive`: when set to true, the HTTP header Connection is set to Keep-Alive and the client connection is kept open until `CLOSEHTTP`() is called.
+** `connect-timeout`: limit duration to fully establish the connection; defaults to 10 seconds.
+** `read-timeout`: limit duration to receive a response and read it totally after a request; defaults to 10 seconds.
+** `shutdown-timeout`: limit duration to close a connection; defaults to 10 seconds.
+** `send-buffer-size`: the size of the buffer used to prepare the data to send; defaults to 1024 bytes.
+** `receive-buffer-size`: the size of the buffer to receive the data of the response; defaults to 1024 bytes.
+** `netty-channel-options`: overwrites the options of the Netty channel, use with care.
+** `no-delay`: disables the Nagle Algorithm; defaults to true.
+** `keep-connection-alive`: when set to true, the HTTP header Connection is set to Keep-Alive and the client connection is kept open until `CLOSEHTTP`() is called.
 ** `tls`: configuration for SSL/TLS
-*** `disableCertificationVerification`: set it to true when the certificate on server should not be verified (for example for a self-signed certificate)
+*** `disable-certification-verification`: set it to true when the certificate on server should not be verified (for example for a self-signed certificate)
 *** `protocols`: supported protocols; defaults to the Netty default for the related HTTP version.
 *** `ciphers`: supported cipher algorithms; defaults to the Netty default for the related HTTP version.
 ** `proxy`: configuration to exchange HTTP data via a proxy; defaults to no configuration.
 *** `address`: the host and port of the proxy.
 *** `type`: type of the proxy to use: `HTTP`, `SOCKS5`; defaults to `HTTP`.
 *** `authenticate`: username and optional password to authenticate to the proxy, if it supports and requires it.
-** `charset`: character encoding of the HTTP requests, 
-** `maxContentLength`: maximal expected size of a request, in bytes, defaults to `1048576`, which is the minimum allowed.
+** `charset`: character encoding of the HTTP requests.
+** `max-content-length`: maximal expected size of a request, in bytes, defaults to ``1048576``, which is the minimum allowed.
 ** `inflate`: enables the acceptance of compressed response. Compression of the request is not supported.
-** `followRedirections`: when the server returns an HTTP status 3xx (redirection) in the response, the client will resend the request to the provided location. Otherwise, the response is kept as is. The argument maxRedirections provides the maximal number of redirections to follow; defaults to 10. By default, the redirections are not followed at all. Note that following a redirections makes the request to be sent there, exactly as it is (same method and content).
+** `follow-redirections`: when the server returns an HTTP status 3xx (redirection) in the response, the client will resend the request to the provided location. 
++
+Otherwise, the response is kept as is. The argument `max-redirections` provides the maximal number of redirections to follow; defaults to `10`. 
++
+By default, the redirections are not followed at all. Note that following a redirections makes the request to be sent there, exactly as it is (same method and content).
 * `pool`: configuration of the pool of connections; the `pool` is disabled by default.
 ** `size`: number of constant connections maintained in the pool.
-** `checkHealthBeforeUse`: verifies the health of the connection when polled from the `pool` and before it is used.
-* `monitoring`(optional): configures the monitoring parameters for the step.
+** `check-health-before-use`: verifies the health of the connection when polled from the `pool` and before it is used.
 * `deserialize`: specifies the class to use to deserialize the body of the response.
 
 Reference Documentation::
@@ -128,7 +131,7 @@ Example::
 [source,kotlin,linenumbers]
 ----
 netty().httpWith("name-of-a-previous-HTTP-step") {
-   request { context, input -> SimpleHttpRequest(HttpMethod.HEAD, "/head") }
+   request { context, input -> Simple-http-request(HttpMethod.HEAD, "/head") }
    monitoring { all() }
 }.deserialize(String::class)
 ----
@@ -136,7 +139,6 @@ netty().httpWith("name-of-a-previous-HTTP-step") {
 Notable parameters::
 * `netty().httpWith`("name-of-a-previous-HTTP-step"): the name of the `HTTP` step that owns the connection.
 ** `request`: a factory to create the request to exchange, using the step context and the input as arguments.
-** `monitoring`(optional): configures the monitoring parameters for the step.
 * `deserialize`: specifies the class to use to deserialize the body of the response.
 
 Reference Documentation:: 
@@ -160,7 +162,6 @@ netty().closeHttp("name-of-a-previous-HTTP-step")
 ----
 Notable parameters::
 * `closeHttp` (required)  specifies the  name of an `HTTP` step owning the `HTTP` connection to close. 
-* `monitoring`(optional): configures the monitoring parameters for the step.
 
 Reference Documentation::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
@@ -217,7 +218,6 @@ Scenario and Step
 
 Functionality::
 The TCP step establishes a connection with the server using either a pool of connections or an individual connection for each minion.
- 
 +
 If an individual connection is used, the connection is maintained until the latest execution for the minion is performed, including the ones from the related <<TCP WITH, `TCP WITH`>> step, as in the example.
 +
@@ -225,49 +225,44 @@ When the step is kept open without limit, a <<CLOSE TCP Step,`CLOSE TCP`>> step 
 +
 Be aware that the number of open connections that can be concurrently maintained depends on the configuration of your operating system. If there are issues with maintaining open connections, adapting the limits for file descriptors may help.
 
-
 Example::
 +
 [source,kotlin,linenumbers]
 ----
 netty().tcp {
-   request { context, input -> input.encodeToByteArray() }
+   request { context, input -> input.encode-to-byte-array() }
    connect {
         address("remote-server.acme.com", 9000)
-        connectTimeout = Duration.ofMinutes(1)
-        noDelay = false
-        keepConnectionAlive = false
+        connect-timeout = Duration.of-minutes(1)
+        no-delay = false
+        keep-connection-alive = false
         tls {
-            disableCertificateVerification = true
+            disable-certificate-verification = true
         }
         proxy {
-            type = HttpProxyType.SOCKS5
+            type = Http-proxy-type.SOCKS5
             address("my-proxy", 9876)
         }
     }
     pool {
        size = 1000
-       checkHealthBeforeUse = true
+       check-health-before-use = true
     }
-    monitoring {
-       events = true
-       meters = true
-   }
 }
 ----
 Notable parameters::
 * `request`: a factory to create the request to exchange, using the step context and the input as arguments; the request is an array of bytes.
 * `connect`:configures the connection to the remote endpoint.
 *** `address`:hostname or IP address and port of the remote server.
-** `connectTimeout`: limit duration to fully establish the connection; defaults to 10 seconds.
-** `readTimeout`:limit duration to receive and read a response after a request; defaults to 10 seconds.
-** `shutdownTimeout`:limit duration to close a connection; defaults to 10 seconds.
-** `sendBufferSize`: the size of the buffer used to prepare the data to send; defaults to 1024 bytes.
+** `connect-timeout`: limit duration to fully establish the connection; defaults to 10 seconds.
+** `read-timeout`:limit duration to receive and read a response after a request; defaults to 10 seconds.
+** `shutdown-timeout`:limit duration to close a connection; defaults to 10 seconds.
+** `send-buffer-size`: the size of the buffer used to prepare the data to send; defaults to 1024 bytes.
 ** `receiveBufferSize`: the size of the buffer to receive the data of the response; defaults to 1024 bytes.
-** `nettyChannelOptions`: overwrites the options of the Netty channel, use with care.
-** `noDelay`: disables the Nagle Algorithm; defaults to `true`.
+** `netty-channel-options`: overwrites the options of the Netty channel, use with care.
+** `no-delay`: disables the Nagle Algorithm; defaults to `true`.
 ** `tls`: configuration for SSL/TLS
-*** `disableCertificationVerification`: set to true if the certificate on the server should not be verified (for example for a self-signed certificate).
+*** `disable-certification-verification`: set to true if the certificate on the server should not be verified (for example for a self-signed certificate).
 *** `protocols`: supported protocols; defaults to the Netty default. 
 *** `ciphers`: supported cipher algorithms; defaults to the Netty default.
 ** `proxy`: configuration to exchange data via a proxy; defaults to no configuration.
@@ -276,7 +271,7 @@ Notable parameters::
 *** `authenticate`: username and optional password to authenticate to the proxy, if the proxy supports and requires it.
 * `pool`: configuration of the pool of connections; defaults to disabled.
 ** `size`: number of constant connections maintained in the pool.
-** `checkHealthBeforeUse`: verifies the health of the connection when polled from the pool and before it is used.
+** `check-health-before-use`: verifies the health of the connection when polled from the pool and before it is used.
 
 Reference Documentation::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
@@ -295,14 +290,13 @@ Example::
 +
 [source,kotlin,linenumbers]
 ----
-netty().tcpWith("name-of-a-previous-HTTP-step") {
+netty().tcp-with("name-of-a-previous-HTTP-step") {
    request { context, input -> input.encodeToByteArray() }
    monitoring { all() }
 }
 ----
 Notable parameters::
 * `request`: a factory to create the request to exchange, using the step context and the input as arguments.
-* `monitoring`(optional): configures the monitoring parameters for the step.
 
 Reference Documentation::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
@@ -322,12 +316,11 @@ Example::
 +
 [source,kotlin,linenumbers]
 ----
-netty().closeHttp("name-of-a-previous-HTTP-step")
+netty().close-http("name-of-a-previous-HTTP-step")
 ----
 
 Notable parameters::
-* `closeHttp` (required):  specifies the  name of the `HTTP` step to close. 
-* `monitoring`(optional): configures the monitoring parameters for the step.
+* `close-http` (required):  specifies the  name of the `HTTP` step to close. 
 
 Reference Documentation::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
@@ -348,19 +341,16 @@ Example::
 [source,kotlin,linenumbers]
 ----
 netty().udp {
-    request { context, input -> input.encodeToByteArray() }
+    request { context, input -> input.encode-to-byte-array() }
     connect {
        address("remote-server.acme.com", 9000)
-       connectTimeout = Duration.ofMinutes(1)
+       connect-timeout = Duration.of-minutes(1)
     }
     pool {
        size = 143
-       checkHealthBeforeUse = true
+       check-health-before-use = true
    }
-   monitoring {
-       events = true
-       meters = true
-   }
+
 }
 ----
 
@@ -368,13 +358,12 @@ Notable parameters::
 * `request`: a factory to create the request to exchange, using the step context and the input as arguments, the request is an array of bytes
 * `connect`: configures the connection to the remote endpoint
 ** `address`: hostname or IP address and port of the remote endpoint
-** `connectTimeout`: limit duration to fully establish the connection; defaults to 10 seconds.
-** `readTimeout`: limit duration to receive a response and read it totally after a request; defaults to 10 seconds.
-** `shutdownTimeout`: limit duration to close a connection; defaults to 10 seconds.
-** `sendBufferSize`: the size of the buffer used to prepare the data to send; defaults to `1024` bytes.
-** `receiveBufferSize`: the size of the buffer to receive the data of the response; defaults to `1024` bytes.
-** `nettyChannelOptions`: overwrites the options of the Netty channel, use with care.
-*  `monitoring`(optional): configures the monitoring parameters for the step.
+** `connect-timeout`: limit duration to fully establish the connection; defaults to 10 seconds.
+** `read-timeout`: limit duration to receive a response and read it totally after a request; defaults to 10 seconds.
+** `shutdown-timeout`: limit duration to close a connection; defaults to 10 seconds.
+** `send-buffer-size`: the size of the buffer used to prepare the data to send; defaults to `1024` bytes.
+** `receive-buffer-size`: the size of the buffer to receive the data of the response; defaults to `1024` bytes.
+** `netty-channel-options`: overwrites the options of the Netty channel, use with care.
 
 Reference Documentation::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.

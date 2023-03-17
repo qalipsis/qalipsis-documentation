@@ -48,16 +48,15 @@ elasticsearch().poll {
         }""".trimIndent()
     }
     index("battery-state")   
-    pollDelay(Duration.ofSeconds(1))  
+    poll-delay(Duration.ofSeconds(1))  
 }
 ----
 Notable parameters::
 * `index`: sets the `elasticsearch` indices to use for the queries; defaults to `all`.
 * `client`: configures the REST client to connect to https://www.elastic.co/[Elasticsearch].
 * `query`: configures the builder for the JSON query to perform the first poll.
-* `queryParameters`(optional): adds parameters to the query. 
-* `pollDelay` (required): specifies the delay between query executions.
-* `monitoring`(optional): configures the monitoring parameters for the step. See <<Configuration of events and meters for monitoring>>.
+* `query-parameters`(optional): adds parameters to the query. 
+* `poll-delay` (required): specifies the delay between query executions.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
 
 Tips::
@@ -89,11 +88,11 @@ Example::
         RestClient.builder(HttpHost.create("http://localhost:9200")).build() 
     }
     documents { _, input ->
-        listOf(
+        list-of(
             Document(
                 index = "battery-state",
                 id = input.primaryKey,
-                source = objectMapper.writeValueAsString(input)  
+                source = object-mapper.writeValueAsString(input)  
             )
         )
     }
@@ -102,7 +101,6 @@ Example::
 Notable Parameters::
 * `client`: configures the REST client to connect to https://www.elastic.co/[Elasticsearch].
 * `documents`: defines the strategy to create documents to save from the input and step context.
-* `monitoring`(optional): configures the monitoring parameters for the step. See <<Configuration of events and meters for monitoring>>.
 
 Reference Documentation::
 Refer to the https://www.elastic.co/guide[Elasticsearch] documentation for further parameter information.
@@ -125,13 +123,13 @@ Example::
     client {
         RestClient.builder(HttpHost.create("http://localhost:9200")).build()
     }
-    index { _, _ -> listOf("battery-state") }   
+    index { _, _ -> list-of("battery-state") }   
     query { _, input ->
         """{
             "query": {
                 "bool": {
                     "must": [
-                        { "match": { "deviceId": "${input.input.deviceId}" }},
+                        { "match": { "device-id": "${input.input.device-id}" }},
                         { "term": { "timestamp": ${input.input.timestamp.epochSecond} }}
                     ]
                 }
@@ -145,7 +143,7 @@ Notable parameters::
 * `client`: configures the REST client to connect to https://www.elastic.co/[Elasticsearch].
 * `index`: sets the `elasticsearch` indices to use for the queries; defaults to `all`.
 * `query`: configures the builder for the JSON query to perform a search. 
-* `monitoring`(optional): configures the monitoring parameters for the step. See <<Configuration of events and meters for monitoring>>.
+
 Reference Documentation::
 * Refer to the https://www.elastic.co/guide[Elasticsearch] documentation for further parameter and configuration information.
 * For specifics on `queryParameters` refer to https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-query-paramsElastic[Elasticsearch Query Parameters].
@@ -160,15 +158,15 @@ Configuration namespace::
 
 Parameters::
 * `enabled`: boolean flag that activates/deactivates event publishing to Elasticsearch; defaults to `false`; *must* be set to `true`.
-* `minLevel`: minimal accepted level of events; defaults to INFO; allowable values are `EventLevel`values: TRACE, DEBUG, INFO, WARN, ERROR, OFF. 
+* `min-level`: minimal accepted level of events; defaults to INFO; allowable values are `EventLevel`values: TRACE, DEBUG, INFO, WARN, ERROR, OFF. 
 * `urls`: list of URLs to the Elasticsearch instances; defaults to http://localhost:9200.
-* `pathPrefix`: string prefix used to demarcate url paths; defaults to /.
-* `indexPrefix`: string prefix to use for the created indices containing the events; defaults to `qalipsis-events`.
-* `refreshInterval`: string delay to refresh the indices in Elasticsearch; defaults to `10s`.
-* `storeSource`: boolean flag identifies whether the source of documents is stored with the values; set to `true` for yes and `false` for no; defaults to `false`.
-* `indexDatePattern`: string format of the date part of the index as supported by [java.time.format.DateTimeFormatter]; defaults to yyyy-MM-dd.
-* `lingerPeriod`: maximum period between publication of events to Elasticsearch; positive duration, defaults to `10s`.
-* `batchSize`: maximum number of events buffered between two publications of events to Elasticsearch; positive integer; defaults to `2000`.
+* `path-prefix`: string prefix used to demarcate url paths; defaults to /.
+* `index-prefix`: string prefix to use for the created indices containing the events; defaults to `qalipsis-events`.
+* `refresh-interval`: string delay to refresh the indices in Elasticsearch; defaults to `10s`.
+* `store-source`: boolean flag identifies whether the source of documents is stored with the values; set to `true` for yes and `false` for no; defaults to `false`.
+* `index-date-pattern`: string format of the date part of the index as supported by [java.time.format.DateTimeFormatter]; defaults to yyyy-MM-dd.
+* `linger-period`: maximum period between publication of events to Elasticsearch; positive duration, defaults to `10s`.
+* `batch-size`: maximum number of events buffered between two publications of events to Elasticsearch; positive integer; defaults to `2000`.
 * `publishers`: number of concurrent publication of events that can run; positive integer; defaults to `1` (no concurrency).
 * `username`: name of the user for basic authentication when connecting to Elasticsearch.
 * `password`: password of the user for basic authentication when connecting to Elasticsearch.
@@ -187,8 +185,50 @@ Parameters::
 * `urls`: list of urls to the Elasticsearch instances; defaults to http://localhost:9200.
 * `host`: defaults to the value of `urls` above.
 * `index`: string value to use for creation of index containing the meters; defaults to `qalipsis-meters`.
-* `indexDateFormat`: string format of the date part of the index as supported by [java.time.format.DateTimeFormatter]; defaults to yyyy-MM-dd.
-* `autoCreateIndex`: boolean flag to enable/disable auto creation of `index`; defaults to `true`.
+* `index-date-format`: string format of the date part of the index as supported by [java.time.format.DateTimeFormatter]; defaults to yyyy-MM-dd.
+* `auto-create-index`: boolean flag to enable/disable auto creation of `index`; defaults to `true`.
 
 
 === Example
+[source,kotlin,linenumbers]
+----
+monitoring:
+  elasticsearch:
+    hosts: http://localhost:9200
+    enabled: false
+    step: PT1M
+    index: qalipsis-metrics
+    index-date-format: yyyy-MM-dd
+    auto-create-index: true
+    
+events:
+  export:
+    elasticsearch:
+      enabled: false
+      min-level: INFO
+      urls: http://localhost:9200
+      index-prefix: qalipsis-events
+      index-date-pattern: yyyy-MM-dd
+      duration-as-nano: false
+      linger-period: 10s
+      batch-size: 2000
+      publishers: 1
+      username:
+      password:
+      shards: 1
+      replicas: 0
+
+micronaut.metrics.export.elastic.enabled: false <1>
+
+meters:
+  export:
+    elasticsearch:
+      urls: http://localhost:9200
+      host: ${meters.export.elasticsearch.urls}
+      enabled: false
+      step: PT10S
+      index: qalipsis-meters
+      index-date-format: yyyy-MM-dd
+      auto-create-index: true
+----      
+<1>Disables the native micronaut registry.

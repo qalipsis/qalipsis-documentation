@@ -55,7 +55,7 @@ influxdb().poll {
                 )               
     """.trimIndent()
     )
-    pollDelay(Duration.ofSeconds(1))
+    poll-delay(Duration.ofSeconds(1))
 }
 ----
 
@@ -63,8 +63,7 @@ Notable parameters::
 * `connect` (required): configures the connection to https://www.influxdata.com/[InfluxDB].
 * `query` (required): specifies a query respecting the requirements of https://docs.influxdata.com/influxdb/v2.3/reference/api/[Flux v.2.0]. 
 * `parameters` (optional): binds values to the clauses of the prepared query.
-* `pollDelay` (required): specifies the delay between query executions.
-* `monitoring`(optional): configures the monitoring parameters for the step.
+* `poll-delay` (required): specifies the delay between query executions.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
 
 Tip::
@@ -99,10 +98,10 @@ Example::
         bucket = { _, _ -> "iot" }
         organization = { _, _ -> "qalipsis" }
         points = { _, input ->
-            listOf(
+            list-of(
                 Point.measurement("battery_state")
                     .addField("battery_level", input.batteryLevel)
-                    .addTag("device_id", input.deviceId)
+                    .addTag("device_id", input.device-id)
                     .addTag("timestamp", input.timestamp.epochSecond.toString())
             )
         }
@@ -111,7 +110,6 @@ Example::
 ----
 Notable parameters::
 * `connect` (required): configures the connection to https://www.influxdata.com/[InfluxDB].
-* `monitoring`(optional): configures the monitoring parameters for the step.
 
 Tips::
 * Use the `save` step after a `collect` step to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.
@@ -149,10 +147,10 @@ Example::
                     |> range(start: -15m)
                     |> filter(
                         fn: (r) => r._measurement == "${"battery_state"}" and
-                            r.${"device_id"} == "${input.deviceId}" and
+                            r.${"device_id"} == "${input.device-id}" and
                             r.${"timestamp"} == "${input.timestamp.epochSecond}"
                         )               
-        """.trimIndent()
+        """.trim-indent()
     }
 }
 ----
@@ -160,7 +158,6 @@ Example::
 Notable parameters::
 * `search`: generates the search query from the step input and context.
 * `connect` (required): configures the connection to https://www.influxdata.com/[InfluxDB]. 
-* `monitoring`(optional): configures the monitoring parameters for the step.
 
 Tip::
 Use the `search` step after a `collect` step to reduce the number of queries executed onto the database and to reduce the load the scenario generates on the test system.
@@ -177,9 +174,9 @@ Configuration namespace::
 Parameters::
 * `enabled`: boolean flag that activates/deactivates event publishing to InfluxDB; defaults to `false`; *must* be set to `true`.
 * `url`: string URL to the InfluxDB instance; defaults to `http://localhost:8086`.
-* `minLevel`: minimum accepted level of events; defaults to INFO; allowable values are `EventLevel`values: TRACE, DEBUG, INFO, WARN, ERROR, OFF. 
-* `lingerPeriod`: maximum period between publication of events to InfluxDB; positive duration, defaults to `10s`.
-* `batchSize`: maximum number of events buffered between two publications of events to InfluxDB; positive integer; defaults to `2000`.
+* `min-level`: minimum accepted level of events; defaults to INFO; allowable values are `EventLevel`values: TRACE, DEBUG, INFO, WARN, ERROR, OFF. 
+* `linger-period`: maximum period between publication of events to InfluxDB; positive duration, defaults to `10s`.
+* `batch-size`: maximum number of events buffered between two publications of events to InfluxDB; positive integer; defaults to `2000`.
 * `publishers`: number of concurrent publication of events that can run; positive integer; defaults to `1` (no concurrency).
 * `username`: name of the user for basic authentication when connecting to InfluxDB; defaults to `user`.
 * `password`: password of the user for basic authentication when connecting to InfluxDB; defaults to `passpasspass`.
@@ -200,4 +197,32 @@ Parameters::
 
 
 
-=== Examples
+=== Example
+[source,kotlin,linenumbers]
+----
+events:
+  export:
+    influxdb:
+      url: http://localhost:8086
+      enabled: false
+      min-level: INFO
+      linger-period: 10s
+      batch-size: 2000
+      publishers: 1
+      username: user
+      password: passpasspass
+      org: qalipsis
+      bucket: qalipsis-event
+
+micronaut.metrics.export.influx.enabled: false <1>
+
+meters:
+  export:
+    influxdb:
+      url: http://localhost:8086
+      enabled: false
+      step: PT10S
+      org: qalipsis
+      bucket: qalipsis-event
+----
+<1> Disables the native micronaut registry.

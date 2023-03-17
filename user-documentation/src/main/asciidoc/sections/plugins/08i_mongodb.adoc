@@ -39,32 +39,31 @@ Example::
 mongodb().poll {
     name = "poll"
     connect {
-        MongoClients.create("mongodb://localhost:27018")
+        Mongo-clients.create("mongodb://localhost:27018")
     }
     search {
         database = "iot"
         collection = "batteryState"
         query = Document()
-        sort = linkedMapOf("deviceId" to Sorting.ASC)
-        tieBreaker = "deviceId"
+        sort = linkedMapOf("device-id" to Sorting.ASC)
+        tie-breaker = "device-id"
     }
-    pollDelay(Duration.ofSeconds(1)) 
+    poll-delay(Duration.ofSeconds(1)) 
 }
 ----
 
 Notable parameters::
 * `connect` (required): configures the connection to https://mongodb.com/[MongoDb].
 * `query` (required): specifies a document respecting the requirements of the target database. 
-* `tieBreaker` (required): repeats the first column used for sorting and comparison (`<=` or `>=`, depending on the ascending or descending order).
+* `tie-breaker` (required): repeats the first column used for sorting and comparison (`<=` or `>=`, depending on the ascending or descending order).
 * `parameters` (optional): binds values to the clauses of the prepared query.
-* `pollDelay` (required): specifies the delay between query executions.
-* `monitoring`(optional): configures the monitoring parameters for the step.
+* `poll-delay` (required): specifies the delay between query executions.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
  
 Tips::
 * Use the `poll` step with a join operator if you need to verify the values saved by your tested system in the database.
-* The `query` parameter requires at least one sorting field (`tiebreaker` in the example) to filter the newest results and not fetch the same records repeatedly.
-* The latest known value for `tiebreaker` is used to filter out the values already received from the database.
+* The `query` parameter requires at least one sorting field (`tie-breaker` in the example) to filter the newest results and not fetch the same records repeatedly.
+* The latest known value for `tie-breaker` is used to filter out the values already received from the database.
 
 Reference Documentation::
 Refer to the https://www.mongodb.com/docs/[Mongodb] documentation for further parameter and configuration information.
@@ -85,17 +84,17 @@ Example::
 .save {
     name = "save"
     connect {
-        MongoClients.create("mongodb://localhost:27018")
+        Mongo-clients.create("mongodb://localhost:27018")
     }
     query {
         database { _, _ ->
             "iot"
         }
         collection { _, _ ->
-            "batteryState"
+            "battery-state"
         }
         documents { _, input ->
-            listOf(Document.parse(objectMapper.writeValueAsString(input)))
+            list-of(Document.parse(object-mapper.write-value-as-string(input)))
         }
     }
 }
@@ -104,7 +103,6 @@ Example::
 Notable parameters::
 * `connect` (required): configures the connection to https://mongodb.com/[MongoDb].
 * `query` (required): specifies a document respecting the requirements of the target database.
-* `monitoring`(optional): configures the monitoring parameters for the step.
 
 Tips::
 * Use the `save` step after a `collect` step in order to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.
@@ -129,16 +127,16 @@ Example::
 .search {
     name = "search"
     connect {
-        MongoClients.create("mongodb://localhost:27018")
+        Mongo-clients.create("mongodb://localhost:27018")
     }
     search {
         database { _, _ -> "iot" }
         collection { _, _ -> "batteryState" }
         query { _, input ->
             Document(
-                mapOf(
-                    "deviceId" to input.deviceId,
-                    "timestamp" to input.timestamp.epochSecond
+                map-of(
+                    "device-id" to input.device-id,
+                    "timestamp" to input.timestamp.epoch-second
                 )
             )
         }
@@ -149,7 +147,6 @@ Example::
 Notable parameters::
 * `connect` (required): configures the connection to https://mongodb.com/[MongoDb].
 * `search` (required): defines the search parameters including `database`, `collection` `query` and `sort`.
-* `monitoring`(optional): configures the monitoring parameters for the step.
 
 Tip::
 Use the `search` step after a `collect()` step in order to reduce the number of queries executed onto the database and to reduce the load the scenario generates on the test system.

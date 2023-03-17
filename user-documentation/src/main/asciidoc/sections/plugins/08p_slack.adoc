@@ -1,0 +1,35 @@
+= Slack plugin
+
+For info: https://github.com/qalipsis/qalipsis-plugin-slack/commit/5218d0e33078a342ec89a377101a32644b7173b3
+
+== Overview
+QALIPSIS supports Slack to notify users of the status of their campaign after it runs. The process of enabling slack to
+trigger notifications can be grouped in two stages:
+
+- Configuring and activating the QALIPSIS publisher for Slack.
+- Creating and installing an app into a Slack workspace.
+Technology addressed::
+
+Dependency::
+
+Namespace in Scenario::
+
+Client library::
+
+== Configuring Slack Notifications: 
+
+Parameters::
+
+ token: ${SLACK_BOT_TOKEN}
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+report:
+  export:
+    slack:
+      token: xoxb-764324368114-4345424060674-7jtvhmCI534pqrcpvdZNCnH6
+----      
+     
+  

@@ -37,9 +37,9 @@ Example::
 ----
 jms().consume {
     queues("battery_state")
-    queueConnection { ActiveMQConnectionFactory("tcp://localhost:61616").createQueueConnection() }
+    queue-connection { ActiveMQ-connection-factory("tcp://localhost:61616").create-queue-connection() }
 }
-    .deserialize(JmsJsonDeserializer(targetClass = BatteryState::class))
+    .deserialize(Jms-json-deserializer(target-class = Battery-state::class))
     .map { result ->
         result.record.value
     }
@@ -47,15 +47,14 @@ jms().consume {
 Notable parameters::
 * `consume`: configures the the https://activemq.apache.org/[ActiveMQ] connection.
 ** `queues`: specifies the queue(s) for the connection.
-** `QueueConnection`: provides the java https://activemq.apache.org/[ActiveMQ] connection for the specified `queues`.
+** `Queue-connection`: provides the java https://activemq.apache.org/[ActiveMQ] connection for the specified `queues`.
 ** `topics`(optional): specifies the topic(s) for the connection.
-** `TopicConnection`(optional): provides the java https://activemq.apache.org/[ActiveMQ] connection for the specified `topics`.
-* `monitoring`(optional): configures the monitoring parameters for the step.
+** `Topic-connection`(optional): provides the java https://activemq.apache.org/[ActiveMQ] connection for the specified `topics`.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
 * `deserialize`: specifies the class to use to deserialize the body of the response.
 
 Tip::
-The https://activemq.apache.org/[ActiveMQ] connection can be configured for either `queues` (`QeueConnection`) or `topics` (`TopicConnection`), but not both.
+The https://activemq.apache.org/[ActiveMQ] connection can be configured for either `queues` (`Qeue-connection`) or `topics` (`Topic-connection`), but not both.
 
 Reference documentation::
 Refer to the  https://www.oracle.com/java/technologies/java-message-service.html[JMS] documentation for for further parameter and configuration information.
@@ -77,29 +76,28 @@ Example::
 .produce {
 
     connect {
-        ActiveMQConnectionFactory("tcp://localhost:61616").createConnection()
+        ActiveMQ-connection-factory("tcp://localhost:61616").createConnection()
     }
     records { _, input ->
-        listOf(
-            JmsProducerRecord(
-                destination = ActiveMQQueue().createDestination("battery_state"),
-                messageType = JmsMessageType.BYTES,
-                value = objectMapper.writeValueAsBytes(input)
+        list-of(
+            Jms-producer-record(
+                destination = ActiveMQ-queue().create-destination("battery_state"),
+                message-type = Jms-message-type.BYTES,
+                value = object-mapper.write-value-as-Bytes(input)
             )
         )
     }
 }
 ----
 Notable parameters::
-* `connect`: specifies the connection type for the `JmsProducerRecord`(s).
+* `connect`: specifies the connection type for the `Jms-producer-record`(s).
 * `records`: generates and configures a list of produced records.
-** `destination`:  defines the destination for each `JmsProducerRecord` as either queues (`QueueConnection`) or topics (`TopicConnection`).
-** `messageType`: indicates the `JmsMessageType` as: `TEXT`, `AUTO`, `BYTES`, or `OBJECT`.
+** `destination`:  defines the destination for each `Jms-producer-record` as either queues (`Queue-connection`) or topics (`Topic-connection`).
+** `message-type`: indicates the `JmsMessageType` as: `TEXT`, `AUTO`, `BYTES`, or `OBJECT`.
 ** `value`: defines the message to be displayed at the `destination`. 
-* `monitoring`(optional): configures the monitoring parameters for the step.
 
 Tip::
-If you are not sure about the `JmsMessageType`, use `AUTO` to allow the system to infer the type and display the result. 
+If you are not sure about the `Jms-message-type`, use `AUTO` to allow the system to infer the type and display the result. 
 
 Reference documentation::
 Refer to the  https://www.oracle.com/java/technologies/java-message-service.html[JMS] documentation for further parameter and configuration information.

@@ -40,29 +40,28 @@ Example::
 kafka().consume {  
     bootstrap("localhost:9092")
     topics("battery_state")  
-    groupId("kafka-example")
-    offsetReset(OffsetResetStrategy.EARLIEST) 
-    pollTimeout(Duration.ofSeconds(1))
+    group-id("kafka-example")
+    offset-reset(OffsetResetStrategy.EARLIEST) 
+    poll-timeout(Duration.ofSeconds(1))
 }
 ----
 
 Notable parameters::
 * `bootstrap`: configures the bootstrap hosts of the Kafka cluster; defaults to localhost:9092.
-* `groupId`: defines the consumer group.
-* `pollTimeout` defines the consumer poll timeout to wait for records; defaults to 1 second.
-* `offsetReset` (required): defines the strategy to apply when the consumer starts consuming messages from the queue. 
-* `pollDelay` (required): specifies the delay between query executions.
-* `maxPolledRecords`(optional): defines the maximum number of records returned in a unique poll batch; defaults to 500.
-* `monitoring`(optional): configures the monitoring parameters for the step.
+* `group-id`: defines the consumer group.
+* `poll-timeout` defines the consumer poll timeout to wait for records; defaults to 1 second.
+* `offset-reset` (required): defines the strategy to apply when the consumer starts consuming messages from the queue. 
+* `poll-delay` (required): specifies the delay between query executions.
+* `max-polled-records`(optional): defines the maximum number of records returned in a unique poll batch; defaults to 500.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
 
 Tips::
 * Use the `consume` step with a left join to assert data or inject data into a workflow.
-* Valid `offsetReset` strategies are:
-** `OffsetResetStrategy.EARLIEST`: starts consuming messages from the beginning of the queue.
-** `OffsetResetStrategy.LATEST`: starts consuming messages when the  consumer starts, ignoring all previous messages in the queue.
+* Valid `offset-reset` strategies are:
+** `Offset-reset-strategy.EARLIEST`: starts consuming messages from the beginning of the queue.
+** `Offset-reset-strategy.LATEST`: starts consuming messages when the  consumer starts, ignoring all previous messages in the queue.
 +
-`OffsetResetStrategy.LATEST` is the default. 
+`Offset-reset-strategy.LATEST` is the default. 
 
 Reference documentation::
 Refer to the https://kafka.apache.org/[Apache KAFKA] documentation for further parameter and configuration information. 
@@ -82,17 +81,17 @@ Example::
 ----
             .kafka()
             .produce(
-                keySerializer = Serdes.String().serializer(),
-                valueSerializer = Serdes.String().serializer()
+                key-serializer = Serdes.String().serializer(),
+                value-serializer = Serdes.String().serializer()
             ) {
                 bootstrap("localhost:9092")
-                clientName("producer")
+                client-name("producer")
                 records { _, input ->
-                    listOf(
-                        KafkaProducerRecord(
-                            ServerConfiguration.TOPIC,
-                            value = objectMapper.writeValueAsString(input),
-                            key = input.primaryKey
+                    list-of(
+                        Kafka-producer-record(
+                            server-configuration.TOPIC,
+                            value = object-mapper.write-value-as-string(input),
+                            key = input.primary-key
                         )
                     )
                 }
@@ -100,12 +99,11 @@ Example::
 ----
 
 Notable parameters::
-* `keySerializer`: describes how to serialize the record keys to send  to Kafka.
-* `valueSerializer`: describes how to serialize the record values to send to Kafka.
+* `key-serializer`: describes how to serialize the record keys to send  to Kafka.
+* `value-serializer`: describes how to serialize the record values to send to Kafka.
 * `bootstrap` configures the bootstrap hosts of the Kafka cluster; defaults to `localhost:9092`.
-* `clientName` defines the name of the Kafka client
+* `client-name` defines the name of the Kafka client.
 * `records` (required): generates and configures a list of produced records.
-* `monitoring`(optional): configures the monitoring parameters for the step.
 
 Reference documentation::
 Refer to the https://kafka.apache.org/documentation/[Apache Kafka] documentation for further parameter and configuration information. 
@@ -118,16 +116,15 @@ Configuration namespace::
 
 Parameters::
 * `enabled`: boolean flag that activates/deactivates event publishing to Kafka; defaults to `false`; *must* be set to `true`.
-* `minLevel`: minimal accepted level of events; defaults to INFO; allowable values are `EventLevel`values: TRACE, DEBUG, INFO, WARN, ERROR, OFF. 
+* `min-level`: minimal accepted level of events; defaults to INFO; allowable values are `EventLevel`values: TRACE, DEBUG, INFO, WARN, ERROR, OFF. 
 * `bootstrap`: bootstraps (string of host and port pair) of the Kafka broker; defaults to `localhost:9092`.
 * `topic`: string name of the topic to write the events to; defaults to `qalipsis-events`.
-* `durationAsNano`: boolean flag that activates/deactivates converting the duration to nanoseconds; defaults to `false` (converts to milliseconds).
-* `lingerPeriod`: maximum period between two publications of events to Kafka; positive duration; defaults to `10s`.
-* `batchSize`: maximum number of events buffered between two publications of events to Kafka; positive integer; defaults to `2`.
+* `duration-as-nano`: boolean flag that activates/deactivates converting the duration to nanoseconds; defaults to `false` (converts to milliseconds).
+* `linger-period`: maximum period between two publications of events to Kafka; positive duration; defaults to `10s`.
+* `batch-size`: maximum number of events buffered between two publications of events to Kafka; positive integer; defaults to `2`.
 * `configuration`: key, value configuration parameters of type `Properties`, for the Kafka producer.
 
 === Meters
-
 Configuration namespace::
 `meters.export.kafka`
 
@@ -137,8 +134,33 @@ Parameters::
 * `bootstrap.servers`: bootstraps (string of host and port pair) of the Kafka broker; defaults to `localhost:9092`.
 * `topic`: string name of the topic to write events to; defaults to `qalipsis-meters`.
 * `linger.ms`: maximum period between two batches of events; positive duration; defaults to `5000`.
-* `batchSize`: maximum number of events buffered between two publications of events to Kafka; positive integer; defaults to `800000` (in bytes).
+* `batch-size`: maximum number of events buffered between two publications of events to Kafka; positive integer; defaults to `800000` (in bytes).
 * `delivery.timeout.ms`: maximum integer value in milliseconds before time out.; defaults to `10000`.
 * `configuration`: key, value configuration parameters of type `Properties`, for the Kafka producer.
 
-=== Examples
+=== Example
+[source,kotlin,linenumbers]
+----
+meteventsers:
+  export:
+    kafka:
+      enabled: false
+      bootstrap`: localhost:9092
+      topic: qalipsis-events
+      duration-as-nano: false
+      linger-period: 10s
+      batch-size: 2
+      configuration:
+        delivery.timeout.ms: 10000
+
+  export:
+    kafka:
+      enabled: false
+      step: PT10S
+      bootstrap.servers: localhost:9092
+      topic: qalipsis-meters
+      linger.ms: 5000
+      batch-size: 800000 # In bytes.
+      configuration:
+        delivery.timeout.ms: 10000
+----  

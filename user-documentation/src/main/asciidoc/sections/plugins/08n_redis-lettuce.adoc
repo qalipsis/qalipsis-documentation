@@ -30,32 +30,31 @@ Scenario
 
 Functionality::
 The `poll` step is created only once in a scenario; it is then used throughout the scenario as called.
-* The `KeyOrPattern` to be used in the poll is set to one of the following valid values: `scan`, `sscan`, `hscan`, `zscan`.
-* The native Redis-lettuce command is called using the `KeyOrPattern` provided.
+* The `Key-or-pattern` to be used in the poll is set to one of the following valid values: `scan`, `sscan`, `hscan`, `zscan`.
+* The native Redis-lettuce command is called using the `Key-or-pattern` provided.
 
 Example::
 +
 [source,kotlin,linenumbers]
 ----
 it.redisLettuce()
-  .pollSscan {
+  .pollSsscan {
     connection {
       nodes = redis://localhost:6439
       database = 0
-      redisConnectionType = RedisConnectionType.SINGLE
-      authPassword = "    authPassword = "Brother1999"
-      authUser = "JohnJacobson"
+      redis-connection-type = Redis-connection-type.SINGLE
+      auth-password = "    authPassword = "Brother1999"
+      auth-user = "JohnJacobson"
     }
-    keyOrPattern(sscan)
-    pollDelay(Duration.ofSeconds(1))
+    key-or-pattern(sscan)
+    poll-delay(Duration.of-seconds(1))
 }
 ----
 Notable parameters::
 * `Connection`(required): specifies the connection parameters.
-* `redisConnectionType` (required): indicates the connection type as `SINGLE`, `CLUSTER` or `SENTINEL`.
-* `KeyOrPattern` (required): specifies the key or pattern that will be polled after each `pollDelay`.
-* `pollDelay` (required): specifies the delay between query executions.
-* `monitoring`(optional): configures the monitoring parameters for the step.
+* `redis-connection-type` (required): indicates the connection type as `SINGLE`, `CLUSTER` or `SENTINEL`.
+* `key-or-pattern` (required): specifies the key or pattern that will be polled after each `poll-delay`.
+* `poll-delay` (required): specifies the delay between query executions.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
 
 Tips::
@@ -63,7 +62,7 @@ Tips::
 * In addition to SSCAN (`pollSscan` in the example), the `poll` step also supports the following Redis commands: HSCAN (`polllHscan`) SCAN (`pollScan`), and ZSCAN (`pollZscan`). 
 
 Reference documentation::
-* For more information on the `SENTINEL` `redisConnectionType`, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]. 
+* For more information on the `SENTINEL` `redis-connection-type`, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]. 
 * Refer to the  https://redis.io/docs/[Redis] documentation for further parameter and configuration information.
 
 
@@ -85,34 +84,30 @@ Example::
   connection {
     nodes = redis://localhost:6439
     database = 0
-    redisConnectionType = RedisConnectionType.SINGLE
-    authPassword = "Brother1999"
-    authUser = "JohnJacobson"
+    redis-connection-type = RedisConnectionType.SINGLE
+    auth-password = "Brother1999"
+    auth-user = "JohnJacobson"
     }
 
   records { _, input ->
-    listOf(
-      SetRecord("battery_state_save_and_poll",
-        objectMapper.writeValueAsString(input)
+    list-of(
+      set-record("battery_state_save_and_poll",
+        object-mapper.writeValueAsString(input)
       )
     )
-   }
-  monitoring {
-    events = true
-    meters = true
   }
 }  
 ----
 
 Notable parameters::
 * `Connection`(required): specifies the connection parameters.
-* `redisConnectionType` (required): indicates the connection type as `SINGLE`, `CLUSTER` or `SENTINEL`.
+* `redis-connection-type` (required): indicates the connection type as `SINGLE`, `CLUSTER` or `SENTINEL`.
 * `records` (required): generates and configures a list of saved records.
-* `monitoring`(optional): configures the monitoring parameters for the step.
+
 
 Tip::
 * The `save` step supports the following Redis commands: SET, SADD, HSET, ZADD. The provided command may depend on the context and input value received from the previous step.
-* If the `redisConnectionType` is set to `SENTINEL`, the parameter `masterId` is necessary. 
+* If the `redis-connection-type` is set to `SENTINEL`, the parameter `masterId` is necessary. 
 
 Reference documentation::
 * For more information on the `SENTINEL` `redisConnectionType`, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]. 
@@ -132,15 +127,15 @@ Example::
 [source,kotlin,linenumbers]
 ----
 redisLettuce()
-  .streamsConsume {
+  .streams-consume {
         connection {
             nodes = redis://localhost:6439
             database = 0
-            redisConnectionType = RedisConnectionType.SINGLE
-            authPassword = "Brother1999"
-            authUser = "JohnJacobson"
+            redis-connection-type = RedisConnectionType.SINGLE
+            auth-password = "Brother1999"
+            auth-user = "JohnJacobson"
         }
-        streamKey("battery_state_produce_and_consume")
+        stream-key("battery_state_produce_and_consume")
         offset("FROM_BEGINNING")
         group("consumer")
   }
@@ -148,16 +143,15 @@ redisLettuce()
 
 Notable parameters::
 * `connection`(required): configures the connection to Qalipsis.
-* `redisConnectionType` (required): indicates the connection type as `SINGLE`, `CLUSTER` or `SENTINEL`. The default is `SINGLE`.
+* `redis-connection-type` (required): indicates the connection type as `SINGLE`, `CLUSTER` or `SENTINEL`. The default is `SINGLE`.
 * `offset`(required): sets the offset value to `FROM_BEGINNING`, `LAST_CONSUMED` or `LATEST` for each topic and consumer group.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
-* `monitoring`(optional): configures the monitoring parameters for the step.
 
 Tip::
-If `redisConnectionType` is set to `SENTINEL`, the parameter `masterId` is necessary. 
+If `redis-connection-type` is set to `SENTINEL`, the parameter `master-id` is necessary. 
 
 Reference documentation::
-* For more information on the `SENTINEL` `redisConnectionType`, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]. 
+* For more information on the `SENTINEL` `redis-connection-type`, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]. 
 * Refer to the  https://redis.io/docs/[Redis] documentation for further parameter and configuration information.
 
 == Produce step
@@ -174,40 +168,35 @@ Example::
 [source,kotlin,linenumbers]
 ----
 .redisLettuce()
-.streamsProduce {
+.streams-produce {
   connection {
     nodes = redis://localhost:6439
     database = 0
-    redisConnectionType = RedisConnectionType.SINGLE
-    authPassword = "Brother1999"
-    authUser = "JohnJacobson"
+    redis-connection-type = RedisConnectionType.SINGLE
+    auth-password = "Brother1999"
+    auth-user = "JohnJacobson"
   }
 
   records { _, input ->
-    listOf(
+    lis-of(
      LettuceStreamsProduceRecord(
-        key = "battery_state_produce_and_consume", value = mapOf(
-            "device_id" to input.deviceId,
-            "timestamp" to input.timestamp.epochSecond.toString(),
-            "battery_level" to input.batteryLevel.toString()
+        key = "battery_state_produce_and_consume", value = map-of(
+            "device_id" to input.device-id,
+            "timestamp" to input.timestamp.epoch-second.to-string(),
+            "battery_level" to input.battery-level.to-string()
           )
       )
    )
   }
-  monitoring {
-    events = true
-    meters = true
-  }
 }
 ----
 Notable parameters::
-* `redisConnectionType` (required): sets the connection type as `SINGLE`, `CLUSTER` or `SENTINEL`.
+* `redis-connection-type` (required): sets the connection type as `SINGLE`, `CLUSTER` or `SENTINEL`.
 * `records` (required): generates and configures a list of produced records.
-* `monitoring`(optional): configures the monitoring parameters for the step.
 
 Tip::
-* If `redisConnectionType` is set to `SENTINEL`, the parameter `masterId` is necessary. 
+* If `redis-connection-type` is set to `SENTINEL`, the parameter `masterId` is necessary. 
 
 Reference documentation::
-* For more information on the `SENTINEL` `redisConnectionType`, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]. 
+* For more information on the `SENTINEL` `redis-connection-type`, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]. 
 * Refer to the  https://redis.io/docs/[Redis] documentation for further parameter and configuration information.

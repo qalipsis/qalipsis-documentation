@@ -1,0 +1,17 @@
+= Mail Plugin
+
+== Overview
+
+Technology addressed::
+
+Dependency::
+
+Namespace in Scenario::
+
+Client library::
+
+== Configuring Mail Notifications: 
+
++
+[source,kotlin,linenumbers]
+----
