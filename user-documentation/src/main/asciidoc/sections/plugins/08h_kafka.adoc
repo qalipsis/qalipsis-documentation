@@ -1,7 +1,7 @@
-= Kafka plugin
+= Apache Kafka plugin
 
 == Overview
-The Kafka plugin connects QALIPSIS to an https://kafka.apache.org/[APACHE Kafka] cluster.
+The Kafka plugin connects QALIPSIS to an https://kafka.apache.org/[Apache Kafka] cluster.
  
 Technology addressed::
 Kafka: https://kafka.apache.org/[]
@@ -40,28 +40,28 @@ Example::
 kafka().consume {  
     bootstrap("localhost:9092")
     topics("battery_state")  
-    group-id("kafka-example")
-    offset-reset(OffsetResetStrategy.EARLIEST) 
-    poll-timeout(Duration.ofSeconds(1))
+    groupId("kafka-example")
+    offsetReset(OffsetResetStrategy.EARLIEST) 
+    pollTimeout(Duration.ofSeconds(1))
 }
 ----
 
 Notable parameters::
 * `bootstrap`: configures the bootstrap hosts of the Kafka cluster; defaults to localhost:9092.
-* `group-id`: defines the consumer group.
-* `poll-timeout` defines the consumer poll timeout to wait for records; defaults to 1 second.
-* `offset-reset` (required): defines the strategy to apply when the consumer starts consuming messages from the queue. 
-* `poll-delay` (required): specifies the delay between query executions.
-* `max-polled-records`(optional): defines the maximum number of records returned in a unique poll batch; defaults to 500.
+* `groupId`: defines the consumer group.
+* `pollTimeout` defines the consumer poll-timeout to wait for records; defaults to 1 second.
+* `offsetReset` (required): defines the strategy to apply when the consumer starts consuming messages from the queue. 
+* `pollDelay` (required): specifies the delay between query executions.
+* `maxPolledRecords` (optional): defines the maximum number of records returned in a unique poll batch; defaults to 500.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
 
 Tips::
 * Use the `consume` step with a left join to assert data or inject data into a workflow.
-* Valid `offset-reset` strategies are:
-** `Offset-reset-strategy.EARLIEST`: starts consuming messages from the beginning of the queue.
-** `Offset-reset-strategy.LATEST`: starts consuming messages when the  consumer starts, ignoring all previous messages in the queue.
+* Valid `offsetReset` strategies are:
+** `OffsetResetStrategy.EARLIEST`: starts consuming messages from the beginning of the queue.
+** `OffsetResetStrategy.LATEST`: starts consuming messages when the  consumer starts, ignoring all previous messages in the queue.
 +
-`Offset-reset-strategy.LATEST` is the default. 
+`OffsetResetStrategy.LATEST` is the default. 
 
 Reference documentation::
 Refer to the https://kafka.apache.org/[Apache KAFKA] documentation for further parameter and configuration information. 
@@ -81,17 +81,17 @@ Example::
 ----
             .kafka()
             .produce(
-                key-serializer = Serdes.String().serializer(),
-                value-serializer = Serdes.String().serializer()
+                keySerializer = Serdes.String().serializer(),
+                valueSerializer = Serdes.String().serializer()
             ) {
                 bootstrap("localhost:9092")
-                client-name("producer")
+                clientName("producer")
                 records { _, input ->
-                    list-of(
-                        Kafka-producer-record(
-                            server-configuration.TOPIC,
-                            value = object-mapper.write-value-as-string(input),
-                            key = input.primary-key
+                    listOf(
+                        KafkaProducerRecord(
+                            serverConfiguration.TOPIC,
+                            value = objectMapper.writeValueAsString(input),
+                            key = input.primaryKey
                         )
                     )
                 }
@@ -99,10 +99,10 @@ Example::
 ----
 
 Notable parameters::
-* `key-serializer`: describes how to serialize the record keys to send  to Kafka.
-* `value-serializer`: describes how to serialize the record values to send to Kafka.
-* `bootstrap` configures the bootstrap hosts of the Kafka cluster; defaults to `localhost:9092`.
-* `client-name` defines the name of the Kafka client.
+* `keySerializer`: describes how to serialize the record keys to send  to Kafka.
+* `valueSerializer`: describes how to serialize the record values to send to Kafka.
+* `bootstrap`: configures the bootstrap hosts of the Kafka cluster; defaults to `localhost:9092`.
+* `clientName`: defines the name of the Kafka client.
 * `records` (required): generates and configures a list of produced records.
 
 Reference documentation::
@@ -144,7 +144,7 @@ Parameters::
 meteventsers:
   export:
     kafka:
-      enabled: false
+      enabled: true
       bootstrap`: localhost:9092
       topic: qalipsis-events
       duration-as-nano: false
@@ -155,7 +155,7 @@ meteventsers:
 
   export:
     kafka:
-      enabled: false
+      enabled: true
       step: PT10S
       bootstrap.servers: localhost:9092
       topic: qalipsis-meters

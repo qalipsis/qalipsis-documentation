@@ -41,31 +41,31 @@ Example::
 cassandra().poll {
     connect {
         servers = list-of("localhost:9042")
-        key-space = "iot"
+        keySpace = "iot"
         datacenter-name = "datacenter1"                           
     }
     query("SELECT deviceid, timestamp, batterylevel FROM devices WHERE company = ? ORDER BY timestamp")
     parameters("ACME Inc.")
-    tie-breaker {
+    tieBreaker {
         name = "timestamp"
         type = GenericType.INSTANT
     }
-    poll-delay(Duration.ofSeconds(1))
+    pollDelay(Duration.ofSeconds(1))
 }
 ----
 Notable parameters::
 * `connect` (required): configures the connection to https://cassandra.apache.org[Apache Cassandra]
-* `key-space`(required): the outermost object that determines how data replicates on nodes.
+* `keySpace` (required): the outermost object that determines how data replicates on nodes.
 * `query` (required): defines the prepared statement to execute when polling.
 * `parameters` (optional): binds values to the clauses of the prepared query.
-* `tie-breaker` (required): repeats the first column used for sorting and comparison (`<=` or `>=`, depending on the ascending or descending order).
-* `poll-delay` (required): specifies the delay between query executions.
+* `tieBreaker` (required): repeats the first column used for sorting and comparison (`<=` or `>=`, depending on the ascending or descending order).
+* `pollDelay` (required): specifies the delay between query executions.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
 
 Tips::
 * Use the `poll` step with a left join operator to verify the values saved by your tested system in the database.
-* `query` requires at least one sorting field (`tiebreaker` in the example) to filter the newest results and not fetch the same records repeatedly.
-* The latest known value for `tiebreaker` is used to filter out values already received from the database.
+* `query` requires at least one sorting field (`tieBreaker` in the example) to filter the newest results and not fetch the same records repeatedly.
+* The latest known value for `tieBreaker` is used to filter out values already received from the database.
 
 Reference documentation::
 Refer to the https://cassandra.apache.org/doc/latest[Apache Cassandra] documentation further parameter and configuration information.
@@ -85,9 +85,9 @@ Example::
 .cassandra() 
 .save {
     connect {   
-        servers = list-of("localhost:9042")
-        key-space = "iot"
-        datacenter-name = "datacenter1"
+        servers = listOf("localhost:9042")
+        keySpace = "iot"
+        datacenterName = "datacenter1"
     }
 
     table { _, _ ->   
@@ -95,7 +95,7 @@ Example::
     }
 
     columns { _, _ ->    
-        list-of(
+        listOf(
             "company",
             "deviceid",
             "timestamp,
@@ -104,12 +104,12 @@ Example::
     }
                
     rows { _, input ->    
-        list-of(
+        listOf(
             CassandraSaveRow(
                 "'ACME Inc.'",
-                "'${input.device-id}'",
+                "'${input.deviceId}'",
                 "'${input.timestamp}'",
-                input.battery-level
+                input.batteryLevel
             )
         )
     }
@@ -117,7 +117,7 @@ Example::
 ----
 Notable parameters::
 * `connect` (required): configures the connection to https://cassandra.apache.org[Apache Cassandra].
-* `key-space`(required): the outermost object that determines how data replicates on nodes.
+* `keySpace` (required): the outermost object that determines how data replicates on nodes.
 
 Tips::
 * Use the `save` after a `collect` step in order to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.
@@ -142,21 +142,21 @@ Example::
     name = "search"
 
     connect {
-        servers = list-of("localhost:9042")
-        key-space = "test_keyspace"
-        datacenter-name = "test_datacenter"
+        servers = listOf("localhost:9042")
+        keySpace = "test_keyspace"
+        datacenterName = "test_datacenter"
     }
     query { _, _ ->
-        "SELECT * FROM "battery-state" WHERE  "company"= ? AND "deviceid"" = ? AND timestamp = ?"
+        "SELECT * FROM "batteryState" WHERE  "company"= ? AND "deviceid"" = ? AND timestamp = ?"
     }
     parameters { _, input ->
-        list-of("ACME Inc.", input.input.device-id, input.input.timestamp)
+        listOf("ACME Inc.", input.input.deviceId, input.input.timestamp)
     }
 }
 ----
 Notable parameters::
 * `connect` (required): configures the connection to  https://cassandra.apache.org[Apache Cassandra].
-* `key-space`(required): the outermost object that determines how data replicates on nodes.
+* `keySpace` (required): the outermost object that determines how data replicates on nodes.
 * `query` (required): defines the prepared statement to execute when searching.
 * `parameters`: (optional): binds values to the clauses of the prepared query.
 

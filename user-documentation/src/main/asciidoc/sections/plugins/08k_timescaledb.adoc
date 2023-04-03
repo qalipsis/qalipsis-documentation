@@ -4,8 +4,12 @@
 
 The TimescaleDB plugin connects QALIPSIS to https://docs.timescale.com/timescaledb/latest[TimescaleDB].
 
+
 Technology addressed::
 * PSQL: https://www.postgresql.org/
+* TimescaleDB: https://www.timescale.com/
+
+
 
 Dependency::
 `io.qalipsis:plugin-timescaledb`
@@ -57,7 +61,7 @@ Parameters::
 events:
   export:
     timescaledb:
-      enabled: false
+      enabled: true
       min-level: INFO
       host: localhost
       port: 5432
@@ -72,7 +76,7 @@ events:
 meters:
   export:
     timescaledb:
-      enabled: false
+      enabled: true
       host: localhost
       port: 5432
       database: qalipsis

@@ -1,10 +1,10 @@
 = Graphite plugin
 
 == Overview
-The `https://github.com/graphite-project/graphite-web[Graphite]` plugin connects or supports...
+The `https://github.com/graphite-project/graphite-web[Graphite]` plugin connects QALIPSIS Graphite using the prickle or plaintext rotocol.
  
 Technology addressed::
-
+Graphite: https://graphiteapp.org/
 
 Dependency::
 `io.qalipsis:plugin-graphite`
@@ -13,35 +13,49 @@ Namespace in scenario::
 `graphite()`
 
 Client library::
-
+* https://netty.io/[Netty]
+* https://ktor.io/[Ktor]
 
 Supported steps::
-Step1
+* <<Poll step,`poll`>> 
+//: polls the newest data periodically.
+* <<Save step,`save`>> 
+//: saves a batch of documents generated from the input and step context.
 
+== Poll step
 
-
-== Step1
-
-Ancestor::
-Scenario
+//Ancestor::
+//Scenario
  
-Functionality::
+// Functionality::  need input here
 
 
-Example::
-+
-[source,kotlin,linenumbers]
-----
+// Example:: looking for example
 
 
+//Notable parameters::
 
-----
+// Reference documentation::
+Refer to the https://github.com/graphite-project/graphite-web/tree/master/docs[Graphite] documentation for parameter and configuration information. 
 
-Notable parameters::
+ 
+ 
+== Save step
+// The `save` step within the Graphite plugin persists records into a Graphite database using the save query.
+
+// Ancestor::
+// Scenario
+ 
+// Functionality::
+//The `save` step's input and step context are used to generate documents to save into a table.
+
+//Example::
+
+//Notable parameters::
 
 
-Reference documentation::
-Refer to the https://github.com/graphite-project/graphite-web/tree/master/docs[Graphite] documentation for further parameter and configuration information. 
+//Reference documentation::
+Refer to the https://github.com/graphite-project/graphite-web/tree/master/docs[Graphite] documentation for  parameter and configuration information. 
 
  
 == Configuration of publication of events and meters to Graphite.
@@ -52,12 +66,12 @@ Configuration namespace::
 
 Parameters::
 * `enabled`: boolean flag that activates/deactivates event publishing to Graphite; defaults to `false`; *must* be set to `true`.
-* `min-level`: minimal accepted level of events; defaults to INFO; allowable values are `EventLevel`values: TRACE, DEBUG, INFO, WARN, ERROR, OFF. 
-* `host`(required): defaults to localhost; cannot be blank.
-* `port`(required): positive integer; defaults to 2004
+* `minLevel`: minimal accepted level of events; defaults to INFO; allowable values are `EventLevel`values: TRACE, DEBUG, INFO, WARN, ERROR, OFF. 
+* `host` (required): defaults to localhost; cannot be blank.
+* `port` (required): positive integer; defaults to 2004
 * `protocol`: the GraphiteProtocol type; default is PICKLE; available choices are PICKLE PLAINTEXT.
-* `batch-size`: maximum number of events buffered between two publications of events to Graphite; positive integer; defaults to `2`.
-* `linger-period`: maximum period between two publications of events to Graphite; positive duration; defaults to `10s`.
+* `batchSize`: maximum number of events buffered between two publications of events to Graphite; positive integer; defaults to `2`.
+* `lingerPeriod`: maximum period between two publications of events to Graphite; positive duration; defaults to `10s`.
 * `publishers`: maximum number of concurrent publication of events to Graphite; positive integer; defaults to `2`.
 
 === Meters
@@ -67,13 +81,12 @@ Configuration namespace::
 
 Parameters::
 * `enabled`: boolean flag that activates/deactivates meter publishing to Graphite; defaults to `false`; *must* be set to `true`.
-* `host`(required): defaults to localhost; cannot be blank.
-* `port`(required): positive integer; defaults to `2004`.
-* `step`(optional): The step size (reporting frequency); defaults to `PT10S`.
+* `host` (required): defaults to localhost; cannot be blank.
+* `port` (required): positive integer; defaults to `2004`.
+* `step` (optional): The step size (reporting frequency); defaults to `PT10S`.
 
 === Example
-Example::
-+
+
 [source,kotlin,linenumbers]
 ----
 events:
@@ -89,14 +102,11 @@ events:
       publishers: 2
 
 
-micronaut.metrics.export.graphite.enabled: false <1>
-
 meters:
   export:
     graphite:
       host: localhost
       port: 2004
-      enabled: false
+      enabled: true
       step: PT10S
 ----
-<1> Disables the native micronaut registry.

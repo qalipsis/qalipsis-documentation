@@ -36,10 +36,10 @@ Example::
 [source,kotlin,linenumbers]
 ----
 jms().consume {
-    queues("battery_state")
-    queue-connection { ActiveMQ-connection-factory("tcp://localhost:61616").create-queue-connection() }
+    queues("batteryState")
+    queueConnection { ActiveMQConnectionFactory("tcp://localhost:61616").createQueueConnection() }
 }
-    .deserialize(Jms-json-deserializer(target-class = Battery-state::class))
+    .deserialize(Jms-json-deserializer(target-class = BatteryState::class))
     .map { result ->
         result.record.value
     }
@@ -76,28 +76,28 @@ Example::
 .produce {
 
     connect {
-        ActiveMQ-connection-factory("tcp://localhost:61616").createConnection()
+        ActiveMQConnectionFactory("tcp://localhost:61616").createConnection()
     }
     records { _, input ->
-        list-of(
-            Jms-producer-record(
-                destination = ActiveMQ-queue().create-destination("battery_state"),
-                message-type = Jms-message-type.BYTES,
-                value = object-mapper.write-value-as-Bytes(input)
+        listOf(
+            JmsProducerRecord(
+                destination = ActiveMQQueue().createDestination("battery_state"),
+                messageType = JmsMessageType.BYTES,
+                value = objectMapper.writeValueAsBytes(input)
             )
         )
     }
 }
 ----
 Notable parameters::
-* `connect`: specifies the connection type for the `Jms-producer-record`(s).
+* `connect`: specifies the connection type for the `JmsProducerRecord`(s).
 * `records`: generates and configures a list of produced records.
-** `destination`:  defines the destination for each `Jms-producer-record` as either queues (`Queue-connection`) or topics (`Topic-connection`).
-** `message-type`: indicates the `JmsMessageType` as: `TEXT`, `AUTO`, `BYTES`, or `OBJECT`.
+** `destination`:  defines the destination for each `JmsProducerRecord` as either queues (`QueueConnection`) or topics (`TopicConnection`).
+** `messageType`: indicates the `JmsMessageType` as: `TEXT`, `AUTO`, `BYTES`, or `OBJECT`.
 ** `value`: defines the message to be displayed at the `destination`. 
 
 Tip::
-If you are not sure about the `Jms-message-type`, use `AUTO` to allow the system to infer the type and display the result. 
+If you are not sure about the `JmsMessageType`, use `AUTO` to allow the system to infer the type and display the result. 
 
 Reference documentation::
 Refer to the  https://www.oracle.com/java/technologies/java-message-service.html[JMS] documentation for further parameter and configuration information.

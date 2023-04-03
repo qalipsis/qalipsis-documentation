@@ -50,21 +50,21 @@ rabbitmq().
       username = "PaulSmith"
     }
     concurrency(2)
-    prefetch-count (11)
+    prefetchCount (11)
 }
 ----
 Notable parameters::
 * `queue`: defines the name of the queue to consume.
 * `connection`: configures the connection to the RabbitMQ broker; defaults to `localhost:5672`
 * `concurrency:` defines the number of concurrent channels producing messages to RabbitMQ; defaults to 1.
-* `prefetch-count`: defines the prefetch count value; defaults to 10. 
+* `prefetchCount`: defines the prefetch count value; defaults to 10. 
 * `broadcast` (optional): specifies the broadcast parameters for the step.
 
 Tip::
 Use the `consume` step with `join` to assert data or inject data into a workflow.
 
 Reference documentation::
-* Learn more about `prefetch-count` by reading the  https://www.rabbitmq.com/consumer-prefetch.html[RabbitMQ Prefetch] documentation.
+* Learn more about `prefetchCount` by reading the  https://www.rabbitmq.com/consumer-prefetch.html[RabbitMQ Prefetch] documentation.
 * To configure the `consume` step, consult the https://www.rabbitmq.com/documentation.html[rabbitMQ] documentation.
 
 == Produce step 
@@ -89,12 +89,12 @@ Example::
 
     }
     records { _, input ->
-        list-of(
-            RabbitMq-producer-record(
+        listOf(
+            RabbitMqProducerRecord(
                 exchange = "battery_state",
-                routing-key = "battery_state",
+                routingKey = "battery_state",
                 props = null,
-                value = object-mapper.write-value-as-bytes(input)
+                value = objectMapper.writeValueAsBytes(input)
             )
         )
     }

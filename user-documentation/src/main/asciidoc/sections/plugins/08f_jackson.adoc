@@ -37,11 +37,11 @@ Example::
 jackson().csvToMap {
    classpath(file)
    header {
-       escape-char('E')
-       quote-char('"')
-       column-separator(';')
-       with-header()
-       allow-comments()
+       escapeChar('E')
+       quoteChar('"')
+       columnSeparator(';')
+       withHeader()
+       allowComments()
 
        column("1st value").double()
        column("2th value").string().array(",")
@@ -50,12 +50,12 @@ jackson().csvToMap {
    }
 }
 .jackson() 
-.csvToObject(Battery-state::class) {
+.csvToObject(BatteryState::class) {
    classpath("battery-levels.csv")
    header {
-      column("device-id")
+      column("deviceId")
       column("timestamp")
-      column("battery-level").integer()
+      column("batteryLevel").integer()
    }
    unicast()
 }
@@ -79,14 +79,14 @@ Ancestor::
  Step
  
 Functionality::
-The `xmlToObject` step specification has a `target-class` property to which the output lines should be mapped.
+The `xmlToObject` step specification has a `targetClass` property to which the output lines should be mapped.
 The step reads an XML file, converts the data to an `Object`, and pushes the `Object` to the next step.
 
 Example::
 +
 [source,kotlin,linenumbers]
 ----
-jackson().xmlToObject(Pojo-for-test::class) {
+jackson().xmlToObject(PojoForTest::class) {
    classpath(file)
 }
 ----
@@ -108,7 +108,7 @@ Ancestor::
 Step
 
 Functionality::
-The `jsonToMap` and  `jsonToObject` step specification has a `target-class` property to which the output lines should be mapped. The step reads a JSON file, converts the data to a `Map` (or an `Object`)  and pushes the `Map` (or `Object`) to the next step.
+The `jsonToMap` and  `jsonToObject` step specification has a `targetClass` property to which the output lines should be mapped. The step reads a JSON file, converts the data to a `Map` (or an `Object`)  and pushes the `Map` (or `Object`) to the next step.
 
 Example::
 +
@@ -117,14 +117,14 @@ Example::
 jackson().jsonToMap() {
    classpath(file)
 }
-jackson().jsonToObject(Pojo-for-test::class) {
+jackson().jsonToObject(PojoForTest::class) {
    classpath(file)
 }
 ----
 Notable parameters::
 * `classpath(file)`: reads the data from a specified `path` resource; `file` is the path to the resource with the leading slash ignored.
 * `file(path)`: reads the data from a specified plain file in the file system; `path` is the path to the file, either absolute or relative to the current working directory.
-* `url(url): specifies and links to the `url` of the data resource.
+* `url(url)`: specifies and links to the `url` of the data resource.
 
 Tip::
 Only one path (`classpath(file)`, `file(path)`, or `url(url)`) to the resource is allowed for each `jsnToObject` or `jsnToMap` step.

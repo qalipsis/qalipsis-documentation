@@ -50,20 +50,19 @@ r2dbcJasync().poll {
         password = "Fortune3018"
     }
     query("select * from ${"qalipsis_db"} order by \"${"timestamp"}\"")
-    poll-delay(Duration.ofSeconds(1))
+    pollDelay(Duration.ofSeconds(1))
 }
 ----
 
 Notable parameters::
 * `connection` (required): specifies the connection parameters. 
 * `query` (required): specifies a query respecting the requirements of the target database (https://mariadb.org/[MariaDB],  https://www.mysql.com[MySQL], https://www.postgresql.org/[PostgreSQL],).
-* `poll-delay` (required): specifies the delay between query executions.
+* `pollDelay` (required): specifies the delay between query executions.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
 
 Tips::
 * Use the `poll` step with a join operator when you need to verify the values saved by your tested system in the database.
-* `query` requires at least one sorting field (known as `tie-breaker` in the example) to filter the newest results and not fetch the same records repeatedly.
-* The latest known value for the `tie-breaker` is used to filter out the values already received directly from the database.
+* `query` requires at least one sorting field to filter the newest results and not fetch the same records repeatedly.
 
 Reference documentation::
 Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for further parameter and configuration information.
@@ -94,20 +93,20 @@ Example::
         "qalipsis_table"
     }
     columns { _, _ ->
-        list-of(
+        listOf(
             "id",
-            "device_id",
+            "deviceId",
             "timestamp",
-            "battery_level"
+            "batteryLevel"
         )
     }
     values { _, input ->
-        list-of(
+        listOf(
             JasyncSaveRecord(
                 input.primaryKey(),
-                input.device-id,
-                input.timestamp.epoch-second,
-                input.battery-level
+                input.deviceId,
+                input.timestamp.epochSecond,
+                input.batteryLevel
             )
         )
     }
@@ -151,7 +150,7 @@ Example::
         request
     }
     parameters { _, input ->
-        list-of(input.timestamp.epoch-second, input.device-id)
+        listOf(input.timestamp.epochSecond, input.deviceId)
     }
 }
 ----

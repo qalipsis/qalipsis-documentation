@@ -55,7 +55,7 @@ influxdb().poll {
                 )               
     """.trimIndent()
     )
-    poll-delay(Duration.ofSeconds(1))
+    pollDelay(Duration.ofSeconds(1))
 }
 ----
 
@@ -63,7 +63,7 @@ Notable parameters::
 * `connect` (required): configures the connection to https://www.influxdata.com/[InfluxDB].
 * `query` (required): specifies a query respecting the requirements of https://docs.influxdata.com/influxdb/v2.3/reference/api/[Flux v.2.0]. 
 * `parameters` (optional): binds values to the clauses of the prepared query.
-* `poll-delay` (required): specifies the delay between query executions.
+* `pollDelay` (required): specifies the delay between query executions.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
 
 Tip::
@@ -98,10 +98,10 @@ Example::
         bucket = { _, _ -> "iot" }
         organization = { _, _ -> "qalipsis" }
         points = { _, input ->
-            list-of(
+            listOf(
                 Point.measurement("battery_state")
                     .addField("battery_level", input.batteryLevel)
-                    .addTag("device_id", input.device-id)
+                    .addTag("device_id", input.deviceId)
                     .addTag("timestamp", input.timestamp.epochSecond.toString())
             )
         }
@@ -147,10 +147,10 @@ Example::
                     |> range(start: -15m)
                     |> filter(
                         fn: (r) => r._measurement == "${"battery_state"}" and
-                            r.${"device_id"} == "${input.device-id}" and
+                            r.${"device_id"} == "${input.deviceId}" and
                             r.${"timestamp"} == "${input.timestamp.epochSecond}"
                         )               
-        """.trim-indent()
+        """.trimIndent()
     }
 }
 ----
@@ -195,8 +195,6 @@ Parameters::
 * `org`: name of the organization to use for basic authentication when connecting to InfluxDB; defaults to `qalipsis`.
 * `bucket`: password of the bucket to use for saving meters to InfluxDB; defaults to `qalipsis-meter`.
 
-
-
 === Example
 [source,kotlin,linenumbers]
 ----
@@ -204,7 +202,7 @@ events:
   export:
     influxdb:
       url: http://localhost:8086
-      enabled: false
+      enabled: true
       min-level: INFO
       linger-period: 10s
       batch-size: 2000
@@ -214,15 +212,13 @@ events:
       org: qalipsis
       bucket: qalipsis-event
 
-micronaut.metrics.export.influx.enabled: false <1>
 
 meters:
   export:
     influxdb:
       url: http://localhost:8086
-      enabled: false
+      enabled: true
       step: PT10S
       org: qalipsis
       bucket: qalipsis-event
 ----
-<1> Disables the native micronaut registry.

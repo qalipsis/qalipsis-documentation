@@ -48,15 +48,15 @@ elasticsearch().poll {
         }""".trimIndent()
     }
     index("battery-state")   
-    poll-delay(Duration.ofSeconds(1))  
+    pollDelay(Duration.ofSeconds(1))  
 }
 ----
 Notable parameters::
 * `index`: sets the `elasticsearch` indices to use for the queries; defaults to `all`.
 * `client`: configures the REST client to connect to https://www.elastic.co/[Elasticsearch].
 * `query`: configures the builder for the JSON query to perform the first poll.
-* `query-parameters`(optional): adds parameters to the query. 
-* `poll-delay` (required): specifies the delay between query executions.
+* `queryParameters` (optional): adds parameters to the query. 
+* `pollDelay` (required): specifies the delay between query executions.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
 
 Tips::
@@ -88,11 +88,11 @@ Example::
         RestClient.builder(HttpHost.create("http://localhost:9200")).build() 
     }
     documents { _, input ->
-        list-of(
+        listOf(
             Document(
                 index = "battery-state",
                 id = input.primaryKey,
-                source = object-mapper.writeValueAsString(input)  
+                source = object-Mapper.writeValueAsString(input)  
             )
         )
     }
@@ -123,13 +123,13 @@ Example::
     client {
         RestClient.builder(HttpHost.create("http://localhost:9200")).build()
     }
-    index { _, _ -> list-of("battery-state") }   
+    index { _, _ -> listOf("battery-state") }   
     query { _, input ->
         """{
             "query": {
                 "bool": {
                     "must": [
-                        { "match": { "device-id": "${input.input.device-id}" }},
+                        { "match": { "deviceId": "${input.input.deviceId}" }},
                         { "term": { "timestamp": ${input.input.timestamp.epochSecond} }}
                     ]
                 }
@@ -195,7 +195,7 @@ Parameters::
 monitoring:
   elasticsearch:
     hosts: http://localhost:9200
-    enabled: false
+    enabled: true
     step: PT1M
     index: qalipsis-metrics
     index-date-format: yyyy-MM-dd
@@ -204,7 +204,7 @@ monitoring:
 events:
   export:
     elasticsearch:
-      enabled: false
+      enabled: true
       min-level: INFO
       urls: http://localhost:9200
       index-prefix: qalipsis-events
@@ -218,17 +218,14 @@ events:
       shards: 1
       replicas: 0
 
-micronaut.metrics.export.elastic.enabled: false <1>
-
 meters:
   export:
     elasticsearch:
       urls: http://localhost:9200
       host: ${meters.export.elasticsearch.urls}
-      enabled: false
+      enabled: true
       step: PT10S
       index: qalipsis-meters
       index-date-format: yyyy-MM-dd
       auto-create-index: true
 ----      
-<1>Disables the native micronaut registry.

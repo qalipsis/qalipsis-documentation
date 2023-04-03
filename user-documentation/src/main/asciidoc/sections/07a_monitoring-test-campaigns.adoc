@@ -1,36 +1,35 @@
 = Monitoring Test Campaigns
 
 == Overview
-QALIPSIS aims at giving insights about the behavior of the tested system from a performance perspective.
+QALIPSIS aims at giving insights into the behavior of the tested system from a performance perspective.
 
 The insights are provided to users by way of dashboards and detailed values describing the performed operations.
 
 == Definitions 
 In QALIPSIS, each step generates different kinds of metadata that provides insight on the overall behavior and performances of the system.
 
-* The highest level of detail is built on meters, using the http://micrometer.io[Micrometer Application Monitoring] library. 
-+
-In essence, meters represent the behavior or performance of a step or operation over a short period of time as defined in  the meter's configuration. 
+=== Meters
+The highest level of detail is built on meters, using the http://micrometer.io[Micrometer Application Monitoring] library. 
+Meters represent the behavior or performance of a step or operation over a short period of time as defined in  the meter's configuration. 
 
-** The shorter the time period that a meter represents, the more data will be saved into the time-series database.
-** The data can only be fetched and reported from the time-series database where they were saved. They are not available  in a QALIPSIS scenario. 
-** In QALIPSIS, the Micrometer meters (Counters, Timers, Gauges) are attached to a single campaign and should be created and removed according to the campaign lifecycle. 
+* The shorter the time period that a meter represents, the more data will be saved into the time-series database.
+* The data can only be fetched and reported from the time-series database where they were saved. They are not available  in a QALIPSIS scenario. 
+* In QALIPSIS, the Micrometer meters (Counters, Timers, Gauges) are attached to a single campaign and should be created and removed according to the campaign lifecycle. 
 
-* The intermediate level of detail is built on events that are directly saved into a time-series database.
-+
-In essence, an event represents an operation to be executed at a given point in time.
+Meters can be tagged to specify the scenario, campaign, and test step that they are related to. 
 
-** Events can be compared to logs as managed by log4j and logback, and apply a similar concept for configuration. 
-** Events are described by a severity, a log name, and values. 
+=== Events
+The intermediate level of detail is built on events that are directly saved into a time-series database. Events  represents an operation to be executed at a given point in time.
 
-* Both meters and events can be tagged to specify the scenario, campaign, and test step that they are related to.
+* Events can be compared to logs as managed by log4j and logback, and apply a similar concept for configuration.** Events are described by a severity, a log name, and values. 
 
-* The highest level of detail is built on step execution meters. 
-+
-In essence, step execution meters are primitive values and Java durations.
-+
-** Step execution meters are directly provided as an output from one step to another. 
-** Step execution meters make it possible to verify the performances and the success of an operation directly in the scenario, in order to decide whether next steps should be executed or not.
+Events can be tagged to specify the scenario, campaign, and test step that they are related to.
+
+=== Step execution meters
+The highest level of detail is built on step execution meters. Step execution meters are primitive values and Java durations.
+
+* Step execution meters are directly provided as an output from one step to another. 
+* Step execution meters make it possible to verify the performances and the success of an operation directly in the scenario, in order to decide whether next steps should be executed or not.
 
 == Recording events and meters in campaigns
 To be able to evaluate and analyze the performance and failures of your system during a campaign, you need to monitor events and meters at different levels and export the monitored data.
@@ -89,23 +88,23 @@ Plugin steps must also be configured to export monitoring data. At the time of t
 
 * Graphite: Refer to the link:plugins/08d_graphite.adoc[Graphite plugin] section for details.
 * Elasticsearch: Refer to the link:plugins/08c_elasticsearch.adoc[Elasticsearch plugin]  section for details. 
-* Kafka: Refer to the link:plugins/08h_kafka.adoc[Kafka plugin]  section for details.  
-* TimescaleDB: Refer to the link:plugins/08d_timescaledb.adoc[TimescaleDB plugin] section for details.
+* Apache Kafka: Refer to the link:plugins/08h_kafka.adoc[Kafka plugin]  section for details.  
+* TimescaleDB and PostgreSQL: Refer to the link:plugins/08d_timescaledb.adoc[TimescaleDB plugin] section for details.
 * InfluxDB: Refer to the link:plugins/08e_Influxdb.adoc[InfluxDB plugin] section for details.
 
 NOTE: It is important to balance the count of publishers (when configurable) with the amount of event data that steps generate.  If the amount of data is too large for the publishers to keep up with, there may be unwanted side effects. For example, the events buffer size may increase enough to cause memory issues and QALIPSIS may need time to exit after the end of a campaign to empty the buffers.
 
 === Exporting specific event data 
-Qalipsis events are very similar to, and can be configured as, logs. The major difference is that Qalipsis events are filtered based on event name and specified `EventLevel`. You can select a minimum level of event that is to be filtered, based upon the name of the events. 
+QALIPSIS events are very similar to, and can be configured as, logs. The major difference is that QALIPSIS events are filtered based on event name and specified `EventLevel`. You can select a minimum level of event that is to be filtered, based upon the name of the events. 
 
 EventLevel parameters::
 
-* TRACE (default): all events are kept.
-* DEBUG: only events with `EventLevel`  DEBUG, INFO, WARN, or ERROR are kept.
-* INFO: only events with `EventLevel` INFO, WARN, or ERROR are kept.
-* WARN: only events with `EventLevel` WARN or ERROR are kept.
-* ERROR: only events with `EventLevel` ERROR are kept.
-* OFF: no events are kept.
+* `TRACE` (default): all events are kept.
+* `DEBUG`: only events with `EventLevel`  DEBUG, INFO, WARN, or ERROR are kept.
+* `INFO`: only events with `EventLevel` INFO, WARN, or ERROR are kept.
+* `WARN`: only events with `EventLevel` WARN or ERROR are kept.
+* `ERROR`: only events with `EventLevel` ERROR are kept.
+* `OFF`: no events are kept.
 
 Example::
 
@@ -117,5 +116,5 @@ events:
   cassandra.poll: DEBUG <3>
 ----
 <1> All events with levels of INFO or higher (WARN, ERROR) are kept.
-<2> All events starting with elasticsearch. are kept.
-<3> Events with names starting with cassandra.poll. are only kept if their level is DEBUG or higher; cassandra.poll: TRACE events are not kept.
+<2> All events starting with `elasticsearch.` are kept.
+<3> Events with names starting with `cassandra.poll.` are only kept if their level is DEBUG or higher; cassandra.poll: TRACE events are not kept.

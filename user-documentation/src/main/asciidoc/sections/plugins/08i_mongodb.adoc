@@ -39,31 +39,31 @@ Example::
 mongodb().poll {
     name = "poll"
     connect {
-        Mongo-clients.create("mongodb://localhost:27018")
+        MongoClients.create("mongodb://localhost:27018")
     }
     search {
         database = "iot"
         collection = "batteryState"
         query = Document()
-        sort = linkedMapOf("device-id" to Sorting.ASC)
-        tie-breaker = "device-id"
+        sort = linkedMapOf("deviceId" to Sorting.ASC)
+        tieBreaker = "deviceId"
     }
-    poll-delay(Duration.ofSeconds(1)) 
+    pollDelay(Duration.ofSeconds(1)) 
 }
 ----
 
 Notable parameters::
 * `connect` (required): configures the connection to https://mongodb.com/[MongoDb].
 * `query` (required): specifies a document respecting the requirements of the target database. 
-* `tie-breaker` (required): repeats the first column used for sorting and comparison (`<=` or `>=`, depending on the ascending or descending order).
+* `tieBreaker` (required): repeats the first column used for sorting and comparison (`<=` or `>=`, depending on the ascending or descending order).
 * `parameters` (optional): binds values to the clauses of the prepared query.
-* `poll-delay` (required): specifies the delay between query executions.
+* `pollDelay` (required): specifies the delay between query executions.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
  
 Tips::
 * Use the `poll` step with a join operator if you need to verify the values saved by your tested system in the database.
-* The `query` parameter requires at least one sorting field (`tie-breaker` in the example) to filter the newest results and not fetch the same records repeatedly.
-* The latest known value for `tie-breaker` is used to filter out the values already received from the database.
+* The `query` parameter requires at least one sorting field (`tieBreaker` in the example) to filter the newest results and not fetch the same records repeatedly.
+* The latest known value for `tieBreaker` is used to filter out the values already received from the database.
 
 Reference Documentation::
 Refer to the https://www.mongodb.com/docs/[Mongodb] documentation for further parameter and configuration information.
@@ -84,17 +84,17 @@ Example::
 .save {
     name = "save"
     connect {
-        Mongo-clients.create("mongodb://localhost:27018")
+        MongoClients.create("mongodb://localhost:27018")
     }
     query {
         database { _, _ ->
             "iot"
         }
         collection { _, _ ->
-            "battery-state"
+            "batteryState"
         }
         documents { _, input ->
-            list-of(Document.parse(object-mapper.write-value-as-string(input)))
+            listOf(Document.parse(objectMapper.writeValueAsString(input)))
         }
     }
 }
@@ -127,16 +127,16 @@ Example::
 .search {
     name = "search"
     connect {
-        Mongo-clients.create("mongodb://localhost:27018")
+        MongoClients.create("mongodb://localhost:27018")
     }
     search {
         database { _, _ -> "iot" }
         collection { _, _ -> "batteryState" }
         query { _, input ->
             Document(
-                map-of(
-                    "device-id" to input.device-id,
-                    "timestamp" to input.timestamp.epoch-second
+                mapOf(
+                    "deviceId" to input.deviceId,
+                    "timestamp" to input.timestamp.epochSecond
                 )
             )
         }
