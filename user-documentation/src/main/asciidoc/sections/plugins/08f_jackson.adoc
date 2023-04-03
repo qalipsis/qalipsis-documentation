@@ -7,7 +7,7 @@ Technologies addressed::
 https://github.com/FasterXML/jackson[Class JsonMapper]
 
 Dependency::
-`io.qalipsis:plugin-jackson`
+`io.qalipsis.plugin:qalipsis-plugin-jackson`
 
 Namespace in scenario::
 `jackson()`

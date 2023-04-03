@@ -48,12 +48,12 @@ To use a plugin, add the related dependency to your project:
 Gradle - Groovy DSL:
 [source,groovy,subs="normal"]
 ----
-implementation group:'io.qalipsis', name: 'plugin-XXX', version: '{revnumber}'
+implementation group:'io.qalipsis.plugin', name: 'qalipsis-plugin-XXX', version: '{revnumber}'
 ----
 Gradle - Kotlin DSL:
 [source,kotlin,subs="normal"]
 ----
-implementation("io.qalipsis:plugin-XXX:{revnumber}")
+implementation("io.qalipsis.plugin:qalipsis-plugin-XXX:{revnumber}")
 ----
 
 == QALIPSIS available plugins
@@ -66,11 +66,11 @@ Note: Before using a plugin, confirm that the related dependency has been added 
 
 * Gradle - Groovy DSL:
 +
-`implementation group:'io.qalipsis', name: 'plugin-XXX', version: '{revnumber}`
+`implementation group:'io.qalipsis.plugin', name: 'qalipsis-plugin-XXX', version: '{revnumber}`
 
 * Gradle - Kotlin DSL:
 +
-`implementation("io.qalipsis:plugin-XXX:{revnumber}")`
+`implementation("io.qalipsis.plugin:qalipsis-plugin-XXX:{revnumber}")`
 
 [cols="1,3"]
 |===

@@ -11,7 +11,7 @@ Technologies addressed::
 * PostgreSQL: https://www.postgresql.org/[]
 
 Dependency::
-`io.qalipsis:plugin-r2dbc-jasync`
+`io.qalipsis.plugin:qalipsis-plugin-r2dbc-jasync`
 
 Namespace in scenario::
 `r2dbcJasync()`

@@ -7,7 +7,7 @@ Technology addressed::
 MongoDB: https://mongodb.com/[]
 
 Dependency::
-`io.qalipsis:plugin-mongodb`
+`io.qalipsis.plugin:qalipsis-plugin-mongodb`
 
 Namespace in scenario::
 `mongodb()`
