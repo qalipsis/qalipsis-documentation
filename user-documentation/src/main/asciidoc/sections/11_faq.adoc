@@ -1,12 +1,13 @@
 = Frequently Asked Questions
 
-* *How do I implement a plugin into a Scenario?*
-+
-Work in progress
+To be provided.
+//* *How do I implement a plugin into a Scenario?*
+//+
+//Work in progress
 
-* *How do I change the ramping strategy for a scenario?*
-+
-Work in progress
+//* *How do I change the ramping strategy for a scenario?*
+//+
+//Work in progress
 
 
 

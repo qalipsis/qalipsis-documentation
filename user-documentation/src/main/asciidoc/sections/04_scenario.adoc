@@ -342,8 +342,8 @@ QALIPSIS provides all required statements out-of-the-box.
 
 When the number of records emitted by the singleton step is finite (such as a file), you might want to loop in the whole set of data to be sure there will always be data for the minions.
 
-[example]
-Create and insert singleton loop graphic here
+//[example]
+//Create and insert singleton loop graphic here
 
 All minions receive all the records.
 When there is no more data for a minion, it receives the same data again from the beginning and loops on the whole set of records as long as it needs new ones.
@@ -352,11 +352,10 @@ When there is no more data for a minion, it receives the same data again from th
 
 Each minion receives the next unused record emitted from the step. Once there are no more records to provide, all the minions remain blocked in the step.
 
-[example]
-Create and insert singleton-unicast graphic here
+//[example]
+//Create and insert singleton-unicast graphic here
 
-In the example, each of the 3 minions receives a record fairly: the first asking is served. However, since the buffer
-is only 2, the first records are just lost, keeping only a buffer of 2 until the first minion requests a value.
+//In the example, each of the 3 minions receives a record fairly: the first asking is served. However, since the buffer is only 2, the first records are just lost, keeping only a buffer of 2 until the first minion requests a value.
 
 === Broadcast
 
@@ -364,8 +363,7 @@ All the minions receive all the records from the beginning. Once there are no mo
 
 If the size of the buffer is limited, minions landing in the step for the first time will not receive everything from the beginning, but only from the size of the buffer.
 
-[example]
-Create and insert broadcast graphic here
+//[example]
+//Create and insert broadcast graphic here
 
-In the example, the all 3 minions receive all the records in the correct order. However, since the buffer
-is only 2, each newly requesting minion can only receive two records in the past at the earliest.
+//In the example, all 3 minions receive all the records in the correct order. However, since the buffer is only 2, each newly requesting minion can only receive two records in the past at the earliest.
