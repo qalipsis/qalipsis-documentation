@@ -173,7 +173,7 @@ Scenario changes are saved for the current campaign and do not affect the scenar
 
 . Click the btn:[Run immediately] button to start the campaign. 
 +
-Campaign data is displayed in real-time in the _Report_ box and on the time-series chart.
+Campaign data is displayed in real-time in the _Report_ panel and on the time-series chart.
 
 ** Minion count is displayed by default.
 ** Select one or more series cards to display the generated data for that series.
@@ -189,21 +189,9 @@ A table listing all existing and planned campaigns is displayed.
 
 . Click on the name of a campaign to display the _Campaign details_ page.
 +
-* A _Report_ box is displayed at the top of the screen.
+* A _Report_ panel is displayed at the top of the screen.
 +
-The top line in the _Report_ box displays information for the  whole campaign; the following lines display information for each scenario within the campaign.
-
-** Click the `View more` tooltip on the right side of the _Report_ box to expand the box to display all scenarios in the campaign.
-** Click the `More details` tooltip to display the info for the total campaign in a dropdown box.
-** Click on the `Campaign Summary` dropdown filter to select the scenario information to display in the report box.
-
-* Below the report box, a row of filter cards is displayed with the individual events and meters that are logged for the campaign. 
+The top line in the _Report_ panel displays information for the  whole campaign; the following lines display information for each scenario within the campaign.
 +
-Refer to link:05_steps.adoc[`Step Specifications`] or <<Creating a series>> for guidance creating filtering steps. 
-+
-Each card includes the Name, Type, and display color.
-
-* Below the row of filter cards, a time-series chart is displayed with the x-axis displaying the elapsed time  and the y-axis displaying series data.
-
-Select one or more series cards to display the generated data for that series.
+Click on the `Campaign Summary` dropdown filter to select which scenario(s) information to display in the report section.
 
