@@ -16,11 +16,11 @@ Commercial-licensed-based plugins, the cloud-based application, and other premiu
 === User-friendly interface
 The QALIPSIS Graphical User Interface (GUI) allows users, depending on their role, to configure and run load, performance and end-to-end tests with capabilities including, but not limited to:
 
-* Start/stop
+* Create a campaign
 * Configure the load distribution
 * Increase/decrease the number of simulated users
+* Start/stop the campaign
 * View reports
-* Schedule a test
 
 === Automation friendly performance verification
 Using the Command Line Interface (CLI) or the Gradle plugin, you can automatically and repeatedly verify the condition and performance of your system.
@@ -28,7 +28,7 @@ Using the Command Line Interface (CLI) or the Gradle plugin, you can automatical
 === User-friendly operation
 With QALIPSIS you are never far from setting up your next load, performance, and end-to-end test campaign.
 
-Start with the  creation of a pre-configured project from https://bootstrap.qalipsis.io[QALIPSIS bootstrap, window=\"_blank\"], then develop code in your IDE.
+Start with the creation of a pre-configured project from https://bootstrap.qalipsis.io[QALIPSIS bootstrap, window=\"_blank\"], then develop code in your IDE.
 
 QALIPSIS provides a Gradle plugin to simplify the configuration, packaging and deployment of your scenarios to your on-premise installation or QALIPSIS Cloud.
 
@@ -39,7 +39,7 @@ Further documentation and examples guide you through your more advanced use case
 Downloading a ready-to-use project for your IDE is easy with QALIPSIS and allows integration with popular DevOps tools to test your software and track the impact of recent changes.
 
 === Aggregated assertions
-Aggregated assertions allow you to verify the overall results on a scenario. You can define thresholds to make a test succeed or fail and immediately get insights about the performance and consistency of your tested system. 
+Aggregated assertions allow you to verify the overall results of a scenario. You can define thresholds to make a test succeed or fail and immediately get insights about the performance and consistency of your tested system. 
 
 === Testing, performance, and geographical distribution
 * QALIPSIS can test distributed systems.
@@ -77,16 +77,16 @@ QALIPSIS was designed with distributed systems and current developer practices i
 === For developers 
 QALIPSIS empowers developers to:
 
-* Choose their own testing tools and preferred programming language for writing test scenarios.
+* Choose preferred testing tools and programming language for writing test scenarios.
 * Cross-verify data from different sources: bring responses to requests, infrastructure metrics, middleware events and database records in the same port to compare them and verify that they match your expectations.
 * Unlock the full power of the Java ecosystem by making use of any library, protocol or system.
-* Reuse pieces of their own software to faster develop scenarios.
+* Reuse pieces of software to faster develop scenarios.
 * Simulate users, third-party software and IoT devices.
 * Simulate real-user and device behavior to make tests more relevant.
 * Generate detailed and relevant results by using distributed tracing markers to follow the complete execution workflow from end to end.
 * Customize reports and dashboards.
 * Perform tests on development machines, containers and virtual machines with excellent results.
-* Integrate their standard DevOps workflow for performance testing before the deployment of health checks on production environments.
+* Integrate a standard DevOps workflow for performance testing before the deployment of health checks on production environments.
 * Create a scenario in just a few minutes by enabling the utilization of any Java library of choice (such as JUnit, Hamcrest, AssertJ) or pieces of software or proprietary libraries.
 * Test non-http technologies using numerous plug-ins, such as databases and messaging platforms.
 

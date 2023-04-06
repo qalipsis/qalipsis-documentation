@@ -6,7 +6,7 @@ QALIPSIS aims at giving insights about the behavior of the tested system from a 
 The insights are provided to users by way of dashboards and detailed values describing the performed operations.
 
 == Definitions 
-In QALIPSIS, each step generates different kinds of metadata that supply different levels of detail
+In QALIPSIS, each step generates different kinds of analytics data that supply different levels of detail
 about the behavior and performances of the system.
 
 * The highest level of detail is built on <<Meters,meters>>, using the http://micrometer.io[Micrometer Application Monitoring] library. 
@@ -54,7 +54,7 @@ Meters are generated using http://micrometer.io[Micrometer Application Monitorin
 
 
 === Step Execution Meters
-In QALIPSIS, each step generates a different kinds of metadata, to supply different level of details on the overall behavior and performances of the system.
+In QALIPSIS, each step generates a different kinds of analytics data, to supply different level of details on the overall behavior and performances of the system.
 
 The highest level is built upon meters, using the library Micrometer Application Monitoring . You can read more in the official documentation. Long story made short, the meters represent the behavior or performance of a step or operation, over a short period of time which depends on the configuration. The shorter, the more data will be saved into the time-series database. Those values can then only be fetched and reported from the time-series database where they were saved. They are not available as such in a QALIPSIS scenario. In QALIPSIS, the Micrometer meters (Counters, Timers, Gauges) are attached to a single campaign and should be created and removed according to the campaign lifecycle. More on that in the dedicated section below.
 
