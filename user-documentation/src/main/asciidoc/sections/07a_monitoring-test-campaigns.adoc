@@ -6,7 +6,9 @@ QALIPSIS aims at giving insights into the behavior of the tested system from a p
 The insights are provided to users by way of dashboards and detailed values describing the performed operations.
 
 == Definitions 
-In QALIPSIS, each step generates different kinds of metadata that provides insight on the overall behavior and performances of the system.
+
+In QALIPSIS, each step generates different kinds of analytics data that supply different levels of detail
+about the behavior and performances of the system.
 
 === Meters
 The highest level of detail is built on meters, using the http://micrometer.io[Micrometer Application Monitoring] library. 
@@ -21,7 +23,10 @@ Meters can be tagged to specify the scenario, campaign, and test step that they 
 === Events
 The intermediate level of detail is built on events that are directly saved into a time-series database. Events  represents an operation to be executed at a given point in time.
 
-* Events can be compared to logs as managed by log4j and logback, and apply a similar concept for configuration.** Events are described by a severity, a log name, and values. 
+
+=== Step Execution Meters
+In QALIPSIS, each step generates a different kinds of analytics data, to supply different level of details on the overall behavior and performances of the system.
+
 
 Events can be tagged to specify the scenario, campaign, and test step that they are related to.
 

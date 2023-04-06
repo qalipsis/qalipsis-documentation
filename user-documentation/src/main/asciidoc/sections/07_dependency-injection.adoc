@@ -2,7 +2,7 @@
 
 QALIPSIS relies on the https://docs.micronaut.io/latest/guide/index.html#ioc[Dependency injection framework] from Micronaut and supports the injection of dependencies in the constructors of the scenario declaring classes and methods annotated with `@Scenario`.
 
-WARNING: Ensure you have the following dependency in the project where your beans or factories are compiled: `kapt("io.qalipsis:api-processors:{revnumber}")`
+WARNING: Ensure you have the following dependency in the project where your beans or factories are compiled: `kapt("io.qalipsis:qalipsis-api-processors:{revnumber}")`
 
 == Injecting a singleton bean
 You can declare a singleton bean using the annotation `@jakarta.inject.Singleton` on a type, or https://docs.micronaut.io/latest/guide/index.html#factories[use a Micronaut factory].

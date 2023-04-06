@@ -9,7 +9,7 @@ Technologies addressed::
 * DataStax Driver: https://docs.datastax.com/[DataStax].
 
 Dependency::
-`io.qalipsis:plugin-cassandra`
+`io.qalipsis.plugin:qalipsis-plugin-cassandra`
 
 Namespace in scenario::
 `cassandra()`

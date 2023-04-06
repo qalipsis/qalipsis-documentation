@@ -9,17 +9,100 @@ This section discusses different approaches, including the benefits and conseque
 
 If you find yourself in a situation that requires professional support to assist in the preparation, installation and operation phases, do not hesitate to contact our team at https://qalipsis.io/#contact. 
 
-== Ephemeral installations
+== Embedded
+It is extremely simple to use QALIPSIS as an embedded service into your existing JVM applications.
+
+Using QALIPSIS as an embedded service is convenient for execute campaigns in your tests (JUnit or others) or to create your own applications that can trigger campaigns.
+
+It requires only three steps:
+
+. Add the dependencies to run QALIPSIS and develop your scenario.
++
+[source,kotlin,linenumbers]
+----
+dependencies {
+    implementation(platform("io.qalipsis:qalipsis-platform:<version>"))
+    kapt("io.qalipsis:api-processors")
+    
+    runtimeOnly("io.qalipsis:head")
+    runtimeOnly("io.qalipsis:factory")
+    implementation(test"io.qalipsis:runtime")
+    
+    // Examples of plugins
+    implementation("io.qalipsis.plugin:cassandra")
+    implementation("io.qalipsis.plugin:jackson")
+}
+----
+
+. Develop your scenario.
++
+[source,kotlin,linenumbers]
+----
+import io.qalipsis.api.annotations.Scenario
+...
+
+class My Scenario {
+
+    @Scenario("do-something-useful") // Do not forget the annotation!
+    fun doSomethingUseful() {
+        scenario {
+            minionsCount = 10_000
+            profile {
+                stages {
+                  ...
+                }
+            }
+        }.start()
+        ....
+    }
+}
+----
+. Start QALIPSIS in your application:
++
+[source,kotlin,linenumbers]
+----
+Qalipsis.main("-s", "do-something-useful", "-c", "myconfig=thevalue", "my-other-args")
+----
+Alternately, you can use the following method:
+.. Import the test fixtures module for the runtime
++
+[source,kotlin,linenumbers]
+----
+dependencies {
+    implementation(platform("io.qalipsis:qalipsis-platform:<version>"))
+    kapt("io.qalipsis:api-processors")
+
+    runtimeOnly("io.qalipsis:head")
+    runtimeOnly("io.qalipsis:factory")
+    implementation(test"io.qalipsis:runtime")
+    implementation(testFixtures("io.qalipsis:runtime")) // Here is the additional dependency.
+    
+    // Examples of plugins
+    implementation("io.qalipsis.plugin:cassandra")
+    implementation("io.qalipsis.plugin:jackson")
+}
+----
+
+.. Use the builder to start QALIPSIS
++
+[source,kotlin,linenumbers]
+----
+QalipsisTestRunner.withScenarios("do-something-useful")
+    .withConfiguration("myconfig=thevalue")
+    .execute("my-other-args")
+----
+
+== Ephemeral
 
 Ephemeral installations of QALIPSIS are designed to be directly embedded into third-party tools or for use in continuous integration/continuous deployment (CI/CD) applications.
 
-However, the ease of build and lightness of an ephermeral installation makes it a very portable alternative for verifying test systems and performing demos. 
+However, the ease of build and lightness of an ephemeral installation makes it a very portable alternative for verifying test systems and performing demos. 
  
 The QALIPSIS Gradle Plugin provides the task `package-ephemeral` to create an archive of your project.
 
 To configure an ephemeral installation for project deployment:
 
-* In your QALIPSIS project, execute the task `package-ephemeral` which will assemble your project and create a ZIP file  `build/install/your-project-name-your-version-qalipsis.jar`.
+* In your QALIPSIS project, execute the task `package-ephemeral` which will assemble your project and create an archive file: `build/install/your-project-name-your-version-qalipsis.jar`.
 + 
 The .jar file is a self-executable archive that contains your scenario, classes, and all required dependencies to execute your QALIPSIS project. 
 
@@ -40,7 +123,7 @@ Note that the `config/qalipsis.yml` file has precedence over the `qalipsis.yml` 
 
 If any of your use cases includes data that you want to retain in QALIPSIS for comparison, regression testing, or other use, you should use QALIPSIS in a non-persistent standalone installation.  
 
-== Transient installations
+== Transient
 === Overview
 Transient installations of QALIPSIS are designed for operations that do not need to keep a history of data. The most often used cases for transient installations include:
 
@@ -54,7 +137,7 @@ A transient installation is not a long-live process.
 
 If any of your use cases includes data that you want to retain in QALIPSIS for comparison, regression testing, or other use, you should use QALIPSIS in a non-persistent standalone installation.  
 
-=== Configuring a transient instalation for project deployment
+=== Configuring a transient installation for project deployment
  
 The QALIPSIS Gradle Plugin provides tasks to create an installable archive from your project. It proposes a unique task to create a ZIP archive and a TAR.GZ archive. The installation is similar whether using a ZIP archive or a TAR.GZ archive; installation using a ZIP archive are described in this section.
 
@@ -62,7 +145,7 @@ In your QALIPSIS project, execute the task `package-standalone` which will assem
 
 The ZIP archive contains your scenario, classes, and all required dependencies to execute your QALIPSIS project.
 
-* Add the ZIP archive to your installation folder of choice and uncompress it: `unzip qalipsis-your-project-name.zip` or use another compression tool of your choice. 
+* Add the ZIP archive to your installation folder of choice and extract the compressed files: `unzip qalipsis-your-project-name.zip`. 
 
 * Navigate to the QALIPSIS folder on your system:
 
@@ -92,7 +175,7 @@ Note that the `config/qalipsis.yml` file has precedence over the `qalipsis.yml` 
 
 If any of your use cases includes data that you want to retain in QALIPSIS for comparison, regression testing, or other use, you should use QALIPSIS in a non-persistent standalone installation.
 
-== Standalone Installations
+== Standalone
 
 === Overview
 Standalone installations of QALIPSIS are designed for low to normal load operations that require data tracking. They allow you to tweak the deployment configuration to track the history of executions. 
@@ -117,8 +200,7 @@ Execute the following steps as for a <<Transient>> installation:
 
 * In your QALIPSIS project, execute the task `package-standalone` to create a ZIP file: `build/install/qalipsis-your-project-name.zip`.
 
-* Add the ZIP archive to your installation folder of choice and uncompress it: `unzip qalipsis-your-project-name.zip`. 
-
+* Add the ZIP archive to your installation folder of choice and extract the compressed files: `unzip qalipsis-your-project-name.zip`. 
 
 === Prepare the database
 * Install your PostgreSQL database
@@ -143,9 +225,9 @@ GRANT ALL ON SCHEMA meters TO qalipsis;
 
 === Configure the database for the master data
 * Navigate to your installation folder where the  `qalipsis.sh` and `qalipsis.bat` files are located.
-* Ceate a `qalipsis.yml` file to configure access to the database for the master data:
-
-[example,kotlin, linenumbers]
+* Create a `qalipsis.yml` file to configure access to the database for the master data:
++
+[source,kotlin, linenumbers]
 ----
 datasources:
   default:
@@ -163,7 +245,7 @@ The connection to PostgreSQL for events and meters is provided by the timescale 
 
 In the file qalipsis.yml add the following details:
 
-[example,kotlin, linenumbers]
+[source,kotlin,linenumbers]
 ----
 events: 
   export.timescaledb:  <1>
@@ -247,7 +329,7 @@ Clusters can also be deployed in https://kubernetes.io/docs/concepts/security/[K
 The following sections describe how to install QALIPSIS as clusters of different forms that provide different levels of scalability and availability.
 
 === Light cluster
-A light cluster requires minimal effort for installation; however, it is limited in terms of load capabilitiy.
+A light cluster requires minimal effort for installation; however, it is limited in terms of load capability.
 
 The main advantage of a light cluster installation is to provide a secure geographical/network-based distribution of load and data consumption for private networks.
 
@@ -277,7 +359,7 @@ A high-load cluster consists of:
 == Amendable installations
 The purpose of an amendable installation is to allow you to add scenarios to the installation without having to rebuild a new installation archive after each change.
 
-As a prerequesite, you need to install QALIPSIS as described in the <<Transient installations,`transient`>>, <<Standalone Installations,`standalone`>> or <<Cluster Installations,`cluster`>> installation sections. 
+As a prerequisite, you need to install QALIPSIS as described in the <<Transient installations,`transient`>>, <<Standalone Installations,`standalone`>> or <<Cluster Installations,`cluster`>> installation sections. 
 
 When packaging an installation, you do not need to create a scenario for the project. An "empty" installation is a valid installation. Executing QALIPSIS on an "empty" installation will return an exit code different from 0 and a `no scenario found` warning.
 
@@ -292,12 +374,12 @@ When your QALIPSIS installation is complete:
 +
 This archive contains your scenario and all the non-QALIPSIS dependencies you have manually added to your Gradle project.
 . Copy and paste the archive to a folder with an existing installation of QALIPSIS transient, standalone or factory of a cluster.
-. Uncompress the file: `unzip qalipsis-scenario-your-project-name.zip` or by using another compression tool of your choice.
+. Extract the compressed files: `unzip qalipsis-scenario-your-project-name.zip`.
 . Copy each file in the expanded folder into the folder with scenarios of your existing installation.
 . If it is still running, restart QALIPSIS to load the new scenarios.
 
 :warning: WARNING
-Different scenarios might require different dependencies; pay attention to the conflict of versions when you overwrite existing files inan existing installation.
+Different scenarios might require different dependencies; pay attention to the conflict of versions when you overwrite existing files in an existing installation.
 
 To avoid conflicts, use the same versions of dependencies across all scenarios/projects deployed in the same installation.
 
@@ -315,7 +397,7 @@ Three images are available on the Docker hub free to all QALIPSIS users:
 === Prepare the images
 While the images available on the Docker hub are ready to use, empty standalone and factory images cannot do much for you.
 
-You can add your own scenarios and dependencies as prepared for an <<Amendable installations,Amendable installation>> with the following Dockerfile:
+You can add your own scenarios and dependencies as prepared for an <<Amendable installations,Amendable installation>> with the following Docker file:
 
 [example,kotlin, linenumbers]
 ----

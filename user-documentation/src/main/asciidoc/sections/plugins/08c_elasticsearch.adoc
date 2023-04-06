@@ -7,7 +7,7 @@ Technology addressed::
 Elasticsearch: https://www.elastic.co/[]
 
 Dependency::
-`io.qalipsis:plugin-elasticsearch`
+`io.qalipsis.plugin:qalipsis-plugin-elasticsearch`
 
 Namespace in scenario::
 `elasticsearch()`

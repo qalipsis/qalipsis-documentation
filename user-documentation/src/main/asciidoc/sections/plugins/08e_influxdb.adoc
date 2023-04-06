@@ -9,7 +9,7 @@ Technologies addressed::
 * Flux: https://docs.influxdata.com/flux/v0.x/[] 
 
 Dependency::
-`io.qalipsis:plugin-influxdb`
+`io.qalipsis.plugin:qalipsis-plugin-influxdb`
 
 Namespace in scenario::
 `influxdb()`

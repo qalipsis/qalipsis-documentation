@@ -7,7 +7,7 @@ Technology addressed::
 Kafka: https://kafka.apache.org/[]
 
 Dependency::
-`io.qalipsis:plugin-kafka`
+`io.qalipsis.plugin:qalipsis-plugin-kafka`
 
 Namespace in scenario::
 `kafka()`

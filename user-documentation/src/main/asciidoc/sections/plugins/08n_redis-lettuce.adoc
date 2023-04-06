@@ -6,7 +6,7 @@ Technology addressed::
 Redis: https://redis.io/[]
 
 Dependency::
-`io.qalipsis:plugin-redis-lettuce`
+`io.qalipsis.plugin:qalipsis-plugin-redis-lettuce`
 
 Namespace in scenario::
 `redisLettuce()`

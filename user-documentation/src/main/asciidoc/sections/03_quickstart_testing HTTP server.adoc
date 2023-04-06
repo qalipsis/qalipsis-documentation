@@ -14,8 +14,8 @@ Before starting, you need:
 This guide will take you through the following steps for testing a simple HTTP service:
 
 . Start an HTTP server and a docker environment for the project. 
-. Generate a project archive. 
-. Configure a scenario skeleton.
+. Create a project. 
+. Configure a scenario.
 . Add steps to the scenario.
 .. An `HTTP` step to send requests to the server.
 .. A `verify` step  that asserts that the server's response is  "OK" and to verify the server's responses.
@@ -54,9 +54,9 @@ services:
 . Click `Generate`. An archive containing a skeleton of the project is proposed for download.
 . Download the proposed project archive. 
 
-[ insert graphic/screenshot of the Bootstrap QALIPSIS page ]
+// insert graphic/screenshot of the Bootstrap QALIPSIS page
 
-== Prepare a scenario
+== Configure a scenario
 === Edit the downloaded scenario skeleton
 . Open the downloaded project archive in your IDE. 
 . Edit the file `src/main/kotlin/Quickstart.kt`.
@@ -127,7 +127,7 @@ Add an `http` step to the scenario that will send a POST request to the server.
 
 Execute the scenario using Gradle: `./gradlew run`. This allows you to observe requests logged by the HTTP server. However, it does not verify that the server is returning what you expect.
 
-[ insert screen shot here of the report]
+// [ insert screen shot here of the report]
 
 ==== Verify the server's response
 To verify that the server is returning what you expect, add a `verify` step to the scenario, just after the `http` step. 
@@ -163,7 +163,7 @@ To verify that the server is returning what you expect, add a `verify` step to t
 
 At this point, if you execute the updated scenario, a log file will display showing the status of each response and confirmation that that server is posting the "Hello World!" string.
 
-[insert screen shot of results]
+// [ insert a screen shot of results ]
 
 ==== Reuse the HTTP connection
 You can strengthen the relevance of your test by:
@@ -273,8 +273,7 @@ To execute your scenario:
 . Execute the command `java -jar quickstart-<your-version>-qalipsis.jar`.
 
 === Enable event logging 
-To know the details of the failures
-In current directory, create a folder called `config`.
+In the current directory, create a folder called `config`.
 In this new folder, create a file called `qalipsis.yml` with the following content:
 
 [source,yaml]
@@ -288,36 +287,32 @@ events:
 
 This enables the logging of the events with severity WARN and higher to a file called `qalipsis-events.log`.
 
-Execute your scenario again; the events file is created and contains the details of the individual failed assertions:
+Execute the scenario again; the events file is created and contains the details of the individual failed assertions:
 
-```
-2022-03-31T06:33:55.937Z  WARN --- step.assertion.failure;io.qalipsis.plugins.netty.tcp.ConnectionAndRequestResult@1e869276
-MetersImpl(timeToSuccessfulConnect=null, timeToFailedConnect=null, timeToSuccessfulTlsConnect=null, timeToFailedTlsConnect=null, bytesCountToSend=85, sentBytes=85, timeToFirstByte=PT0.10696475S, timeToLastByte=PT0.1163375S, receivedBytes=394)
-PT0.10696475S should be <= PT0.1S;campaign=quickstart-campaign-4d39026fd7,minion=quickstart-http-62qr1n87xx,scenario=quickstart,dag=dag-1,step=verify-patch,context-creation=2022-03-31T06:33:55.730Z,parent-step=_629qthims5,_ step-type=Verification,iteration=0,attempts-after-failure=0,isExhausted=true,isTail=true,isCompleted=true_
-2022-03-31T06:33:56.916Z  WARN --- step.assertion.failure;io.qalipsis.plugins.netty.tcp.ConnectionAndRequestResult@19a03b37
-MetersImpl(timeToSuccessfulConnect=null, timeToFailedConnect=null, timeToSuccessfulTlsConnect=null, timeToFailedTlsConnect=null, bytesCountToSend=85, sentBytes=85, timeToFirstByte=PT0.128673083S, timeToLastByte=PT0.128737375S, receivedBytes=394)
-PT0.128673083S should be <= PT0.1S;campaign=quickstart-campaign-4d39026fd7,minion=quickstart-http-62sqemkv8j,scenario=quickstart,dag=dag-1,step=verify-patch,context-creation=2022-03-31T06:33:56.735Z,parent-step=_629qthims5,_ step-type=Verification,iteration=0,attempts-after-failure=0,isExhausted=true,isTail=true,isCompleted=true_
+//
+//```
+//2022-03-31T06:33:55.937Z  WARN --- step.assertion.failure;io.qalipsis.plugins.netty.tcp.ConnectionAndRequestResult@1e869276
+//MetersImpl(timeToSuccessfulConnect=null, timeToFailedConnect=null, timeToSuccessfulTlsConnect=null, timeToFailedTlsConnect=null, bytesCountToSend=85, sentBytes=85, timeToFirstByte=PT0.10696475S, timeToLastByte=PT0.1163375S, receivedBytes=394)
+//PT0.10696475S should be <= PT0.1S;campaign=quickstart-campaign-4d39026fd7,minion=quickstart-http-62qr1n87xx,scenario=quickstart,dag=dag-1,step=verify-patch,context-creation=2022-03-31T06:33:55.730Z,parent-step=_629qthims5,_ step-type=Verification,iteration=0,attempts-after-failure=0,isExhausted=true,isTail=true,isCompleted=true_
+//2022-03-31T06:33:56.916Z  WARN --- step.assertion.failure;io.qalipsis.plugins.netty.tcp.ConnectionAndRequestResult@19a03b37
+//MetersImpl(timeToSuccessfulConnect=null, timeToFailedConnect=null, timeToSuccessfulTlsConnect=null, timeToFailedTlsConnect=null, bytesCountToSend=85, sentBytes=85, timeToFirstByte=PT0.128673083S, timeToLastByte=PT0.128737375S, receivedBytes=394)
+//PT0.128673083S should be <= PT0.1S;campaign=quickstart-campaign-4d39026fd7,minion=quickstart-http-62sqemkv8j,scenario=quickstart,dag=dag-1,step=verify-patch,context-creation=2022-03-31T06:33:56.735Z,parent-step=_629qthims5,_ step-type=Verification,iteration=0,attempts-after-failure=0,isExhausted=true,isTail=true,isCompleted=true_
 
-```
-Essentially, you want to view the following pertinent parts of the message:
-```
-2022-03-31T06:33:55.937Z ... PT0.10696475S should be <= PT0.1S ... campaign=quickstart-campaign-4d39026fd7,... scenario=quickstart,... step=verify-patch
+//```
+//Essentially, you want to view the following pertinent parts of the message:
+//```
+//2022-03-31T06:33:55.937Z ... PT0.10696475S should be <= PT0.1S ... campaign=quickstart-campaign-4d39026fd7,... scenario=quickstart,... step=verify-patch
 
-```
+//```
 
-* The exact instant when the failed assertion occurred:
-+
-`2022-03-31T06:33:55` (March 31, 2022 at 06:33:55 UTC) in the example above.
+//* The exact instant when the failed assertion occurred:
+//+
+//`2022-03-31T06:33:55` (March 31, 2022 at 06:33:55 UTC) in the example above.
 
 
-* The reason for the failure:
-+
-`PT0.10696475S should be <= PT0.1S`
-* The campaign (`quickstart-campaign-4d39026fd7`), scenario (`quickstart`-http), and verification step (verify-patch) where the failed assertion occurred.
+//* The reason for the failure:
+//+
+//`PT0.10696475S should be <= PT0.1S`
+//* The campaign (`quickstart-campaign-4d39026fd7`), scenario (`quickstart`-http), and verification step (verify-patch) where the failed assertion occurred.
 
-== Next steps
-* Discover how to push events to a database, making them easier to view and analyze. 
-* Work through other QALIPSIS Quickstart Guides:
-** quickstart 1
-** quickstart 2
 

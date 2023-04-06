@@ -12,7 +12,7 @@ Technologies addressed::
 * UDP (User Datagram Protocol): https://datatracker.ietf.org/doc/html/rfc768[]
 
 Dependency::
-`io.qalipsis:plugin-netty`
+`io.qalipsis.plugin:qalipsis-plugin-netty`
 
 Namespace in scenario::
 `netty()`

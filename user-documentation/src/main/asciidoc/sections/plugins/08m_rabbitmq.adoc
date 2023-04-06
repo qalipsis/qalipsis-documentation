@@ -7,7 +7,7 @@ Technology addressed::
  RabbitMQ: https://www.rabbitmq.com/[]
 
 Dependency::
- `io.qalipsis:plugin-rabbitmq`
+ `io.qalipsis.plugin:qalipsis-plugin-rabbitmq`
  
 Namespace in scenario::
  `rabbitmq()`

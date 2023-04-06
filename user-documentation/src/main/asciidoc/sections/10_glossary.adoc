@@ -3,8 +3,7 @@
 
 |===
 
-|  *Term*  
-|  *Definition*
+|  *Term*  |  *Definition*
 
 |Assertion
 |A step within a scenario that perform cross-checks of data and durations from different sources. 
