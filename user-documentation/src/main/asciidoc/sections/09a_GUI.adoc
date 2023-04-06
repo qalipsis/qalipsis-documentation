@@ -18,7 +18,7 @@ The following topics are discussed in this section:
 * <<Displaying campaign data>>
 
 == Logging in to QALIPSIS
-. Navigate to the QALIPSIS Welcome page according to the installation details provided by your administrator.
+. Navigate to the _QALIPSIS Welcome_ page according to the installation details provided by your administrator.
 +
 QALIPSIS Cloud is available at https://app.qalipsis.io.
 . Enter your Username and Password.
@@ -42,7 +42,7 @@ From the displayed menu you have several options.
 
 ** <<Access campaign information and functions>>
 ** <<Access Series information and functions>>
-** <<Access administrative functions>>
+// ** <<Access administrative functions>>
 +
 * Near the bottom of the sidebar, your user name is displayed with your current tenant. 
 Click  on the your name to display the _Tenant Modal_ window.
@@ -81,8 +81,8 @@ Note:: The left sidebar remains displayed throughout your session.
 You will be logged out and returned to the _Welcome_ screen.
  
 === Access campaign information and functions 
-The `campaign page is accessible from the left side bar.
-From the `Campaign` page, you can view current or past campaign data and create a new campaign. 
+The _Campaign_ page is accessible from the left side bar.
+From the _Campaign_ page, you can view current or past campaign data and create a new campaign. 
 
 Further details are provided later in this documentation.
 
@@ -91,8 +91,8 @@ Further details are provided later in this documentation.
 
 === Access Series information and functions
 Series are data sets that are preconfigured to monitor and display relevant campaign data.
-The `Series` screen is accessible from the left sidebar.
-The Series' screen allows the user view current series information, update or duplicate a series, and create a new series.
+The _Series_ screen is accessible from the left sidebar.
+The _Series_ screen allows the user view current series information, update or duplicate a series, and create a new series.
 
 Further details are provided later in this documentation.  
 
@@ -100,15 +100,15 @@ Further details are provided later in this documentation.
 * <<Creating a series>>
 * <<Updating a series>> 
 
-=== Access administrative functions  
-From the left sidebar (if you have `Admin` permissions):
+// === Access administrative functions  
+// From the left sidebar (if you have `Admin` permissions):
 
-. Click on *Admin* to display the _Users_ screen.
-. Click on a user's name to open the _Update User_ window.
+// . Click on *Admin* to display the _Users_ screen.
+// . Click on a user's name to open the _Update User_ window.
 
-From the _Update User_` window, user information can be updated and modified and roles (permissions) set.
+// From the _Update User_ window, user information can be updated and modified and roles (permissions) set.
 
-More options will be available from the Admin` area of the GUI in the near future.
+// More options will be available from the Admin area of the GUI in the near future.
 
 == Working with series data and filters
 Series are data sets that are preconfigured to monitor and display relevant campaign data.
@@ -136,7 +136,7 @@ Note that only numeric fields can be used with an operation. The the other types
 . Click the btn:[Create] button.
 +
 The following text is displayed in the modal window: '[Series Name] has just been created!'. 
-. Close the  _New series_ modal window to return to the Series page.  
+. Close the  _New series_ modal window to return to the _Series_ page.  
 +
 The newly created series is displayed in the table.
 
@@ -149,13 +149,13 @@ The _Series_ page opens and displays a table listing currently defined series.
 The _Update series_ modal window opens. 
 . Enter the required data into the appropriate fields.
 . Click the btn:[Update] button.
-. Close the _Update series_ modal window to return to the Series page.  
+. Close the _Update series_ modal window to return to the _Series_ page.  
 
 == Configuring and running a campaign
 
-. Click the btn:[+Campaign] button near the top right of the `Campaign` page.
+. Click the btn:[+Campaign] button near the top right of the _Campaign_ page.
 +
-The New Campaign window will open displaying the campaign name, a settings icon, a search field, and a table listing scenarios that are available to run in the campaign.
+The _New Campaign_ window will open displaying the campaign name, a settings icon, a search field, and a table listing scenarios that are available to run in the campaign.
 
 
 . Optionally, rename the campaign by hovering over the `New Campaign` title and selecting the pen icon to edit the name.
@@ -173,13 +173,13 @@ Scenario changes are saved for the current campaign and do not affect the scenar
 
 . Click the btn:[Run immediately] button to start the campaign. 
 +
-Campaign data is displayed in real-time in the report window and on the time-series chart.
+Campaign data is displayed in real-time in the _Report_ panel and on the time-series chart.
 
 ** Minion count is displayed by default.
 ** Select one or more series cards to display the generated data for that series.
 
 == Displaying campaign data
-. From the left sidebar:
+
 . Click on *Campaign* in the left sidebar.
 +
 A table listing all existing and planned campaigns is displayed.
@@ -189,21 +189,9 @@ A table listing all existing and planned campaigns is displayed.
 
 . Click on the name of a campaign to display the _Campaign details_ page.
 +
-* A report box is displayed at the top of the screen.
+* A _Report_ panel is displayed at the top of the screen.
 +
-The top line in the report box displays information for the  whole campaign; the following lines display information for each scenario within the campaign.
-
-** Click the `View more` tooltip on the right side of the report box to expand the report box to display all scenarios in the campaign.
-** Click the `More details` tooltip to display the info for the total campaign in a dropdown box.
-** Click on the `Campiagn Summary` dropdown filter to select the scenario information to display in the report box.
-
-* Below the report box, a row of filter cards is displayed with the individual events and meters that are logged for the campaign. 
+The top line in the _Report_ panel displays information for the  whole campaign; the following lines display information for each scenario within the campaign.
 +
-Refer to link:05_steps.adoc[`Step Specifications`] or <<Creating a series>> for guidance creating filtering steps. 
-+
-Each card includes the Name, Type, and display color.
-
-* Below the row of filter cards, a time-series chart is displayed with the x-axis displaying the elapsed time  and the y-axis displaying series data.
-
-Select one or more series cards to display the generated data for that series.
+Click on the `Campaign Summary` dropdown filter to select which scenario(s) information to display in the report section.
 
