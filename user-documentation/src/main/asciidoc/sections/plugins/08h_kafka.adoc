@@ -1,7 +1,7 @@
-== kafka plugin
+= Apache Kafka plugin
 
-=== Overview
-The `kafka` plugin connects QALIPSIS to an https://kafka.apache.org/[APACHE Kafka] cluster.
+== Overview
+The Apache Kafka plugin connects QALIPSIS to an https://kafka.apache.org/[Apache Kafka] cluster.
  
 Technology addressed::
 Kafka: https://kafka.apache.org/[]
@@ -21,8 +21,10 @@ Supported steps::
 
 An example scenario that uses a combination of the `kafka` `consume` and `produce` steps is provided on https://github.com/qalipsis/qalipsis-examples/tree/master/kafka[GitHub].
 
-=== Consume step
-The `consume` step within the `kafka` plugin polls data from topics of an Apache Kafka cluster and forwards the data to the next step, either in batches or individually. The `consume` step:
+== Consume step
+The `consume` step within the Apache Kafka plugin polls data from topics of an Apache Kafka cluster and forwards the data to the next step, either in batches or individually. 
+
+The `consume` step:
 
 * is generally used in conjunction with a left join to assert data or inject data into a workflow.
 * supports multithreading (concurrent consumers) using the `concurrency` property.
@@ -49,11 +51,10 @@ kafka().consume {
 Notable parameters::
 * `bootstrap`: configures the bootstrap hosts of the `Kafka` cluster; defaults to localhost:9092.
 * `groupId`: defines the consumer group.
-* `pollTimeout` defines the consumer poll timeout to wait for records; defaults to 1 second.
+* `pollTimeout`: defines the consumer poll timeout to wait for records; defaults to 1 second.
 * `offsetReset` (required): defines the strategy to apply when the consumer starts consuming messages from the queue. 
 * `pollDelay` (required): specifies the delay between query executions.
-* `maxPolledRecords`(optional): defines the maximum number of records returned in a unique poll batch; defaults to 500.
-* `monitoring`(optional): configures the monitoring parameters for the step.
+* `maxPolledRecords` (optional): defines the maximum number of records returned in a unique poll batch; defaults to 500.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
 
 Tips::
@@ -67,9 +68,8 @@ Tips::
 Reference documentation::
 Refer to the https://kafka.apache.org/[Apache KAFKA] documentation for further parameter and configuration information. 
  
-=== Produce step
-
-The `produce` step within the `kafka` plugin pushes data onto topics of the Kafka broker and forwards the data as input to the next step.
+== Produce step
+The `produce` step within the Apache Kafka plugin pushes data onto topics of the Kafka broker and forwards the data as input to the next step.
 
 Ancestor::
 Scenario
@@ -102,11 +102,74 @@ Example::
 Notable parameters::
 * `keySerializer`: describes how to serialize the record keys to send  to `kafka`.
 * `valueSerializer`: describes how to serialize the record values to send to `kafka`.
-* `bootstrap` configures the bootstrap hosts of the Kafka cluster; defaults to `localhost:9092`.
-* `clientName` defines the name of the `kafka` client
+* `bootstrap`: configures the bootstrap hosts of the Kafka cluster; defaults to `localhost:9092`.
+* `clientName`: defines the name of the `kafka` client
 * `records` (required): generates and configures a list of produced records.
-* `monitoring`(optional): configures the monitoring parameters for the step.
 
 Reference documentation::
 Refer to the https://kafka.apache.org/documentation/[Apache KAFKA] documentation for further parameter and configuration information. 
 
+== Configuration of publication of events and meters to Apache Kafka
+
+=== Events
+Configuration namespace::
+`events.export.kafka`
+
+Parameters::
+* `enabled`: boolean flag that activates/deactivates event publishing to Kafka; defaults to `false`; *must* be set to `true`.
+* `minLevel`: minimal accepted level of events; defaults to INFO; allowable values are `EventLevel`values: TRACE, DEBUG, INFO, WARN, ERROR, OFF. 
+* `min-level`: minimal accepted level of events; defaults to INFO; allowable values are `EventLevel`values: TRACE, DEBUG, INFO, WARN, ERROR, OFF. 
+* `bootstrap`: bootstraps (string of host and port pair) of the Kafka broker; defaults to `localhost:9092`.
+* `topic`: string name of the topic to write the events to; defaults to `qalipsis-events`.
+* `durationAsNano`: boolean flag that activates/deactivates converting the duration to nanoseconds; defaults to `false` (converts to milliseconds).
+* `lingerPeriod`: maximum period between two publications of events to Kafka; positive duration; defaults to `10s`.
+* `batchSize`: maximum number of events buffered between two publications of events to Kafka; positive integer; defaults to `2`.
+* `duration-as-nano`: boolean flag that activates/deactivates converting the duration to nanoseconds; defaults to `false` (converts to milliseconds).
+* `linger-period`: maximum period between two publications of events to Kafka; positive duration; defaults to `10s`.
+* `batch-size`: maximum number of events buffered between two publications of events to Kafka; positive integer; defaults to `2`.
+* `configuration`: key, value configuration parameters of type `Properties`, for the Kafka producer.
+
+=== Meters
+
+Configuration namespace::
+`meters.export.kafka`
+
+Parameters::
+* `enabled`: boolean flag that activates/deactivates meter publishing to Kafka; defaults to `false`; *must* be set to `true`.
+* `step`: The step size (reporting frequency); defaults to `PT10S`.
+* `bootstrap.servers`: bootstraps (string of host and port pair) of the Kafka broker; defaults to `localhost:9092`.
+* `topic`: string name of the topic to write events to; defaults to `qalipsis-meters`.
+* `linger.ms`: maximum period between two batches of events; positive duration; defaults to `5000`.
+* `batchSize`: maximum number of events buffered between two publications of events to Kafka; positive integer; defaults to `800000` (in bytes).
+* `batch-size`: maximum number of events buffered between two publications of events to Kafka; positive integer; defaults to `800000` (in bytes).
+* `delivery.timeout.ms`: maximum integer value in milliseconds before time out.; defaults to `10000`.
+* `configuration`: key, value configuration parameters of type `Properties`, for the Kafka producer.
+
+
+=== Example
+[source,kotlin,linenumbers]
+----
+events:
+  export:
+    kafka:
+      enabled: true
+      bootstrap`: localhost:9092
+      topic: qalipsis-events
+      duration-as-nano: false
+      linger-period: 10s
+      batch-size: 2
+      configuration:
+        delivery.timeout.ms: 10000
+
+meters:
+  export:
+    kafka:
+      enabled: true
+      step: PT10S
+      bootstrap.servers: localhost:9092
+      topic: qalipsis-meters
+      linger.ms: 5000
+      batch-size: 800000 # In bytes.
+      configuration:
+        delivery.timeout.ms: 10000
+----  

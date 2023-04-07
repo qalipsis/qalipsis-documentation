@@ -1,7 +1,7 @@
-== rabbitmq plugins
+= RabbitMQ  plugins
 
-=== Overview
-The rabbitmq plugin connects QALIPSIS to the https://www.rabbitmq.com/[RabbitMQ] broker.
+== Overview
+The RabbitMQ  plugin connects QALIPSIS to the https://www.rabbitmq.com/[RabbitMQ] broker.
 
 Technology addressed::
  RabbitMQ: https://www.rabbitmq.com/[]
@@ -16,13 +16,13 @@ Client library::
 RabbitMQ: refer to https://www.rabbitmq.com/[rabbitMQ]
 
 Supported steps::
-* <<Consume step,`consume`>>: polls data from the `rabbitmq` broker.
-* <<Produce step,`produce`>>: pushes data to the rabbitmq broker.
+* <<Consume step,`consume`>>: polls data from the RabbitMQ  broker.
+* <<Produce step,`produce`>>: pushes data to the RabbitMQ  broker.
 
 An example scenario that uses a combination of the `rabbitmq` `consume` and `produce` steps is provided on https://github.com/qalipsis/qalipsis-examples/tree/master/rabbitmq[GitHub].
 
-=== Consume step
-The `consume` step within the `rabbitmq` plugin consumes data from queues of the rabbitmq broker and forwards the data to the next step.
+== Consume step
+The `consume` step within the RabbitMQ  plugin consumes data from queues of the RabbitMQ  broker and forwards the data to the next step.
 
 This step is generally used in conjunction with `join` to assert data or inject data into a workflow.
 
@@ -58,7 +58,6 @@ Notable parameters::
 * `connection`: configures the connection to the RabbitMQ broker; defaults to `localhost:5672`
 * `concurrency:` defines the number of concurrent channels producing messages to RabbitMQ; defaults to 1.
 * `prefetchCount`: defines the prefetch count value; defaults to 10. 
-* `monitoring`(optional): configures the monitoring parameters for the step.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
 
 Tip::
@@ -66,10 +65,10 @@ Use the `consume` step with `join` to assert data or inject data into a workflow
 
 Reference documentation::
 * Learn more about `prefetchCount` by reading the  https://www.rabbitmq.com/consumer-prefetch.html[RabbitMQ Prefetch] documentation.
-* To configure the `consume` step, consult the https://www.rabbitmq.com/documentation.html[rabbitMQ] documentation.
+* To configure the `consume` step, consult the https://www.rabbitmq.com/documentation.html[RabbitMQ ] documentation.
 
-=== Produce step 
-The `produce` step within the `rabbitmq` plugin provides messages to the `rabbitmq` broker using a query; the messages are then forwarded as input to the next step.
+== Produce step 
+The `produce` step within the RabbitMQ plugin provides messages to the RabbitMQ broker using a query; the messages are then forwarded as input to the next step.
 
 Ancestor::
 Scenario
@@ -103,11 +102,10 @@ Example::
 ----
 
 Notable parameters::
-* `concurrency`(optional): defines the number of concurrent channels producing messages to `rabbitmq`; defaults to `1`.
-* `connection`: configures the connection to the `rabbitmq` broker; defaults to `localhost:5672`.
+* `concurrency`(optional): defines the number of concurrent channels producing messages to RabbitMQ; defaults to `1`.
+* `connection`: configures the connection to the RabbitMQ broker; defaults to `localhost:5672`.
 * `records`: configures and generates a list of produced records.
-* `monitoring`(optional): configures the monitoring parameters for the step.
 
 Reference documentation:: 
-* For more information on configuring the connection to `rabbitmq`, refer to  https://www.rabbitmq.com/api-guide.html#connecting[Connecting to RabbitMQ].
-* For more information on configuring the `produce` step, refer to the https://www.rabbitmq.com/documentation.html[rabbitMQ] documentation.
+* For more information on configuring the connection to RabbitMQ, refer to  https://www.rabbitmq.com/api-guide.html#connecting[Connecting to RabbitMQ].
+* For more information on configuring the `produce` step, refer to the https://www.rabbitmq.com/documentation.html[RabbitMQ] documentation.

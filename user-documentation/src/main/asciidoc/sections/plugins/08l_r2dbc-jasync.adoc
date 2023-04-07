@@ -1,7 +1,7 @@
-== r2dbc-jasync plugin
+= R2DBC-jasync plugin
 
-=== Overview
-The `r2dbc-jasync` plugin connects QALIPSIS to https://mariadb.org/[MariaDB], https://www.mysql.com[MySQL] and https://www.postgresql.org/[PostgreSQL].
+== Overview
+The R2DBC-jasync plugin connects QALIPSIS to https://mariadb.org/[MariaDB], https://www.mysql.com[MySQL] and https://www.postgresql.org/[PostgreSQL].
 
 Technologies addressed::
 * MariaDB: https://mariadb.org/[]
@@ -26,10 +26,10 @@ Supported steps::
 * <<Save step,`save`>>: saves a batch of records generated from the input and step context.
 * <<Search step,`search`>>: searches records and builds a query from the input and step context.
 
-Example scenarios using a combination of `r2dbc-jasync` supported steps are provided https://github.com/qalipsis/qalipsis-examples/tree/master/r2dbc-jasync[GitHub].
+Example scenarios using a combination of R2DBC-jasync supported steps are provided https://github.com/qalipsis/qalipsis-examples/tree/master/r2dbc-jasync[GitHub].
 
-=== Poll step 
-The `poll` step within the `r2bc-jasync` plugin polls the newest records from the database, respecting a delay between each execution of a select query.
+== Poll step 
+The `poll` step within the R2DBC-jasync plugin polls the newest records from the database, respecting a delay between each execution of a select query.
 
 Ancestor::
 Scenario
@@ -58,19 +58,18 @@ Notable parameters::
 * `connection` (required): specifies the connection parameters. 
 * `query` (required): specifies a query respecting the requirements of the target database (https://mariadb.org/[MariaDB],  https://www.mysql.com[MySQL], https://www.postgresql.org/[PostgreSQL],).
 * `pollDelay` (required): specifies the delay between query executions.
-* `monitoring`(optional): configures the monitoring parameters for the step.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
 
 Tips::
 * Use the `poll` step with a join operator when you need to verify the values saved by your tested system in the database.
-* `query` requires at least one sorting field (known as `tiebreaker` in the example) to filter the newest results and not fetch the same records repeatedly.
-* The latest known value for the `tiebreaker` is used to filter out the values already received directly from the database.
+* `query` requires at least one sorting field to filter the newest results and not fetch the same records repeatedly.
+
 
 Reference documentation::
 Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for further parameter and configuration information.
 
-=== Save step 
-The `save` step within the `r2bc-jasync` plugin persists a batch of records into an SQL table using a prepared statement.
+== Save step 
+The `save` step within the R2DBC-jasync plugin persists a batch of records into an SQL table using a prepared statement.
 
 Ancestor::
 Step
@@ -112,16 +111,11 @@ Example::
             )
         )
     }
-    monitoring {
-        events = false
-        meters = true
-    }
 }
 ----
 
-Notable parameters::
+Notable parameter::
 * `connection` (required): specifies the connection parameters. 
-* `monitoring`(optional): configures the monitoring parameters for the step.
 
 Tips::
 * Use the `save` step after a `collect()` step in order to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.
@@ -130,8 +124,8 @@ Tips::
 Reference documentation::
 Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for further parameter and configuration information.
 
-=== Search step 
-The `search` step within the `r2bc-jasync` plugin searches records in the database using a search query.
+== Search step 
+The `search` step within the R2DBC-jasync plugin searches records in the database using a search query.
 
 Ancestor::
 Step
@@ -166,7 +160,6 @@ Notable parameters::
 * `connection` (required): specifies the connection parameters.
 * `query`: generates a prepared statement from the step's context and input.
 * `parameters` (optional): binds values to the clauses of the prepared query.
-* `monitoring`(optional): configures the monitoring parameters for the step.
 
 Tip::
 Use the `search` step after a `collect` step in order to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.

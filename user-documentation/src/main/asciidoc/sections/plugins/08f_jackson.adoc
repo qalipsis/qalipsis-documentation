@@ -1,7 +1,7 @@
-== jackson plugin
+= Jackson plugin
 
 === Overview
-The `jackson` plugin supports reading a (https://github.com/FasterXML/jackson[JSON, XML or CSV]) file, converting the data to an object, and pushing the object to the next step.
+The Jackson plugin supports reading a (https://github.com/FasterXML/jackson[JSON, XML or CSV]) file, converting the data to an object, and pushing the object to the next step.
 
 Technologies addressed::
 https://github.com/FasterXML/jackson[Class JsonMapper]
@@ -20,8 +20,8 @@ Supported steps::
 * <<jsonToMap and jsonToObject, jsonToMap and jsonToObject>>: reads a json file and converts the data to a Map (or Object).
 * <<xmlToObject,`xmlToObject`>>: reads an xml file and converts the data to an object.
 
-=== csvToMap and csvToObject
-The `csvToMap` and `csvToObject` steps within the `jackson` plugin read a CSV resource (file, classpath resource, URL) and returns each item as an instance of an Object or Map.
+== csvToMap and csvToObject
+The `csvToMap` and `csvToObject` steps within the Jackson plugin read a CSV resource (file, classpath resource, URL) and returns each item as an instance of an Object or Map.
  
 Ancestor::
  Step
@@ -65,7 +65,6 @@ Notable parameters::
 * `file(path)`: reads the data from a specified plain file in the file system; `path` is the path to the file, either absolute or relative to the current working directory.
 * `url(url)`: specifies and links to the `url` of the data resource.
 * `mapper`: configures the JSON Mapper to deserialize the records.
-* `monitoring`(optional): configures the monitoring parameters for the step.
 
 Tip::
 Only one path (`classpath(file)`, `file(path)`, or `url(url)`) to the resource is allowed for each `csvToObject` or `csvToMap` step.
@@ -73,8 +72,8 @@ Only one path (`classpath(file)`, `file(path)`, or `url(url)`) to the resource i
 Reference documentation::
 Refer to the https://github.com/FasterXML/jackson[jackson] documentation for further congiguration and parameter information.
 
-=== xmlToObject
-The `xmlToObject` step within the `jackson` plugin reads an XML resource (classpath, file, or url) and returns each item as an instance of an object of the specified class.
+== xmlToObject
+The `xmlToObject` step within the Jackson plugin reads an XML resource (classpath, file, or url) and returns each item as an instance of an object of the specified class.
 
 Ancestor::
  Step
@@ -95,7 +94,6 @@ Notable parameters::
 * `classpath(file)`: reads the data from a specified class path resource; `file` is the path to the resource with the leading slash ignored.
 * `file(path)`: reads the data from a specified plain file in the file system; `path` is the path to the file, either absolute or relative to the current working directory.
 * `url(url)`: specifies and links to the `url` of the data resource.
-* `monitoring`(optional): configures the monitoring parameters for the step.
 
 Tip::
 Only one path (`classpath(file)`, `file(path)`, or `url(url)`) to the resource is allowed for each `xmlToObject` step.
@@ -103,8 +101,8 @@ Only one path (`classpath(file)`, `file(path)`, or `url(url)`) to the resource i
 Reference documentation::
 Refer to the https://github.com/FasterXML/jackson[jackson] documentation for further congiguration and parameter information.
 
-=== jsonToMap and jsonToObject
-The `jsonToMap` and `jsonToObject` steps within the `jackson` plugin read a JSON resource (file, classpath resource, URL) and returns each item as an instance of `map` or `object`).
+== jsonToMap and jsonToObject
+The `jsonToMap` and `jsonToObject` steps within the Jackson plugin read a JSON resource (file, classpath resource, URL) and returns each item as an instance of `map` or `object`).
  
 Ancestor::
 Step
@@ -126,8 +124,7 @@ jackson().jsonToObject(PojoForTest::class) {
 Notable parameters::
 * `classpath(file)`: reads the data from a specified `path` resource; `file` is the path to the resource with the leading slash ignored.
 * `file(path)`: reads the data from a specified plain file in the file system; `path` is the path to the file, either absolute or relative to the current working directory.
-* `url(url): specifies and links to the `url` of the data resource.
-* `monitoring`(optional): configures the monitoring parameters for the step.
+* `url(url)`: specifies and links to the `url` of the data resource.
 
 Tip::
 Only one path (`classpath(file)`, `file(path)`, or `url(url)`) to the resource is allowed for each `jsnToObject` or `jsnToMap` step.
