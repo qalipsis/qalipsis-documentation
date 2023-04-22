@@ -20,7 +20,7 @@ A scenario specification is made up of several parts.
 @Scenario("hello-world")
 fun myScenario()
 ----
-. Assigning the kebbab-cased scenario name (_hello world_):
+. Assigning the kebab-cased scenario name (_hello world_):
 +
 [source,kotlin,linenumbers]
 ----
@@ -242,7 +242,7 @@ Whatever definition you choose:
 
 === Retry policy
 * Optional
-* Default = no retry
+* Default = NoRetryPolicy
 
 Execution of steps can fail for a variety of reasons, including, but not limited to, an unreachable remote host or invalid data. 
 
@@ -250,15 +250,45 @@ When a step execution fails, it may be retried if a retry policy has been set wi
 
 Once all attempts are executed per the defined `retryPolicy`, the step execution context is marked as exhausted and only error processing steps are executed.  Refer to the <<Step specifications>> section for more information on error processing steps.
 
+There are two implementations of retries in Qalipsis:
+
+* NoRetryPolicy: This is the default and there is no further attempt after failure.
+
+* BackoffRetryPolicy: Allows for limit-based retries when a step fails.
+
+//-
+Parameters::
+* `retries`: maximum number of attempts on a failure; positive number; default is `3`.
+* `delay`: initial delay from a failure to the next attempt; type = Duration; defaults is `1 second`.
+* `multiplier`: factor to multiply delay between each attempt; type = Double; defaults is `1.0`.
+* `maxDelay`: maximal duration allowed between two attempts; type = Duration; default is `1 hour`.
+
+Example::
+In the example, there are 10 retries after a step failure.
+* The 1st retry occurs 1 ms after the failure.
+* The 2nd retry occurs 2 ms after the 1st retry.
+* The 3rd retry occurs 4 ms after the 2nd retry.
+* The 4th retry occurs 8 ms after the 3rd retry.
+* The 5th retry occurs 10 ms after the 4th retry.
+* The 6th through 10th retries occurs 10 ms after the previous retry.
++
+
 [source,kotlin,linenumbers]
 ----
-@Scenario("hello-world")
-fun myScenario() {
-    val myScenario = scenario {
-        retryPolicy(instanceOfRetryPolicy)
-    }
-}
+BackoffRetryPolicy(
+    retries = 10,  <1>
+   	maxDelay = Duration.ofMillis(10) <2>
+   	delay = Duration.ofMillis(1) <3>
+   	multiplier = 2.0 <4>
+)
 ----
+<1> Sets the number of retries after a step failure to `10`
+<2> Sets the max delay to `10 ms`.
+<3> Sets the first delay at `1 ms`
+<4> Sets the multiplier to `2.
+
+Once all attempts are executed per the defined `BackoffRetryPolicy`, the step execution context is marked as exhausted and only error processing steps are executed.  Refer to <<Step specifications>> for more information on error processing steps.
+
 == Load-injected tree
 A scenario is a combination of directed acyclic graphs, joined by steps.
 
