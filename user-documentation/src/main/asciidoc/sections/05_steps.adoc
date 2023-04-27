@@ -36,7 +36,7 @@ scenario {
 ----
 <1> All 100 minions are deployed simultaneously. 
 <2> The `.tcp` step ("my-tcp") is the root of the scenario.
-<3> The `.reuseTCP` step ("reuse-tcp") is a successor of the previous step ("my-tcp") and receives the previous step's output as its input. T
+<3> The `.reuseTCP` step ("reuse-tcp") is a successor of the previous step ("my-tcp") and receives the previous step's output as its input. 
 
 A step specification is configured such that:
 
@@ -115,11 +115,11 @@ anyStep { }
 
 Records coming from the right side are kept in a cache until one comes from the left side with the same key. Once used, they are evicted from the cache.
 
-When a flow comes from the left side but has no corresponding record yet coming from the right, it waits until the defined timeout on the step.
-Refer to <<Defining and configuring a step specification>> for more details.
+When a flow comes from the left side but has no corresponding record yet coming from the right, it waits until the defined timeout on the step. Refer to <<Defining and configuring a step specification>> for more details.
 
 The step context after the join inherits from the one coming from the left. 
-//Below is the graphical representation:
+
+// Below is the graphical representation:
 
 //insert operators-inner-join graphic here
 
@@ -178,7 +178,7 @@ Some of the commonly used operators are defined in this section.
 === Timing operators
 This section provides an explanation and examples  of the `delay`, `pace`, `acceleratingPace`, and `constantPace` timing operators.
 
-* `delay` adds a constant delay before executing the next step, keeping the same execution pace as previous step.In the example, the `delay` between steps is set to `123` MS.
+* `delay` adds a constant delay before executing the next step, keeping the same execution pace as the previous step. In the example, the `delay` between steps is set to `123` MS.
 +
 [source,kotlin,linenumbers]
 ----
@@ -250,7 +250,7 @@ This section provides an explanation and examples  of the `map`, `mapWithContext
 ----
 .map { it * 3 }
 ----
-* `mapWithContext` provides the same capability as `map` but with the step context as an additional argument. in the example, `.mapWithContext` returns the value of its input (`it`) and the input value times `3`.
+* `mapWithContext` provides the same capability as `map` but with the step context as an additional argument. In the example, `.mapWithContext` returns the value of its input (`it`) and the input value times `3`.
 +
 [source,kotlin,linenumbers]
 ----
