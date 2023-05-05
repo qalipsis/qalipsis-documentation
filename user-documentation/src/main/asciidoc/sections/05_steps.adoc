@@ -12,9 +12,9 @@ In the example below, `my-tcp` is the root step; `reuse-tcp` is a successor step
 [source,kotlin,linenumbers]
 ----
 scenario {
-    minionsCount = 100
+    minionsCount = 150
     profile {
-        regular(100, minionsCount) <1> 
+        regular(150, minionsCount) <1> 
     }
     .start()
     .netty()
@@ -34,7 +34,7 @@ scenario {
     }
 }
 ----
-<1> All 100 minions are deployed simultaneously. 
+<1> All 150 minions are deployed simultaneously. 
 <2> The `.tcp` step ("my-tcp") is the root of the scenario.
 <3> The `.reuseTCP` step ("reuse-tcp") is a successor of the previous step ("my-tcp") and receives the previous step's output as its input. 
 
@@ -76,7 +76,7 @@ WARNING: If the entity returned by the step providing the data before the `.spli
 
 [source,kotlin,linenumbers]
 ----
-anyStep { }
+.anyStep { }
     .split { 
          map { ... } 
             .validate{ ... }
@@ -101,7 +101,7 @@ The following example uses the name of a concurrent step:
 
 [source,kotlin,linenumbers]
 ----
-anyStep { } 
+.anyStep { } 
     .innerJoin<EntityWithKey, EntityWithId>(
         on = { "${it.key}" } 
         with = "my-datasource-poll-step" <1>
@@ -301,7 +301,7 @@ This section provides an explanation and examples of the `shelve` and `unshelve`
 +
 When using a distributed architecture, make sure the cached value can be serialized by the used implementation of shared state registry. The ID of the minion is automatically added to the key to avoid collision.
 
-* `unshelve` extracts a specific value from each map in a collection of maps and creates a new collection with those values. In the example, `unshelve<Int, Double>("value-1")` takes two type arguments `<Int, Double>`, which specify the types of the key and value in the map respectively, and a single argument `"value-1"`, which is the key of the value to extract from each map.
+* `unshelve` extracts a specific value from the cache using the keys passed as arguments. In the example, `unshelve<Int, Double>("value-1")` takes two type arguments `<Int, Double>`, which specify the types of the input of the step and the one of the value with key `value-1`, retrieved from the cache.
 
 It then extracts the values associated with the key `"value-1"`, which is of type `Double`. The extracted values are collected into a new collection of type `List<Double>`.
 +
@@ -311,26 +311,7 @@ It then extracts the values associated with the key `"value-1"`, which is of typ
 ----
 
 === Flow operators
-This section provides an explanation and examples of the `pipe`, `blackHole`, and `stage` flow operators.
-
-* `pipe` simply forwards the input to the output. In the example, `.pipe`prints the result of the previous step and pass it along to the next step.
-
-+
-[source,kotlin,linenumbers]
-----
-  .pipe(::println) 
-----
-
-* `blackHole` consumes the input and provides no output. In the example, `.filter` filters out the even numbers and `.blackHole` discards them.
-+
-[source,kotlin,linenumbers]
-----
-val numbers = listOf(1, 2, 3, 4, 5)
-
-numbers
-    .filter { it % 2 == 0 } 
-    .blackhole() 
-----
+This section provides an explanation and examples of the `stage` flow operator.
 
 * `stage` groups a linear graph of steps.
 +
@@ -352,10 +333,10 @@ The most often used combining operator is `collect`.
 
 `collect` collects inputs across all the minions and releases them as a list within the latest received step context. Its function is the opposite of `flatten`. 
 
-In the example, `.collect` collects the elements of a flow with a timeout of `1` second and a concurrency level of `1`.
+In the example, `.collect` collects the elements of a workflow with a timeout of `1` second or until there are 10 items in the collection. After one second or when 10 items are collected, the collection is provided to the next steps.
 
 [source,kotlin,linenumbers]
 ----
-.collect(Duration.ofSeconds(1), 1)
+.collect(Duration.ofSeconds(1), 10)
 ----
 

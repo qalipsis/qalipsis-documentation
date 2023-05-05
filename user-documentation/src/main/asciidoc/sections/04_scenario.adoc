@@ -250,7 +250,7 @@ When a step execution fails, it may be retried if a retry policy has been set wi
 
 Once all attempts are executed per the defined `retryPolicy`, the step execution context is marked as exhausted and only error processing steps are executed.  Refer to the <<Step specifications>> section for more information on error processing steps.
 
-There are two implementations of retries in Qalipsis:
+There are two implementations of retries in QALIPSIS:
 
 * NoRetryPolicy: This is the default and there is no further attempt after failure.
 
