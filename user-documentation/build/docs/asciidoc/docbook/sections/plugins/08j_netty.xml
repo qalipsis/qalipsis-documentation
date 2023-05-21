@@ -3,14 +3,12 @@
 <?asciidoc-numbered?>
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
-<title>netty plugin</title>
-<date>2023-01-28</date>
+<title>Netty plugin</title>
+<date>2023-04-06</date>
 </info>
-<chapter xml:id="_netty-plugin">
-<title>netty plugin</title>
-<section xml:id="_overview">
+<chapter xml:id="_overview">
 <title>Overview</title>
-<simpara>The <link xl:href="https://netty.io/">netty</link> plugin supports <link xl:href="https://datatracker.ietf.org/doc/html/rfc793">TCP</link>, <link xl:href="https://datatracker.ietf.org/doc/html/rfc768">UDP</link>, <link xl:href="https://httpwg.org/">HTTP</link> and <link xl:href="https://mqtt.org/">MQTT</link> clients.</simpara>
+<simpara>The <link xl:href="https://netty.io/">Netty</link> plugin supports <link xl:href="https://datatracker.ietf.org/doc/html/rfc793">TCP</link>, <link xl:href="https://datatracker.ietf.org/doc/html/rfc768">UDP</link>, <link xl:href="https://httpwg.org/">HTTP</link> and <link xl:href="https://mqtt.org/">MQTT</link> clients.</simpara>
 <variablelist>
 <varlistentry>
 <term>Technologies addressed</term>
@@ -37,7 +35,7 @@
 <varlistentry>
 <term>Dependency</term>
 <listitem>
-<simpara><literal>io.qalipsis:plugin-netty</literal></simpara>
+<simpara><literal>io.qalipsis.plugin:qalipsis-plugin-netty</literal></simpara>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -87,10 +85,10 @@
 </listitem>
 </varlistentry>
 </variablelist>
-</section>
-<section xml:id="_http-step">
+</chapter>
+<chapter xml:id="_http-step">
 <title>HTTP step</title>
-<simpara>The <literal>HTTP</literal> step within the <literal>netty</literal> plugin executes an HTTP request using <link xl:href="https://datatracker.ietf.org/doc/rfc2616"><literal>HTTP 1.1</literal></link> or <link xl:href="https://datatracker.ietf.org/doc/rfc7540"><literal>HTTP 2.0</literal></link>.</simpara>
+<simpara>The <literal>HTTP</literal> step within the Netty plugin executes an HTTP request using <link xl:href="https://datatracker.ietf.org/doc/rfc2616"><literal>HTTP 1.1</literal></link> or <link xl:href="https://datatracker.ietf.org/doc/rfc7540"><literal>HTTP 2.0</literal></link>.</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -181,7 +179,7 @@
 <simpara><literal>receiveBufferSize</literal>: the size of the buffer to receive the data of the response; defaults to 1024 bytes.</simpara>
 </listitem>
 <listitem>
-<simpara><literal>nettyChannelOptions</literal>: overwrites the options of the <literal>netty</literal> channel, use with care.</simpara>
+<simpara><literal>nettyChannelOptions</literal>: overwrites the options of the Netty channel; use with care.</simpara>
 </listitem>
 <listitem>
 <simpara><literal>noDelay</literal>: disables the Nagle Algorithm; defaults to true.</simpara>
@@ -196,10 +194,10 @@
 <simpara><literal>disableCertificationVerification</literal>: set it to true when the certificate on server should not be verified (for example for a self-signed certificate)</simpara>
 </listitem>
 <listitem>
-<simpara><literal>protocols</literal>: supported protocols; defaults to the <literal>netty</literal> default for the related HTTP version.</simpara>
+<simpara><literal>protocols</literal>: supported protocols; defaults to the Netty default for the related HTTP version.</simpara>
 </listitem>
 <listitem>
-<simpara><literal>ciphers</literal>: supported cipher algorithms; defaults to the netty` default for the related HTTP version.</simpara>
+<simpara><literal>ciphers</literal>: supported cipher algorithms; defaults to the Netty default for the related HTTP version.</simpara>
 </listitem>
 </itemizedlist>
 </listitem>
@@ -262,10 +260,10 @@
 </listitem>
 </varlistentry>
 </variablelist>
-</section>
-<section xml:id="_http-with-step">
+</chapter>
+<chapter xml:id="_http-with-step">
 <title>HTTP WITH step</title>
-<simpara>The <literal>HTTP WITH</literal> step within the <literal>netty</literal> plugin executes an HTTP request reusing the HTTP connection created by a precedent step.</simpara>
+<simpara>The <literal>HTTP WITH</literal> step within the Netty plugin executes an HTTP request reusing the HTTP connection created by a precedent step.</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -329,10 +327,10 @@
 </listitem>
 </varlistentry>
 </variablelist>
-</section>
-<section xml:id="_close-http-step">
+</chapter>
+<chapter xml:id="_close-http-step">
 <title>CLOSE HTTP step</title>
-<simpara>The <literal>CLOSE HTTP</literal> step within the <literal>netty</literal> plugin closes the <literal>HTTP</literal> connection attached to the minion, and created by a direct or indirect ancestor step, when the tail of the minion workflow is received.</simpara>
+<simpara>The <literal>CLOSE HTTP</literal> step within the Netty plugin closes the <literal>HTTP</literal> connection attached to the minion, and created by a direct or indirect ancestor step, when the tail of the minion workflow is received.</simpara>
 <simpara>It is always a best practice to use a <emphasis>CLOSE HTTP</emphasis>  step when reusing an <literal>HTTP</literal> connection across several steps without a pool of connections.</simpara>
 <variablelist>
 <varlistentry>
@@ -356,14 +354,11 @@
 <programlisting language="kotlin" linenumbering="numbered">netty().closeHttp("name-of-a-previous-HTTP-step")</programlisting>
 <variablelist>
 <varlistentry>
-<term>Notable parameters</term>
+<term>Notable parameter</term>
 <listitem>
 <itemizedlist>
 <listitem>
 <simpara><literal>closeHttp</literal> (required)  specifies the  name of an <literal>HTTP</literal> step owning the <literal>HTTP</literal> connection to close.</simpara>
-</listitem>
-<listitem>
-<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
 </listitem>
 </itemizedlist>
 </listitem>
@@ -379,92 +374,22 @@
 </listitem>
 </varlistentry>
 </variablelist>
-</section>
-<section xml:id="_mqtt-publish-step">
+</chapter>
+<chapter xml:id="_mqtt-publish-step">
 <title>MQTT publish step</title>
-<simpara>The <literal>MQTT Publish</literal> step within the <literal>netty</literal> plugin sends data to an MQTT server.</simpara>
-<variablelist>
-<varlistentry>
-<term>Ancestor</term>
-<listitem>
-<simpara>To be provided.</simpara>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term>Functionality</term>
-<listitem>
-<simpara>To be provided.</simpara>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term>Example</term>
-<listitem>
-<programlisting language="kotlin" linenumbering="numbered">To be provided.</programlisting>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term>Notable parameters</term>
-<listitem>
-<simpara>To be provided.</simpara>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term>Tip(s)</term>
-<listitem>
-<simpara>To be provided.</simpara>
-</listitem>
-</varlistentry>
-</variablelist>
-</section>
-<section xml:id="_mqtt-subscribe-step">
+<simpara>The <literal>MQTT Publish</literal> step within the Netty plugin sends data to an MQTT server.</simpara>
+</chapter>
+<chapter xml:id="_mqtt-subscribe-step">
 <title>MQTT subscribe step</title>
 <itemizedlist>
 <listitem>
-<simpara>The <literal>MQTT Subscribe Step</literal> within the <literal>netty</literal> plugin consumes data from an MQTT server.</simpara>
-<variablelist>
-<varlistentry>
-<term>Ancestor</term>
-<listitem>
-<simpara>To be provided.</simpara>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term>Functionality</term>
-<listitem>
-<simpara>To be provided.</simpara>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term>Example</term>
-<listitem>
-<programlisting language="kotlin" linenumbering="numbered">To be provided.</programlisting>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term>Notable Parameters</term>
-<listitem>
-<simpara>To be provided.</simpara>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term>Tip(s)</term>
-<listitem>
-<simpara>To be provided</simpara>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term>Reference Documentation</term>
-<listitem>
-<simpara>To be provided</simpara>
-</listitem>
-</varlistentry>
-</variablelist>
+<simpara>The <literal>MQTT Subscribe Step</literal> within the Netty plugin consumes data from an MQTT server.</simpara>
 </listitem>
 </itemizedlist>
-</section>
-<section xml:id="_tcp-step">
+</chapter>
+<chapter xml:id="_tcp-step">
 <title>TCP step</title>
-<simpara>The <literal>TCP</literal> step within the <literal>netty</literal> plugin is a client for <literal>TCP</literal>.</simpara>
+<simpara>The <literal>TCP</literal> step within the Netty plugin is a client for <literal>TCP</literal>.</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -539,7 +464,7 @@
 <simpara><literal>receiveBufferSize</literal>: the size of the buffer to receive the data of the response; defaults to 1024 bytes.</simpara>
 </listitem>
 <listitem>
-<simpara><literal>nettyChannelOptions</literal>: overwrites the options of the <literal>netty</literal> channel, use with care.</simpara>
+<simpara><literal>nettyChannelOptions</literal>: overwrites the options of the Netty channel, use with care.</simpara>
 </listitem>
 <listitem>
 <simpara><literal>noDelay</literal>: disables the Nagle Algorithm; defaults to <literal>true</literal>.</simpara>
@@ -553,10 +478,10 @@
 <simpara><literal>disableCertificationVerification</literal>: set to true if the certificate on the server should not be verified (for example for a self-signed certificate).</simpara>
 </listitem>
 <listitem>
-<simpara><literal>protocols</literal>: supported protocols; defaults to the <literal>netty</literal> default.</simpara>
+<simpara><literal>protocols</literal>: supported protocols; defaults to the Netty default.</simpara>
 </listitem>
 <listitem>
-<simpara><literal>ciphers</literal>: supported cipher algorithms; defaults to the <literal>netty</literal> default.</simpara>
+<simpara><literal>ciphers</literal>: supported cipher algorithms; defaults to the Netty default.</simpara>
 <itemizedlist>
 <listitem>
 <simpara><literal>proxy</literal>: configuration to exchange data via a proxy; defaults to no configuration.</simpara>
@@ -585,6 +510,9 @@
 </listitem>
 </itemizedlist>
 </listitem>
+<listitem>
+<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
+</listitem>
 </itemizedlist>
 </listitem>
 </varlistentry>
@@ -599,10 +527,10 @@
 </listitem>
 </varlistentry>
 </variablelist>
-</section>
-<section xml:id="_tcp-with-step">
+</chapter>
+<chapter xml:id="_tcp-with-step">
 <title>TCP WITH step</title>
-<simpara>The <literal>TCP WITH step</literal> within the <literal>netty</literal> plugin sends a TCP payload, reusing the connection created by a precedent step.</simpara>
+<simpara>The <literal>TCP WITH step</literal> within the Netty plugin sends a TCP payload, reusing the connection created by a precedent step.</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -656,10 +584,10 @@
 </listitem>
 </varlistentry>
 </variablelist>
-</section>
-<section xml:id="_close-tcp-step">
+</chapter>
+<chapter xml:id="_close-tcp-step">
 <title>CLOSE TCP step</title>
-<simpara>The <literal>CLOSE TCP</literal> step within the <literal>netty</literal> plugin closes the TCP connection, attached to a minion and created by a direct or indirect ancestor step, when the tail of the minion workflow is received.</simpara>
+<simpara>The <literal>CLOSE TCP</literal> step within the Netty plugin closes the TCP connection, attached to a minion and created by a direct or indirect ancestor step, when the tail of the minion workflow is received.</simpara>
 <simpara>It is best practice to use a <literal>CLOSE TCP</literal> step when reusing a <literal>TCP</literal> connection across several steps without a pool of connections.</simpara>
 <variablelist>
 <varlistentry>
@@ -680,19 +608,10 @@
 <programlisting language="kotlin" linenumbering="numbered">netty().closeHttp("name-of-a-previous-HTTP-step")</programlisting>
 </listitem>
 </varlistentry>
-<varlistentry>
-<term>Notable parameters</term>
-<listitem>
-<itemizedlist>
-<listitem>
-<simpara><literal>closeHttp</literal> (required):  specifies the  name of the <literal>HTTP</literal> step to close.</simpara>
-</listitem>
-<listitem>
-<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
-</listitem>
-</itemizedlist>
-</listitem>
-</varlistentry>
+</variablelist>
+<simpara>Notable parameter:
+* <literal>closeHttp</literal> (required):  specifies the  name of the <literal>HTTP</literal> step to close.</simpara>
+<variablelist>
 <varlistentry>
 <term>Reference Documentation</term>
 <listitem>
@@ -704,10 +623,10 @@
 </listitem>
 </varlistentry>
 </variablelist>
-</section>
-<section xml:id="_udp-step">
+</chapter>
+<chapter xml:id="_udp-step">
 <title>UDP step</title>
-<simpara>The <literal>UDP</literal> step within the <literal>netty</literal> plugin is a client for UDP.</simpara>
+<simpara>The <literal>UDP</literal> step within the Netty plugin is a client for UDP.</simpara>
 <simpara>It is best practice to use the  <literal>UDP</literal> step when reusing a <literal>TCP</literal> connection across several steps without a pool of connections.</simpara>
 <simpara>Ancestors:
 Scenario and Step</simpara>
@@ -730,10 +649,6 @@ Scenario and Step</simpara>
     pool {
        size = 143
        checkHealthBeforeUse = true
-   }
-   monitoring {
-       events = true
-       meters = true
    }
 }</programlisting>
 </listitem>
@@ -767,12 +682,9 @@ Scenario and Step</simpara>
 <simpara><literal>receiveBufferSize</literal>: the size of the buffer to receive the data of the response; defaults to <literal>1024</literal> bytes.</simpara>
 </listitem>
 <listitem>
-<simpara><literal>nettyChannelOptions</literal>: overwrites the options of the <literal>netty</literal> channel, use with care.</simpara>
+<simpara><literal>nettyChannelOptions</literal>: overwrites the options of the Netty channel, use with care.</simpara>
 </listitem>
 </itemizedlist>
-</listitem>
-<listitem>
-<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
 </listitem>
 </itemizedlist>
 </listitem>
@@ -788,6 +700,5 @@ Scenario and Step</simpara>
 </listitem>
 </varlistentry>
 </variablelist>
-</section>
 </chapter>
 </book>

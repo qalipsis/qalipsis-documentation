@@ -3,14 +3,12 @@
 <?asciidoc-numbered?>
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
-<title>jms plugin</title>
-<date>2023-01-28</date>
+<title>JMS plugin</title>
+<date>2023-04-06</date>
 </info>
-<chapter xml:id="_jms-plugin">
-<title>jms plugin</title>
-<section xml:id="_overview">
+<chapter xml:id="_overview">
 <title>Overview</title>
-<simpara>The <literal>jms</literal> plugin connects QALIPSIS to a messaging platform that supports <link xl:href="https://www.oracle.com/java/technologies/java-message-service.html">JMS</link>.</simpara>
+<simpara>The JMS plugin connects QALIPSIS to a messaging platform that supports <link xl:href="https://www.oracle.com/java/technologies/java-message-service.html">JMS</link>.</simpara>
 <variablelist>
 <varlistentry>
 <term>Technology addressed</term>
@@ -21,7 +19,7 @@
 <varlistentry>
 <term>Dependency</term>
 <listitem>
-<simpara><literal>io.qalipsis:plugin-jms</literal></simpara>
+<simpara><literal>io.qalipsis.plugin:qalipsis-plugin-jms</literal></simpara>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -51,11 +49,11 @@
 </listitem>
 </varlistentry>
 </variablelist>
-<simpara>An example scenario that uses a combination of the <literal>jms</literal> <literal>consume</literal> and <literal>produce</literal> steps is provided on <link xl:href="https://github.com/qalipsis/qalipsis-examples/tree/master/jms">GitHub</link>.</simpara>
-</section>
-<section xml:id="_consume-step">
+<simpara>An example scenario that uses a combination of the JMS  <literal>consume</literal> and <literal>produce</literal> steps is provided on <link xl:href="https://github.com/qalipsis/qalipsis-examples/tree/master/jms">GitHub</link>.</simpara>
+</chapter>
+<chapter xml:id="_consume-step">
 <title>Consume step</title>
-<simpara>The <literal>consume</literal> step within the <literal>jms</literal> plugin consumes records from <link xl:href="https://activemq.apache.org/">ActiveMQ</link>.</simpara>
+<simpara>The <literal>consume</literal> step within the JMS plugin consumes records from <link xl:href="https://activemq.apache.org/">ActiveMQ</link>.</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -96,15 +94,12 @@
 <simpara><literal>QueueConnection</literal>: provides the java <link xl:href="https://activemq.apache.org/">ActiveMQ</link> connection for the specified <literal>queues</literal>.</simpara>
 </listitem>
 <listitem>
-<simpara><literal>topics</literal>(optional): specifies the topic(s) for the connection.</simpara>
+<simpara><literal>topics</literal> (optional): specifies the topic(s) for the connection.</simpara>
 </listitem>
 <listitem>
-<simpara><literal>TopicConnection</literal>(optional): provides the java <link xl:href="https://activemq.apache.org/">ActiveMQ</link> connection for the specified <literal>topics</literal>.</simpara>
+<simpara><literal>TopicConnection</literal> (optional): provides the java <link xl:href="https://activemq.apache.org/">ActiveMQ</link> connection for the specified <literal>topics</literal>.</simpara>
 </listitem>
 </itemizedlist>
-</listitem>
-<listitem>
-<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
 </listitem>
 <listitem>
 <simpara><literal>broadcast</literal> (optional): specifies the broadcast parameters for the step.</simpara>
@@ -124,14 +119,14 @@
 <varlistentry>
 <term>Reference documentation</term>
 <listitem>
-<simpara>Refer to the  <link xl:href="https://www.oracle.com/java/technologies/java-message-service.html">JMS</link> documentation for for further parameter and configuration information.</simpara>
+<simpara>Refer to the  <link xl:href="https://www.oracle.com/java/technologies/java-message-service.html">JMS</link> documentation for further parameter and configuration information.</simpara>
 </listitem>
 </varlistentry>
 </variablelist>
-</section>
-<section xml:id="_produce-step">
+</chapter>
+<chapter xml:id="_produce-step">
 <title>Produce step</title>
-<simpara>The <literal>produce</literal> step within the <literal>jms</literal> plugin produces records in <link xl:href="https://activemq.apache.org/">ActiveMQ</link> using <link xl:href="https://www.oracle.com/java/technologies/java-message-service.html">JMS</link>.</simpara>
+<simpara>The <literal>produce</literal> step within the JMS plugin produces records in <link xl:href="https://activemq.apache.org/">ActiveMQ</link> using <link xl:href="https://www.oracle.com/java/technologies/java-message-service.html">JMS</link>.</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -187,9 +182,6 @@
 </listitem>
 </itemizedlist>
 </listitem>
-<listitem>
-<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
-</listitem>
 </itemizedlist>
 </listitem>
 </varlistentry>
@@ -206,6 +198,5 @@
 </listitem>
 </varlistentry>
 </variablelist>
-</section>
 </chapter>
 </book>

@@ -1,6 +1,6 @@
-= RabbitMQ  plugins
+== RabbitMQ  plugins
 
-== Overview
+=== Overview
 The RabbitMQ  plugin connects QALIPSIS to the https://www.rabbitmq.com/[RabbitMQ] broker.
 
 Technology addressed::
@@ -21,7 +21,7 @@ Supported steps::
 
 An example scenario that uses a combination of the `rabbitmq` `consume` and `produce` steps is provided on https://github.com/qalipsis/qalipsis-examples/tree/master/rabbitmq[GitHub].
 
-== Consume step
+=== Consume step
 The `consume` step within the RabbitMQ  plugin consumes data from queues of the RabbitMQ  broker and forwards the data to the next step.
 
 This step is generally used in conjunction with `join` to assert data or inject data into a workflow.
@@ -67,7 +67,7 @@ Reference documentation::
 * Learn more about `prefetchCount` by reading the  https://www.rabbitmq.com/consumer-prefetch.html[RabbitMQ Prefetch] documentation.
 * To configure the `consume` step, consult the https://www.rabbitmq.com/documentation.html[RabbitMQ ] documentation.
 
-== Produce step 
+=== Produce step 
 The `produce` step within the RabbitMQ plugin provides messages to the RabbitMQ broker using a query; the messages are then forwarded as input to the next step.
 
 Ancestor::
@@ -81,23 +81,22 @@ Example::
 ----
 .rabbitmq()
 .produce {
-    connection {
-      host = "localhost"
-      port = 5672
-      password = "Ceila1995"
-      username = "PaulSmith"
-
-    }
-    records { _, input ->
-        listOf(
-            RabbitMqProducerRecord(
-                exchange = "battery_state",
-                routingKey = "battery_state",
-                props = null,
-                value = objectMapper.writeValueAsBytes(input)
-            )
-        )
-    }
+  connection {
+    host = "localhost"
+    port = 5672
+    password = "Ceila1995"
+    username = "PaulSmith"
+  }
+  records { _, input ->
+    listOf(
+      RabbitMqProducerRecord(
+        exchange = "battery_state",
+        routingKey = "battery_state",
+        props = null,
+        value = objectMapper.writeValueAsBytes(input)
+      )
+    )
+  }
 }
 ----
 

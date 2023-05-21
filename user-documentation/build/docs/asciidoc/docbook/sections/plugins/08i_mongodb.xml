@@ -3,14 +3,12 @@
 <?asciidoc-numbered?>
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
-<title>mongodb plugin</title>
-<date>2023-01-28</date>
+<title>MongoDB plugin</title>
+<date>2023-04-06</date>
 </info>
-<chapter xml:id="_mongodb-plugin">
-<title>mongodb plugin</title>
-<section xml:id="_overview">
+<chapter xml:id="_overview">
 <title>Overview</title>
-<simpara>The <literal>mongodb</literal> plugin connects QALIPSIS to <link xl:href="https://mongodb.com/">MongoDb</link>.</simpara>
+<simpara>The MongoDB plugin connects QALIPSIS to <link xl:href="https://mongodb.com/">MongoDb</link>.</simpara>
 <variablelist>
 <varlistentry>
 <term>Technology addressed</term>
@@ -21,7 +19,7 @@
 <varlistentry>
 <term>Dependency</term>
 <listitem>
-<simpara><literal>io.qalipsis:plugin-mongodb</literal></simpara>
+<simpara><literal>io.qalipsis.plugin:qalipsis-plugin-mongodb</literal></simpara>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -53,11 +51,11 @@
 </listitem>
 </varlistentry>
 </variablelist>
-<simpara>Example scenarios using a combination of <literal>mongodb</literal> supported steps are provided on <link xl:href="https://github.com/qalipsis/qalipsis-examples/tree/master/mongodb">GitHub</link>.</simpara>
-</section>
-<section xml:id="_poll-step">
+<simpara>Example scenarios using a combination of MongoDB supported steps are provided on <link xl:href="https://github.com/qalipsis/qalipsis-examples/tree/master/mongodb">GitHub</link>.</simpara>
+</chapter>
+<chapter xml:id="_poll-step">
 <title>Poll step</title>
-<simpara>The <literal>poll</literal> step within the <literal>mongodb</literal> plugin polls the newest records from a database table, with a delay between each execution.</simpara>
+<simpara>The <literal>poll</literal> step within the MongoDB plugin polls the newest records from a database table, with a delay between each execution.</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -68,7 +66,7 @@
 <varlistentry>
 <term>Functionality</term>
 <listitem>
-<simpara>The <literal>poll</literal> step is created only once in a scenario;  it is then used throughout the scenario as called. The <literal>poll</literal> step within the <literal>mongodb</literal> plugin uses a strategy of “delivered at least once”.</simpara>
+<simpara>The <literal>poll</literal> step is created only once in a scenario;  it is then used throughout the scenario as called. The <literal>poll</literal> step within the MongoDB plugin uses a strategy of “delivered at least once”.</simpara>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -110,9 +108,6 @@
 <simpara><literal>pollDelay</literal> (required): specifies the delay between query executions.</simpara>
 </listitem>
 <listitem>
-<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
-</listitem>
-<listitem>
 <simpara><literal>broadcast</literal> (optional): specifies the broadcast parameters for the step.</simpara>
 </listitem>
 </itemizedlist>
@@ -141,10 +136,10 @@
 </listitem>
 </varlistentry>
 </variablelist>
-</section>
-<section xml:id="_save-step">
+</chapter>
+<chapter xml:id="_save-step">
 <title>Save step</title>
-<simpara>The <literal>save</literal> step within the 'mongodb` plugin persists a batch of documents into MongoDB.</simpara>
+<simpara>The <literal>save</literal> step within the MongoDB plugin persists a batch of documents into MongoDB.</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -191,9 +186,6 @@
 <listitem>
 <simpara><literal>query</literal> (required): specifies a document respecting the requirements of the target database.</simpara>
 </listitem>
-<listitem>
-<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
-</listitem>
 </itemizedlist>
 </listitem>
 </varlistentry>
@@ -205,7 +197,7 @@
 <simpara>Use the <literal>save</literal> step after a <literal>collect</literal> step in order to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.</simpara>
 </listitem>
 <listitem>
-<simpara>The  <literal>save</literal> step is extremely flexible; database, collection and documents may depend on the context and input value received from the previous step.</simpara>
+<simpara>The <literal>save</literal> step is extremely flexible; database, collection and documents may depend on the context and input value received from the previous step.</simpara>
 </listitem>
 </itemizedlist>
 </listitem>
@@ -217,10 +209,10 @@
 </listitem>
 </varlistentry>
 </variablelist>
-</section>
-<section xml:id="_search-step">
+</chapter>
+<chapter xml:id="_search-step">
 <title>Search step</title>
-<simpara>The <literal>search</literal> step within the <literal>mongodb</literal> plugin searches records in the database using a search query.</simpara>
+<simpara>The <literal>search</literal> step within the MongoDB plugin searches records in the database using a search query.</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -267,9 +259,6 @@
 <listitem>
 <simpara><literal>search</literal> (required): defines the search parameters including <literal>database</literal>, <literal>collection</literal> <literal>query</literal> and <literal>sort</literal>.</simpara>
 </listitem>
-<listitem>
-<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
-</listitem>
 </itemizedlist>
 </listitem>
 </varlistentry>
@@ -286,6 +275,5 @@
 </listitem>
 </varlistentry>
 </variablelist>
-</section>
 </chapter>
 </book>

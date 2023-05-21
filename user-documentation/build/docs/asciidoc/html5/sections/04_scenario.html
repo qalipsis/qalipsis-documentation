@@ -441,7 +441,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>Scenario specification</h1>
 <div class="details">
-<span id="revnumber">version 0.5.e-SNAPSHOT</span>
+<span id="revnumber">version 0.6.a-SNAPSHOT</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1164,11 +1164,6 @@ fun myScenario() {
 <div class="paragraph">
 <p>When the number of records emitted by the singleton step is finite (such as a file), you might want to loop in the whole set of data to be sure there will always be data for the minions.</p>
 </div>
-<div class="exampleblock">
-<div class="content">
-Create and insert singleton loop graphic here
-</div>
-</div>
 <div class="paragraph">
 <p>All minions receive all the records.
 When there is no more data for a minion, it receives the same data again from the beginning and loops on the whole set of records as long as it needs new ones.</p>
@@ -1179,15 +1174,6 @@ When there is no more data for a minion, it receives the same data again from th
 <div class="paragraph">
 <p>Each minion receives the next unused record emitted from the step. Once there are no more records to provide, all the minions remain blocked in the step.</p>
 </div>
-<div class="exampleblock">
-<div class="content">
-Create and insert singleton-unicast graphic here
-</div>
-</div>
-<div class="paragraph">
-<p>In the example, each of the 3 minions receives a record fairly: the first asking is served. However, since the buffer
-is only 2, the first records are just lost, keeping only a buffer of 2 until the first minion requests a value.</p>
-</div>
 </div>
 <div class="sect2">
 <h3 id="_broadcast"><a class="link" href="#_broadcast">Broadcast</a></h3>
@@ -1197,23 +1183,14 @@ is only 2, the first records are just lost, keeping only a buffer of 2 until the
 <div class="paragraph">
 <p>If the size of the buffer is limited, minions landing in the step for the first time will not receive everything from the beginning, but only from the size of the buffer.</p>
 </div>
-<div class="exampleblock">
-<div class="content">
-Create and insert broadcast graphic here
-</div>
-</div>
-<div class="paragraph">
-<p>In the example, the all 3 minions receive all the records in the correct order. However, since the buffer
-is only 2, each newly requesting minion can only receive two records in the past at the earliest.</p>
-</div>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 0.5.e-SNAPSHOT<br>
-Last updated 2022-11-09 20:02:10 +0100
+Version 0.6.a-SNAPSHOT<br>
+Last updated 2023-04-28 07:15:18 -0400
 </div>
 </div>
 <style>

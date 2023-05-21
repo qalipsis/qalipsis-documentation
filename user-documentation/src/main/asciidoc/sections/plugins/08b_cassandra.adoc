@@ -1,6 +1,6 @@
-= Cassandra plugin
+== Cassandra plugin
 
-== Overview
+=== Overview
 The Cassandra plugin connects QALIPSIS to https://cassandra.apache.org/_/index.html[Apache Cassandra].
 
 Technologies addressed::
@@ -26,7 +26,7 @@ Supported steps::
 
 Example scenarios using a combination of Cassandra supported steps are provided on https://github.com/qalipsis/qalipsis-examples/tree/master/cassandra[Github].
  
-== Poll step
+=== Poll step
 The `poll` step within the Cassandra plugin polls the newest records from the database table.
 
 Ancestor::
@@ -70,7 +70,7 @@ Tips::
 Reference documentation::
 Refer to the https://cassandra.apache.org/doc/latest[Apache Cassandra] documentation for further parameter and configuration information.
 
-== Save step
+=== Save step
 The `save` step within the Cassandra plugin persists records into a cassandra database using the save query with Cassandra Query Language (CQL).
 
 Ancestor::
@@ -126,7 +126,7 @@ Tips::
 Reference documentation::
 Refer to the https://cassandra.apache.org/doc/latest[Apache Cassandra] documentation for further parameter and configuration information.
 
-== Search step
+=== Search step
 The `search` step within the Cassandra plugin searches records in the database using a search query.
 
 Ancestor::
@@ -138,7 +138,7 @@ The `search` step’s input and step context are used to complete the search; th
 Example::
 [source,kotlin,linenumbers]
 ----
- cassandra().search {
+cassandra().search {
     name = "search"
 
     connect {

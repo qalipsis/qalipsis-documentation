@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>cassandra plugin</title>
+<title>Cassandra plugin</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -442,7 +442,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_cassandra-plugin">cassandra plugin</a>
+<li><a href="#_cassandra-plugin">Cassandra plugin</a>
 <ul class="sectlevel2">
 <li><a href="#_overview">Overview</a></li>
 <li><a href="#_poll-step">Poll step</a></li>
@@ -455,12 +455,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_cassandra-plugin"><a class="link" href="#_cassandra-plugin">cassandra plugin</a></h2>
+<h2 id="_cassandra-plugin"><a class="link" href="#_cassandra-plugin">Cassandra plugin</a></h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_overview"><a class="link" href="#_overview">Overview</a></h3>
 <div class="paragraph">
-<p>The <code>cassandra</code> plugin connects QALIPSIS to <a href="https://cassandra.apache.org/_/index.html">Apache Cassandra</a>.</p>
+<p>The Cassandra plugin connects QALIPSIS to <a href="https://cassandra.apache.org/_/index.html">Apache Cassandra</a>.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -482,7 +482,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dd>
 <dt class="hdlist1">Dependency</dt>
 <dd>
-<p><code>io.qalipsis:plugin-cassandra</code></p>
+<p><code>io.qalipsis.plugin:qalipsis-plugin-cassandra</code></p>
 </dd>
 <dt class="hdlist1">Namespace in scenario</dt>
 <dd>
@@ -514,13 +514,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dl>
 </div>
 <div class="paragraph">
-<p>Example scenarios using a combination of <code>cassandra</code> supported steps are provided on <a href="https://github.com/qalipsis/qalipsis-examples/tree/master/cassandra">Github</a>.</p>
+<p>Example scenarios using a combination of Cassandra supported steps are provided on <a href="https://github.com/qalipsis/qalipsis-examples/tree/master/cassandra">Github</a>.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_poll-step"><a class="link" href="#_poll-step">Poll step</a></h3>
 <div class="paragraph">
-<p>The <code>poll</code> step within the <code>cassandra</code> plugin polls the newest records from the database table.</p>
+<p>The <code>poll</code> step within the Cassandra plugin polls the newest records from the database table.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -530,7 +530,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dd>
 <dt class="hdlist1">Functionality</dt>
 <dd>
-<p>The <code>poll</code> step is created only once in a scenario; it is then used throughout the scenario as called. The <code>poll</code> step within the <code>cassandra</code> plugin uses a strategy of “delivered at least once."</p>
+<p>The <code>poll</code> step is created only once in a scenario; it is then used throughout the scenario as called. The <code>poll</code> step within the Cassandra plugin uses a strategy of “delivered at least once."</p>
 </dd>
 <dt class="hdlist1">Example</dt>
 </dl>
@@ -556,7 +556,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
   <td class="code"><pre>cassandra().poll {
     connect {
         servers = listOf(&quot;localhost:9042&quot;)
-        keyspace = &quot;iot&quot;
+        keySpace = &quot;iot&quot;
         datacenterName = &quot;datacenter1&quot;
     }
     query(&quot;SELECT deviceid, timestamp, batterylevel FROM devices WHERE company = ? ORDER BY timestamp&quot;)
@@ -580,7 +580,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><code>connect</code> (required): configures the connection to <a href="https://cassandra.apache.org">Apache Cassandra</a></p>
 </li>
 <li>
-<p><code>keyspace</code>(required): the outermost object that determines how data replicates on nodes.</p>
+<p><code>keyspace</code> (required): the outermost object that determines how data replicates on nodes.</p>
 </li>
 <li>
 <p><code>query</code> (required): defines the prepared statement to execute when polling.</p>
@@ -593,9 +593,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li>
 <p><code>pollDelay</code> (required): specifies the delay between query executions.</p>
-</li>
-<li>
-<p><code>monitoring</code>(optional): configures the monitoring parameters for the step.</p>
 </li>
 <li>
 <p><code>broadcast</code> (optional): specifies the broadcast parameters for the step.</p>
@@ -621,7 +618,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dd>
 <dt class="hdlist1">Reference documentation</dt>
 <dd>
-<p>Refer to the <a href="https://cassandra.apache.org/doc/latest">Apache Cassandra</a> documentation further parameter and configuration information.</p>
+<p>Refer to the <a href="https://cassandra.apache.org/doc/latest">Apache Cassandra</a> documentation for further parameter and configuration information.</p>
 </dd>
 </dl>
 </div>
@@ -629,7 +626,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect2">
 <h3 id="_save-step"><a class="link" href="#_save-step">Save step</a></h3>
 <div class="paragraph">
-<p>The <code>save</code> step within the <code>cassandra</code> plugin persists records into a cassandra database using the save query with Cassandra Query Language (CQL).</p>
+<p>The <code>save</code> step within the Cassandra plugin persists records into a cassandra database using the save query with Cassandra Query Language (CQL).</p>
 </div>
 <div class="dlist">
 <dl>
@@ -725,10 +722,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><code>connect</code> (required): configures the connection to <a href="https://cassandra.apache.org">Apache Cassandra</a>.</p>
 </li>
 <li>
-<p><code>keyspace</code>(required): the outermost object that determines how data replicates on nodes.</p>
-</li>
-<li>
-<p><code>monitoring</code>(optional): configures the monitoring parameters for the step.</p>
+<p><code>keyspace</code> (required): the outermost object that determines how data replicates on nodes.</p>
 </li>
 </ul>
 </div>
@@ -738,7 +732,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="ulist">
 <ul>
 <li>
-<p>Use the <code>save</code> after a <code>collect</code> step in order to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.</p>
+<p>Use the <code>save</code> step after a <code>collect</code> step to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.</p>
 </li>
 <li>
 <p>The <code>save</code> step is extremely flexible; table, rows, and columns depend on the context and input value received from the previous step.</p>
@@ -756,7 +750,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect2">
 <h3 id="_search-step"><a class="link" href="#_search-step">Search step</a></h3>
 <div class="paragraph">
-<p>The <code>search</code> step within the <code>cassandra</code> plugin searches records in the database using a search query.</p>
+<p>The <code>search</code> step within the Cassandra plugin searches records in the database using a search query.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -826,9 +820,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li>
 <p><code>parameters</code>: (optional): binds values to the clauses of the prepared query.</p>
 </li>
-<li>
-<p><code>monitoring</code>(optional): configures the monitoring parameters for the step.</p>
-</li>
 </ul>
 </div>
 </dd>
@@ -863,8 +854,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 0.5.e-SNAPSHOT<br>
-Last updated 2023-01-28 15:05:12 +0100
+Version 0.6.a-SNAPSHOT<br>
+Last updated 2023-05-02 11:47:07 -0400
 </div>
 </div>
 <style>

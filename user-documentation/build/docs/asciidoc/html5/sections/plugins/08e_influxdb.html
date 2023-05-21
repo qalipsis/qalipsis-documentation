@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>influxdb plugin</title>
+<title>InfluxDB plugin</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -442,7 +442,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_influxdb-plugin">influxdb plugin</a>
+<li><a href="#_influxdb-plugin">InfluxDB plugin</a>
 <ul class="sectlevel2">
 <li><a href="#_overview">Overview</a></li>
 <li><a href="#_poll-step">Poll step</a></li>
@@ -450,17 +450,24 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_search-step">Search step</a></li>
 </ul>
 </li>
+<li><a href="#_configuration-of-publication-of-events-and-meters-to-influxdb">Configuration of publication of events and meters to InfluxDB</a>
+<ul class="sectlevel2">
+<li><a href="#_events">Events</a></li>
+<li><a href="#_meters">Meters</a></li>
+<li><a href="#_example">Example</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_influxdb-plugin"><a class="link" href="#_influxdb-plugin">influxdb plugin</a></h2>
+<h2 id="_influxdb-plugin"><a class="link" href="#_influxdb-plugin">InfluxDB plugin</a></h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_overview"><a class="link" href="#_overview">Overview</a></h3>
 <div class="paragraph">
-<p>The <code>influxdb</code> plugin connects QALIPSIS to <a href="https://www.influxdata.com/">InfluxDB</a>.</p>
+<p>The InfluxDB plugin connects QALIPSIS to <a href="https://www.influxdata.com/">InfluxDB</a>.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -479,7 +486,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dd>
 <dt class="hdlist1">Dependency</dt>
 <dd>
-<p><code>io.qalipsis:plugin-influxdb</code></p>
+<p><code>io.qalipsis.plugin:qalipsis-plugin-influxdb</code></p>
 </dd>
 <dt class="hdlist1">Namespace in scenario</dt>
 <dd>
@@ -508,13 +515,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dl>
 </div>
 <div class="paragraph">
-<p>Example scenarios using a combination of the <code>influxdb</code> supported steps are provided on <a href="https://github.com/qalipsis/qalipsis-examples/tree/master/influxdb">GitHub</a>.</p>
+<p>Example scenarios using a combination of the InfluxDB supported steps are provided on <a href="https://github.com/qalipsis/qalipsis-examples/tree/master/influxdb">GitHub</a>.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_poll-step"><a class="link" href="#_poll-step">Poll step</a></h3>
 <div class="paragraph">
-<p>The <code>poll</code> step within the <code>influxdb()</code> plugin polls the newest records from the database, with a delay between each execution of a select query.</p>
+<p>The <code>poll</code> step within the InfluxDB plugin polls the newest records from the database, with a delay between each execution of a select query.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -524,7 +531,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dd>
 <dt class="hdlist1">Functionality</dt>
 <dd>
-<p>The <code>poll</code> step is created only once in a scenario; it is then used throughout the scenario as called. The <code>poll</code> step within the <code>influxdb</code> plugin uses a strategy of “delivered at least once”.</p>
+<p>The <code>poll</code> step is created only once in a scenario; it is then used throughout the scenario as called. The <code>poll</code> step within the InfluxDB plugin uses a strategy of “delivered at least once”.</p>
 </dd>
 <dt class="hdlist1">Example</dt>
 <dd>
@@ -593,9 +600,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><code>pollDelay</code> (required): specifies the delay between query executions.</p>
 </li>
 <li>
-<p><code>monitoring</code>(optional): configures the monitoring parameters for the step.</p>
-</li>
-<li>
 <p><code>broadcast</code> (optional): specifies the broadcast parameters for the step.</p>
 </li>
 </ul>
@@ -615,7 +619,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect2">
 <h3 id="_save-step"><a class="link" href="#_save-step">Save step</a></h3>
 <div class="paragraph">
-<p>The <code>save</code> step within the <code>influxdb()</code> plugin persists a batch of records into the <code>influxdb</code> bucket using a specific <code>points</code> class.</p>
+<p>The <code>save</code> step within the InfluxDB plugin persists a batch of records into the InfluxDB bucket using a specific <code>points</code> class.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -681,15 +685,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 </dd>
-<dt class="hdlist1">Notable parameters</dt>
+<dt class="hdlist1">Notable parameter</dt>
 <dd>
 <div class="ulist">
 <ul>
 <li>
 <p><code>connect</code> (required): configures the connection to <a href="https://www.influxdata.com/">InfluxDB</a>.</p>
-</li>
-<li>
-<p><code>monitoring</code>(optional): configures the monitoring parameters for the step.</p>
 </li>
 </ul>
 </div>
@@ -717,7 +718,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect2">
 <h3 id="_search-step"><a class="link" href="#_search-step">Search step</a></h3>
 <div class="paragraph">
-<p>The <code>search</code> step within the <code>influxdb</code> plugin searches records in the database using a search query.</p>
+<p>The <code>search</code> step within the InfluxDB plugin searches records in the database using a search query.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -795,9 +796,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li>
 <p><code>connect</code> (required): configures the connection to <a href="https://www.influxdata.com/">InfluxDB</a>.</p>
 </li>
-<li>
-<p><code>monitoring</code>(optional): configures the monitoring parameters for the step.</p>
-</li>
 </ul>
 </div>
 </dd>
@@ -814,11 +812,145 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_configuration-of-publication-of-events-and-meters-to-influxdb"><a class="link" href="#_configuration-of-publication-of-events-and-meters-to-influxdb">Configuration of publication of events and meters to InfluxDB</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_events"><a class="link" href="#_events">Events</a></h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Configuration namespace</dt>
+<dd>
+<p><code>events.export.influxdb</code></p>
+</dd>
+<dt class="hdlist1">Parameters</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>enabled</code>: boolean flag that activates/deactivates event publishing to InfluxDB; defaults to <code>false</code>; <strong>must</strong> be set to <code>true</code>.</p>
+</li>
+<li>
+<p><code>url</code>: string URL to the InfluxDB instance; defaults to <code><a href="http://localhost:8086" class="bare">http://localhost:8086</a></code>.</p>
+</li>
+<li>
+<p><code>min-level</code>: minimum accepted level of events; defaults to INFO; allowable values are `EventLevel`values: TRACE, DEBUG, INFO, WARN, ERROR, OFF.</p>
+</li>
+<li>
+<p><code>linger-period</code>: maximum period between publication of events to InfluxDB; positive duration, defaults to <code>10s</code>.</p>
+</li>
+<li>
+<p><code>batch-size</code>: maximum number of events buffered between two publications of events to InfluxDB; positive integer; defaults to <code>2000</code>.</p>
+</li>
+<li>
+<p><code>publishers</code>: number of concurrent publication of events that can run; positive integer; defaults to <code>1</code> (no concurrency).</p>
+</li>
+<li>
+<p><code>username</code>: name of the user for basic authentication when connecting to InfluxDB; defaults to <code>user</code>.</p>
+</li>
+<li>
+<p><code>password</code>: password of the user for basic authentication when connecting to InfluxDB; defaults to <code>passpasspass</code>.</p>
+</li>
+<li>
+<p><code>org</code>: name of the organization to use for basic authentication when connecting to InfluxDB; defaults to <code>qalipsis</code>.</p>
+</li>
+<li>
+<p><code>bucket</code>: password of the bucket to use for saving events to InfluxDB; defaults to <code>qalipsis-event</code>.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_meters"><a class="link" href="#_meters">Meters</a></h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Configuration namespace</dt>
+<dd>
+<p><code>meters.export.influxdb</code></p>
+</dd>
+<dt class="hdlist1">Parameters</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>enabled</code>: boolean flag that activates/deactivates meter publishing to InfluxDB; defaults to <code>false</code>; <strong>must</strong> be set to <code>true</code>.</p>
+</li>
+<li>
+<p><code>step</code> (optional): The step size (reporting frequency); defaults to <code>PT10S</code>.</p>
+</li>
+<li>
+<p><code>url</code>: string URL to the InfluxDB instance; defaults to <code><a href="http://localhost:8086" class="bare">http://localhost:8086</a></code>.</p>
+</li>
+<li>
+<p><code>org</code>: name of the organization to use for basic authentication when connecting to InfluxDB; defaults to <code>qalipsis</code>.</p>
+</li>
+<li>
+<p><code>bucket</code>: password of the bucket to use for saving meters to InfluxDB; defaults to <code>qalipsis-meter</code>.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_example"><a class="link" href="#_example">Example</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="kotlin"><table class="CodeRay"><tr>
+  <td class="line-numbers"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre></td>
+  <td class="code"><pre>events:
+  export:
+    influxdb:
+      url: http://localhost:8086
+      enabled: true
+      min-level: INFO
+      linger-period: 10s
+      batch-size: 2000
+      org: qalipsis
+      bucket: qalipsis-event
+
+meters:
+  export:
+    influxdb:
+      url: http://localhost:8086
+      enabled: true
+      step: PT10S
+      org: qalipsis
+      bucket: qalipsis-event</pre></td>
+</tr></table></code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 0.5.e-SNAPSHOT<br>
-Last updated 2023-01-28 15:05:12 +0100
+Version 0.6.a-SNAPSHOT<br>
+Last updated 2023-04-06 20:27:17 -0400
 </div>
 </div>
 <style>

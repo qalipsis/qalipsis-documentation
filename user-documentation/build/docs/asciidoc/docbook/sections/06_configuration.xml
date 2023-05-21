@@ -4,7 +4,7 @@
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
 <title>QALIPSIS configuration</title>
-<date>2022-11-09</date>
+<date>2023-04-06</date>
 </info>
 <chapter xml:id="_starting-qalipsis-in-different-modes">
 <title>Starting QALIPSIS in different modes</title>
@@ -85,25 +85,42 @@ The speed factor command is applied on the ramping strategy to accelerate or slo
 </section>
 <section xml:id="_external-property-sources">
 <title>External property sources</title>
-<simpara>QALIPSIS uses Micronaut&#8217;s runtime underneath.
-Hence, you can use its mechanism of <link xl:href="https://docs.micronaut.io/latest/guide/index.html#propertySource">Externalized Configuration with Property Sources</link>.</simpara>
-<simpara>You can overwrite the default configuration and add your own properties by creating a file called <literal>qalipsis-config.yml</literal> either in the class path or in the working directory or both.</simpara>
-<simpara>Both the default configuration and the  <literal>qalipsis-config.yml</literal> file can specify the same parameters; however, the <literal>qalipsis-config.yml</literal> has precedence.</simpara>
-</section>
-<section xml:id="_injecting-values-into-your-scenario">
-<title>Injecting values into your scenario</title>
-<simpara>You can inject values into your scenario or its declaring class using the annotation <literal>@io.qalipsis.api.annotations.Property</literal> as in the following example:</simpara>
-<programlisting language="kotlin" linenumbering="numbered">class EcommercePurchase(@Property("ecommerce-purchase.load") private val numberOfMinions: Int) {
-
-    @Scenario("login-select-and-checkout")
-    fun fromLoginToCheckout(@Property("ecommerce-purchase.action-pace") actionPaceDuration: Duration) {
-        scenario {
-            minionsCount = numberOfMinions
-        }
-        .constantPace(actionPaceDuration.toMillis())
-
-    }
-}</programlisting>
+<simpara>QALIPSIS uses Micronaut’s runtime underneath. Hence, you can use its mechanism of <link xl:href="https://docs.micronaut.io/latest/guide/index.html#propertySource">Externalized Configuration with Property Sources</link>.</simpara>
+<simpara>The configuration files contain all of the settings that are relevant for QALIPSIS to run. Included in the settings the parameters for logging and monitoring data exports, data sources for the Head node, executor sizes, etc.</simpara>
+<simpara>You can overwrite the default Qalipsis configuration and include your own properties by creating a file named qalipsis.{extension} or config/qalipsis.{extension} in the classpath or in the working directory or both. The {extension} can be either of the following:</simpara>
+<itemizedlist>
+<listitem>
+<simpara>YAML documents (use the extension yaml or yml)</simpara>
+</listitem>
+<listitem>
+<simpara>JSON documents (use the extension json)</simpara>
+</listitem>
+<listitem>
+<simpara>flat properties (use the extension properties)</simpara>
+</listitem>
+</itemizedlist>
+<simpara>Yaml or yml files have more precedence over a json file and json files have more precedence over a properties file. In a situation, when we have two YAML files with the same name and located in the same directory, the file with the yaml extension has precedence over the one with yml extension.</simpara>
+<simpara>You can specify the same parameters in different environment sources, however the levels of precedence of the configuration sources determines the configuration values that are prioritized.</simpara>
+<simpara>The precedence of the configuration sources, from lowest to highest levels is outlined below:</simpara>
+<itemizedlist>
+<listitem>
+<simpara>Default configuration embedded in QALIPSIS artifacts</simpara>
+</listitem>
+<listitem>
+<simpara>Class path files:  the files in /config have precedence over those in the root</simpara>
+</listitem>
+<listitem>
+<simpara>Working directory files: the files in /config have precedence over those in the root -OS Environment variables</simpara>
+<itemizedlist>
+<listitem>
+<simpara>Java System properties(-DmyArg=value)</simpara>
+</listitem>
+<listitem>
+<simpara>Command line arguments (using -c “myArg=value”).</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</itemizedlist>
 </section>
 </chapter>
 </book>

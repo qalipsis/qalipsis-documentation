@@ -3,14 +3,12 @@
 <?asciidoc-numbered?>
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
-<title>r2dbc-jasync plugin</title>
-<date>2023-01-28</date>
+<title>R2DBC-jasync plugin</title>
+<date>2023-04-06</date>
 </info>
-<chapter xml:id="_r2dbc-jasync-plugin">
-<title>r2dbc-jasync plugin</title>
-<section xml:id="_overview">
+<chapter xml:id="_overview">
 <title>Overview</title>
-<simpara>The <literal>r2dbc-jasync</literal> plugin connects QALIPSIS to <link xl:href="https://mariadb.org/">MariaDB</link>, <link xl:href="https://www.mysql.com">MySQL</link> and <link xl:href="https://www.postgresql.org/">PostgreSQL</link>.</simpara>
+<simpara>The R2DBC-jasync plugin connects QALIPSIS to <link xl:href="https://mariadb.org/">MariaDB</link>, <link xl:href="https://www.mysql.com">MySQL</link> and <link xl:href="https://www.postgresql.org/">PostgreSQL</link>.</simpara>
 <variablelist>
 <varlistentry>
 <term>Technologies addressed</term>
@@ -31,7 +29,7 @@
 <varlistentry>
 <term>Dependency</term>
 <listitem>
-<simpara><literal>io.qalipsis:plugin-r2dbc-jasync</literal></simpara>
+<simpara><literal>io.qalipsis.plugin:qalipsis-plugin-r2dbc-jasync</literal></simpara>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -64,11 +62,11 @@
 </listitem>
 </varlistentry>
 </variablelist>
-<simpara>Example scenarios using a combination of <literal>r2dbc-jasync</literal> supported steps are provided <link xl:href="https://github.com/qalipsis/qalipsis-examples/tree/master/r2dbc-jasync">GitHub</link>.</simpara>
-</section>
-<section xml:id="_poll-step">
+<simpara>Example scenarios using a combination of R2DBC-jasync supported steps are provided <link xl:href="https://github.com/qalipsis/qalipsis-examples/tree/master/r2dbc-jasync">GitHub</link>.</simpara>
+</chapter>
+<chapter xml:id="_poll-step">
 <title>Poll step</title>
-<simpara>The <literal>poll</literal> step within the <literal>r2bc-jasync</literal> plugin polls the newest records from the database, respecting a delay between each execution of a select query.</simpara>
+<simpara>The <literal>poll</literal> step within the R2DBC-jasync plugin polls the newest records from the database, respecting a delay between each execution of a select query.</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -112,9 +110,6 @@
 <simpara><literal>pollDelay</literal> (required): specifies the delay between query executions.</simpara>
 </listitem>
 <listitem>
-<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
-</listitem>
-<listitem>
 <simpara><literal>broadcast</literal> (optional): specifies the broadcast parameters for the step.</simpara>
 </listitem>
 </itemizedlist>
@@ -128,10 +123,7 @@
 <simpara>Use the <literal>poll</literal> step with a join operator when you need to verify the values saved by your tested system in the database.</simpara>
 </listitem>
 <listitem>
-<simpara><literal>query</literal> requires at least one sorting field (known as <literal>tiebreaker</literal> in the example) to filter the newest results and not fetch the same records repeatedly.</simpara>
-</listitem>
-<listitem>
-<simpara>The latest known value for the <literal>tiebreaker</literal> is used to filter out the values already received directly from the database.</simpara>
+<simpara><literal>query</literal> requires at least one sorting field to filter the newest results and not fetch the same records repeatedly.</simpara>
 </listitem>
 </itemizedlist>
 </listitem>
@@ -143,10 +135,10 @@
 </listitem>
 </varlistentry>
 </variablelist>
-</section>
-<section xml:id="_save-step">
+</chapter>
+<chapter xml:id="_save-step">
 <title>Save step</title>
-<simpara>The <literal>save</literal> step within the <literal>r2bc-jasync</literal> plugin persists a batch of records into an SQL table using a prepared statement.</simpara>
+<simpara>The <literal>save</literal> step within the R2DBC-jasync plugin persists a batch of records into an SQL table using a prepared statement.</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -193,22 +185,15 @@
             )
         )
     }
-    monitoring {
-        events = false
-        meters = true
-    }
 }</programlisting>
 </listitem>
 </varlistentry>
 <varlistentry>
-<term>Notable parameters</term>
+<term>Notable parameter</term>
 <listitem>
 <itemizedlist>
 <listitem>
 <simpara><literal>connection</literal> (required): specifies the connection parameters.</simpara>
-</listitem>
-<listitem>
-<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
 </listitem>
 </itemizedlist>
 </listitem>
@@ -233,10 +218,10 @@
 </listitem>
 </varlistentry>
 </variablelist>
-</section>
-<section xml:id="_search-step">
+</chapter>
+<chapter xml:id="_search-step">
 <title>Search step</title>
-<simpara>The <literal>search</literal> step within the <literal>r2bc-jasync</literal> plugin searches records in the database using a search query.</simpara>
+<simpara>The <literal>search</literal> step within the R2DBC-jasync plugin searches records in the database using a search query.</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -285,9 +270,6 @@
 <listitem>
 <simpara><literal>parameters</literal> (optional): binds values to the clauses of the prepared query.</simpara>
 </listitem>
-<listitem>
-<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
-</listitem>
 </itemizedlist>
 </listitem>
 </varlistentry>
@@ -304,6 +286,5 @@
 </listitem>
 </varlistentry>
 </variablelist>
-</section>
 </chapter>
 </book>

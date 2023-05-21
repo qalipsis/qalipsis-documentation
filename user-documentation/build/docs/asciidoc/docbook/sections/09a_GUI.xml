@@ -4,7 +4,7 @@
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
 <title>QALIPSIS GUI</title>
-<date>2023-02-18</date>
+<date>2023-04-06</date>
 </info>
 <chapter xml:id="_overview">
 <title>Overview</title>
@@ -41,7 +41,7 @@ You can configure campaigns and run them immediately, at a future time, or on a 
 <title>Logging in to QALIPSIS</title>
 <orderedlist numeration="arabic">
 <listitem>
-<simpara>Navigate to the QALIPSIS Welcome page according to the installation details provided by your administrator.</simpara>
+<simpara>Navigate to the <emphasis>QALIPSIS Welcome</emphasis> page according to the installation details provided by your administrator.</simpara>
 <simpara>QALIPSIS Cloud is available at <link xl:href="https://app.qalipsis.io">https://app.qalipsis.io</link>.</simpara>
 </listitem>
 <listitem>
@@ -83,9 +83,6 @@ You can configure campaigns and run them immediately, at a future time, or on a 
 </listitem>
 <listitem>
 <simpara><xref linkend="_access-series-information-and-functions"/></simpara>
-</listitem>
-<listitem>
-<simpara><xref linkend="_access-administrative-functions"/></simpara>
 </listitem>
 </itemizedlist>
 </listitem>
@@ -186,8 +183,8 @@ You will be logged out and returned to the <emphasis>Welcome</emphasis> screen.<
 </section>
 <section xml:id="_access-campaign-information-and-functions">
 <title>Access campaign information and functions</title>
-<simpara>The <literal>campaign page is accessible from the left side bar.
-From the `Campaign</literal> page, you can view current or past campaign data and create a new campaign.</simpara>
+<simpara>The <emphasis>Campaign</emphasis> page is accessible from the left side bar.
+From the <emphasis>Campaign</emphasis> page, you can view current or past campaign data and create a new campaign.</simpara>
 <simpara>Further details are provided later in this documentation.</simpara>
 <itemizedlist>
 <listitem>
@@ -201,8 +198,8 @@ From the `Campaign</literal> page, you can view current or past campaign data an
 <section xml:id="_access-series-information-and-functions">
 <title>Access Series information and functions</title>
 <simpara>Series are data sets that are preconfigured to monitor and display relevant campaign data.
-The <literal>Series</literal> screen is accessible from the left sidebar.
-The Series' screen allows the user view current series information, update or duplicate a series, and create a new series.</simpara>
+The <emphasis>Series</emphasis> screen is accessible from the left sidebar.
+The <emphasis>Series</emphasis> screen allows the user view current series information, update or duplicate a series, and create a new series.</simpara>
 <simpara>Further details are provided later in this documentation.</simpara>
 <itemizedlist>
 <listitem>
@@ -215,20 +212,6 @@ The Series' screen allows the user view current series information, update or du
 <simpara><xref linkend="_updating-a-series"/></simpara>
 </listitem>
 </itemizedlist>
-</section>
-<section xml:id="_access-administrative-functions">
-<title>Access administrative functions</title>
-<simpara>From the left sidebar (if you have <literal>Admin</literal> permissions):</simpara>
-<orderedlist numeration="arabic">
-<listitem>
-<simpara>Click on <emphasis role="strong">Admin</emphasis> to display the <emphasis>Users</emphasis> screen.</simpara>
-</listitem>
-<listitem>
-<simpara>Click on a user&#8217;s name to open the <emphasis>Update User</emphasis> window.</simpara>
-</listitem>
-</orderedlist>
-<simpara>From the <emphasis>Update User</emphasis>` window, user information can be updated and modified and roles (permissions) set.</simpara>
-<simpara>More options will be available from the Admin` area of the GUI in the near future.</simpara>
 </section>
 </chapter>
 <chapter xml:id="_working-with-series-data-and-filters">
@@ -274,7 +257,7 @@ The Series' screen allows the user view current series information, update or du
 <simpara>The following text is displayed in the modal window: '[Series Name] has just been created!'.</simpara>
 </listitem>
 <listitem>
-<simpara>Close the  <emphasis>New series</emphasis> modal window to return to the Series page.</simpara>
+<simpara>Close the  <emphasis>New series</emphasis> modal window to return to the <emphasis>Series</emphasis> page.</simpara>
 <simpara>The newly created series is displayed in the table.</simpara>
 </listitem>
 </orderedlist>
@@ -297,7 +280,7 @@ The Series' screen allows the user view current series information, update or du
 <simpara>Click the <guibutton>Update</guibutton> button.</simpara>
 </listitem>
 <listitem>
-<simpara>Close the <emphasis>Update series</emphasis> modal window to return to the Series page.</simpara>
+<simpara>Close the <emphasis>Update series</emphasis> modal window to return to the <emphasis>Series</emphasis> page.</simpara>
 </listitem>
 </orderedlist>
 </section>
@@ -306,8 +289,8 @@ The Series' screen allows the user view current series information, update or du
 <title>Configuring and running a campaign</title>
 <orderedlist numeration="arabic">
 <listitem>
-<simpara>Click the <guibutton>+Campaign</guibutton> button near the top right of the <literal>Campaign</literal> page.</simpara>
-<simpara>The New Campaign window will open displaying the campaign name, a settings icon, a search field, and a table listing scenarios that are available to run in the campaign.</simpara>
+<simpara>Click the <guibutton>+Campaign</guibutton> button near the top right of the <emphasis>Campaign</emphasis> page.</simpara>
+<simpara>The <emphasis>New Campaign</emphasis> window will open displaying the campaign name, a settings icon, a search field, and a table listing scenarios that are available to run in the campaign.</simpara>
 </listitem>
 <listitem>
 <simpara>Optionally, rename the campaign by hovering over the <literal>New Campaign</literal> title and selecting the pen icon to edit the name.</simpara>
@@ -328,7 +311,7 @@ The Series' screen allows the user view current series information, update or du
 </listitem>
 <listitem>
 <simpara>Click the <guibutton>Run immediately</guibutton> button to start the campaign.</simpara>
-<simpara>Campaign data is displayed in real-time in the report window and on the time-series chart.</simpara>
+<simpara>Campaign data is displayed in real-time in the <emphasis>Report</emphasis> panel and on the time-series chart.</simpara>
 <itemizedlist>
 <listitem>
 <simpara>Minion count is displayed by default.</simpara>
@@ -343,9 +326,6 @@ The Series' screen allows the user view current series information, update or du
 <chapter xml:id="_displaying-campaign-data">
 <title>Displaying campaign data</title>
 <orderedlist numeration="arabic">
-<listitem>
-<simpara>From the left sidebar:</simpara>
-</listitem>
 <listitem>
 <simpara>Click on <emphasis role="strong">Campaign</emphasis> in the left sidebar.</simpara>
 <simpara>A table listing all existing and planned campaigns is displayed.</simpara>
@@ -362,31 +342,12 @@ The Series' screen allows the user view current series information, update or du
 <simpara>Click on the name of a campaign to display the <emphasis>Campaign details</emphasis> page.</simpara>
 <itemizedlist>
 <listitem>
-<simpara>A report box is displayed at the top of the screen.</simpara>
-<simpara>The top line in the report box displays information for the  whole campaign; the following lines display information for each scenario within the campaign.</simpara>
-<itemizedlist>
-<listitem>
-<simpara>Click the <literal>View more</literal> tooltip on the right side of the report box to expand the report box to display all scenarios in the campaign.</simpara>
-</listitem>
-<listitem>
-<simpara>Click the <literal>More details</literal> tooltip to display the info for the total campaign in a dropdown box.</simpara>
-</listitem>
-<listitem>
-<simpara>Click on the <literal>Campiagn Summary</literal> dropdown filter to select the scenario information to display in the report box.</simpara>
-</listitem>
-</itemizedlist>
-</listitem>
-<listitem>
-<simpara>Below the report box, a row of filter cards is displayed with the individual events and meters that are logged for the campaign.</simpara>
-<simpara>Refer to <link xl:href="05_steps.adoc"><literal>Step Specifications</literal></link> or <xref linkend="_creating-a-series"/> for guidance creating filtering steps.</simpara>
-<simpara>Each card includes the Name, Type, and display color.</simpara>
-</listitem>
-<listitem>
-<simpara>Below the row of filter cards, a time-series chart is displayed with the x-axis displaying the elapsed time  and the y-axis displaying series data.</simpara>
+<simpara>A <emphasis>Report</emphasis> panel is displayed at the top of the screen.</simpara>
+<simpara>The top line in the <emphasis>Report</emphasis> panel displays information for the  whole campaign; the following lines display information for each scenario within the campaign.</simpara>
+<simpara>Click on the <literal>Campaign Summary</literal> dropdown filter to select which scenario(s) information to display in the report section.</simpara>
 </listitem>
 </itemizedlist>
 </listitem>
 </orderedlist>
-<simpara>Select one or more series cards to display the generated data for that series.</simpara>
 </chapter>
 </book>

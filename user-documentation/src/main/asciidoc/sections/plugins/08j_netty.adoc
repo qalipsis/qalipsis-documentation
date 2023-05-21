@@ -1,6 +1,6 @@
-= Netty plugin
+== Netty plugin
 
-== Overview
+=== Overview
 
 The https://netty.io/[Netty] plugin supports https://datatracker.ietf.org/doc/html/rfc793[TCP], https://datatracker.ietf.org/doc/html/rfc768[UDP], https://httpwg.org/[HTTP] and https://mqtt.org/[MQTT] clients.
 
@@ -24,17 +24,17 @@ Supported steps::
 * <<HTTP step,`HTTP`>>: executes an HTTP request using https://datatracker.ietf.org/doc/rfc2616[`HTTP 1.1`] or https://datatracker.ietf.org/doc/rfc7540[`HTTP 2.0`].
 * <<HTTP WITH step,`HTTP WITH`>>: executes an HTTP request reusing the HTTP connection created by a precedent step.
 * <<CLOSE HTTP step,`CLOSE HTTP`>>: closes an HTTP connection created by a precedent step.
-* <<MQTT publish step,`MQTT Publish`>>: sends data to an MQTT server.
-* <<MQTT subscribe step,`MQTT Subscribe`>>: consumes data from an MQTT server.
+* <<MQTT Publish step,`MQTT Publish`>>: sends data to an MQTT server.
+* <<MQTT Subscribe step,`MQTT Subscribe`>>: consumes data from an MQTT server.
 * <<TCP step,`TCP`>>: exchanges data with a TCP server.
 * <<TCP WITH step,`TCP WITH`>>: exchanges data reusing the TCP connection created by a precedent step.
 * <<CLOSE TCP step,`CLOSE TCP`>>: closes a TCP connection created by a precedent step.
 * <<UDP step,`UDP`>>: exchanges data with a UDP endpoint.
 
-== HTTP step
+=== HTTP step
 The `HTTP` step within the Netty plugin executes an HTTP request using https://datatracker.ietf.org/doc/rfc2616[`HTTP 1.1`] or https://datatracker.ietf.org/doc/rfc7540[`HTTP 2.0`].
 
-Ancestor::
+Ancestors::
 Scenario and Step
 
 Functionality::
@@ -50,33 +50,29 @@ Example::
 [source,kotlin,linenumbers]
 ----
 netty().http {
-   request { context, input -> SimpleHttpRequest(HttpMethod.HEAD, "/head") }
-   connect {
-       url("https://my-website.com:8080/test")
-       connectTimeout = Duration.ofSeconds(5)
-       inflate()
-       charset(Charsets.ISO_8859_1)
-       maxContentLength(123)
-       followRedirections(15)
-       noDelay = false
-       keepConnectionAlive = false
-       tls {
-           disableCertificateVerification = true
-       }
-       proxy {
-           type = HttpProxyType.SOCKS5
-           address("my-proxy", 9876)
-       }
-       followRedirections(5)
-   }
-   pool {
-       size = 143
-       checkHealthBeforeUse = true
-   }
-   monitoring {
-       events = true
-       meters = true
-   }
+    request { context, input -> SimpleHttpRequest(HttpMethod.HEAD, "/head") }
+    connect {
+        url("https://my-website.com:8080/test")
+        connectTimeout = Duration.ofSeconds(5)
+        inflate()
+        charset(Charsets.ISO_8859_1)
+        maxContentLength(123)
+        followRedirections(15)
+        noDelay = false
+        keepConnectionAlive = false
+        tls {
+            disableCertificateVerification = true
+        }
+        proxy {
+            type = HttpProxyType.SOCKS5
+            address("my-proxy", 9876)
+        }
+        followRedirections(5)
+    }
+    pool {
+        size = 143
+        checkHealthBeforeUse = true
+    }
 }.deserialize(String::class)
 
 ----
@@ -92,7 +88,7 @@ Notable parameters::
 ** `receiveBufferSize`: the size of the buffer to receive the data of the response; defaults to 1024 bytes.
 ** `nettyChannelOptions`: overwrites the options of the Netty channel; use with care.
 ** `noDelay`: disables the Nagle Algorithm; defaults to true.
-** `keepConnectionAlive`: when set to true, the HTTP header Connection is set to Keep-Alive and the client connection is kept open until `CLOSEHTTP`() is called.
+** `keepConnectionAlive`: when set to true, the HTTP header connection is set to `Keep-Alive` and the client connection is kept open until `CLOSEHTTP`() is called.
 ** `tls`: configuration for SSL/TLS
 *** `disableCertificationVerification`: set it to true when the certificate on server should not be verified (for example for a self-signed certificate)
 *** `protocols`: supported protocols; defaults to the Netty default for the related HTTP version.
@@ -108,13 +104,12 @@ Notable parameters::
 * `pool`: configuration of the pool of connections; the `pool` is disabled by default.
 ** `size`: number of constant connections maintained in the pool.
 ** `checkHealthBeforeUse`: verifies the health of the connection when polled from the `pool` and before it is used.
-* `monitoring`(optional): configures the monitoring parameters for the step.
 * `deserialize`: specifies the class to use to deserialize the body of the response.
 
 Reference Documentation::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
-== HTTP WITH step
+=== HTTP WITH step
 The `HTTP WITH` step within the Netty plugin executes an HTTP request reusing the HTTP connection created by a precedent step.
 
 Ancestor::
@@ -125,27 +120,26 @@ Functionality::
 * `HTTP WITH` cannot configure the connection differently than the `HTTP` step it relates to.
 
 Example::
++
 [source,kotlin,linenumbers]
 ----
 netty().httpWith("name-of-a-previous-HTTP-step") {
-   request { context, input -> SimpleHttpRequest(HttpMethod.HEAD, "/head") }
-   monitoring { all() }
+    request { context, input -> SimpleHttpRequest(HttpMethod.HEAD, "/head") }
 }.deserialize(String::class)
 ----
 
 Notable parameters::
 * `netty().httpWith`("name-of-a-previous-HTTP-step"): the name of the `HTTP` step that owns the connection.
 ** `request`: a factory to create the request to exchange, using the step context and the input as arguments.
-** `monitoring`(optional): configures the monitoring parameters for the step.
 * `deserialize`: specifies the class to use to deserialize the body of the response.
 
 Reference Documentation:: 
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
-== CLOSE HTTP step
+=== CLOSE HTTP step
 The `CLOSE HTTP` step within the Netty plugin closes the `HTTP` connection attached to the minion, and created by a direct or indirect ancestor step, when the tail of the minion workflow is received. 
 
-It is always a best practice to use a _CLOSE HTTP_  step when reusing an `HTTP` connection across several steps without a pool of connections. 
+It is always a best practice to use a `CLOSE HTTP`  step when reusing an `HTTP` connection across several steps without a pool of connections. 
 
 Ancestor::
 Step
@@ -154,75 +148,84 @@ Functionality::
 The `CLOSE HTTP` step is a direct or indirect follower of an `HTTP` step which keeps the connection open.  `CLOSE HTTP` simply forwards the input it receives to the next step(s).
 
 Example::
++
 [source,kotlin,linenumbers]
 ----
 netty().closeHttp("name-of-a-previous-HTTP-step")
 ----
 Notable parameter::
-* `closeHttp` (required)  specifies the  name of an `HTTP` step owning the `HTTP` connection to close. 
+* `closeHttp` (required): specifies the  name of an `HTTP` step owning the `HTTP` connection to close. 
 
 Reference Documentation::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
-== MQTT publish step 
+=== MQTT Publish step 
 The `MQTT Publish` step within the Netty plugin sends data to an MQTT server.
 
-//Ancestor::
-// Step
- 
-//Functionality::
-
-//Example::
-
-//Notable parameters::
-
-//Tip(s)::
-
-
-== MQTT subscribe step 
-* The `MQTT Subscribe Step` within the Netty plugin consumes data from an MQTT server.
-
-//Ancestor::
-// Step
+Ancestor::
+Step
  
 //Functionality::
 
 
-//Example::
-//[source,kotlin,linenumbers]
-//----
-//it.netty().mqttSubscribe {
-//                        connect {
-//                            host = ServerConfiguration.HOST
-//                            port = ServerConfiguration.PORT
-//                      }
-//                        clientName("qalipsis-mqtt-client-subscriber")
-//                        topicFilter(ServerConfiguration.TOPIC_NAME)
-//                    }.deserialize(MessageJsonDeserializer(BatteryState::class)).map { result ->
-//                        println("on ${result.value}")
-//                        result.value
-//                    }.filterNotNull()
-//            }, having = { correlationRecord ->
-//               println("Having ${correlationRecord.value}")
-//                correlationRecord.value.primaryKey
-//            }).filterNotNull().verify { result ->
-//                result.asClue {
-//                    assertSoftly {
-//                        it.first.batteryLevel shouldBeExactly (it.second).batteryLevel
-//                   }
-//                }
-//            }.
-//----
+Example::
++
+[source,kotlin,linenumbers]
+----
+.netty().mqttPublish {
+        connect {
+            host = ServerConfiguration.HOST
+            port = ServerConfiguration.PORT
+        }
 
- 
-//Notable Parameters::
+        clientName("qalipsis-mqtt-client")
 
-//Tip(s)::
+        records { _, batteryState ->
+            listOf(
+                MqttPublishRecord(
+                    value = objectMapper.writeValueAsString(batteryState),
+                    topicName = ServerConfiguration.TOPIC_NAME
+                )
+            )
+        }
+}               
+----
+Notable parameters::
+* `connect` (required): configures the host and port for the connection.
+* `clientName`: identifies the `clientName`.
+* `topicName`(optional): identifies the `topicName`
 
-
-//Reference Documentation::
+Reference Documentation::
+Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
   
-== TCP step
+=== MQTT Subscribe step 
+The `MQTT Subscribe` step within the Netty plugin consumes data from an MQTT server.
+
+Ancestor::
+Step
+ 
+//Functionality::
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+it.netty().mqttSubscribe {
+    connect {
+        host = ServerConfiguration.HOST
+        port = ServerConfiguration.PORT
+    }
+    clientName("qalipsis-mqtt-client-subscriber")
+    topicFilter(ServerConfiguration.TOPIC_NAME)
+}
+----
+Notable Parameters::
+* `connect` (required): configures the host and port for the connection.
+* `clientName`: identifies the `clientName`.
+* `topicFilter`(optional): identifies the `topicFilter`
+
+
+=== TCP step
 The `TCP` step within the Netty plugin is a client for `TCP`.
  
 Ancestor::
@@ -244,8 +247,8 @@ Example::
 [source,kotlin,linenumbers]
 ----
 netty().tcp {
-   request { context, input -> input.encodeToByteArray() }
-   connect {
+    request { context, input -> input.encodeToByteArray() }
+    connect {
         address("remote-server.acme.com", 9000)
         connectTimeout = Duration.ofMinutes(1)
         noDelay = false
@@ -259,13 +262,9 @@ netty().tcp {
         }
     }
     pool {
-       size = 1000
-       checkHealthBeforeUse = true
+        size = 1000
+        checkHealthBeforeUse = true
     }
-    monitoring {
-       events = true
-       meters = true
-   }
 }
 ----
 Notable parameters::
@@ -290,13 +289,12 @@ Notable parameters::
 * `pool`: configuration of the pool of connections; defaults to disabled.
 ** `size`: number of constant connections maintained in the pool.
 ** `checkHealthBeforeUse`: verifies the health of the connection when polled from the pool and before it is used.
-* `monitoring`(optional): configures the monitoring parameters for the step.
 
 Reference Documentation::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
-== TCP WITH step 
-The `TCP WITH step` within the Netty plugin sends a TCP payload, reusing the connection created by a precedent step.
+=== TCP WITH step 
+The `TCP WITH` step within the Netty plugin sends a TCP payload, reusing the connection created by a precedent step.
 
 Ancestor::
 Step
@@ -310,18 +308,16 @@ Example::
 [source,kotlin,linenumbers]
 ----
 netty().tcpWith("name-of-a-previous-HTTP-step") {
-   request { context, input -> input.encodeToByteArray() }
-   monitoring { all() }
+    request { context, input -> input.encodeToByteArray() }
 }
 ----
 Notable parameters::
 * `request`: a factory to create the request to exchange, using the step context and the input as arguments.
-* `monitoring`(optional): configures the monitoring parameters for the step.
 
 Reference Documentation::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
-== CLOSE TCP step 
+=== CLOSE TCP step 
 The `CLOSE TCP` step within the Netty plugin closes the TCP connection, attached to a minion and created by a direct or indirect ancestor step, when the tail of the minion workflow is received. 
 
 It is best practice to use a `CLOSE TCP` step when reusing a `TCP` connection across several steps without a pool of connections.
@@ -345,7 +341,7 @@ Notable parameter:
 Reference Documentation::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
-== UDP step 
+=== UDP step 
 The `UDP` step within the Netty plugin is a client for UDP.
 
 It is best practice to use the  `UDP` step when reusing a `TCP` connection across several steps without a pool of connections.
@@ -363,13 +359,13 @@ Example::
 netty().udp {
     request { context, input -> input.encodeToByteArray() }
     connect {
-       address("remote-server.acme.com", 9000)
-       connectTimeout = Duration.ofMinutes(1)
+        address("remote-server.acme.com", 9000)
+        connectTimeout = Duration.ofMinutes(1)
     }
     pool {
-       size = 143
-       checkHealthBeforeUse = true
-   }
+        size = 143
+        checkHealthBeforeUse = true
+    }
 }
 ----
 

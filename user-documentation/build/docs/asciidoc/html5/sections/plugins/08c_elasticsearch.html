@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>elasticsearch plugin</title>
+<title>Elasticsearch plugin</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -439,15 +439,22 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="book toc2 toc-left">
 <div id="header">
+<h1>Elasticsearch plugin</h1>
+<div class="details">
+<span id="revnumber">version 0.6.a-SNAPSHOT</span>
+</div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_elasticsearch-plugin">elasticsearch plugin</a>
-<ul class="sectlevel2">
 <li><a href="#_overview">Overview</a></li>
 <li><a href="#_poll-step">Poll step</a></li>
 <li><a href="#_save-step">Save step</a></li>
 <li><a href="#_search-step">Search step</a></li>
+<li><a href="#_configuration-of-publication-of-events-and-meters-to-elasticsearch">Configuration of publication of events and meters to Elasticsearch</a>
+<ul class="sectlevel2">
+<li><a href="#_events">Events</a></li>
+<li><a href="#_meters">Meters</a></li>
+<li><a href="#_example">Example</a></li>
 </ul>
 </li>
 </ul>
@@ -455,12 +462,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_elasticsearch-plugin"><a class="link" href="#_elasticsearch-plugin">elasticsearch plugin</a></h2>
+<h2 id="_overview"><a class="link" href="#_overview">Overview</a></h2>
 <div class="sectionbody">
-<div class="sect2">
-<h3 id="_overview"><a class="link" href="#_overview">Overview</a></h3>
 <div class="paragraph">
-<p>The elasticsearch plugin connects QALIPSIS to <a href="https://www.elastic.co/">Elasticsearch</a>.</p>
+<p>The Elasticsearch plugin connects QALIPSIS to <a href="https://www.elastic.co/">Elasticsearch</a>.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -470,7 +475,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dd>
 <dt class="hdlist1">Dependency</dt>
 <dd>
-<p><code>io.qalipsis:plugin-elasticsearch</code></p>
+<p><code>io.qalipsis.plugin:qalipsis-plugin-elasticsearch</code></p>
 </dd>
 <dt class="hdlist1">Namespace in scenario</dt>
 <dd>
@@ -500,13 +505,15 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dl>
 </div>
 <div class="paragraph">
-<p>Example scenarios using a combination of <code>elastcisearch</code> supported steps are provided on <a href="https://github.com/qalipsis/qalipsis-examples/tree/master/elasticsearch">Github</a>.</p>
+<p>Example scenarios using a combination of Elasticsearch supported steps are provided on <a href="https://github.com/qalipsis/qalipsis-examples/tree/master/elasticsearch">Github</a>.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_poll-step"><a class="link" href="#_poll-step">Poll step</a></h3>
+</div>
+<div class="sect1">
+<h2 id="_poll-step"><a class="link" href="#_poll-step">Poll step</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>The <code>poll</code> step within the <code>elasticsearch</code> plugin periodically polls data from Elasticsearch. The output is a list of <code>ElasticsearchDocument</code> containing JSON data or deserialized to objects.</p>
+<p>The <code>poll</code> step within the Elasticsearch plugin periodically polls data from Elasticsearch. The output is a list of <code>ElasticsearchDocument</code> containing JSON data or deserialized to objects.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -516,7 +523,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dd>
 <dt class="hdlist1">Functionality</dt>
 <dd>
-<p>The <code>poll</code> step is created only once in a scenario; it is then used throughout the scenario as called. The <code>poll</code> step within the elasticsearch plugin uses a strategy of “delivered exactly once”. The output of the <code>poll</code> step is an <code>ElasticsearchDocument</code> that contains maps of column to values.</p>
+<p>The <code>poll</code> step is created only once in a scenario; it is then used throughout the scenario as called. The <code>poll</code> step within the Elasticsearch plugin uses a strategy of “delivered exactly once”. The output of the <code>poll</code> step is an <code>ElasticsearchDocument</code> that contains maps of column to values.</p>
 </dd>
 <dt class="hdlist1">Example</dt>
 </dl>
@@ -578,9 +585,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><code>pollDelay</code> (required): specifies the delay between query executions.</p>
 </li>
 <li>
-<p><code>monitoring</code>(optional): configures the monitoring parameters for the step.</p>
-</li>
-<li>
 <p><code>broadcast</code> (optional): specifies the broadcast parameters for the step.</p>
 </li>
 </ul>
@@ -619,10 +623,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dl>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_save-step"><a class="link" href="#_save-step">Save step</a></h3>
+</div>
+<div class="sect1">
+<h2 id="_save-step"><a class="link" href="#_save-step">Save step</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>The <code>save</code> step within the <code>elasticsearch</code> plugin persists a batch of documents into  <a href="https://www.elastic.co/">Elasticsearch</a>.</p>
+<p>The <code>save</code> step within the Elasticsearch plugin persists a batch of documents into  <a href="https://www.elastic.co/">Elasticsearch</a>.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -688,9 +694,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li>
 <p><code>documents</code>: defines the strategy to create documents to save from the input and step context.</p>
 </li>
-<li>
-<p><code>monitoring</code>(optional): configures the monitoring parameters for the step.</p>
-</li>
 </ul>
 </div>
 </dd>
@@ -701,10 +704,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dl>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_search-step"><a class="link" href="#_search-step">Search step</a></h3>
+</div>
+<div class="sect1">
+<h2 id="_search-step"><a class="link" href="#_search-step">Search step</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>The <code>search</code> step within the <code>elasticsearch</code> plugin searches documents in the Elasticsearch database using a search query.</p>
+<p>The <code>search</code> step within the Elasticsearch plugin searches documents in the Elasticsearch database using a search query.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -781,9 +786,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li>
 <p><code>query</code>: configures the builder for the JSON query to perform a search.</p>
 </li>
-<li>
-<p><code>monitoring</code>(optional): configures the monitoring parameters for the step.</p>
-</li>
 </ul>
 </div>
 </dd>
@@ -808,12 +810,203 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_configuration-of-publication-of-events-and-meters-to-elasticsearch"><a class="link" href="#_configuration-of-publication-of-events-and-meters-to-elasticsearch">Configuration of publication of events and meters to Elasticsearch</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_events"><a class="link" href="#_events">Events</a></h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Configuration namespace</dt>
+<dd>
+<p><code>events.export.elasticsearch</code></p>
+</dd>
+<dt class="hdlist1">Parameters</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>enabled</code>: boolean flag that activates/deactivates event publishing to Elasticsearch; defaults to <code>false</code>; <strong>must</strong> be set to <code>true</code>.</p>
+</li>
+<li>
+<p><code>min-level</code>: minimal accepted level of events; defaults to INFO; allowable values are `EventLevel`values: TRACE, DEBUG, INFO, WARN, ERROR, OFF.</p>
+</li>
+<li>
+<p><code>urls</code>: list of URLs to the Elasticsearch instances; defaults to <a href="http://localhost:9200" class="bare">http://localhost:9200</a>.</p>
+</li>
+<li>
+<p><code>path-prefix</code>: string prefix used to demarcate url paths; defaults to /.</p>
+</li>
+<li>
+<p><code>index-prefix</code>: string prefix to use for the created indices containing the events; defaults to <code>qalipsis-events</code>.</p>
+</li>
+<li>
+<p><code>refresh-interval</code>: string delay to refresh the indices in Elasticsearch; defaults to <code>10s</code>.</p>
+</li>
+<li>
+<p><code>store-source</code>: boolean flag identifies whether the source of documents is stored with the values; set to <code>true</code> for yes and <code>false</code> for no; defaults to <code>false</code>.</p>
+</li>
+<li>
+<p><code>index-date-pattern</code>: string format of the date part of the index as supported by [java.time.format.DateTimeFormatter]; defaults to yyyy-MM-dd.</p>
+</li>
+<li>
+<p><code>linger-period</code>: maximum period between publication of events to Elasticsearch; positive duration, defaults to <code>10s</code>.</p>
+</li>
+<li>
+<p><code>batch-size</code>: maximum number of events buffered between two publications of events to Elasticsearch; positive integer; defaults to <code>2000</code>.</p>
+</li>
+<li>
+<p><code>publishers</code>: number of concurrent publication of events that can run; positive integer; defaults to <code>1</code> (no concurrency).</p>
+</li>
+<li>
+<p><code>username</code>: name of the user for basic authentication when connecting to Elasticsearch.</p>
+</li>
+<li>
+<p><code>password</code>: password of the user for basic authentication when connecting to Elasticsearch.</p>
+</li>
+<li>
+<p><code>shards</code>: number of shards to apply on the created indices for events; positive integer; defaults to <code>1</code>.</p>
+</li>
+<li>
+<p><code>replicas</code>: number of replicas to apply on the created indices for events; defaults to <code>0</code>.</p>
+</li>
+<li>
+<p><code>proxy</code>: URL of the http proxy to use to access Elasticsearch.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_meters"><a class="link" href="#_meters">Meters</a></h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Configuration namespace</dt>
+<dd>
+<p><code>meters.export.elasticsearch</code></p>
+</dd>
+<dt class="hdlist1">Parameters</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>enabled</code>: boolean flag that activates/deactivates meter publishing to Elasticsearch; defaults to <code>false</code>; <strong>must</strong> be set to <code>true</code>.</p>
+</li>
+<li>
+<p><code>step</code>(optional): The step size (reporting frequency) to use; defaults to <code>PT10S</code>.</p>
+</li>
+<li>
+<p><code>urls</code>: list of urls to the Elasticsearch instances; defaults to <a href="http://localhost:9200" class="bare">http://localhost:9200</a>.</p>
+</li>
+<li>
+<p><code>host</code>: defaults to the value of <code>urls</code> above.</p>
+</li>
+<li>
+<p><code>index</code>: string value to use for creation of index containing the meters; defaults to <code>qalipsis-meters</code>.</p>
+</li>
+<li>
+<p><code>index-date-format</code>: string format of the date part of the index as supported by [java.time.format.DateTimeFormatter]; defaults to yyyy-MM-dd.</p>
+</li>
+<li>
+<p><code>auto-create-index</code>: boolean flag to enable/disable auto creation of <code>index</code>; defaults to <code>true</code>.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_example"><a class="link" href="#_example">Example</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="kotlin"><table class="CodeRay"><tr>
+  <td class="line-numbers"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+</pre></td>
+  <td class="code"><pre>monitoring:
+  elasticsearch:
+    hosts: http://localhost:9200
+    enabled: true
+    step: PT1M
+    index: qalipsis-metrics
+    index-date-format: yyyy-MM-dd
+    auto-create-index: true
+
+events:
+  export:
+    elasticsearch:
+      enabled: true
+      min-level: INFO
+      urls: http://localhost:9200
+      index-prefix: qalipsis-events
+      index-date-pattern: yyyy-MM-dd
+      duration-as-nano: false
+      linger-period: 10s
+      batch-size: 2000
+      publishers: 1
+      username:
+      password:
+      shards: 1
+      replicas: 0
+
+meters:
+  export:
+    elasticsearch:
+      urls: http://localhost:9200
+      host: ${meters.export.elasticsearch.urls}
+      enabled: true
+      step: PT10S
+      index: qalipsis-meters
+      index-date-format: yyyy-MM-dd
+      auto-create-index: true</pre></td>
+</tr></table></code></pre>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 0.5.e-SNAPSHOT<br>
-Last updated 2023-01-28 15:05:12 +0100
+Version 0.6.a-SNAPSHOT<br>
+Last updated 2023-04-06 19:58:41 -0400
 </div>
 </div>
 <style>

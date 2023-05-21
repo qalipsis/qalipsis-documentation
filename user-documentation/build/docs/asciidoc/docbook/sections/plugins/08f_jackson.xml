@@ -3,14 +3,12 @@
 <?asciidoc-numbered?>
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
-<title>jackson plugin</title>
-<date>2023-01-28</date>
+<title>Jackson plugin</title>
+<date>2023-04-06</date>
 </info>
-<chapter xml:id="_jackson-plugin">
-<title>jackson plugin</title>
 <section xml:id="_overview">
 <title>Overview</title>
-<simpara>The <literal>jackson</literal> plugin supports reading a (<link xl:href="https://github.com/FasterXML/jackson">JSON, XML or CSV</link>) file, converting the data to an object, and pushing the object to the next step.</simpara>
+<simpara>The Jackson plugin supports reading a (<link xl:href="https://github.com/FasterXML/jackson">JSON, XML or CSV</link>) file, converting the data to an object, and pushing the object to the next step.</simpara>
 <variablelist>
 <varlistentry>
 <term>Technologies addressed</term>
@@ -21,7 +19,7 @@
 <varlistentry>
 <term>Dependency</term>
 <listitem>
-<simpara><literal>io.qalipsis:plugin-jackson</literal></simpara>
+<simpara><literal>io.qalipsis.plugin:qalipsis-plugin-jackson</literal></simpara>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -54,9 +52,9 @@
 </varlistentry>
 </variablelist>
 </section>
-<section xml:id="_csvtomap-and-csvtoobject">
+<chapter xml:id="_csvtomap-and-csvtoobject">
 <title>csvToMap and csvToObject</title>
-<simpara>The <literal>csvToMap</literal> and <literal>csvToObject</literal> steps within the <literal>jackson</literal> plugin read a CSV resource (file, classpath resource, URL) and returns each item as an instance of an Object or Map.</simpara>
+<simpara>The <literal>csvToMap</literal> and <literal>csvToObject</literal> steps within the Jackson plugin read a CSV resource (file, classpath resource, URL) and returns each item as an instance of an Object or Map.</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -117,9 +115,6 @@ The step reads a CSV file, converts the data to a <literal>map</literal> (or an 
 <listitem>
 <simpara><literal>mapper</literal>: configures the JSON Mapper to deserialize the records.</simpara>
 </listitem>
-<listitem>
-<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
-</listitem>
 </itemizedlist>
 </listitem>
 </varlistentry>
@@ -136,10 +131,10 @@ The step reads a CSV file, converts the data to a <literal>map</literal> (or an 
 </listitem>
 </varlistentry>
 </variablelist>
-</section>
-<section xml:id="_xmltoobject">
+</chapter>
+<chapter xml:id="_xmltoobject">
 <title>xmlToObject</title>
-<simpara>The <literal>xmlToObject</literal> step within the <literal>jackson</literal> plugin reads an XML resource (classpath, file, or url) and returns each item as an instance of an object of the specified class.</simpara>
+<simpara>The <literal>xmlToObject</literal> step within the Jackson plugin reads an XML resource (classpath, file, or url) and returns each item as an instance of an object of the specified class.</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -175,9 +170,6 @@ The step reads an XML file, converts the data to an <literal>Object</literal>, a
 <listitem>
 <simpara><literal>url(url)</literal>: specifies and links to the <literal>url</literal> of the data resource.</simpara>
 </listitem>
-<listitem>
-<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
-</listitem>
 </itemizedlist>
 </listitem>
 </varlistentry>
@@ -194,10 +186,10 @@ The step reads an XML file, converts the data to an <literal>Object</literal>, a
 </listitem>
 </varlistentry>
 </variablelist>
-</section>
-<section xml:id="_jsontomap-and-jsontoobject">
+</chapter>
+<chapter xml:id="_jsontomap-and-jsontoobject">
 <title>jsonToMap and jsonToObject</title>
-<simpara>The <literal>jsonToMap</literal> and <literal>jsonToObject</literal> steps within the <literal>jackson</literal> plugin read a JSON resource (file, classpath resource, URL) and returns each item as an instance of <literal>map</literal> or <literal>object</literal>).</simpara>
+<simpara>The <literal>jsonToMap</literal> and <literal>jsonToObject</literal> steps within the Jackson plugin read a JSON resource (file, classpath resource, URL) and returns each item as an instance of <literal>map</literal> or <literal>object</literal>).</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -233,10 +225,7 @@ jackson().jsonToObject(PojoForTest::class) {
 <simpara><literal>file(path)</literal>: reads the data from a specified plain file in the file system; <literal>path</literal> is the path to the file, either absolute or relative to the current working directory.</simpara>
 </listitem>
 <listitem>
-<simpara><literal>url(url): specifies and links to the `url</literal> of the data resource.</simpara>
-</listitem>
-<listitem>
-<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
+<simpara><literal>url(url)</literal>: specifies and links to the <literal>url</literal> of the data resource.</simpara>
 </listitem>
 </itemizedlist>
 </listitem>
@@ -254,6 +243,5 @@ jackson().jsonToObject(PojoForTest::class) {
 </listitem>
 </varlistentry>
 </variablelist>
-</section>
 </chapter>
 </book>

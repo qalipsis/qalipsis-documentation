@@ -3,14 +3,12 @@
 <?asciidoc-numbered?>
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
-<title>elasticsearch plugin</title>
-<date>2023-01-28</date>
+<title>Elasticsearch plugin</title>
+<date>2023-04-06</date>
 </info>
-<chapter xml:id="_elasticsearch-plugin">
-<title>elasticsearch plugin</title>
-<section xml:id="_overview">
+<chapter xml:id="_overview">
 <title>Overview</title>
-<simpara>The elasticsearch plugin connects QALIPSIS to <link xl:href="https://www.elastic.co/">Elasticsearch</link>.</simpara>
+<simpara>The Elasticsearch plugin connects QALIPSIS to <link xl:href="https://www.elastic.co/">Elasticsearch</link>.</simpara>
 <variablelist>
 <varlistentry>
 <term>Technology addressed</term>
@@ -21,7 +19,7 @@
 <varlistentry>
 <term>Dependency</term>
 <listitem>
-<simpara><literal>io.qalipsis:plugin-elasticsearch</literal></simpara>
+<simpara><literal>io.qalipsis.plugin:qalipsis-plugin-elasticsearch</literal></simpara>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -54,11 +52,11 @@
 </listitem>
 </varlistentry>
 </variablelist>
-<simpara>Example scenarios using a combination of <literal>elastcisearch</literal> supported steps are provided on <link xl:href="https://github.com/qalipsis/qalipsis-examples/tree/master/elasticsearch">Github</link>.</simpara>
-</section>
-<section xml:id="_poll-step">
+<simpara>Example scenarios using a combination of Elasticsearch supported steps are provided on <link xl:href="https://github.com/qalipsis/qalipsis-examples/tree/master/elasticsearch">Github</link>.</simpara>
+</chapter>
+<chapter xml:id="_poll-step">
 <title>Poll step</title>
-<simpara>The <literal>poll</literal> step within the <literal>elasticsearch</literal> plugin periodically polls data from Elasticsearch. The output is a list of <literal>ElasticsearchDocument</literal> containing JSON data or deserialized to objects.</simpara>
+<simpara>The <literal>poll</literal> step within the Elasticsearch plugin periodically polls data from Elasticsearch. The output is a list of <literal>ElasticsearchDocument</literal> containing JSON data or deserialized to objects.</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -69,7 +67,7 @@
 <varlistentry>
 <term>Functionality</term>
 <listitem>
-<simpara>The <literal>poll</literal> step is created only once in a scenario; it is then used throughout the scenario as called. The <literal>poll</literal> step within the elasticsearch plugin uses a strategy of “delivered exactly once”. The output of the <literal>poll</literal> step is an <literal>ElasticsearchDocument</literal> that contains maps of column to values.</simpara>
+<simpara>The <literal>poll</literal> step is created only once in a scenario; it is then used throughout the scenario as called. The <literal>poll</literal> step within the Elasticsearch plugin uses a strategy of “delivered exactly once”. The output of the <literal>poll</literal> step is an <literal>ElasticsearchDocument</literal> that contains maps of column to values.</simpara>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -113,9 +111,6 @@
 <simpara><literal>pollDelay</literal> (required): specifies the delay between query executions.</simpara>
 </listitem>
 <listitem>
-<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
-</listitem>
-<listitem>
 <simpara><literal>broadcast</literal> (optional): specifies the broadcast parameters for the step.</simpara>
 </listitem>
 </itemizedlist>
@@ -152,10 +147,10 @@
 </listitem>
 </varlistentry>
 </variablelist>
-</section>
-<section xml:id="_save-step">
+</chapter>
+<chapter xml:id="_save-step">
 <title>Save step</title>
-<simpara>The <literal>save</literal> step within the <literal>elasticsearch</literal> plugin persists a batch of documents into  <link xl:href="https://www.elastic.co/">Elasticsearch</link>.</simpara>
+<simpara>The <literal>save</literal> step within the Elasticsearch plugin persists a batch of documents into  <link xl:href="https://www.elastic.co/">Elasticsearch</link>.</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -202,9 +197,6 @@
 <listitem>
 <simpara><literal>documents</literal>: defines the strategy to create documents to save from the input and step context.</simpara>
 </listitem>
-<listitem>
-<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
-</listitem>
 </itemizedlist>
 </listitem>
 </varlistentry>
@@ -215,10 +207,10 @@
 </listitem>
 </varlistentry>
 </variablelist>
-</section>
-<section xml:id="_search-step">
+</chapter>
+<chapter xml:id="_search-step">
 <title>Search step</title>
-<simpara>The <literal>search</literal> step within the <literal>elasticsearch</literal> plugin searches documents in the Elasticsearch database using a search query.</simpara>
+<simpara>The <literal>search</literal> step within the Elasticsearch plugin searches documents in the Elasticsearch database using a search query.</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -272,9 +264,6 @@
 <listitem>
 <simpara><literal>query</literal>: configures the builder for the JSON query to perform a search.</simpara>
 </listitem>
-<listitem>
-<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
-</listitem>
 </itemizedlist>
 </listitem>
 </varlistentry>
@@ -296,6 +285,152 @@
 </listitem>
 </varlistentry>
 </variablelist>
+</chapter>
+<chapter xml:id="_configuration-of-publication-of-events-and-meters-to-elasticsearch">
+<title>Configuration of publication of events and meters to Elasticsearch</title>
+<section xml:id="_events">
+<title>Events</title>
+<variablelist>
+<varlistentry>
+<term>Configuration namespace</term>
+<listitem>
+<simpara><literal>events.export.elasticsearch</literal></simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Parameters</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><literal>enabled</literal>: boolean flag that activates/deactivates event publishing to Elasticsearch; defaults to <literal>false</literal>; <emphasis role="strong">must</emphasis> be set to <literal>true</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>min-level</literal>: minimal accepted level of events; defaults to INFO; allowable values are `EventLevel`values: TRACE, DEBUG, INFO, WARN, ERROR, OFF.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>urls</literal>: list of URLs to the Elasticsearch instances; defaults to <link xl:href="http://localhost:9200">http://localhost:9200</link>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>path-prefix</literal>: string prefix used to demarcate url paths; defaults to /.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>index-prefix</literal>: string prefix to use for the created indices containing the events; defaults to <literal>qalipsis-events</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>refresh-interval</literal>: string delay to refresh the indices in Elasticsearch; defaults to <literal>10s</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>store-source</literal>: boolean flag identifies whether the source of documents is stored with the values; set to <literal>true</literal> for yes and <literal>false</literal> for no; defaults to <literal>false</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>index-date-pattern</literal>: string format of the date part of the index as supported by [java.time.format.DateTimeFormatter]; defaults to yyyy-MM-dd.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>linger-period</literal>: maximum period between publication of events to Elasticsearch; positive duration, defaults to <literal>10s</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>batch-size</literal>: maximum number of events buffered between two publications of events to Elasticsearch; positive integer; defaults to <literal>2000</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>publishers</literal>: number of concurrent publication of events that can run; positive integer; defaults to <literal>1</literal> (no concurrency).</simpara>
+</listitem>
+<listitem>
+<simpara><literal>username</literal>: name of the user for basic authentication when connecting to Elasticsearch.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>password</literal>: password of the user for basic authentication when connecting to Elasticsearch.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>shards</literal>: number of shards to apply on the created indices for events; positive integer; defaults to <literal>1</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>replicas</literal>: number of replicas to apply on the created indices for events; defaults to <literal>0</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>proxy</literal>: URL of the http proxy to use to access Elasticsearch.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
+<section xml:id="_meters">
+<title>Meters</title>
+<variablelist>
+<varlistentry>
+<term>Configuration namespace</term>
+<listitem>
+<simpara><literal>meters.export.elasticsearch</literal></simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Parameters</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><literal>enabled</literal>: boolean flag that activates/deactivates meter publishing to Elasticsearch; defaults to <literal>false</literal>; <emphasis role="strong">must</emphasis> be set to <literal>true</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>step</literal>(optional): The step size (reporting frequency) to use; defaults to <literal>PT10S</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>urls</literal>: list of urls to the Elasticsearch instances; defaults to <link xl:href="http://localhost:9200">http://localhost:9200</link>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>host</literal>: defaults to the value of <literal>urls</literal> above.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>index</literal>: string value to use for creation of index containing the meters; defaults to <literal>qalipsis-meters</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>index-date-format</literal>: string format of the date part of the index as supported by [java.time.format.DateTimeFormatter]; defaults to yyyy-MM-dd.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>auto-create-index</literal>: boolean flag to enable/disable auto creation of <literal>index</literal>; defaults to <literal>true</literal>.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
+<section xml:id="_example">
+<title>Example</title>
+<programlisting language="kotlin" linenumbering="numbered">monitoring:
+  elasticsearch:
+    hosts: http://localhost:9200
+    enabled: true
+    step: PT1M
+    index: qalipsis-metrics
+    index-date-format: yyyy-MM-dd
+    auto-create-index: true
+
+events:
+  export:
+    elasticsearch:
+      enabled: true
+      min-level: INFO
+      urls: http://localhost:9200
+      index-prefix: qalipsis-events
+      index-date-pattern: yyyy-MM-dd
+      duration-as-nano: false
+      linger-period: 10s
+      batch-size: 2000
+      publishers: 1
+      username:
+      password:
+      shards: 1
+      replicas: 0
+
+meters:
+  export:
+    elasticsearch:
+      urls: http://localhost:9200
+      host: ${meters.export.elasticsearch.urls}
+      enabled: true
+      step: PT10S
+      index: qalipsis-meters
+      index-date-format: yyyy-MM-dd
+      auto-create-index: true</programlisting>
 </section>
 </chapter>
 </book>

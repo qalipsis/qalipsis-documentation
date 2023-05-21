@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>mongodb plugin</title>
+<title>MongoDB plugin</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -439,28 +439,26 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="book toc2 toc-left">
 <div id="header">
+<h1>MongoDB plugin</h1>
+<div class="details">
+<span id="revnumber">version 0.6.a-SNAPSHOT</span>
+</div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_mongodb-plugin">mongodb plugin</a>
-<ul class="sectlevel2">
 <li><a href="#_overview">Overview</a></li>
 <li><a href="#_poll-step">Poll step</a></li>
 <li><a href="#_save-step">Save step</a></li>
 <li><a href="#_search-step">Search step</a></li>
 </ul>
-</li>
-</ul>
 </div>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_mongodb-plugin"><a class="link" href="#_mongodb-plugin">mongodb plugin</a></h2>
+<h2 id="_overview"><a class="link" href="#_overview">Overview</a></h2>
 <div class="sectionbody">
-<div class="sect2">
-<h3 id="_overview"><a class="link" href="#_overview">Overview</a></h3>
 <div class="paragraph">
-<p>The <code>mongodb</code> plugin connects QALIPSIS to <a href="https://mongodb.com/">MongoDb</a>.</p>
+<p>The MongoDB plugin connects QALIPSIS to <a href="https://mongodb.com/">MongoDb</a>.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -470,7 +468,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dd>
 <dt class="hdlist1">Dependency</dt>
 <dd>
-<p><code>io.qalipsis:plugin-mongodb</code></p>
+<p><code>io.qalipsis.plugin:qalipsis-plugin-mongodb</code></p>
 </dd>
 <dt class="hdlist1">Namespace in scenario</dt>
 <dd>
@@ -499,13 +497,15 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dl>
 </div>
 <div class="paragraph">
-<p>Example scenarios using a combination of <code>mongodb</code> supported steps are provided on <a href="https://github.com/qalipsis/qalipsis-examples/tree/master/mongodb">GitHub</a>.</p>
+<p>Example scenarios using a combination of MongoDB supported steps are provided on <a href="https://github.com/qalipsis/qalipsis-examples/tree/master/mongodb">GitHub</a>.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_poll-step"><a class="link" href="#_poll-step">Poll step</a></h3>
+</div>
+<div class="sect1">
+<h2 id="_poll-step"><a class="link" href="#_poll-step">Poll step</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>The <code>poll</code> step within the <code>mongodb</code> plugin polls the newest records from a database table, with a delay between each execution.</p>
+<p>The <code>poll</code> step within the MongoDB plugin polls the newest records from a database table, with a delay between each execution.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -515,7 +515,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dd>
 <dt class="hdlist1">Functionality</dt>
 <dd>
-<p>The <code>poll</code> step is created only once in a scenario;  it is then used throughout the scenario as called. The <code>poll</code> step within the <code>mongodb</code> plugin uses a strategy of “delivered at least once”.</p>
+<p>The <code>poll</code> step is created only once in a scenario;  it is then used throughout the scenario as called. The <code>poll</code> step within the MongoDB plugin uses a strategy of “delivered at least once”.</p>
 </dd>
 <dt class="hdlist1">Example</dt>
 <dd>
@@ -575,9 +575,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><code>pollDelay</code> (required): specifies the delay between query executions.</p>
 </li>
 <li>
-<p><code>monitoring</code>(optional): configures the monitoring parameters for the step.</p>
-</li>
-<li>
 <p><code>broadcast</code> (optional): specifies the broadcast parameters for the step.</p>
 </li>
 </ul>
@@ -606,10 +603,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dl>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_save-step"><a class="link" href="#_save-step">Save step</a></h3>
+</div>
+<div class="sect1">
+<h2 id="_save-step"><a class="link" href="#_save-step">Save step</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>The <code>save</code> step within the 'mongodb` plugin persists a batch of documents into MongoDB.</p>
+<p>The <code>save</code> step within the MongoDB plugin persists a batch of documents into MongoDB.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -677,9 +676,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li>
 <p><code>query</code> (required): specifies a document respecting the requirements of the target database.</p>
 </li>
-<li>
-<p><code>monitoring</code>(optional): configures the monitoring parameters for the step.</p>
-</li>
 </ul>
 </div>
 </dd>
@@ -691,7 +687,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Use the <code>save</code> step after a <code>collect</code> step in order to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.</p>
 </li>
 <li>
-<p>The  <code>save</code> step is extremely flexible; database, collection and documents may depend on the context and input value received from the previous step.</p>
+<p>The <code>save</code> step is extremely flexible; database, collection and documents may depend on the context and input value received from the previous step.</p>
 </li>
 </ul>
 </div>
@@ -703,10 +699,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dl>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_search-step"><a class="link" href="#_search-step">Search step</a></h3>
+</div>
+<div class="sect1">
+<h2 id="_search-step"><a class="link" href="#_search-step">Search step</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>The <code>search</code> step within the <code>mongodb</code> plugin searches records in the database using a search query.</p>
+<p>The <code>search</code> step within the MongoDB plugin searches records in the database using a search query.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -774,9 +772,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li>
 <p><code>search</code> (required): defines the search parameters including <code>database</code>, <code>collection</code> <code>query</code> and <code>sort</code>.</p>
 </li>
-<li>
-<p><code>monitoring</code>(optional): configures the monitoring parameters for the step.</p>
-</li>
 </ul>
 </div>
 </dd>
@@ -793,11 +788,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 </div>
-</div>
 <div id="footer">
 <div id="footer-text">
-Version 0.5.e-SNAPSHOT<br>
-Last updated 2023-01-28 15:05:12 +0100
+Version 0.6.a-SNAPSHOT<br>
+Last updated 2023-04-06 20:40:20 -0400
 </div>
 </div>
 <style>

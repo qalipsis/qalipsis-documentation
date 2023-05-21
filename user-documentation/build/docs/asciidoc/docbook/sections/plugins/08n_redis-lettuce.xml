@@ -3,12 +3,12 @@
 <?asciidoc-numbered?>
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
-<title>redis-lettuce plugin</title>
-<date>2023-01-28</date>
+<title>Redis-lettuce plugin</title>
+<date>2023-04-06</date>
 </info>
-<chapter xml:id="_redis-lettuce-plugin">
-<title>redis-lettuce plugin</title>
-<simpara>The redis-lettuce plugin connects QALIPSIS to <link xl:href="https://redis.io/">Redis</link>.</simpara>
+<preface>
+<title></title>
+<simpara>The Redis-lettuce plugin connects QALIPSIS to <link xl:href="https://redis.io/">Redis</link>.</simpara>
 <variablelist>
 <varlistentry>
 <term>Technology addressed</term>
@@ -19,7 +19,7 @@
 <varlistentry>
 <term>Dependency</term>
 <listitem>
-<simpara><literal>io.qalipsis:plugin-redis-lettuce</literal></simpara>
+<simpara><literal>io.qalipsis.plugin:qalipsis-plugin-redis-lettuce</literal></simpara>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -45,19 +45,20 @@
 <simpara><link linkend="_save-step"><literal>save</literal></link>: saves a batch of records generated from the input and step context.</simpara>
 </listitem>
 <listitem>
-<simpara><link linkend="_consume-step"><literal>consume</literal></link>: consumes data from <literal>redis</literal> streams.</simpara>
+<simpara><link linkend="_consume-step"><literal>consume</literal></link>: consumes data from Redis streams.</simpara>
 </listitem>
 <listitem>
-<simpara><link linkend="_produce-step"><literal>produce</literal></link>: pushes messages to <literal>redis</literal> streams.</simpara>
+<simpara><link linkend="_produce-step"><literal>produce</literal></link>: pushes messages to Redis streams.</simpara>
 </listitem>
 </itemizedlist>
 </listitem>
 </varlistentry>
 </variablelist>
-<simpara>Example scenarios using a combination of <literal>redis</literal> supported steps are provided on <link xl:href="https://github.com/qalipsis/qalipsis-examples/tree/master/redis">Github</link>.</simpara>
-<section xml:id="_poll-step">
+<simpara>Example scenarios using a combination of Redis supported steps are provided on <link xl:href="https://github.com/qalipsis/qalipsis-examples/tree/master/Redis">Github</link>.</simpara>
+</preface>
+<chapter xml:id="_poll-step">
 <title>Poll step</title>
-<simpara>The <literal>poll</literal> step within the <literal>redis-lettuce</literal> plugin polls the newest records from a <literal>redis</literal> key, with a delay between each execution of polling.</simpara>
+<simpara>The <literal>poll</literal> step within the Redis-lettuce plugin polls the newest records from a Redis key, with a delay between each execution of polling.</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -74,7 +75,7 @@
 <simpara>The <literal>KeyOrPattern</literal> to be used in the poll is set to one of the following valid values: <literal>scan</literal>, <literal>sscan</literal>, <literal>hscan</literal>, <literal>zscan</literal>.</simpara>
 </listitem>
 <listitem>
-<simpara>The native <literal>redis-lettuce</literal> command is called using the <literal>KeyOrPattern</literal> provided.</simpara>
+<simpara>The native Redis-lettuce command is called using the <literal>KeyOrPattern</literal> provided.</simpara>
 </listitem>
 </itemizedlist>
 </listitem>
@@ -101,7 +102,7 @@
 <listitem>
 <itemizedlist>
 <listitem>
-<simpara><literal>Connection</literal>(required): specifies the connection parameters.</simpara>
+<simpara><literal>Connection</literal> (required): specifies the connection parameters.</simpara>
 </listitem>
 <listitem>
 <simpara><literal>redisConnectionType</literal> (required): indicates the connection type as <literal>SINGLE</literal>, <literal>CLUSTER</literal> or <literal>SENTINEL</literal>.</simpara>
@@ -111,9 +112,6 @@
 </listitem>
 <listitem>
 <simpara><literal>pollDelay</literal> (required): specifies the delay between query executions.</simpara>
-</listitem>
-<listitem>
-<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
 </listitem>
 <listitem>
 <simpara><literal>broadcast</literal> (optional): specifies the broadcast parameters for the step.</simpara>
@@ -129,7 +127,7 @@
 <simpara>Use the <literal>poll</literal> step with a join operator when you need to verify the values saved by your tested system in the database.</simpara>
 </listitem>
 <listitem>
-<simpara>In addition to SSCAN (<literal>pollSscan</literal> in the example), the <literal>poll</literal> step also supports the following <literal>redis</literal> commands: HSCAN (<literal>polllHscan</literal>) SCAN (<literal>pollScan</literal>), and ZSCAN (<literal>pollZscan</literal>).</simpara>
+<simpara>In addition to SSCAN (<literal>pollSscan</literal> in the example), the <literal>poll</literal> step also supports the following Redis commands: HSCAN (<literal>polllHscan</literal>) SCAN (<literal>pollScan</literal>), and ZSCAN (<literal>pollZscan</literal>).</simpara>
 </listitem>
 </itemizedlist>
 </listitem>
@@ -148,10 +146,10 @@
 </listitem>
 </varlistentry>
 </variablelist>
-</section>
-<section xml:id="_save-step">
+</chapter>
+<chapter xml:id="_save-step">
 <title>Save step</title>
-<simpara>The <literal>save</literal> step within the <literal>redis-lettuce</literal> plugin persists a batch of records into <literal>redis</literal>.</simpara>
+<simpara>The <literal>save</literal> step within the Redis-lettuce plugin persists a batch of records into Redis.</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -162,7 +160,7 @@
 <varlistentry>
 <term>Functionality</term>
 <listitem>
-<simpara>The <literal>save</literal> step&#8217;s input and step context are used to generate a valid <literal>redis</literal> command and the values to complete it; the batch of results is then forwarded to the next step(s). The records are saved individually.</simpara>
+<simpara>The <literal>save</literal> step&#8217;s input and step context are used to generate a valid Redis command and the values to complete it; the batch of results is then forwarded to the next step(s). The records are saved individually.</simpara>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -185,10 +183,6 @@
       )
     )
    }
-  monitoring {
-    events = true
-    meters = true
-  }
 }</programlisting>
 </listitem>
 </varlistentry>
@@ -197,16 +191,13 @@
 <listitem>
 <itemizedlist>
 <listitem>
-<simpara><literal>Connection</literal>(required): specifies the connection parameters.</simpara>
+<simpara><literal>Connection</literal> (required): specifies the connection parameters.</simpara>
 </listitem>
 <listitem>
 <simpara><literal>redisConnectionType</literal> (required): indicates the connection type as <literal>SINGLE</literal>, <literal>CLUSTER</literal> or <literal>SENTINEL</literal>.</simpara>
 </listitem>
 <listitem>
 <simpara><literal>records</literal> (required): generates and configures a list of saved records.</simpara>
-</listitem>
-<listitem>
-<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
 </listitem>
 </itemizedlist>
 </listitem>
@@ -216,7 +207,7 @@
 <listitem>
 <itemizedlist>
 <listitem>
-<simpara>The <literal>save</literal> step supports the following <literal>redis</literal> commands: SET, SADD, HSET, ZADD. The provided command may depend on the context and input value received from the previous step.</simpara>
+<simpara>The <literal>save</literal> step supports the following Redis commands: SET, SADD, HSET, ZADD. The provided command may depend on the context and input value received from the previous step.</simpara>
 </listitem>
 <listitem>
 <simpara>If the <literal>redisConnectionType</literal> is set to <literal>SENTINEL</literal>, the parameter <literal>masterId</literal> is necessary.</simpara>
@@ -238,10 +229,10 @@
 </listitem>
 </varlistentry>
 </variablelist>
-</section>
-<section xml:id="_consume-step">
+</chapter>
+<chapter xml:id="_consume-step">
 <title>Consume step</title>
-<simpara>The <literal>consume</literal> step within the <literal>redis-lettuce</literal> plugin records data from <literal>redis</literal> streams.</simpara>
+<simpara>The <literal>consume</literal> step within the Redis-lettuce plugin records data from Redis streams.</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -252,7 +243,7 @@
 <varlistentry>
 <term>Functionality</term>
 <listitem>
-<simpara>The <literal>consume</literal> step creates a consumer group in a <literal>redis</literal> stream with the provided <literal>connection</literal>, consumer <literal>group</literal> name, and <literal>concurrency</literal>. If <literal>concurrency</literal> is set to 1, records are transmitted sequentially to the next step.</simpara>
+<simpara>The <literal>consume</literal> step creates a consumer group in a Redis stream with the provided <literal>connection</literal>, consumer <literal>group</literal> name, and <literal>concurrency</literal>. If <literal>concurrency</literal> is set to 1, records are transmitted sequentially to the next step.</simpara>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -278,19 +269,16 @@
 <listitem>
 <itemizedlist>
 <listitem>
-<simpara><literal>connection</literal>(required): configures the connection to Qalipsis.</simpara>
+<simpara><literal>connection</literal> (required): configures the connection to QALIPSIS.</simpara>
 </listitem>
 <listitem>
 <simpara><literal>redisConnectionType</literal> (required): indicates the connection type as <literal>SINGLE</literal>, <literal>CLUSTER</literal> or <literal>SENTINEL</literal>. The default is <literal>SINGLE</literal>.</simpara>
 </listitem>
 <listitem>
-<simpara><literal>offset</literal>(required): sets the offset value to <literal>FROM_BEGINNING</literal>, <literal>LAST_CONSUMED</literal> or <literal>LATEST</literal> for each topic and consumer group.</simpara>
+<simpara><literal>offset</literal> (required): sets the offset value to <literal>FROM_BEGINNING</literal>, <literal>LAST_CONSUMED</literal> or <literal>LATEST</literal> for each topic and consumer group.</simpara>
 </listitem>
 <listitem>
 <simpara><literal>broadcast</literal> (optional): specifies the broadcast parameters for the step.</simpara>
-</listitem>
-<listitem>
-<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
 </listitem>
 </itemizedlist>
 </listitem>
@@ -315,10 +303,10 @@
 </listitem>
 </varlistentry>
 </variablelist>
-</section>
-<section xml:id="_produce-step">
+</chapter>
+<chapter xml:id="_produce-step">
 <title>Produce step</title>
-<simpara>The <literal>produce</literal> step within the <literal>redis-lettuce</literal> plugin produces records into the Redis streams.</simpara>
+<simpara>The <literal>produce</literal> step within the Redis-lettuce plugin produces records into the Redis streams.</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -329,7 +317,7 @@
 <varlistentry>
 <term>Functionality</term>
 <listitem>
-<simpara>The <literal>produce</literal> step produces a batch of records into one or more <literal>redis</literal> stream topics. The record values may be provided by previous step(s).</simpara>
+<simpara>The <literal>produce</literal> step produces a batch of records into one or more Redis stream topics. The record values may be provided by previous step(s).</simpara>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -356,10 +344,6 @@
       )
    )
   }
-  monitoring {
-    events = true
-    meters = true
-  }
 }</programlisting>
 </listitem>
 </varlistentry>
@@ -372,9 +356,6 @@
 </listitem>
 <listitem>
 <simpara><literal>records</literal> (required): generates and configures a list of produced records.</simpara>
-</listitem>
-<listitem>
-<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
 </listitem>
 </itemizedlist>
 </listitem>
@@ -403,6 +384,5 @@
 </listitem>
 </varlistentry>
 </variablelist>
-</section>
 </chapter>
 </book>

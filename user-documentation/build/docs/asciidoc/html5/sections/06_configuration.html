@@ -441,7 +441,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>QALIPSIS configuration</h1>
 <div class="details">
-<span id="revnumber">version 0.5.e-SNAPSHOT</span>
+<span id="revnumber">version 0.6.a-SNAPSHOT</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -456,7 +456,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#_command-line-arguments">Command-line arguments</a></li>
 <li><a href="#_external-property-sources">External property sources</a></li>
-<li><a href="#_injecting-values-into-your-scenario">Injecting values into your scenario</a></li>
 </ul>
 </li>
 </ul>
@@ -594,49 +593,58 @@ The speed factor command is applied on the ramping strategy to accelerate or slo
 <div class="sect2">
 <h3 id="_external-property-sources"><a class="link" href="#_external-property-sources">External property sources</a></h3>
 <div class="paragraph">
-<p>QALIPSIS uses Micronaut&#8217;s runtime underneath.
-Hence, you can use its mechanism of <a href="https://docs.micronaut.io/latest/guide/index.html#propertySource">Externalized Configuration with Property Sources</a>.</p>
+<p>QALIPSIS uses Micronaut’s runtime underneath. Hence, you can use its mechanism of <a href="https://docs.micronaut.io/latest/guide/index.html#propertySource">Externalized Configuration with Property Sources</a>.</p>
 </div>
 <div class="paragraph">
-<p>You can overwrite the default configuration and add your own properties by creating a file called <code>qalipsis-config.yml</code> either in the class path or in the working directory or both.</p>
+<p>The configuration files contain all of the settings that are relevant for QALIPSIS to run. Included in the settings the parameters for logging and monitoring data exports, data sources for the Head node, executor sizes, etc.</p>
 </div>
 <div class="paragraph">
-<p>Both the default configuration and the  <code>qalipsis-config.yml</code> file can specify the same parameters; however, the <code>qalipsis-config.yml</code> has precedence.</p>
+<p>You can overwrite the default Qalipsis configuration and include your own properties by creating a file named qalipsis.{extension} or config/qalipsis.{extension} in the classpath or in the working directory or both. The {extension} can be either of the following:</p>
 </div>
+<div class="ulist">
+<ul>
+<li>
+<p>YAML documents (use the extension yaml or yml)</p>
+</li>
+<li>
+<p>JSON documents (use the extension json)</p>
+</li>
+<li>
+<p>flat properties (use the extension properties)</p>
+</li>
+</ul>
 </div>
-<div class="sect2">
-<h3 id="_injecting-values-into-your-scenario"><a class="link" href="#_injecting-values-into-your-scenario">Injecting values into your scenario</a></h3>
 <div class="paragraph">
-<p>You can inject values into your scenario or its declaring class using the annotation <code>@io.qalipsis.api.annotations.Property</code> as in the following example:</p>
+<p>Yaml or yml files have more precedence over a json file and json files have more precedence over a properties file. In a situation, when we have two YAML files with the same name and located in the same directory, the file with the yaml extension has precedence over the one with yml extension.</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="kotlin"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-</pre></td>
-  <td class="code"><pre>class EcommercePurchase(@Property(&quot;ecommerce-purchase.load&quot;) private val numberOfMinions: Int) {
-
-    @Scenario(&quot;login-select-and-checkout&quot;)
-    fun fromLoginToCheckout(@Property(&quot;ecommerce-purchase.action-pace&quot;) actionPaceDuration: Duration) {
-        scenario {
-            minionsCount = numberOfMinions
-        }
-        .constantPace(actionPaceDuration.toMillis())
-
-    }
-}</pre></td>
-</tr></table></code></pre>
+<div class="paragraph">
+<p>You can specify the same parameters in different environment sources, however the levels of precedence of the configuration sources determines the configuration values that are prioritized.</p>
 </div>
+<div class="paragraph">
+<p>The precedence of the configuration sources, from lowest to highest levels is outlined below:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Default configuration embedded in QALIPSIS artifacts</p>
+</li>
+<li>
+<p>Class path files:  the files in /config have precedence over those in the root</p>
+</li>
+<li>
+<p>Working directory files: the files in /config have precedence over those in the root -OS Environment variables</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Java System properties(-DmyArg=value)</p>
+</li>
+<li>
+<p>Command line arguments (using -c “myArg=value”).</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -644,8 +652,8 @@ Hence, you can use its mechanism of <a href="https://docs.micronaut.io/latest/gu
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 0.5.e-SNAPSHOT<br>
-Last updated 2022-11-09 20:02:10 +0100
+Version 0.6.a-SNAPSHOT<br>
+Last updated 2023-04-06 12:19:41 -0400
 </div>
 </div>
 <style>

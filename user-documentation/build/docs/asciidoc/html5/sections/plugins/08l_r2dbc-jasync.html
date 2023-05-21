@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>r2dbc-jasync plugin</title>
+<title>R2DBC-jasync plugin</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -439,28 +439,26 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="book toc2 toc-left">
 <div id="header">
+<h1>R2DBC-jasync plugin</h1>
+<div class="details">
+<span id="revnumber">version 0.6.a-SNAPSHOT</span>
+</div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_r2dbc-jasync-plugin">r2dbc-jasync plugin</a>
-<ul class="sectlevel2">
 <li><a href="#_overview">Overview</a></li>
 <li><a href="#_poll-step">Poll step</a></li>
 <li><a href="#_save-step">Save step</a></li>
 <li><a href="#_search-step">Search step</a></li>
 </ul>
-</li>
-</ul>
 </div>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_r2dbc-jasync-plugin"><a class="link" href="#_r2dbc-jasync-plugin">r2dbc-jasync plugin</a></h2>
+<h2 id="_overview"><a class="link" href="#_overview">Overview</a></h2>
 <div class="sectionbody">
-<div class="sect2">
-<h3 id="_overview"><a class="link" href="#_overview">Overview</a></h3>
 <div class="paragraph">
-<p>The <code>r2dbc-jasync</code> plugin connects QALIPSIS to <a href="https://mariadb.org/">MariaDB</a>, <a href="https://www.mysql.com">MySQL</a> and <a href="https://www.postgresql.org/">PostgreSQL</a>.</p>
+<p>The R2DBC-jasync plugin connects QALIPSIS to <a href="https://mariadb.org/">MariaDB</a>, <a href="https://www.mysql.com">MySQL</a> and <a href="https://www.postgresql.org/">PostgreSQL</a>.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -482,7 +480,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dd>
 <dt class="hdlist1">Dependency</dt>
 <dd>
-<p><code>io.qalipsis:plugin-r2dbc-jasync</code></p>
+<p><code>io.qalipsis.plugin:qalipsis-plugin-r2dbc-jasync</code></p>
 </dd>
 <dt class="hdlist1">Namespace in scenario</dt>
 <dd>
@@ -514,13 +512,15 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dl>
 </div>
 <div class="paragraph">
-<p>Example scenarios using a combination of <code>r2dbc-jasync</code> supported steps are provided <a href="https://github.com/qalipsis/qalipsis-examples/tree/master/r2dbc-jasync">GitHub</a>.</p>
+<p>Example scenarios using a combination of R2DBC-jasync supported steps are provided <a href="https://github.com/qalipsis/qalipsis-examples/tree/master/r2dbc-jasync">GitHub</a>.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_poll-step"><a class="link" href="#_poll-step">Poll step</a></h3>
+</div>
+<div class="sect1">
+<h2 id="_poll-step"><a class="link" href="#_poll-step">Poll step</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>The <code>poll</code> step within the <code>r2bc-jasync</code> plugin polls the newest records from the database, respecting a delay between each execution of a select query.</p>
+<p>The <code>poll</code> step within the R2DBC-jasync plugin polls the newest records from the database, respecting a delay between each execution of a select query.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -578,9 +578,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><code>pollDelay</code> (required): specifies the delay between query executions.</p>
 </li>
 <li>
-<p><code>monitoring</code>(optional): configures the monitoring parameters for the step.</p>
-</li>
-<li>
 <p><code>broadcast</code> (optional): specifies the broadcast parameters for the step.</p>
 </li>
 </ul>
@@ -594,10 +591,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Use the <code>poll</code> step with a join operator when you need to verify the values saved by your tested system in the database.</p>
 </li>
 <li>
-<p><code>query</code> requires at least one sorting field (known as <code>tiebreaker</code> in the example) to filter the newest results and not fetch the same records repeatedly.</p>
-</li>
-<li>
-<p>The latest known value for the <code>tiebreaker</code> is used to filter out the values already received directly from the database.</p>
+<p><code>query</code> requires at least one sorting field to filter the newest results and not fetch the same records repeatedly.</p>
 </li>
 </ul>
 </div>
@@ -609,10 +603,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dl>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_save-step"><a class="link" href="#_save-step">Save step</a></h3>
+</div>
+<div class="sect1">
+<h2 id="_save-step"><a class="link" href="#_save-step">Save step</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>The <code>save</code> step within the <code>r2bc-jasync</code> plugin persists a batch of records into an SQL table using a prepared statement.</p>
+<p>The <code>save</code> step within the R2DBC-jasync plugin persists a batch of records into an SQL table using a prepared statement.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -660,10 +656,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 29
 30
 31
-32
-33
-34
-35
 </pre></td>
   <td class="code"><pre>.r2dbcJasync()
 .save {
@@ -695,24 +687,17 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
             )
         )
     }
-    monitoring {
-        events = false
-        meters = true
-    }
 }</pre></td>
 </tr></table></code></pre>
 </div>
 </div>
 </dd>
-<dt class="hdlist1">Notable parameters</dt>
+<dt class="hdlist1">Notable parameter</dt>
 <dd>
 <div class="ulist">
 <ul>
 <li>
 <p><code>connection</code> (required): specifies the connection parameters.</p>
-</li>
-<li>
-<p><code>monitoring</code>(optional): configures the monitoring parameters for the step.</p>
 </li>
 </ul>
 </div>
@@ -737,10 +722,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dl>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_search-step"><a class="link" href="#_search-step">Search step</a></h3>
+</div>
+<div class="sect1">
+<h2 id="_search-step"><a class="link" href="#_search-step">Search step</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>The <code>search</code> step within the <code>r2bc-jasync</code> plugin searches records in the database using a search query.</p>
+<p>The <code>search</code> step within the R2DBC-jasync plugin searches records in the database using a search query.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -809,9 +796,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li>
 <p><code>parameters</code> (optional): binds values to the clauses of the prepared query.</p>
 </li>
-<li>
-<p><code>monitoring</code>(optional): configures the monitoring parameters for the step.</p>
-</li>
 </ul>
 </div>
 </dd>
@@ -828,11 +812,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 </div>
-</div>
 <div id="footer">
 <div id="footer-text">
-Version 0.5.e-SNAPSHOT<br>
-Last updated 2023-01-28 15:05:12 +0100
+Version 0.6.a-SNAPSHOT<br>
+Last updated 2023-04-06 21:29:18 -0400
 </div>
 </div>
 <style>

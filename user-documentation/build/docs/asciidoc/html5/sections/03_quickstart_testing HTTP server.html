@@ -441,7 +441,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>Quickstart guide: Testing an HTTP server with QALIPSIS</h1>
 <div class="details">
-<span id="revnumber">version 0.5.e-SNAPSHOT</span>
+<span id="revnumber">version 0.6.a-SNAPSHOT</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -450,7 +450,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_what-this-guide-covers">What this guide covers</a></li>
 <li><a href="#_start-an-http-server">Start an HTTP server</a></li>
 <li><a href="#_create-a-project">Create a project</a></li>
-<li><a href="#_prepare-a-scenario">Prepare a scenario</a>
+<li><a href="#_configure-a-scenario">Configure a scenario</a>
 <ul class="sectlevel2">
 <li><a href="#_edit-the-downloaded-scenario-skeleton">Edit the downloaded scenario skeleton</a></li>
 <li><a href="#_configure-the-scenario-basics">Configure the scenario basics</a></li>
@@ -460,7 +460,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_enable-event-logging">Enable event logging</a></li>
 </ul>
 </li>
-<li><a href="#_next-steps">Next steps</a></li>
 </ul>
 </div>
 </div>
@@ -505,10 +504,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Start an HTTP server and a docker environment for the project.</p>
 </li>
 <li>
-<p>Generate a project archive.</p>
+<p>Create a project.</p>
 </li>
 <li>
-<p>Configure a scenario skeleton.</p>
+<p>Configure a scenario.</p>
 </li>
 <li>
 <p>Add steps to the scenario.</p>
@@ -614,13 +613,10 @@ services:
 </li>
 </ol>
 </div>
-<div class="paragraph">
-<p>[ insert graphic/screenshot of the Bootstrap QALIPSIS page ]</p>
-</div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_prepare-a-scenario"><a class="link" href="#_prepare-a-scenario">Prepare a scenario</a></h2>
+<h2 id="_configure-a-scenario"><a class="link" href="#_configure-a-scenario">Configure a scenario</a></h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_edit-the-downloaded-scenario-skeleton"><a class="link" href="#_edit-the-downloaded-scenario-skeleton">Edit the downloaded scenario skeleton</a></h3>
@@ -764,9 +760,6 @@ class Quickstart{
 </div>
 <div class="paragraph">
 <p>Execute the scenario using Gradle: <code>./gradlew run</code>. This allows you to observe requests logged by the HTTP server. However, it does not verify that the server is returning what you expect.</p>
-</div>
-<div class="paragraph">
-<p>[ insert screen shot here of the report]</p>
 </div>
 </div>
 <div class="sect3">
@@ -1044,8 +1037,7 @@ a Java Runtime Environment installed.</p>
 <div class="sect2">
 <h3 id="_enable-event-logging"><a class="link" href="#_enable-event-logging">Enable event logging</a></h3>
 <div class="paragraph">
-<p>To know the details of the failures
-In current directory, create a folder called <code>config</code>.
+<p>In the current directory, create a folder called <code>config</code>.
 In this new folder, create a file called <code>qalipsis.yml</code> with the following content:</p>
 </div>
 <div class="listingblock">
@@ -1061,78 +1053,16 @@ In this new folder, create a file called <code>qalipsis.yml</code> with the foll
 <p>This enables the logging of the events with severity WARN and higher to a file called <code>qalipsis-events.log</code>.</p>
 </div>
 <div class="paragraph">
-<p>Execute your scenario again; the events file is created and contains the details of the individual failed assertions:</p>
+<p>Execute the scenario again; the events file is created and contains the details of the individual failed assertions:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code>2022-03-31T06:33:55.937Z  WARN --- step.assertion.failure;io.qalipsis.plugins.netty.tcp.ConnectionAndRequestResult@1e869276
-MetersImpl(timeToSuccessfulConnect=null, timeToFailedConnect=null, timeToSuccessfulTlsConnect=null, timeToFailedTlsConnect=null, bytesCountToSend=85, sentBytes=85, timeToFirstByte=PT0.10696475S, timeToLastByte=PT0.1163375S, receivedBytes=394)
-PT0.10696475S should be &lt;= PT0.1S;campaign=quickstart-campaign-4d39026fd7,minion=quickstart-http-62qr1n87xx,scenario=quickstart,dag=dag-1,step=verify-patch,context-creation=2022-03-31T06:33:55.730Z,parent-step=_629qthims5,_ step-type=Verification,iteration=0,attempts-after-failure=0,isExhausted=true,isTail=true,isCompleted=true_
-2022-03-31T06:33:56.916Z  WARN --- step.assertion.failure;io.qalipsis.plugins.netty.tcp.ConnectionAndRequestResult@19a03b37
-MetersImpl(timeToSuccessfulConnect=null, timeToFailedConnect=null, timeToSuccessfulTlsConnect=null, timeToFailedTlsConnect=null, bytesCountToSend=85, sentBytes=85, timeToFirstByte=PT0.128673083S, timeToLastByte=PT0.128737375S, receivedBytes=394)
-PT0.128673083S should be &lt;= PT0.1S;campaign=quickstart-campaign-4d39026fd7,minion=quickstart-http-62sqemkv8j,scenario=quickstart,dag=dag-1,step=verify-patch,context-creation=2022-03-31T06:33:56.735Z,parent-step=_629qthims5,_ step-type=Verification,iteration=0,attempts-after-failure=0,isExhausted=true,isTail=true,isCompleted=true_</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Essentially, you want to view the following pertinent parts of the message:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code>2022-03-31T06:33:55.937Z ... PT0.10696475S should be &lt;= PT0.1S ... campaign=quickstart-campaign-4d39026fd7,... scenario=quickstart,... step=verify-patch</code></pre>
-</div>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>The exact instant when the failed assertion occurred:</p>
-<div class="paragraph">
-<p><code>2022-03-31T06:33:55</code> (March 31, 2022 at 06:33:55 UTC) in the example above.</p>
-</div>
-</li>
-<li>
-<p>The reason for the failure:</p>
-<div class="paragraph">
-<p><code>PT0.10696475S should be &#8656; PT0.1S</code></p>
-</div>
-</li>
-<li>
-<p>The campaign (<code>quickstart-campaign-4d39026fd7</code>), scenario (<code>quickstart</code>-http), and verification step (verify-patch) where the failed assertion occurred.</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_next-steps"><a class="link" href="#_next-steps">Next steps</a></h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p>Discover how to push events to a database, making them easier to view and analyze.</p>
-</li>
-<li>
-<p>Work through other QALIPSIS Quickstart Guides:</p>
-<div class="ulist">
-<ul>
-<li>
-<p>quickstart 1</p>
-</li>
-<li>
-<p>quickstart 2</p>
-</li>
-</ul>
-</div>
-</li>
-</ul>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 0.5.e-SNAPSHOT<br>
-Last updated 2022-11-09 20:02:10 +0100
+Version 0.6.a-SNAPSHOT<br>
+Last updated 2023-04-06 12:19:41 -0400
 </div>
 </div>
 <style>

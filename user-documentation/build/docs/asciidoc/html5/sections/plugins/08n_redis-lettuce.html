@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>redis-lettuce plugin</title>
+<title>Redis-lettuce plugin</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -439,26 +439,25 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="book toc2 toc-left">
 <div id="header">
+<h1>Redis-lettuce plugin</h1>
+<div class="details">
+<span id="revnumber">version 0.6.a-SNAPSHOT</span>
+</div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_redis-lettuce-plugin">redis-lettuce plugin</a>
-<ul class="sectlevel2">
 <li><a href="#_poll-step">Poll step</a></li>
 <li><a href="#_save-step">Save step</a></li>
 <li><a href="#_consume-step">Consume step</a></li>
 <li><a href="#_produce-step">Produce step</a></li>
 </ul>
-</li>
-</ul>
 </div>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="_redis-lettuce-plugin"><a class="link" href="#_redis-lettuce-plugin">redis-lettuce plugin</a></h2>
+<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>The redis-lettuce plugin connects QALIPSIS to <a href="https://redis.io/">Redis</a>.</p>
+<p>The Redis-lettuce plugin connects QALIPSIS to <a href="https://redis.io/">Redis</a>.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -468,7 +467,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dd>
 <dt class="hdlist1">Dependency</dt>
 <dd>
-<p><code>io.qalipsis:plugin-redis-lettuce</code></p>
+<p><code>io.qalipsis.plugin:qalipsis-plugin-redis-lettuce</code></p>
 </dd>
 <dt class="hdlist1">Namespace in scenario</dt>
 <dd>
@@ -489,10 +488,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><a href="#_save-step"><code>save</code></a>: saves a batch of records generated from the input and step context.</p>
 </li>
 <li>
-<p><a href="#_consume-step"><code>consume</code></a>: consumes data from <code>redis</code> streams.</p>
+<p><a href="#_consume-step"><code>consume</code></a>: consumes data from Redis streams.</p>
 </li>
 <li>
-<p><a href="#_produce-step"><code>produce</code></a>: pushes messages to <code>redis</code> streams.</p>
+<p><a href="#_produce-step"><code>produce</code></a>: pushes messages to Redis streams.</p>
 </li>
 </ul>
 </div>
@@ -500,12 +499,15 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dl>
 </div>
 <div class="paragraph">
-<p>Example scenarios using a combination of <code>redis</code> supported steps are provided on <a href="https://github.com/qalipsis/qalipsis-examples/tree/master/redis">Github</a>.</p>
+<p>Example scenarios using a combination of Redis supported steps are provided on <a href="https://github.com/qalipsis/qalipsis-examples/tree/master/Redis">Github</a>.</p>
 </div>
-<div class="sect2">
-<h3 id="_poll-step"><a class="link" href="#_poll-step">Poll step</a></h3>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_poll-step"><a class="link" href="#_poll-step">Poll step</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>The <code>poll</code> step within the <code>redis-lettuce</code> plugin polls the newest records from a <code>redis</code> key, with a delay between each execution of polling.</p>
+<p>The <code>poll</code> step within the Redis-lettuce plugin polls the newest records from a Redis key, with a delay between each execution of polling.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -522,7 +524,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>The <code>KeyOrPattern</code> to be used in the poll is set to one of the following valid values: <code>scan</code>, <code>sscan</code>, <code>hscan</code>, <code>zscan</code>.</p>
 </li>
 <li>
-<p>The native <code>redis-lettuce</code> command is called using the <code>KeyOrPattern</code> provided.</p>
+<p>The native Redis-lettuce command is called using the <code>KeyOrPattern</code> provided.</p>
 </li>
 </ul>
 </div>
@@ -566,7 +568,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="ulist">
 <ul>
 <li>
-<p><code>Connection</code>(required): specifies the connection parameters.</p>
+<p><code>Connection</code> (required): specifies the connection parameters.</p>
 </li>
 <li>
 <p><code>redisConnectionType</code> (required): indicates the connection type as <code>SINGLE</code>, <code>CLUSTER</code> or <code>SENTINEL</code>.</p>
@@ -576,9 +578,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li>
 <p><code>pollDelay</code> (required): specifies the delay between query executions.</p>
-</li>
-<li>
-<p><code>monitoring</code>(optional): configures the monitoring parameters for the step.</p>
 </li>
 <li>
 <p><code>broadcast</code> (optional): specifies the broadcast parameters for the step.</p>
@@ -594,7 +593,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Use the <code>poll</code> step with a join operator when you need to verify the values saved by your tested system in the database.</p>
 </li>
 <li>
-<p>In addition to SSCAN (<code>pollSscan</code> in the example), the <code>poll</code> step also supports the following <code>redis</code> commands: HSCAN (<code>polllHscan</code>) SCAN (<code>pollScan</code>), and ZSCAN (<code>pollZscan</code>).</p>
+<p>In addition to SSCAN (<code>pollSscan</code> in the example), the <code>poll</code> step also supports the following Redis commands: HSCAN (<code>polllHscan</code>) SCAN (<code>pollScan</code>), and ZSCAN (<code>pollZscan</code>).</p>
 </li>
 </ul>
 </div>
@@ -615,10 +614,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dl>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_save-step"><a class="link" href="#_save-step">Save step</a></h3>
+</div>
+<div class="sect1">
+<h2 id="_save-step"><a class="link" href="#_save-step">Save step</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>The <code>save</code> step within the <code>redis-lettuce</code> plugin persists a batch of records into <code>redis</code>.</p>
+<p>The <code>save</code> step within the Redis-lettuce plugin persists a batch of records into Redis.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -628,7 +629,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dd>
 <dt class="hdlist1">Functionality</dt>
 <dd>
-<p>The <code>save</code> step&#8217;s input and step context are used to generate a valid <code>redis</code> command and the values to complete it; the batch of results is then forwarded to the next step(s). The records are saved individually.</p>
+<p>The <code>save</code> step&#8217;s input and step context are used to generate a valid Redis command and the values to complete it; the batch of results is then forwarded to the next step(s). The records are saved individually.</p>
 </dd>
 <dt class="hdlist1">Example</dt>
 <dd>
@@ -653,10 +654,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 16
 17
 18
-19
-20
-21
-22
 </pre></td>
   <td class="code"><pre>.redisLettuce()
 .save {
@@ -675,10 +672,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
       )
     )
    }
-  monitoring {
-    events = true
-    meters = true
-  }
 }</pre></td>
 </tr></table></code></pre>
 </div>
@@ -689,16 +682,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="ulist">
 <ul>
 <li>
-<p><code>Connection</code>(required): specifies the connection parameters.</p>
+<p><code>Connection</code> (required): specifies the connection parameters.</p>
 </li>
 <li>
 <p><code>redisConnectionType</code> (required): indicates the connection type as <code>SINGLE</code>, <code>CLUSTER</code> or <code>SENTINEL</code>.</p>
 </li>
 <li>
 <p><code>records</code> (required): generates and configures a list of saved records.</p>
-</li>
-<li>
-<p><code>monitoring</code>(optional): configures the monitoring parameters for the step.</p>
 </li>
 </ul>
 </div>
@@ -708,7 +698,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="ulist">
 <ul>
 <li>
-<p>The <code>save</code> step supports the following <code>redis</code> commands: SET, SADD, HSET, ZADD. The provided command may depend on the context and input value received from the previous step.</p>
+<p>The <code>save</code> step supports the following Redis commands: SET, SADD, HSET, ZADD. The provided command may depend on the context and input value received from the previous step.</p>
 </li>
 <li>
 <p>If the <code>redisConnectionType</code> is set to <code>SENTINEL</code>, the parameter <code>masterId</code> is necessary.</p>
@@ -732,10 +722,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dl>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_consume-step"><a class="link" href="#_consume-step">Consume step</a></h3>
+</div>
+<div class="sect1">
+<h2 id="_consume-step"><a class="link" href="#_consume-step">Consume step</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>The <code>consume</code> step within the <code>redis-lettuce</code> plugin records data from <code>redis</code> streams.</p>
+<p>The <code>consume</code> step within the Redis-lettuce plugin records data from Redis streams.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -745,7 +737,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dd>
 <dt class="hdlist1">Functionality</dt>
 <dd>
-<p>The <code>consume</code> step creates a consumer group in a <code>redis</code> stream with the provided <code>connection</code>, consumer <code>group</code> name, and <code>concurrency</code>. If <code>concurrency</code> is set to 1, records are transmitted sequentially to the next step.</p>
+<p>The <code>consume</code> step creates a consumer group in a Redis stream with the provided <code>connection</code>, consumer <code>group</code> name, and <code>concurrency</code>. If <code>concurrency</code> is set to 1, records are transmitted sequentially to the next step.</p>
 </dd>
 <dt class="hdlist1">Example</dt>
 <dd>
@@ -788,19 +780,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="ulist">
 <ul>
 <li>
-<p><code>connection</code>(required): configures the connection to Qalipsis.</p>
+<p><code>connection</code> (required): configures the connection to QALIPSIS.</p>
 </li>
 <li>
 <p><code>redisConnectionType</code> (required): indicates the connection type as <code>SINGLE</code>, <code>CLUSTER</code> or <code>SENTINEL</code>. The default is <code>SINGLE</code>.</p>
 </li>
 <li>
-<p><code>offset</code>(required): sets the offset value to <code>FROM_BEGINNING</code>, <code>LAST_CONSUMED</code> or <code>LATEST</code> for each topic and consumer group.</p>
+<p><code>offset</code> (required): sets the offset value to <code>FROM_BEGINNING</code>, <code>LAST_CONSUMED</code> or <code>LATEST</code> for each topic and consumer group.</p>
 </li>
 <li>
 <p><code>broadcast</code> (optional): specifies the broadcast parameters for the step.</p>
-</li>
-<li>
-<p><code>monitoring</code>(optional): configures the monitoring parameters for the step.</p>
 </li>
 </ul>
 </div>
@@ -825,10 +814,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dl>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_produce-step"><a class="link" href="#_produce-step">Produce step</a></h3>
+</div>
+<div class="sect1">
+<h2 id="_produce-step"><a class="link" href="#_produce-step">Produce step</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>The <code>produce</code> step within the <code>redis-lettuce</code> plugin produces records into the Redis streams.</p>
+<p>The <code>produce</code> step within the Redis-lettuce plugin produces records into the Redis streams.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -838,7 +829,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dd>
 <dt class="hdlist1">Functionality</dt>
 <dd>
-<p>The <code>produce</code> step produces a batch of records into one or more <code>redis</code> stream topics. The record values may be provided by previous step(s).</p>
+<p>The <code>produce</code> step produces a batch of records into one or more Redis stream topics. The record values may be provided by previous step(s).</p>
 </dd>
 <dt class="hdlist1">Example</dt>
 <dd>
@@ -867,10 +858,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 20
 21
 22
-23
-24
-25
-26
 </pre></td>
   <td class="code"><pre>.redisLettuce()
 .streamsProduce {
@@ -893,10 +880,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
       )
    )
   }
-  monitoring {
-    events = true
-    meters = true
-  }
 }</pre></td>
 </tr></table></code></pre>
 </div>
@@ -911,9 +894,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li>
 <p><code>records</code> (required): generates and configures a list of produced records.</p>
-</li>
-<li>
-<p><code>monitoring</code>(optional): configures the monitoring parameters for the step.</p>
 </li>
 </ul>
 </div>
@@ -946,11 +926,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 </div>
-</div>
 <div id="footer">
 <div id="footer-text">
-Version 0.5.e-SNAPSHOT<br>
-Last updated 2023-01-28 15:05:12 +0100
+Version 0.6.a-SNAPSHOT<br>
+Last updated 2023-04-06 21:50:58 -0400
 </div>
 </div>
 <style>

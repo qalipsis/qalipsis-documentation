@@ -1,6 +1,6 @@
-= JMS plugin
+== JMS plugin
 
-== Overview
+=== Overview
 The JMS plugin connects QALIPSIS to a messaging platform that supports https://www.oracle.com/java/technologies/java-message-service.html[JMS].
 
 Technology addressed::
@@ -22,8 +22,7 @@ Supported steps::
 
 An example scenario that uses a combination of the JMS  `consume` and `produce` steps is provided on https://github.com/qalipsis/qalipsis-examples/tree/master/jms[GitHub].
 
-
-== Consume step 
+=== Consume step 
 The `consume` step within the JMS plugin consumes records from https://activemq.apache.org/[ActiveMQ].
  
 Ancestor::
@@ -60,7 +59,7 @@ The https://activemq.apache.org/[ActiveMQ] connection can be configured for eith
 Reference documentation::
 Refer to the  https://www.oracle.com/java/technologies/java-message-service.html[JMS] documentation for further parameter and configuration information.
  
-== Produce step
+=== Produce step
 The `produce` step within the JMS plugin produces records in https://activemq.apache.org/[ActiveMQ] using https://www.oracle.com/java/technologies/java-message-service.html[JMS].
  
 Ancestor::
@@ -75,7 +74,6 @@ Example::
 ----
 .jms()
 .produce {
-
     connect {
         ActiveMQConnectionFactory("tcp://localhost:61616").createConnection()
     }

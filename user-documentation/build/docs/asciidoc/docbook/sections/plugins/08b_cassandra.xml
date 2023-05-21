@@ -3,14 +3,14 @@
 <?asciidoc-numbered?>
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
-<title>cassandra plugin</title>
-<date>2023-01-28</date>
+<title>Cassandra plugin</title>
+<date>2023-05-02</date>
 </info>
 <chapter xml:id="_cassandra-plugin">
-<title>cassandra plugin</title>
+<title>Cassandra plugin</title>
 <section xml:id="_overview">
 <title>Overview</title>
-<simpara>The <literal>cassandra</literal> plugin connects QALIPSIS to <link xl:href="https://cassandra.apache.org/_/index.html">Apache Cassandra</link>.</simpara>
+<simpara>The Cassandra plugin connects QALIPSIS to <link xl:href="https://cassandra.apache.org/_/index.html">Apache Cassandra</link>.</simpara>
 <variablelist>
 <varlistentry>
 <term>Technologies addressed</term>
@@ -31,7 +31,7 @@
 <varlistentry>
 <term>Dependency</term>
 <listitem>
-<simpara><literal>io.qalipsis:plugin-cassandra</literal></simpara>
+<simpara><literal>io.qalipsis.plugin:qalipsis-plugin-cassandra</literal></simpara>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -64,11 +64,11 @@
 </listitem>
 </varlistentry>
 </variablelist>
-<simpara>Example scenarios using a combination of <literal>cassandra</literal> supported steps are provided on <link xl:href="https://github.com/qalipsis/qalipsis-examples/tree/master/cassandra">Github</link>.</simpara>
+<simpara>Example scenarios using a combination of Cassandra supported steps are provided on <link xl:href="https://github.com/qalipsis/qalipsis-examples/tree/master/cassandra">Github</link>.</simpara>
 </section>
 <section xml:id="_poll-step">
 <title>Poll step</title>
-<simpara>The <literal>poll</literal> step within the <literal>cassandra</literal> plugin polls the newest records from the database table.</simpara>
+<simpara>The <literal>poll</literal> step within the Cassandra plugin polls the newest records from the database table.</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -79,7 +79,7 @@
 <varlistentry>
 <term>Functionality</term>
 <listitem>
-<simpara>The <literal>poll</literal> step is created only once in a scenario; it is then used throughout the scenario as called. The <literal>poll</literal> step within the <literal>cassandra</literal> plugin uses a strategy of “delivered at least once."</simpara>
+<simpara>The <literal>poll</literal> step is created only once in a scenario; it is then used throughout the scenario as called. The <literal>poll</literal> step within the Cassandra plugin uses a strategy of “delivered at least once."</simpara>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -91,7 +91,7 @@
 <programlisting language="kotlin" linenumbering="numbered">cassandra().poll {
     connect {
         servers = listOf("localhost:9042")
-        keyspace = "iot"
+        keySpace = "iot"
         datacenterName = "datacenter1"
     }
     query("SELECT deviceid, timestamp, batterylevel FROM devices WHERE company = ? ORDER BY timestamp")
@@ -111,7 +111,7 @@
 <simpara><literal>connect</literal> (required): configures the connection to <link xl:href="https://cassandra.apache.org">Apache Cassandra</link></simpara>
 </listitem>
 <listitem>
-<simpara><literal>keyspace</literal>(required): the outermost object that determines how data replicates on nodes.</simpara>
+<simpara><literal>keyspace</literal> (required): the outermost object that determines how data replicates on nodes.</simpara>
 </listitem>
 <listitem>
 <simpara><literal>query</literal> (required): defines the prepared statement to execute when polling.</simpara>
@@ -124,9 +124,6 @@
 </listitem>
 <listitem>
 <simpara><literal>pollDelay</literal> (required): specifies the delay between query executions.</simpara>
-</listitem>
-<listitem>
-<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
 </listitem>
 <listitem>
 <simpara><literal>broadcast</literal> (optional): specifies the broadcast parameters for the step.</simpara>
@@ -153,14 +150,14 @@
 <varlistentry>
 <term>Reference documentation</term>
 <listitem>
-<simpara>Refer to the <link xl:href="https://cassandra.apache.org/doc/latest">Apache Cassandra</link> documentation further parameter and configuration information.</simpara>
+<simpara>Refer to the <link xl:href="https://cassandra.apache.org/doc/latest">Apache Cassandra</link> documentation for further parameter and configuration information.</simpara>
 </listitem>
 </varlistentry>
 </variablelist>
 </section>
 <section xml:id="_save-step">
 <title>Save step</title>
-<simpara>The <literal>save</literal> step within the <literal>cassandra</literal> plugin persists records into a cassandra database using the save query with Cassandra Query Language (CQL).</simpara>
+<simpara>The <literal>save</literal> step within the Cassandra plugin persists records into a cassandra database using the save query with Cassandra Query Language (CQL).</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -221,10 +218,7 @@
 <simpara><literal>connect</literal> (required): configures the connection to <link xl:href="https://cassandra.apache.org">Apache Cassandra</link>.</simpara>
 </listitem>
 <listitem>
-<simpara><literal>keyspace</literal>(required): the outermost object that determines how data replicates on nodes.</simpara>
-</listitem>
-<listitem>
-<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
+<simpara><literal>keyspace</literal> (required): the outermost object that determines how data replicates on nodes.</simpara>
 </listitem>
 </itemizedlist>
 </listitem>
@@ -234,7 +228,7 @@
 <listitem>
 <itemizedlist>
 <listitem>
-<simpara>Use the <literal>save</literal> after a <literal>collect</literal> step in order to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.</simpara>
+<simpara>Use the <literal>save</literal> step after a <literal>collect</literal> step to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.</simpara>
 </listitem>
 <listitem>
 <simpara>The <literal>save</literal> step is extremely flexible; table, rows, and columns depend on the context and input value received from the previous step.</simpara>
@@ -252,7 +246,7 @@
 </section>
 <section xml:id="_search-step">
 <title>Search step</title>
-<simpara>The <literal>search</literal> step within the <literal>cassandra</literal> plugin searches records in the database using a search query.</simpara>
+<simpara>The <literal>search</literal> step within the Cassandra plugin searches records in the database using a search query.</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -303,9 +297,6 @@
 </listitem>
 <listitem>
 <simpara><literal>parameters</literal>: (optional): binds values to the clauses of the prepared query.</simpara>
-</listitem>
-<listitem>
-<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
 </listitem>
 </itemizedlist>
 </listitem>

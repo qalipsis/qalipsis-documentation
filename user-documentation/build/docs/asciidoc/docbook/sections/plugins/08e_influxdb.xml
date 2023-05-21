@@ -3,14 +3,14 @@
 <?asciidoc-numbered?>
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
-<title>influxdb plugin</title>
-<date>2023-01-28</date>
+<title>InfluxDB plugin</title>
+<date>2023-04-06</date>
 </info>
 <chapter xml:id="_influxdb-plugin">
-<title>influxdb plugin</title>
+<title>InfluxDB plugin</title>
 <section xml:id="_overview">
 <title>Overview</title>
-<simpara>The <literal>influxdb</literal> plugin connects QALIPSIS to <link xl:href="https://www.influxdata.com/">InfluxDB</link>.</simpara>
+<simpara>The InfluxDB plugin connects QALIPSIS to <link xl:href="https://www.influxdata.com/">InfluxDB</link>.</simpara>
 <variablelist>
 <varlistentry>
 <term>Technologies addressed</term>
@@ -28,7 +28,7 @@
 <varlistentry>
 <term>Dependency</term>
 <listitem>
-<simpara><literal>io.qalipsis:plugin-influxdb</literal></simpara>
+<simpara><literal>io.qalipsis.plugin:qalipsis-plugin-influxdb</literal></simpara>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -60,11 +60,11 @@
 </listitem>
 </varlistentry>
 </variablelist>
-<simpara>Example scenarios using a combination of the <literal>influxdb</literal> supported steps are provided on <link xl:href="https://github.com/qalipsis/qalipsis-examples/tree/master/influxdb">GitHub</link>.</simpara>
+<simpara>Example scenarios using a combination of the InfluxDB supported steps are provided on <link xl:href="https://github.com/qalipsis/qalipsis-examples/tree/master/influxdb">GitHub</link>.</simpara>
 </section>
 <section xml:id="_poll-step">
 <title>Poll step</title>
-<simpara>The <literal>poll</literal> step within the <literal>influxdb()</literal> plugin polls the newest records from the database, with a delay between each execution of a select query.</simpara>
+<simpara>The <literal>poll</literal> step within the InfluxDB plugin polls the newest records from the database, with a delay between each execution of a select query.</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -75,7 +75,7 @@
 <varlistentry>
 <term>Functionality</term>
 <listitem>
-<simpara>The <literal>poll</literal> step is created only once in a scenario; it is then used throughout the scenario as called. The <literal>poll</literal> step within the <literal>influxdb</literal> plugin uses a strategy of “delivered at least once”.</simpara>
+<simpara>The <literal>poll</literal> step is created only once in a scenario; it is then used throughout the scenario as called. The <literal>poll</literal> step within the InfluxDB plugin uses a strategy of “delivered at least once”.</simpara>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -120,9 +120,6 @@
 <simpara><literal>pollDelay</literal> (required): specifies the delay between query executions.</simpara>
 </listitem>
 <listitem>
-<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
-</listitem>
-<listitem>
 <simpara><literal>broadcast</literal> (optional): specifies the broadcast parameters for the step.</simpara>
 </listitem>
 </itemizedlist>
@@ -144,7 +141,7 @@
 </section>
 <section xml:id="_save-step">
 <title>Save step</title>
-<simpara>The <literal>save</literal> step within the <literal>influxdb()</literal> plugin persists a batch of records into the <literal>influxdb</literal> bucket using a specific <literal>points</literal> class.</simpara>
+<simpara>The <literal>save</literal> step within the InfluxDB plugin persists a batch of records into the InfluxDB bucket using a specific <literal>points</literal> class.</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -186,14 +183,11 @@
 </listitem>
 </varlistentry>
 <varlistentry>
-<term>Notable parameters</term>
+<term>Notable parameter</term>
 <listitem>
 <itemizedlist>
 <listitem>
 <simpara><literal>connect</literal> (required): configures the connection to <link xl:href="https://www.influxdata.com/">InfluxDB</link>.</simpara>
-</listitem>
-<listitem>
-<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
 </listitem>
 </itemizedlist>
 </listitem>
@@ -221,7 +215,7 @@
 </section>
 <section xml:id="_search-step">
 <title>Search step</title>
-<simpara>The <literal>search</literal> step within the <literal>influxdb</literal> plugin searches records in the database using a search query.</simpara>
+<simpara>The <literal>search</literal> step within the InfluxDB plugin searches records in the database using a search query.</simpara>
 <variablelist>
 <varlistentry>
 <term>Ancestor</term>
@@ -274,9 +268,6 @@
 <listitem>
 <simpara><literal>connect</literal> (required): configures the connection to <link xl:href="https://www.influxdata.com/">InfluxDB</link>.</simpara>
 </listitem>
-<listitem>
-<simpara><literal>monitoring</literal>(optional): configures the monitoring parameters for the step.</simpara>
-</listitem>
 </itemizedlist>
 </listitem>
 </varlistentry>
@@ -293,6 +284,112 @@
 </listitem>
 </varlistentry>
 </variablelist>
+</section>
+</chapter>
+<chapter xml:id="_configuration-of-publication-of-events-and-meters-to-influxdb">
+<title>Configuration of publication of events and meters to InfluxDB</title>
+<section xml:id="_events">
+<title>Events</title>
+<variablelist>
+<varlistentry>
+<term>Configuration namespace</term>
+<listitem>
+<simpara><literal>events.export.influxdb</literal></simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Parameters</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><literal>enabled</literal>: boolean flag that activates/deactivates event publishing to InfluxDB; defaults to <literal>false</literal>; <emphasis role="strong">must</emphasis> be set to <literal>true</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>url</literal>: string URL to the InfluxDB instance; defaults to <literal><link xl:href="http://localhost:8086">http://localhost:8086</link></literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>min-level</literal>: minimum accepted level of events; defaults to INFO; allowable values are `EventLevel`values: TRACE, DEBUG, INFO, WARN, ERROR, OFF.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>linger-period</literal>: maximum period between publication of events to InfluxDB; positive duration, defaults to <literal>10s</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>batch-size</literal>: maximum number of events buffered between two publications of events to InfluxDB; positive integer; defaults to <literal>2000</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>publishers</literal>: number of concurrent publication of events that can run; positive integer; defaults to <literal>1</literal> (no concurrency).</simpara>
+</listitem>
+<listitem>
+<simpara><literal>username</literal>: name of the user for basic authentication when connecting to InfluxDB; defaults to <literal>user</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>password</literal>: password of the user for basic authentication when connecting to InfluxDB; defaults to <literal>passpasspass</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>org</literal>: name of the organization to use for basic authentication when connecting to InfluxDB; defaults to <literal>qalipsis</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>bucket</literal>: password of the bucket to use for saving events to InfluxDB; defaults to <literal>qalipsis-event</literal>.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
+<section xml:id="_meters">
+<title>Meters</title>
+<variablelist>
+<varlistentry>
+<term>Configuration namespace</term>
+<listitem>
+<simpara><literal>meters.export.influxdb</literal></simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Parameters</term>
+<listitem>
+<itemizedlist>
+<listitem>
+<simpara><literal>enabled</literal>: boolean flag that activates/deactivates meter publishing to InfluxDB; defaults to <literal>false</literal>; <emphasis role="strong">must</emphasis> be set to <literal>true</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>step</literal> (optional): The step size (reporting frequency); defaults to <literal>PT10S</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>url</literal>: string URL to the InfluxDB instance; defaults to <literal><link xl:href="http://localhost:8086">http://localhost:8086</link></literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>org</literal>: name of the organization to use for basic authentication when connecting to InfluxDB; defaults to <literal>qalipsis</literal>.</simpara>
+</listitem>
+<listitem>
+<simpara><literal>bucket</literal>: password of the bucket to use for saving meters to InfluxDB; defaults to <literal>qalipsis-meter</literal>.</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
+<section xml:id="_example">
+<title>Example</title>
+<programlisting language="kotlin" linenumbering="numbered">events:
+  export:
+    influxdb:
+      url: http://localhost:8086
+      enabled: true
+      min-level: INFO
+      linger-period: 10s
+      batch-size: 2000
+      org: qalipsis
+      bucket: qalipsis-event
+
+meters:
+  export:
+    influxdb:
+      url: http://localhost:8086
+      enabled: true
+      step: PT10S
+      org: qalipsis
+      bucket: qalipsis-event</programlisting>
 </section>
 </chapter>
 </book>

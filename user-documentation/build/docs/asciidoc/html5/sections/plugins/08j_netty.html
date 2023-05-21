@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>netty plugin</title>
+<title>Netty plugin</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -439,11 +439,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="book toc2 toc-left">
 <div id="header">
+<h1>Netty plugin</h1>
+<div class="details">
+<span id="revnumber">version 0.6.a-SNAPSHOT</span>
+</div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_netty-plugin">netty plugin</a>
-<ul class="sectlevel2">
 <li><a href="#_overview">Overview</a></li>
 <li><a href="#_http-step">HTTP step</a></li>
 <li><a href="#_http-with-step">HTTP WITH step</a></li>
@@ -455,18 +457,14 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_close-tcp-step">CLOSE TCP step</a></li>
 <li><a href="#_udp-step">UDP step</a></li>
 </ul>
-</li>
-</ul>
 </div>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_netty-plugin"><a class="link" href="#_netty-plugin">netty plugin</a></h2>
+<h2 id="_overview"><a class="link" href="#_overview">Overview</a></h2>
 <div class="sectionbody">
-<div class="sect2">
-<h3 id="_overview"><a class="link" href="#_overview">Overview</a></h3>
 <div class="paragraph">
-<p>The <a href="https://netty.io/">netty</a> plugin supports <a href="https://datatracker.ietf.org/doc/html/rfc793">TCP</a>, <a href="https://datatracker.ietf.org/doc/html/rfc768">UDP</a>, <a href="https://httpwg.org/">HTTP</a> and <a href="https://mqtt.org/">MQTT</a> clients.</p>
+<p>The <a href="https://netty.io/">Netty</a> plugin supports <a href="https://datatracker.ietf.org/doc/html/rfc793">TCP</a>, <a href="https://datatracker.ietf.org/doc/html/rfc768">UDP</a>, <a href="https://httpwg.org/">HTTP</a> and <a href="https://mqtt.org/">MQTT</a> clients.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -494,7 +492,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dd>
 <dt class="hdlist1">Dependency</dt>
 <dd>
-<p><code>io.qalipsis:plugin-netty</code></p>
+<p><code>io.qalipsis.plugin:qalipsis-plugin-netty</code></p>
 </dd>
 <dt class="hdlist1">Namespace in scenario</dt>
 <dd>
@@ -541,10 +539,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dl>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_http-step"><a class="link" href="#_http-step">HTTP step</a></h3>
+</div>
+<div class="sect1">
+<h2 id="_http-step"><a class="link" href="#_http-step">HTTP step</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>The <code>HTTP</code> step within the <code>netty</code> plugin executes an HTTP request using <a href="https://datatracker.ietf.org/doc/rfc2616"><code>HTTP 1.1</code></a> or <a href="https://datatracker.ietf.org/doc/rfc7540"><code>HTTP 2.0</code></a>.</p>
+<p>The <code>HTTP</code> step within the Netty plugin executes an HTTP request using <a href="https://datatracker.ietf.org/doc/rfc2616"><code>HTTP 1.1</code></a> or <a href="https://datatracker.ietf.org/doc/rfc7540"><code>HTTP 2.0</code></a>.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -673,7 +673,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><code>receiveBufferSize</code>: the size of the buffer to receive the data of the response; defaults to 1024 bytes.</p>
 </li>
 <li>
-<p><code>nettyChannelOptions</code>: overwrites the options of the <code>netty</code> channel, use with care.</p>
+<p><code>nettyChannelOptions</code>: overwrites the options of the Netty channel; use with care.</p>
 </li>
 <li>
 <p><code>noDelay</code>: disables the Nagle Algorithm; defaults to true.</p>
@@ -689,10 +689,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><code>disableCertificationVerification</code>: set it to true when the certificate on server should not be verified (for example for a self-signed certificate)</p>
 </li>
 <li>
-<p><code>protocols</code>: supported protocols; defaults to the <code>netty</code> default for the related HTTP version.</p>
+<p><code>protocols</code>: supported protocols; defaults to the Netty default for the related HTTP version.</p>
 </li>
 <li>
-<p><code>ciphers</code>: supported cipher algorithms; defaults to the netty` default for the related HTTP version.</p>
+<p><code>ciphers</code>: supported cipher algorithms; defaults to the Netty default for the related HTTP version.</p>
 </li>
 </ul>
 </div>
@@ -763,10 +763,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dl>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_http-with-step"><a class="link" href="#_http-with-step">HTTP WITH step</a></h3>
+</div>
+<div class="sect1">
+<h2 id="_http-with-step"><a class="link" href="#_http-with-step">HTTP WITH step</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>The <code>HTTP WITH</code> step within the <code>netty</code> plugin executes an HTTP request reusing the HTTP connection created by a precedent step.</p>
+<p>The <code>HTTP WITH</code> step within the Netty plugin executes an HTTP request reusing the HTTP connection created by a precedent step.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -843,10 +845,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dl>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_close-http-step"><a class="link" href="#_close-http-step">CLOSE HTTP step</a></h3>
+</div>
+<div class="sect1">
+<h2 id="_close-http-step"><a class="link" href="#_close-http-step">CLOSE HTTP step</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>The <code>CLOSE HTTP</code> step within the <code>netty</code> plugin closes the <code>HTTP</code> connection attached to the minion, and created by a direct or indirect ancestor step, when the tail of the minion workflow is received.</p>
+<p>The <code>CLOSE HTTP</code> step within the Netty plugin closes the <code>HTTP</code> connection attached to the minion, and created by a direct or indirect ancestor step, when the tail of the minion workflow is received.</p>
 </div>
 <div class="paragraph">
 <p>It is always a best practice to use a <em>CLOSE HTTP</em>  step when reusing an <code>HTTP</code> connection across several steps without a pool of connections.</p>
@@ -875,15 +879,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="dlist">
 <dl>
-<dt class="hdlist1">Notable parameters</dt>
+<dt class="hdlist1">Notable parameter</dt>
 <dd>
 <div class="ulist">
 <ul>
 <li>
 <p><code>closeHttp</code> (required)  specifies the  name of an <code>HTTP</code> step owning the <code>HTTP</code> connection to close.</p>
-</li>
-<li>
-<p><code>monitoring</code>(optional): configures the monitoring parameters for the step.</p>
 </li>
 </ul>
 </div>
@@ -901,94 +902,32 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dl>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_mqtt-publish-step"><a class="link" href="#_mqtt-publish-step">MQTT publish step</a></h3>
+</div>
+<div class="sect1">
+<h2 id="_mqtt-publish-step"><a class="link" href="#_mqtt-publish-step">MQTT publish step</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>The <code>MQTT Publish</code> step within the <code>netty</code> plugin sends data to an MQTT server.</p>
-</div>
-<div class="dlist">
-<dl>
-<dt class="hdlist1">Ancestor</dt>
-<dd>
-<p>To be provided.</p>
-</dd>
-<dt class="hdlist1">Functionality</dt>
-<dd>
-<p>To be provided.</p>
-</dd>
-<dt class="hdlist1">Example</dt>
-<dd>
-<div class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="kotlin"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-</pre></td>
-  <td class="code"><pre>To be provided.</pre></td>
-</tr></table></code></pre>
+<p>The <code>MQTT Publish</code> step within the Netty plugin sends data to an MQTT server.</p>
 </div>
 </div>
-</dd>
-<dt class="hdlist1">Notable parameters</dt>
-<dd>
-<p>To be provided.</p>
-</dd>
-<dt class="hdlist1">Tip(s)</dt>
-<dd>
-<p>To be provided.</p>
-</dd>
-</dl>
 </div>
-</div>
-<div class="sect2">
-<h3 id="_mqtt-subscribe-step"><a class="link" href="#_mqtt-subscribe-step">MQTT subscribe step</a></h3>
+<div class="sect1">
+<h2 id="_mqtt-subscribe-step"><a class="link" href="#_mqtt-subscribe-step">MQTT subscribe step</a></h2>
+<div class="sectionbody">
 <div class="ulist">
 <ul>
 <li>
-<p>The <code>MQTT Subscribe Step</code> within the <code>netty</code> plugin consumes data from an MQTT server.</p>
-<div class="dlist">
-<dl>
-<dt class="hdlist1">Ancestor</dt>
-<dd>
-<p>To be provided.</p>
-</dd>
-<dt class="hdlist1">Functionality</dt>
-<dd>
-<p>To be provided.</p>
-</dd>
-<dt class="hdlist1">Example</dt>
-<dd>
-<div class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="kotlin"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-</pre></td>
-  <td class="code"><pre>To be provided.</pre></td>
-</tr></table></code></pre>
-</div>
-</div>
-</dd>
-<dt class="hdlist1">Notable Parameters</dt>
-<dd>
-<p>To be provided.</p>
-</dd>
-<dt class="hdlist1">Tip(s)</dt>
-<dd>
-<p>To be provided</p>
-</dd>
-<dt class="hdlist1">Reference Documentation</dt>
-<dd>
-<p>To be provided</p>
-</dd>
-</dl>
-</div>
+<p>The <code>MQTT Subscribe Step</code> within the Netty plugin consumes data from an MQTT server.</p>
 </li>
 </ul>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_tcp-step"><a class="link" href="#_tcp-step">TCP step</a></h3>
+</div>
+<div class="sect1">
+<h2 id="_tcp-step"><a class="link" href="#_tcp-step">TCP step</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>The <code>TCP</code> step within the <code>netty</code> plugin is a client for <code>TCP</code>.</p>
+<p>The <code>TCP</code> step within the Netty plugin is a client for <code>TCP</code>.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -1098,7 +1037,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><code>receiveBufferSize</code>: the size of the buffer to receive the data of the response; defaults to 1024 bytes.</p>
 </li>
 <li>
-<p><code>nettyChannelOptions</code>: overwrites the options of the <code>netty</code> channel, use with care.</p>
+<p><code>nettyChannelOptions</code>: overwrites the options of the Netty channel, use with care.</p>
 </li>
 <li>
 <p><code>noDelay</code>: disables the Nagle Algorithm; defaults to <code>true</code>.</p>
@@ -1113,10 +1052,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><code>disableCertificationVerification</code>: set to true if the certificate on the server should not be verified (for example for a self-signed certificate).</p>
 </li>
 <li>
-<p><code>protocols</code>: supported protocols; defaults to the <code>netty</code> default.</p>
+<p><code>protocols</code>: supported protocols; defaults to the Netty default.</p>
 </li>
 <li>
-<p><code>ciphers</code>: supported cipher algorithms; defaults to the <code>netty</code> default.</p>
+<p><code>ciphers</code>: supported cipher algorithms; defaults to the Netty default.</p>
 <div class="ulist">
 <ul>
 <li>
@@ -1150,6 +1089,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </ul>
 </div>
 </li>
+<li>
+<p><code>monitoring</code>(optional): configures the monitoring parameters for the step.</p>
+</li>
 </ul>
 </div>
 </dd>
@@ -1166,10 +1108,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dl>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_tcp-with-step"><a class="link" href="#_tcp-with-step">TCP WITH step</a></h3>
+</div>
+<div class="sect1">
+<h2 id="_tcp-with-step"><a class="link" href="#_tcp-with-step">TCP WITH step</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>The <code>TCP WITH step</code> within the <code>netty</code> plugin sends a TCP payload, reusing the connection created by a precedent step.</p>
+<p>The <code>TCP WITH step</code> within the Netty plugin sends a TCP payload, reusing the connection created by a precedent step.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -1234,10 +1178,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dl>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_close-tcp-step"><a class="link" href="#_close-tcp-step">CLOSE TCP step</a></h3>
+</div>
+<div class="sect1">
+<h2 id="_close-tcp-step"><a class="link" href="#_close-tcp-step">CLOSE TCP step</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>The <code>CLOSE TCP</code> step within the <code>netty</code> plugin closes the TCP connection, attached to a minion and created by a direct or indirect ancestor step, when the tail of the minion workflow is received.</p>
+<p>The <code>CLOSE TCP</code> step within the Netty plugin closes the TCP connection, attached to a minion and created by a direct or indirect ancestor step, when the tail of the minion workflow is received.</p>
 </div>
 <div class="paragraph">
 <p>It is best practice to use a <code>CLOSE TCP</code> step when reusing a <code>TCP</code> connection across several steps without a pool of connections.</p>
@@ -1264,19 +1210,14 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 </dd>
-<dt class="hdlist1">Notable parameters</dt>
-<dd>
-<div class="ulist">
-<ul>
-<li>
-<p><code>closeHttp</code> (required):  specifies the  name of the <code>HTTP</code> step to close.</p>
-</li>
-<li>
-<p><code>monitoring</code>(optional): configures the monitoring parameters for the step.</p>
-</li>
-</ul>
+</dl>
 </div>
-</dd>
+<div class="paragraph">
+<p>Notable parameter:
+* <code>closeHttp</code> (required):  specifies the  name of the <code>HTTP</code> step to close.</p>
+</div>
+<div class="dlist">
+<dl>
 <dt class="hdlist1">Reference Documentation</dt>
 <dd>
 <div class="ulist">
@@ -1290,10 +1231,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dl>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_udp-step"><a class="link" href="#_udp-step">UDP step</a></h3>
+</div>
+<div class="sect1">
+<h2 id="_udp-step"><a class="link" href="#_udp-step">UDP step</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>The <code>UDP</code> step within the <code>netty</code> plugin is a client for UDP.</p>
+<p>The <code>UDP</code> step within the Netty plugin is a client for UDP.</p>
 </div>
 <div class="paragraph">
 <p>It is best practice to use the  <code>UDP</code> step when reusing a <code>TCP</code> connection across several steps without a pool of connections.</p>
@@ -1324,10 +1267,6 @@ Scenario and Step</p>
 9
 10
 11
-12
-13
-14
-15
 </pre></td>
   <td class="code"><pre>netty().udp {
     request { context, input -&gt; input.encodeToByteArray() }
@@ -1338,10 +1277,6 @@ Scenario and Step</p>
     pool {
        size = 143
        checkHealthBeforeUse = true
-   }
-   monitoring {
-       events = true
-       meters = true
    }
 }</pre></td>
 </tr></table></code></pre>
@@ -1378,13 +1313,10 @@ Scenario and Step</p>
 <p><code>receiveBufferSize</code>: the size of the buffer to receive the data of the response; defaults to <code>1024</code> bytes.</p>
 </li>
 <li>
-<p><code>nettyChannelOptions</code>: overwrites the options of the <code>netty</code> channel, use with care.</p>
+<p><code>nettyChannelOptions</code>: overwrites the options of the Netty channel, use with care.</p>
 </li>
 </ul>
 </div>
-</li>
-<li>
-<p><code>monitoring</code>(optional): configures the monitoring parameters for the step.</p>
 </li>
 </ul>
 </div>
@@ -1404,11 +1336,10 @@ Scenario and Step</p>
 </div>
 </div>
 </div>
-</div>
 <div id="footer">
 <div id="footer-text">
-Version 0.5.e-SNAPSHOT<br>
-Last updated 2023-01-28 15:05:12 +0100
+Version 0.6.a-SNAPSHOT<br>
+Last updated 2023-04-06 21:11:03 -0400
 </div>
 </div>
 <style>

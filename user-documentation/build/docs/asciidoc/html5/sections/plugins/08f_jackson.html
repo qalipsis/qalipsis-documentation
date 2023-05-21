@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>jackson plugin</title>
+<title>Jackson plugin</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -439,28 +439,25 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="book toc2 toc-left">
 <div id="header">
+<h1>Jackson plugin</h1>
+<div class="details">
+<span id="revnumber">version 0.6.a-SNAPSHOT</span>
+</div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
-<ul class="sectlevel1">
-<li><a href="#_jackson-plugin">jackson plugin</a>
 <ul class="sectlevel2">
 <li><a href="#_overview">Overview</a></li>
 <li><a href="#_csvtomap-and-csvtoobject">csvToMap and csvToObject</a></li>
 <li><a href="#_xmltoobject">xmlToObject</a></li>
 <li><a href="#_jsontomap-and-jsontoobject">jsonToMap and jsonToObject</a></li>
 </ul>
-</li>
-</ul>
 </div>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="_jackson-plugin"><a class="link" href="#_jackson-plugin">jackson plugin</a></h2>
-<div class="sectionbody">
 <div class="sect2">
 <h3 id="_overview"><a class="link" href="#_overview">Overview</a></h3>
 <div class="paragraph">
-<p>The <code>jackson</code> plugin supports reading a (<a href="https://github.com/FasterXML/jackson">JSON, XML or CSV</a>) file, converting the data to an object, and pushing the object to the next step.</p>
+<p>The Jackson plugin supports reading a (<a href="https://github.com/FasterXML/jackson">JSON, XML or CSV</a>) file, converting the data to an object, and pushing the object to the next step.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -470,7 +467,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dd>
 <dt class="hdlist1">Dependency</dt>
 <dd>
-<p><code>io.qalipsis:plugin-jackson</code></p>
+<p><code>io.qalipsis.plugin:qalipsis-plugin-jackson</code></p>
 </dd>
 <dt class="hdlist1">Namespace in scenario</dt>
 <dd>
@@ -499,10 +496,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dl>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_csvtomap-and-csvtoobject"><a class="link" href="#_csvtomap-and-csvtoobject">csvToMap and csvToObject</a></h3>
+<div class="sect1">
+<h2 id="_csvtomap-and-csvtoobject"><a class="link" href="#_csvtomap-and-csvtoobject">csvToMap and csvToObject</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>The <code>csvToMap</code> and <code>csvToObject</code> steps within the <code>jackson</code> plugin read a CSV resource (file, classpath resource, URL) and returns each item as an instance of an Object or Map.</p>
+<p>The <code>csvToMap</code> and <code>csvToObject</code> steps within the Jackson plugin read a CSV resource (file, classpath resource, URL) and returns each item as an instance of an Object or Map.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -591,9 +589,6 @@ The step reads a CSV file, converts the data to a <code>map</code> (or an <code>
 <li>
 <p><code>mapper</code>: configures the JSON Mapper to deserialize the records.</p>
 </li>
-<li>
-<p><code>monitoring</code>(optional): configures the monitoring parameters for the step.</p>
-</li>
 </ul>
 </div>
 </dd>
@@ -608,10 +603,12 @@ The step reads a CSV file, converts the data to a <code>map</code> (or an <code>
 </dl>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_xmltoobject"><a class="link" href="#_xmltoobject">xmlToObject</a></h3>
+</div>
+<div class="sect1">
+<h2 id="_xmltoobject"><a class="link" href="#_xmltoobject">xmlToObject</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>The <code>xmlToObject</code> step within the <code>jackson</code> plugin reads an XML resource (classpath, file, or url) and returns each item as an instance of an object of the specified class.</p>
+<p>The <code>xmlToObject</code> step within the Jackson plugin reads an XML resource (classpath, file, or url) and returns each item as an instance of an object of the specified class.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -653,9 +650,6 @@ The step reads an XML file, converts the data to an <code>Object</code>, and pus
 <li>
 <p><code>url(url)</code>: specifies and links to the <code>url</code> of the data resource.</p>
 </li>
-<li>
-<p><code>monitoring</code>(optional): configures the monitoring parameters for the step.</p>
-</li>
 </ul>
 </div>
 </dd>
@@ -670,10 +664,12 @@ The step reads an XML file, converts the data to an <code>Object</code>, and pus
 </dl>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_jsontomap-and-jsontoobject"><a class="link" href="#_jsontomap-and-jsontoobject">jsonToMap and jsonToObject</a></h3>
+</div>
+<div class="sect1">
+<h2 id="_jsontomap-and-jsontoobject"><a class="link" href="#_jsontomap-and-jsontoobject">jsonToMap and jsonToObject</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>The <code>jsonToMap</code> and <code>jsonToObject</code> steps within the <code>jackson</code> plugin read a JSON resource (file, classpath resource, URL) and returns each item as an instance of <code>map</code> or <code>object</code>).</p>
+<p>The <code>jsonToMap</code> and <code>jsonToObject</code> steps within the Jackson plugin read a JSON resource (file, classpath resource, URL) and returns each item as an instance of <code>map</code> or <code>object</code>).</p>
 </div>
 <div class="dlist">
 <dl>
@@ -718,10 +714,7 @@ jackson().jsonToObject(PojoForTest::class) {
 <p><code>file(path)</code>: reads the data from a specified plain file in the file system; <code>path</code> is the path to the file, either absolute or relative to the current working directory.</p>
 </li>
 <li>
-<p><code>url(url): specifies and links to the `url</code> of the data resource.</p>
-</li>
-<li>
-<p><code>monitoring</code>(optional): configures the monitoring parameters for the step.</p>
+<p><code>url(url)</code>: specifies and links to the <code>url</code> of the data resource.</p>
 </li>
 </ul>
 </div>
@@ -739,11 +732,10 @@ jackson().jsonToObject(PojoForTest::class) {
 </div>
 </div>
 </div>
-</div>
 <div id="footer">
 <div id="footer-text">
-Version 0.5.e-SNAPSHOT<br>
-Last updated 2023-01-28 15:05:12 +0100
+Version 0.6.a-SNAPSHOT<br>
+Last updated 2023-04-06 19:54:02 -0400
 </div>
 </div>
 <style>

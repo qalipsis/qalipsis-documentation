@@ -4,7 +4,7 @@
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
 <title>Step specifications</title>
-<date>2023-02-18</date>
+<date>2023-04-28</date>
 </info>
 <chapter xml:id="_defining-and-configuring-a-step-specification">
 <title>Defining and configuring a step specification</title>
@@ -84,10 +84,6 @@
         }
             .flatten()
                 .filterNotNull()</programlisting>
-<simpara>A graphical representation of the above example is shown below. Note that both branches run concurrently, in no defined execution order.</simpara>
-<informalexample>
-<simpara>create and include fan-out distribution graphic here&#8594; more like a flowchart</simpara>
-</informalexample>
 <warning>
 <simpara>If the entity returned by the step providing the data before the <literal>.split</literal> (<literal>anyStep()</literal> in the example) is liable to change, do not change it in one branch, as this would have side-effects on the other branch. Consider creating a deep clone of the record that is to be changed to avoid this issue.</simpara>
 </warning>
@@ -115,10 +111,7 @@
 <simpara>Records coming from the right side are kept in a cache until one comes from the left side with the same key. Once used, they are evicted from the cache.</simpara>
 <simpara>When a flow comes from the left side but has no corresponding record yet coming from the right, it waits until the defined timeout on the step.
 Refer to <xref linkend="_defining-and-configuring-a-step-specification"/> for more details.</simpara>
-<simpara>The step context after the join inherits from the one coming from the left. Below is the graphical representation:</simpara>
-<informalexample>
-<simpara>insert operators-inner-join graphic here</simpara>
-</informalexample>
+<simpara>The step context after the join inherits from the one coming from the left.</simpara>
 <simpara>The following example creates a step directly in the join:</simpara>
 <programlisting language="kotlin" linenumbering="numbered">    anyStep  { }
         .innerJoin&lt;EntityWithKey, EntityWithId&gt;(
@@ -161,9 +154,6 @@ Refer to <xref linkend="_defining-and-configuring-a-step-specification"/> for mo
 <simpara><literal>delay</literal> adds a constant delay before executing the next step, keeping the same execution pace as previous step.</simpara>
 </listitem>
 </itemizedlist>
-<informalexample>
-<simpara>insert example and create and insert delay graphic here</simpara>
-</informalexample>
 <itemizedlist>
 <listitem>
 <simpara><literal>pace</literal> ensures that the next step is executed at an expected pace, whatever the pace of the input is. The calculation applies independently to each minion.</simpara>
@@ -172,17 +162,11 @@ Refer to <xref linkend="_defining-and-configuring-a-step-specification"/> for mo
 <simpara><literal>acceleratingPace</literal> reduces the waiting interval for each iteration; to slow down the pace, use an accelerator lower than 1.</simpara>
 </listitem>
 </itemizedlist>
-<informalexample>
-<simpara>insert example and create and insert acceleratingPace graphic here</simpara>
-</informalexample>
 <itemizedlist>
 <listitem>
 <simpara><literal>constantPace</literal> applies a constant pace to execute the successor steps.</simpara>
 </listitem>
 </itemizedlist>
-<informalexample>
-<simpara>insert example and create and insert constantPace graphic here</simpara>
-</informalexample>
 </section>
 <section xml:id="_filter-operators">
 <title>Filter operators</title>
@@ -190,21 +174,12 @@ Refer to <xref linkend="_defining-and-configuring-a-step-specification"/> for mo
 <itemizedlist>
 <listitem>
 <simpara><literal>filter</literal> removes the step contexts having an input not matching the filter specification. Filter is a silent equivalent of validate; it does not generate an error and does not mark the step context as exhausted.</simpara>
-<informalexample>
-<simpara>provide an example and insert <literal>filter(is even)</literal> graphic here</simpara>
-</informalexample>
 </listitem>
 <listitem>
 <simpara><literal>validate</literal> validates the input. If errors are returned, the step context is marked as exhausted and can then only be processed by error processing steps.</simpara>
-<informalexample>
-<simpara>Provide an example and insert <literal>validate(is even)</literal> graphic here</simpara>
-</informalexample>
 </listitem>
 <listitem>
 <simpara><literal>verify</literal> validates assertions rather than the input data quality/safety that is validated by <literal>validate</literal>.</simpara>
-<informalexample>
-<simpara>Provide an example and insert <literal>verify(assetThat(it).isEven())</literal> graphic here</simpara>
-</informalexample>
 </listitem>
 </itemizedlist>
 </section>
@@ -216,17 +191,11 @@ Refer to <xref linkend="_defining-and-configuring-a-step-specification"/> for mo
 <simpara><literal>flatMap</literal> converts a collective input into a single element in the output, with a user-defined strategy.</simpara>
 </listitem>
 </itemizedlist>
-<informalexample>
-<simpara>provide an example and insert <literal>flatMap</literal> graphic here</simpara>
-</informalexample>
 <itemizedlist>
 <listitem>
 <simpara><literal>flatten</literal> converts a collective input into a single element in the output for a known collective type (array, iterable, etc.), keeping each item unchanged.</simpara>
 </listitem>
 </itemizedlist>
-<informalexample>
-<simpara>Provide an example and insert <literal>flatten</literal> graphic here</simpara>
-</informalexample>
 <itemizedlist>
 <listitem>
 <simpara><literal>map</literal> converts each element into another element in the output.</simpara>
@@ -235,17 +204,11 @@ Refer to <xref linkend="_defining-and-configuring-a-step-specification"/> for mo
 <simpara><literal>mapWithContext</literal> provides the same capability as <literal>map</literal> but with the step context as an additional argument.</simpara>
 </listitem>
 </itemizedlist>
-<informalexample>
-<simpara>Provide an example of <literal>map</literal> and <literal>mapWithContext</literal>  and insert a graphic here</simpara>
-</informalexample>
 <itemizedlist>
 <listitem>
 <simpara><literal>onEach</literal> executes one or several statements on each element of the input and forwards them unchanged to the output.</simpara>
 </listitem>
 </itemizedlist>
-<informalexample>
-<simpara>Provide an example of <literal>onEach</literal> and insert a graphic here</simpara>
-</informalexample>
 </section>
 <section xml:id="_caching-operators">
 <title>Caching operators</title>
@@ -254,17 +217,11 @@ Refer to <xref linkend="_defining-and-configuring-a-step-specification"/> for mo
 <listitem>
 <simpara><literal>shelve</literal> caches the provided values in a shared cache.</simpara>
 <simpara>When using a distributed architecture, make sure the cached value can be serialized by the used implementation of shared state registry. The ID of the minion is automatically added to the key to avoid collision.</simpara>
-<informalexample>
-<simpara>Provide an example of <literal>shelve</literal> and insert a graphic here</simpara>
-</informalexample>
 </listitem>
 <listitem>
 <simpara><literal>unshelve</literal> fetches one or more records from the shared state registry, previously shelved with the provided keys for the same minion.</simpara>
 </listitem>
 </itemizedlist>
-<informalexample>
-<simpara>Provide an example of <literal>unshelve</literal> and insert a graphic here</simpara>
-</informalexample>
 </section>
 <section xml:id="_flow-operators">
 <title>Flow operators</title>
@@ -274,15 +231,9 @@ Refer to <xref linkend="_defining-and-configuring-a-step-specification"/> for mo
 <simpara><literal>pipe</literal> simply forwards the input to the output.</simpara>
 </listitem>
 </itemizedlist>
-<informalexample>
-<simpara>Provide an example of <literal>pipe</literal> and insert a graphic here</simpara>
-</informalexample>
 <itemizedlist>
 <listitem>
 <simpara><literal>blackHole</literal> consumes the input and provides no output.</simpara>
-<informalexample>
-<simpara>Provide an example of <literal>blackhole</literal> and insert a graphic here</simpara>
-</informalexample>
 </listitem>
 <listitem>
 <simpara><literal>stage</literal> groups a linear graph of steps.</simpara>
@@ -296,18 +247,12 @@ Refer to <xref linkend="_defining-and-configuring-a-step-specification"/> for mo
     }.configure {
         iterate(5)
     }</screen>
-<informalexample>
-<simpara> insert a <literal>stage</literal> graphic here if helpful</simpara>
-</informalexample>
 </section>
 <section xml:id="_combining-operators">
 <title>Combining operators</title>
 <simpara>The most often used combining operator is <literal>collect</literal>.</simpara>
 <simpara><literal>collect</literal> collects inputs across all the minions and releases them as a list within the latest received step context.</simpara>
 <simpara>This operator&#8217;s function is the opposite of <literal>flatten</literal>.</simpara>
-<informalexample>
-<simpara> insert a collect example and a graphic here if helpful</simpara>
-</informalexample>
 </section>
 </chapter>
 </book>

@@ -5,7 +5,7 @@
 <info>
 <title>Quickstart guide</title>
 <subtitle>Testing an HTTP server with QALIPSIS</subtitle>
-<date>2022-11-09</date>
+<date>2023-04-06</date>
 </info>
 <preface>
 <title></title>
@@ -34,10 +34,10 @@
 <simpara>Start an HTTP server and a docker environment for the project.</simpara>
 </listitem>
 <listitem>
-<simpara>Generate a project archive.</simpara>
+<simpara>Create a project.</simpara>
 </listitem>
 <listitem>
-<simpara>Configure a scenario skeleton.</simpara>
+<simpara>Configure a scenario.</simpara>
 </listitem>
 <listitem>
 <simpara>Add steps to the scenario.</simpara>
@@ -114,10 +114,9 @@ services:
 <simpara>Download the proposed project archive.</simpara>
 </listitem>
 </orderedlist>
-<simpara>[ insert graphic/screenshot of the Bootstrap QALIPSIS page ]</simpara>
 </chapter>
-<chapter xml:id="_prepare-a-scenario">
-<title>Prepare a scenario</title>
+<chapter xml:id="_configure-a-scenario">
+<title>Configure a scenario</title>
 <section xml:id="_edit-the-downloaded-scenario-skeleton">
 <title>Edit the downloaded scenario skeleton</title>
 <orderedlist numeration="arabic">
@@ -202,7 +201,6 @@ class Quickstart{
 </callout>
 </calloutlist>
 <simpara>Execute the scenario using Gradle: <literal>./gradlew run</literal>. This allows you to observe requests logged by the HTTP server. However, it does not verify that the server is returning what you expect.</simpara>
-<simpara>[ insert screen shot here of the report]</simpara>
 </section>
 <section xml:id="_verify-the-servers-response">
 <title>Verify the server&#8217;s response</title>
@@ -243,7 +241,7 @@ class Quickstart{
 </calloutlist>
 <simpara>At this point, if you execute the updated scenario, a log file will display showing the status of each response and confirmation that that server is posting the "Hello World!" string.</simpara>
 </section>
-<insert screen shot of results xml:id="_reuse-the-http-connection">
+<section xml:id="_reuse-the-http-connection">
 <title>Reuse the HTTP connection</title>
 <simpara>You can strengthen the relevance of your test by:</simpara>
 <orderedlist numeration="arabic">
@@ -306,7 +304,7 @@ class Quickstart{
 <para>Not sure I understand what this line of code does&#8230;&#8203;</para>
 </callout>
 </calloutlist>
-</insert screen shot of results>
+</section>
 </section>
 <section xml:id="_execute-the-scenario">
 <title>Execute the scenario</title>
@@ -368,8 +366,7 @@ a Java Runtime Environment installed.</simpara>
 </section>
 <section xml:id="_enable-event-logging">
 <title>Enable event logging</title>
-<simpara>To know the details of the failures
-In current directory, create a folder called <literal>config</literal>.
+<simpara>In the current directory, create a folder called <literal>config</literal>.
 In this new folder, create a file called <literal>qalipsis.yml</literal> with the following content:</simpara>
 <programlisting language="yaml" linenumbering="unnumbered">events:
   root: warn
@@ -377,47 +374,7 @@ In this new folder, create a file called <literal>qalipsis.yml</literal> with th
     slf4j:
       enabled: true</programlisting>
 <simpara>This enables the logging of the events with severity WARN and higher to a file called <literal>qalipsis-events.log</literal>.</simpara>
-<simpara>Execute your scenario again; the events file is created and contains the details of the individual failed assertions:</simpara>
-<screen linenumbering="unnumbered">2022-03-31T06:33:55.937Z  WARN --- step.assertion.failure;io.qalipsis.plugins.netty.tcp.ConnectionAndRequestResult@1e869276
-MetersImpl(timeToSuccessfulConnect=null, timeToFailedConnect=null, timeToSuccessfulTlsConnect=null, timeToFailedTlsConnect=null, bytesCountToSend=85, sentBytes=85, timeToFirstByte=PT0.10696475S, timeToLastByte=PT0.1163375S, receivedBytes=394)
-PT0.10696475S should be &lt;= PT0.1S;campaign=quickstart-campaign-4d39026fd7,minion=quickstart-http-62qr1n87xx,scenario=quickstart,dag=dag-1,step=verify-patch,context-creation=2022-03-31T06:33:55.730Z,parent-step=_629qthims5,_ step-type=Verification,iteration=0,attempts-after-failure=0,isExhausted=true,isTail=true,isCompleted=true_
-2022-03-31T06:33:56.916Z  WARN --- step.assertion.failure;io.qalipsis.plugins.netty.tcp.ConnectionAndRequestResult@19a03b37
-MetersImpl(timeToSuccessfulConnect=null, timeToFailedConnect=null, timeToSuccessfulTlsConnect=null, timeToFailedTlsConnect=null, bytesCountToSend=85, sentBytes=85, timeToFirstByte=PT0.128673083S, timeToLastByte=PT0.128737375S, receivedBytes=394)
-PT0.128673083S should be &lt;= PT0.1S;campaign=quickstart-campaign-4d39026fd7,minion=quickstart-http-62sqemkv8j,scenario=quickstart,dag=dag-1,step=verify-patch,context-creation=2022-03-31T06:33:56.735Z,parent-step=_629qthims5,_ step-type=Verification,iteration=0,attempts-after-failure=0,isExhausted=true,isTail=true,isCompleted=true_</screen>
-<simpara>Essentially, you want to view the following pertinent parts of the message:</simpara>
-<screen linenumbering="unnumbered">2022-03-31T06:33:55.937Z ... PT0.10696475S should be &lt;= PT0.1S ... campaign=quickstart-campaign-4d39026fd7,... scenario=quickstart,... step=verify-patch</screen>
-<itemizedlist>
-<listitem>
-<simpara>The exact instant when the failed assertion occurred:</simpara>
-<simpara><literal>2022-03-31T06:33:55</literal> (March 31, 2022 at 06:33:55 UTC) in the example above.</simpara>
-</listitem>
-<listitem>
-<simpara>The reason for the failure:</simpara>
-<simpara><literal>PT0.10696475S should be &#8656; PT0.1S</literal></simpara>
-</listitem>
-<listitem>
-<simpara>The campaign (<literal>quickstart-campaign-4d39026fd7</literal>), scenario (<literal>quickstart</literal>-http), and verification step (verify-patch) where the failed assertion occurred.</simpara>
-</listitem>
-</itemizedlist>
+<simpara>Execute the scenario again; the events file is created and contains the details of the individual failed assertions:</simpara>
 </section>
-</chapter>
-<chapter xml:id="_next-steps">
-<title>Next steps</title>
-<itemizedlist>
-<listitem>
-<simpara>Discover how to push events to a database, making them easier to view and analyze.</simpara>
-</listitem>
-<listitem>
-<simpara>Work through other QALIPSIS Quickstart Guides:</simpara>
-<itemizedlist>
-<listitem>
-<simpara>quickstart 1</simpara>
-</listitem>
-<listitem>
-<simpara>quickstart 2</simpara>
-</listitem>
-</itemizedlist>
-</listitem>
-</itemizedlist>
 </chapter>
 </book>

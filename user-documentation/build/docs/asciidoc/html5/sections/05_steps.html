@@ -441,7 +441,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>Step specifications</h1>
 <div class="details">
-<span id="revnumber">version 0.5.e-SNAPSHOT</span>
+<span id="revnumber">version 0.6.a-SNAPSHOT</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -630,14 +630,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </tr></table></code></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>A graphical representation of the above example is shown below. Note that both branches run concurrently, in no defined execution order.</p>
-</div>
-<div class="exampleblock">
-<div class="content">
-create and include fan-out distribution graphic here&#8594; more like a flowchart
-</div>
-</div>
 <div class="admonitionblock warning">
 <table>
 <tr>
@@ -701,12 +693,7 @@ If the entity returned by the step providing the data before the <code>.split</c
 Refer to <a href="#_defining-and-configuring-a-step-specification">Defining and configuring a step specification</a> for more details.</p>
 </div>
 <div class="paragraph">
-<p>The step context after the join inherits from the one coming from the left. Below is the graphical representation:</p>
-</div>
-<div class="exampleblock">
-<div class="content">
-insert operators-inner-join graphic here
-</div>
+<p>The step context after the join inherits from the one coming from the left.</p>
 </div>
 <div class="paragraph">
 <p>The following example creates a step directly in the join:</p>
@@ -792,11 +779,6 @@ insert operators-inner-join graphic here
 </li>
 </ul>
 </div>
-<div class="exampleblock">
-<div class="content">
-insert example and create and insert delay graphic here
-</div>
-</div>
 <div class="ulist">
 <ul>
 <li>
@@ -807,22 +789,12 @@ insert example and create and insert delay graphic here
 </li>
 </ul>
 </div>
-<div class="exampleblock">
-<div class="content">
-insert example and create and insert acceleratingPace graphic here
-</div>
-</div>
 <div class="ulist">
 <ul>
 <li>
 <p><code>constantPace</code> applies a constant pace to execute the successor steps.</p>
 </li>
 </ul>
-</div>
-<div class="exampleblock">
-<div class="content">
-insert example and create and insert constantPace graphic here
-</div>
 </div>
 </div>
 <div class="sect2">
@@ -834,27 +806,12 @@ insert example and create and insert constantPace graphic here
 <ul>
 <li>
 <p><code>filter</code> removes the step contexts having an input not matching the filter specification. Filter is a silent equivalent of validate; it does not generate an error and does not mark the step context as exhausted.</p>
-<div class="exampleblock">
-<div class="content">
-provide an example and insert <code>filter(is even)</code> graphic here
-</div>
-</div>
 </li>
 <li>
 <p><code>validate</code> validates the input. If errors are returned, the step context is marked as exhausted and can then only be processed by error processing steps.</p>
-<div class="exampleblock">
-<div class="content">
-Provide an example and insert <code>validate(is even)</code> graphic here
-</div>
-</div>
 </li>
 <li>
 <p><code>verify</code> validates assertions rather than the input data quality/safety that is validated by <code>validate</code>.</p>
-<div class="exampleblock">
-<div class="content">
-Provide an example and insert <code>verify(assetThat(it).isEven())</code> graphic here
-</div>
-</div>
 </li>
 </ul>
 </div>
@@ -871,22 +828,12 @@ Provide an example and insert <code>verify(assetThat(it).isEven())</code> graphi
 </li>
 </ul>
 </div>
-<div class="exampleblock">
-<div class="content">
-provide an example and insert <code>flatMap</code> graphic here
-</div>
-</div>
 <div class="ulist">
 <ul>
 <li>
 <p><code>flatten</code> converts a collective input into a single element in the output for a known collective type (array, iterable, etc.), keeping each item unchanged.</p>
 </li>
 </ul>
-</div>
-<div class="exampleblock">
-<div class="content">
-Provide an example and insert <code>flatten</code> graphic here
-</div>
 </div>
 <div class="ulist">
 <ul>
@@ -898,22 +845,12 @@ Provide an example and insert <code>flatten</code> graphic here
 </li>
 </ul>
 </div>
-<div class="exampleblock">
-<div class="content">
-Provide an example of <code>map</code> and <code>mapWithContext</code>  and insert a graphic here
-</div>
-</div>
 <div class="ulist">
 <ul>
 <li>
 <p><code>onEach</code> executes one or several statements on each element of the input and forwards them unchanged to the output.</p>
 </li>
 </ul>
-</div>
-<div class="exampleblock">
-<div class="content">
-Provide an example of <code>onEach</code> and insert a graphic here
-</div>
 </div>
 </div>
 <div class="sect2">
@@ -928,21 +865,11 @@ Provide an example of <code>onEach</code> and insert a graphic here
 <div class="paragraph">
 <p>When using a distributed architecture, make sure the cached value can be serialized by the used implementation of shared state registry. The ID of the minion is automatically added to the key to avoid collision.</p>
 </div>
-<div class="exampleblock">
-<div class="content">
-Provide an example of <code>shelve</code> and insert a graphic here
-</div>
-</div>
 </li>
 <li>
 <p><code>unshelve</code> fetches one or more records from the shared state registry, previously shelved with the provided keys for the same minion.</p>
 </li>
 </ul>
-</div>
-<div class="exampleblock">
-<div class="content">
-Provide an example of <code>unshelve</code> and insert a graphic here
-</div>
 </div>
 </div>
 <div class="sect2">
@@ -957,20 +884,10 @@ Provide an example of <code>unshelve</code> and insert a graphic here
 </li>
 </ul>
 </div>
-<div class="exampleblock">
-<div class="content">
-Provide an example of <code>pipe</code> and insert a graphic here
-</div>
-</div>
 <div class="ulist">
 <ul>
 <li>
 <p><code>blackHole</code> consumes the input and provides no output.</p>
-<div class="exampleblock">
-<div class="content">
-Provide an example of <code>blackhole</code> and insert a graphic here
-</div>
-</div>
 </li>
 <li>
 <p><code>stage</code> groups a linear graph of steps.</p>
@@ -991,11 +908,6 @@ Provide an example of <code>blackhole</code> and insert a graphic here
     }</pre>
 </div>
 </div>
-<div class="exampleblock">
-<div class="content">
- insert a <code>stage</code> graphic here if helpful
-</div>
-</div>
 </div>
 <div class="sect2">
 <h3 id="_combining-operators"><a class="link" href="#_combining-operators">Combining operators</a></h3>
@@ -1008,19 +920,14 @@ Provide an example of <code>blackhole</code> and insert a graphic here
 <div class="paragraph">
 <p>This operator&#8217;s function is the opposite of <code>flatten</code>.</p>
 </div>
-<div class="exampleblock">
-<div class="content">
- insert a collect example and a graphic here if helpful
-</div>
-</div>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 0.5.e-SNAPSHOT<br>
-Last updated 2023-02-18 17:55:24 +0100
+Version 0.6.a-SNAPSHOT<br>
+Last updated 2023-04-28 07:15:18 -0400
 </div>
 </div>
 <style>
