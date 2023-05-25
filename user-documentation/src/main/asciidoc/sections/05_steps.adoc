@@ -36,7 +36,7 @@ scenario {
 ----
 <1> All 150 minions are deployed simultaneously. 
 <2> The `.tcp` step ("my-tcp") is the root of the scenario.
-<3> The `.reuseTCP` step ("reuse-tcp") is a successor of the previous step ("my-tcp") and receives the previous step's output as its input. 
+<3> The `.reuseTcp` step ("reuse-tcp") is a successor of the previous step ("my-tcp") and receives the previous step's output as its input. 
 
 A step specification is configured such that:
 
@@ -47,7 +47,7 @@ or
 
 [source,kotlin,linenumbers]
 ----
-    reuseTcp("my-tcp") {
+    .reuseTcp("my-tcp") {
         request { tcpRequest2 }
     }.configure {
         name = "reuse-tcp" 
@@ -78,7 +78,7 @@ WARNING: If the entity returned by the step providing the data before the `.spli
 ----
 .anyStep { }
     .split { 
-         map { ... } 
+        .map { ... } 
             .validate{ ... }
     }
         .flatten()
@@ -115,7 +115,7 @@ The following example uses the name of a concurrent step:
 
 Records coming from the right side are kept in a cache until one comes from the left side with the same key. Once used, they are evicted from the cache.
 
-When a flow comes from the left side but has no corresponding record yet coming from the right, it waits until the defined timeout on the step. Refer to <<Defining and configuring a step specification>> for more details.
+When a flow comes from the left side (from `anyStep`) but has no corresponding record yet coming from the right (`my-datasource-poll-step`), it waits until the defined timeout on the step. Refer to <<Defining and configuring a step specification>> for more details.
 
 The step context after the join inherits from the one coming from the left. 
 
@@ -213,7 +213,14 @@ or
 ----
 
 === Filter operators
-This section provides an explanation and examples of the `filter`, `validate`, and `verify` filter operators.
+This section provides an explanation and examples of the `validate`,`filter`, and `verify` filter operators.
+
+* `validate` validates the input. If errors are returned, the step context is marked as exhausted and can then only be processed by error processing steps. In the example, steps with an input specification that is not an even integer return an error and are marked as exhausted.
++
+[source,kotlin,linenumbers]
+----
+.validate{ if(it % 2 != 0) listOf(StepError("The input should be even")) else emptyList() } 
+----
 
 * `filter` removes the step contexts having an input not matching the filter specification.  In the example, steps with an input specification that is not an even integer are filtered out.
 +
@@ -222,13 +229,6 @@ This section provides an explanation and examples of the `filter`, `validate`, a
 .filter(is even)
 ----
 `filter` is a silent equivalent of `validate`; it does not generate an error and does not mark the step context as exhausted.
-
-* `validate` validates the input. If errors are returned, the step context is marked as exhausted and can then only be processed by error processing steps. In the example, steps with an input specification that is not an even integer return an error and are marked as exhausted.
-+
-[source,kotlin,linenumbers]
-----
-.validate(is even) 
-----
 
 * `verify` validates assertions rather than the input data quality/safety that is validated by `validate`. In the example, .verify confirms that that the batteryLevel property of the foundedBatteryState is exactly the same as the batteryLevel property of the savedBatteryState. If the two values are not the same, an error is returned and the step is marked as exhausted.
 +
@@ -254,20 +254,14 @@ This section provides an explanation and examples  of the `map`, `mapWithContext
 +
 [source,kotlin,linenumbers]
 ----
-.mapWithContext{ it, it*3 } 
+.mapWithContext{ context, input -> context.minionId + "-" + input } 
 ----
 
-* `flatMap` converts a collective input into a single element in the output, with a user-defined strategy. In the example, the `flatMap` output is a sequence of values with length equal to the input value. If `3` is the input value (received from the previous step), the flatMap output is `1.2.3`.  
+* `flatMap` converts a collective input into a single element in the output, with a user-defined strategy. In the example, `flatmap` converts a collection from the property `members` of the input into a flow. Each record of `members` will be individually provided to the next steps..  
 +
 [source,kotlin,linenumbers]
 ----
-flatMap { input ->
-    flow { 
-        for (i in 1..input) {
-            emit(i)
-        }
-    }
-}
+.flatMap { input -> flowOf(*input.members.toTypedArray()) }
 ----
 
 * `flatten` converts a collective input into a single element in the output for a known collective type (array, iterable, etc.), keeping each item unchanged. 
@@ -285,7 +279,7 @@ In the example, the .flatten converts the output of the .map functions into a si
 +
 [source,kotlin,linenumbers]
 ----
-.onEach(input -> { println(it) })
+.onEach { input -> { println(input) }
 ----
 
 === Caching operators
@@ -296,7 +290,7 @@ This section provides an explanation and examples of the `shelve` and `unshelve`
 +
 [source,kotlin,linenumbers]
 ----
-.shelve(input -> { mapOf("value-1" to it + 1) })
+.shelve { input -> mapOf("value-1" to input + 1) }
 ----
 +
 When using a distributed architecture, make sure the cached value can be serialized by the used implementation of shared state registry. The ID of the minion is automatically added to the key to avoid collision.
@@ -320,7 +314,7 @@ Stages are not mandatory in a scenario, but provide a convenient way to iterate 
 [source,kotlin,linenumbers]
 ----
 .stage("my-stage") {
-    map { it * 3 }
+    .map { it * 3 }
     .map { arrayOf(it, it + 100) }
     .flatten()
 }.configure { 
