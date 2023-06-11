@@ -38,23 +38,25 @@ report:
 <2> Allows authentication requests for a network connection.
 <3> Junit report attachments would not be included in the email.
 
+//-
 Parameters::
 * `enabled` (required): boolean flag that activates/deactivates campaign report publishing to mail; defaults to false; must be set to `true` to enable notifications.
 * `username` (required): username to be used in authenticating network connection requests when password authentication is required (when the AuthenticationMode is set to USERNAME_PASSWORD).
 * `password` (required): password to be used in authenticating network connection requests when password authentication is required (when the AuthenticationMode is set to USERNAME_PASSWORD).
 * `status` (required): specifies which campaign report status(es) should trigger a notification.
 +
-** Allowed values are any set of `ReportExecutionStatus` values: `ALL`, `FAILED`, `SUCCESSFUL`, `WARNING`, `ABORTED`; defaults to `ALL`.
+Allowed values are any set of `ReportExecutionStatus` values: `ALL`, `FAILED`, `SUCCESSFUL`, `WARNING`, `ABORTED`; defaults to `ALL`.
 +
-** `ALL` triggers notification for any of the campaign report statuses.
+** Selecting `ALL` triggers a notification for any campaign report status.
 +
-** A combination of `ABORTED` and `FAILED` statuses only triggers notification when the campaign report status is either ABORTED OR FAILED. 
+** Selecting two or more status values triggers a notification when the campaign report status is the same as any of the selected status values. 
 +
-** Selecting just one value (e.g., `SUCCESSFUL`) triggers notifications only when the campaign status is `SUCCESSFUL`.
-* `authenticationMode`: authentication options for SMTP server; allowed values are any set of `AuthenticationMode` values: `USERNAME_PASSWORD`, `PLAIN`; defaults to `PLAIN`.
+** Selecting just one status value triggers a notification only when the campaign report status is the same as the selected status value.
+
+* `authenticationMode` (required): authentication options for SMTP server; allowed values are any set of `AuthenticationMode` values: `USERNAME_PASSWORD`, `PLAIN`; defaults to `PLAIN`.
 * `from` (required): email to indicate sender address; defaults to `no-reply@@qalipsis.io`.
 * `to` (required): list of valid email addresses that are recipients of the email.
-* `cc`(optional): list of valid email addresses to be copied in the email; defaults to an empty list.
+* `cc` (optional): list of valid email addresses to be copied in the email; defaults to an empty list.
 * `junit` (required): boolean flag that activates/deactivates inclusion of a Junit report as a zipped attachment, if a report exists; defaults to `false`.
 * `ssl` (required): boolean flag that enables/disables the use of SSL to connect; defaults to `false`.
 * `starttls` (required): boolean flag to enable/disable use of the STARTTLS command (if supported by the server); defaults to `false`.

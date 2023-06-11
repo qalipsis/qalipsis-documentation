@@ -34,13 +34,13 @@ Parameters::
 * `channel` (required): a valid Slack channel name within a workspace indicating where notifications messages should be pushed to.
 * `status` (required): specifies which campaign report statuses should trigger a notification.
 +
-** Allowed values are  any set of `ReportExecutionStatus` values: `ALL`, `FAILED`, `SUCCESSFUL`, `WARNING`, `ABORTED`; defaults to `ALL`.
+Allowed values are any set of `ReportExecutionStatus` values: `ALL`, `FAILED`, `SUCCESSFUL`, `WARNING`, `ABORTED`; defaults to `ALL`.
 +
-** `ALL` triggers notification for any of the campaign report statuses.
+ ** Selecting `ALL` triggers a notification for any campaign report status.
 +
-** A combination of `ABORTED` and `FAILED` statuses only triggers notification when the campaign report status is either ABORTED OR FAILED. 
+** Selecting two or more status values triggers a notification when the campaign report status is the same as any of the selected status values. 
 +
-** Selecting just one value (e.g., `SUCCESSFUL`) triggers notifications only when the campaign status is `SUCCESSFUL`.
+** Selecting just one status value triggers a notification only when the campaign report status is the same as the selected status value.
 
 Reference Documentation::
 Refer to the https://docs.qalipsis.io/#_external-property-sources[QALIPSIS documentation] for information about 
@@ -112,7 +112,6 @@ json object::
 
 //-
 Reference Documentation::
-
 For further information, refer to the https://api.slack.com/authentication/basics#start[official slack documentation].
 
 ==== Viewing/Updating the app configuration

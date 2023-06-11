@@ -61,11 +61,13 @@ Event Parameters::
 * `port` (required): positive integer; defaults to `5432`.
 * `database` (required): string name of the database; defaults to `qalipsis`; cannot be blank.
 * `schema` (required): string name of the schema; defaults to `events`; cannot be blank.
-* `linger-period` (optional): maximum period between publication of events to TimescaleDB; positive duration, defaults to `10s`.
-* `batch-size` (optional): maximum number of events buffered between two publications of events toTimescaleDB; positive integer; defaults to `2000`.
-* `publishers` (optional): number of concurrent publication of events that can run; positive integer; defaults to `1` (no concurrency).
+* `linger-period` (required): maximum period between publication of events to TimescaleDB; positive duration, defaults to `10s`.
+* `batch-size` (required): maximum number of events buffered between two publications of events toTimescaleDB; positive integer; defaults to `2000`.
+* `publishers` (required): number of concurrent publication of events that can run; positive integer; defaults to `1` (no concurrency).
 * `username` (optional): name of the user for basic authentication when connecting to TimescaleDB; defaults to `qalipsis_user`.
 * `password` (optional): password of the user for basic authentication when connecting to TimescaleDB; defaults to `qalipsis_pwd`.
++
+By default, TimescaleDB does not require a username and password for authentication. However, it is recommended that the information be provided to ensure secure access to the TimescaleDB data.
 
 Meter Parameters::
 * enabled` (required): boolean flag that activates/deactivates meter publishing to TimescaleDB; defaults to `false`; *must* be set to `true`.
@@ -73,6 +75,8 @@ Meter Parameters::
 * `port` (required): positive integer; defaults to `5432`.
 * `database` (required): string name of the database; defaults to `qalipsis`; cannot be blank.
 * `schema` (required): string name of the schema; defaults to `events`; cannot be blank.
+* `step` (required): the step size (reporting frequency); defaults to `PT10S`.
 * `username` (optional): name of the user for basic authentication when connecting to TimescaleDB; defaults to `qalipsis_user`.
 * `password` (optional): password of the user for basic authentication when connecting to TimescaleDB; defaults to `qalipsis_pwd`.
-* `step` (optional): the step size (reporting frequency); defaults to `PT10S`.
++
+By default, TimescaleDB does not require a username and password for authentication. However, it is recommended that the information be provided to ensure secure access to the TimescaleDB data.

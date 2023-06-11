@@ -92,14 +92,14 @@ Event parameters::
 * `enabled` (required): boolean flag that activates/deactivates event publishing to Graphite; defaults to `false`; *must* be set to `true`.
 * `min-level` (required): minimal accepted level of events; defaults to INFO; allowed values are `EventLevel` values: `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `OFF`. 
 * `host` (required): defaults to `localhost`; cannot be blank.
-* `port` (optional): positive integer; defaults to `2004`
-* `protocol` (required): the GraphiteProtocol type; default is PICKLE; available choices are `PICKLE` or `PLAINTEXT`.
-* `batch-size` (optional): maximum number of events buffered between two publications of events to Graphite; positive integer; defaults to `2`.
-* `linger-period` (optional): maximum period between two publications of events to Graphite; positive duration; defaults to `10s`.
-* `publishers` (optional): maximum number of concurrent publication of events to Graphite; positive integer; defaults to `2`.
+* `port` (required): positive integer; defaults to `2004`
+* `protocol` (required): the GraphiteProtocol type; default is `pickle`; available choices are `pickle` or `plaintext`.
+* `batch-size` (required): maximum number of events buffered between two publications of events to Graphite; positive integer; defaults to `2`.
+* `linger-period` (required): maximum period between two publications of events to Graphite; positive duration; defaults to `10s`.
+* `publishers` (required): maximum number of concurrent publication of events to Graphite; positive integer; defaults to `2`.
 
 Meter parameters::
 * `enabled` (required): boolean flag that activates/deactivates meter publishing to Graphite; defaults to `false`; *must* be set to `true`.
 * `host` (required): defaults to localhost; cannot be blank.
-* `port` (optional): positive integer; defaults to `2004`.
-* `step` (optional): The step size (reporting frequency); defaults to `PT10S`.
+* `port` (required): positive integer; defaults to `2004`.
+* `step` (required): The step size (reporting frequency); defaults to `PT10S`.

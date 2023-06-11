@@ -167,33 +167,30 @@ Step
  
 //Functionality::
 
-
 Example::
 +
 [source,kotlin,linenumbers]
 ----
 .netty().mqttPublish {
-        connect {
-            host = ServerConfiguration.HOST
-            port = ServerConfiguration.PORT
-        }
-
-        clientName("qalipsis-mqtt-client")
-
-        records { _, batteryState ->
-            listOf(
-                MqttPublishRecord(
-                    value = objectMapper.writeValueAsString(batteryState),
-                    topicName = ServerConfiguration.TOPIC_NAME
-                )
+    connect {
+        host =  "mqtt.anyhost.com"
+        port = 1883
+    }
+    clientName("qalipsis-mqtt-client")
+    records { _, batteryState ->
+        listOf(
+            MqttPublishRecord(
+                value = objectMapper.writeValueAsString(batteryState),
+                topicName = ServerConfiguration.TOPIC_NAME
             )
-        }
+        )
+    }
 }               
 ----
 Notable parameters::
 * `connect` (required): configures the host and port for the connection.
-* `clientName`: identifies the `clientName`.
-* `topicName`(optional): identifies the `topicName`
+* `clientName` (required): uniquely identifies the client onto the MQTT server.
+* `topicName` (required): identifies the MQTT topic to write to.
 
 Reference Documentation::
 Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
@@ -203,7 +200,6 @@ The `MQTT Subscribe` step within the Netty plugin consumes data from an MQTT ser
 
 Ancestor::
 Step
- 
 //Functionality::
 
 Example::
@@ -221,8 +217,8 @@ it.netty().mqttSubscribe {
 ----
 Notable Parameters::
 * `connect` (required): configures the host and port for the connection.
-* `clientName`: identifies the `clientName`.
-* `topicFilter`(optional): identifies the `topicFilter`
+* `clientName` (required): uniquely identifies the client onto the MQTT server.
+* `topicFilter` (required): MQTT topics or patterns to consume.
 
 
 === TCP step

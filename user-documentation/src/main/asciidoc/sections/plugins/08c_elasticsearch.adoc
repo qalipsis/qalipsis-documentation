@@ -193,27 +193,35 @@ meters:
        
 Event parameters::
 * `enabled` (required): boolean flag that activates/deactivates event publishing to Elasticsearch; defaults to `false`; *must* be set to `true`.
-* `min-level` (required): minimal accepted level of events; defaults to `INFO`; allowable values are `EventLevel`values: `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `OFF`. 
-* `urls` (optional): list of URLs to the Elasticsearch instances; defaults to http://localhost:9200.
-* `index-prefix` (optional): string prefix to use for the created indices containing the events; defaults to `qalipsis-events`.
-* `path-prefix` (optional): string prefix used to demarcate url paths; defaults to `http://`.
-* `index-date-pattern` (optional): string format of the date part of the index as supported by [java.time.format.DateTimeFormatter]; defaults to `yyyy-MM-dd`.
-* `refresh-interval` (optional): string delay to refresh the indices in Elasticsearch; defaults to `10s`.
-* `store-source` (optional): boolean flag identifies whether the source of documents is stored with the values; set to `true` for yes and `false` for no; defaults to `false`.
-* `linger-period` (optional): maximum period between publication of events to Elasticsearch; positive duration, defaults to `10s`.
-* `batch-size` (optional): maximum number of events buffered between two publications of events to Elasticsearch; positive integer; defaults to `2000`.
-* `publishers` (optional): number of concurrent publication of events that can run; positive integer; defaults to `1` (no concurrency).
-* `username` (required): name of the user for basic authentication when connecting to Elasticsearch.
-* `password`(required): password of the user for basic authentication when connecting to Elasticsearch.
-* `shards` (optional): number of shards to apply on the created indices for events; positive integer; defaults to `1`.
-* `replicas`(optional): number of replicas to apply on the created indices for events; defaults to `0`.
+* `min-level` (required): minimal accepted level of events; allowable values are `EventLevel`values: `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `OFF`; defaults to `INFO`.
+* `urls` (required): list of URLs to the Elasticsearch instances; defaults to http://localhost:9200.
+* `index-prefix` (required): string prefix to use for the created indices containing the events; defaults to `qalipsis-events`.
+* `path-prefix` (required): string prefix used to demarcate url paths; defaults to `http://`.
+* `index-date-pattern` (required): string format of the date part of the index as supported by [java.time.format.DateTimeFormatter]; defaults to `yyyy-MM-dd`.
+* `refresh-interval` (required): string delay to refresh the indices in Elasticsearch; defaults to `10s`.
+* `store-source` (required): boolean flag identifies whether the source of documents is stored with the values; set to `true` for yes and `false` for no; defaults to `false`.
+* `linger-period` (required): maximum period between publication of events to Elasticsearch; positive duration, defaults to `10s`.
+* `batch-size` (required): maximum number of events buffered between two publications of events to Elasticsearch; positive integer; defaults to `2000`.
+* `publishers` (required): number of concurrent publication of events that can run; positive integer; defaults to `1` (no concurrency).
+* `shards` (required): number of shards to apply on the created indices for events; positive integer; defaults to `1`.
+* `replicas`(required): number of replicas to apply on the created indices for events; defaults to `0`.
+* `username` (optional): name of the user for basic authentication when connecting to Elasticsearch.
+* `password`(optional): password of the user for basic authentication when connecting to Elasticsearch.
++
+By default, Elasticsearch does not require a `username` or `password` for authentication. However, it is recommended that the information be provided to ensure secure access to the Elasticsearch data.
 
 Meter parameters:: 
-* `urls` (optional): list of URLs to the Elasticsearch instances; defaults to http://localhost:9200.
+* `urls` (required): list of URLs to the Elasticsearch instances; defaults to http://localhost:9200.
 * `host` (required): defaults to the value of `urls` above.
 * `enabled` (required): boolean flag that activates/deactivates meter publishing to Elasticsearch; defaults to `false`; *must* be set to `true`.
-* `step` (optional): The step size (reporting frequency) to use; defaults to `PT10S`.
-* `index` (optional): string value to use for creation of index containing the meters; defaults to `qalipsis-meters`.
-* `index-date-format` (optional): string format of the date part of the index as supported by [java.time.format.DateTimeFormatter]; defaults to yyyy-MM-dd.
-* `auto-create-index` (optional): boolean flag to enable/disable auto creation of `index`; defaults to `true`.
-
+* `step` (required): The step size (reporting frequency) to use; defaults to `PT10S`.
+* `index` (required): string value to use for creation of index containing the meters; defaults to `qalipsis-meters`.
+* `index-date-format` (required): string format of the date part of the index as supported by [java.time.format.DateTimeFormatter]; defaults to yyyy-MM-dd.
+* `auto-create-index` (required): boolean flag to enable/disable auto creation of `index`; defaults to `true`.
+* `proxy` (optional):  string URL of the HTTP proxy to use to access Elasticsearch; defaults to `null`. 
++
+It is recommended that the appropriate `proxy` configuration be identified (rather than letting it default to `null`) in order to enable support for various authentication mechanisms in Elasticsearch.
+* `username` (optional): name of the user for basic authentication when connecting to Elasticsearch.
+* `password`(optional): password of the user for basic authentication when connecting to Elasticsearch.
++
+By default, Elasticsearch does not require a `username` or `password` for authentication. However, it is recommended that the information be provided to ensure secure access to the Elasticsearch data.
