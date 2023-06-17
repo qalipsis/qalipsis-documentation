@@ -208,8 +208,8 @@ Event parameters::
 * `batch-size` (required): maximum number of events buffered between two publications of events to InfluxDB; positive integer; defaults to `2000`.
 * `org` (required): name of the organization to use for basic authentication when connecting to InfluxDB; defaults to `qalipsis`.
 * `bucket` (required): password of the bucket to use for saving events to InfluxDB; defaults to `qalipsis-event`.
-* `username`  (required): name of the user for basic authentication when connecting to InfluxDB; defaults to `user`.
-* `password`  (required): password of the user for basic authentication when connecting to InfluxDB; defaults to `passpasspass`.
+* `username` (required): name of the user for basic authentication when connecting to InfluxDB; defaults to `user`.
+* `password` (required): password of the user for basic authentication when connecting to InfluxDB; defaults to `passpasspass`.
 * `publishers` (optional): number of concurrent publication of events that can run; positive integer; defaults to `1` (no concurrency).
 
 
@@ -219,5 +219,5 @@ Meter parameters::
 * `step` (required): step size (reporting frequency); defaults to `PT10S`.
 * `org` (required): name of the organization to use for basic authentication when connecting to InfluxDB; defaults to `qalipsis`.
 * `bucket` (required): password of the bucket to use for saving meters to InfluxDB; defaults to `qalipsis-meter`.
-* `username`  (required): name of the user for basic authentication when connecting to InfluxDB; defaults to `user`.
-* `password`  (required): password of the user for basic authentication when connecting to InfluxDB; defaults to `passpasspass`.
+* `username` (required): name of the user for basic authentication when connecting to InfluxDB; defaults to `user`.
+* `password` (required): password of the user for basic authentication when connecting to InfluxDB; defaults to `passpasspass`.

@@ -204,9 +204,9 @@ Event parameters::
 * `batch-size` (required): maximum number of events buffered between two publications of events to Elasticsearch; positive integer; defaults to `2000`.
 * `publishers` (required): number of concurrent publication of events that can run; positive integer; defaults to `1` (no concurrency).
 * `shards` (required): number of shards to apply on the created indices for events; positive integer; defaults to `1`.
-* `replicas`(required): number of replicas to apply on the created indices for events; defaults to `0`.
+* `replicas` (required): number of replicas to apply on the created indices for events; defaults to `0`.
 * `username` (optional): name of the user for basic authentication when connecting to Elasticsearch.
-* `password`(optional): password of the user for basic authentication when connecting to Elasticsearch.
+* `password` (optional): password of the user for basic authentication when connecting to Elasticsearch.
 +
 By default, Elasticsearch does not require a `username` or `password` for authentication. However, it is recommended that the information be provided to ensure secure access to the Elasticsearch data.
 

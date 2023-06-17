@@ -57,7 +57,7 @@ meters:
 Event Parameters::
 * `enabled` (required): boolean flag that activates/deactivates event publishing to TimescaleDB; defaults to `false`; *must* be set to `true`.
 * `min-level` (required): minimum accepted level of events; defaults to INFO; allowable values are `EventLevel`values: TRACE, DEBUG, INFO, WARN, ERROR, OFF; cannot be null.
-* `host`  (required): defaults to localhost; cannot be blank.
+* `host` (required): defaults to localhost; cannot be blank.
 * `port` (required): positive integer; defaults to `5432`.
 * `database` (required): string name of the database; defaults to `qalipsis`; cannot be blank.
 * `schema` (required): string name of the schema; defaults to `events`; cannot be blank.

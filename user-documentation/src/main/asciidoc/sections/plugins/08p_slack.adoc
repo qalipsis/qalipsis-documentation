@@ -116,9 +116,7 @@ For further information, refer to the https://api.slack.com/authentication/basic
 
 ==== Viewing/Updating the app configuration
 
-After installation, a **QALIPSIS** bot token will display under **Apps** in the left sidebar of your Slack workspace.  
-
-To view/update the app configuration, right click on the **QALIPSIS** bot token and select _View App Details_.
+To view/update the app configuration, right click on the **QALIPSIS** bot token (displayed under **Apps** in the left sidebar of your Slack workspace) and select _View App Details_.
 
 From the displayed _Tenant Modal_ window, click  *Configuration*. 
 The _QALIPSIS App Manager_ page displays. 
