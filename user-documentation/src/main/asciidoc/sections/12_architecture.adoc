@@ -1,6 +1,60 @@
 = Architecture
 
-To be provided.
+== Overview
+QALIPSIS is designed to provide users with an enterprise-grade load, performance and E2E testing tool, that addresses major gaps in existing tools.
 
+Unlike most currently available load testers, QALIPSIS has the following features. 
 
+* Specially designed for distributed systems but also runs on standalone systems.
+* Simulates a massive number of real users based on geographical location and exact behaviors.
+* Executes independent scenarios concurrently.
+* Tests and consumes any protocol or technology using dedicated, performant and monitored plugins.
+* Supports most popular data storage and analysis tools.
 
+//Insert architecture_01_qalipsis_illu_5-23w.jpg
+
+In this section, we will discuss how QALIPSIS achieves the features that set it apart from other load test tools.
+
+== Low memory footprint
+QALIPSIS maintains a low memory foot print by keeping the internal state of the system as small as possible.
+
+* Minions have have no persistent state,
+* System generated metrics and temporary data are purged on a regular basis onto the database.
+
+Additionally, overall memory consumption is minimized by reducing the thread-assigned memory.
+
+== Low CPU footprint
+QALIPSIS operations are massively concurrent but exclusively non-blocking, effectively optimizing CPU usage.
+
+* Non-blocking operations reduce the I/O *wait* CPU load to zero.
+* Non-blocking operations kelp minimize CPU idle time and maximize overall throughput.
+
+== High load
+QALIPSIS handles high loads effectively.
+
+* Non-blocking operations allow threads to remain ready for the next action instead of being blocked while waiting for a response. 
+* Minion-based concurrency allows a large volume of minions to execute actions “simultaneously” using a low number of OS threads.
+* Thread pooling allows different pools of thread to be assigned to different kinds of actions (I/O operations, orchestration) to avoid potential deadlocks and optimize resource allocation. 
+
+== Clusterization
+QALIPSIS uses clusterization to ensure an efficient transition from one campaign state to the next.
+
+* A handshake mechanism is used to connect the factories to the head.
+* The state of the campaign is only kept in the head, using a state machine.
+* The communication is totally asynchronous: 
+** The head sends a directive and consumes the feedback.
+** Each campaign state is responsible for sending the directives and processing the received feedbacks.
+** When all the expected feedbacks are successfully received, the campaign state returns the next state.
+
+== Injection of data from external sources
+A fundamental feature of QALIPSIS is its efficient use of data from external systems. 
+
+* A very limited number of threads are used to poll the databases/consume the messages.
+* Polled/consumed records are kept short-term in the in-memory cache and made available to all  minions (using a zip, zipLast, or innerJoin).
+
+== Simple and focused implementation
+QALIPSIS developers have implemented a simple and focused solution for an all-in-one end-to-end performance and load testing tool.
+
+* The volume of code has been kept as low as possible, especially in the factories.
+* The DSL provides single-purpose operations that focus on performing one task as efficiently and expediently as possible.
+* The DSL provides an extensive range of operations, allowing developers to leverage pre-built functionalities instead of reinventing the wheel or implementing custom workarounds that might affect system performance.
