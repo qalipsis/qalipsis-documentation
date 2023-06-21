@@ -113,6 +113,12 @@ Note: Before using a plugin, confirm that the related dependency has been added 
 
 |link:#_redis-lettuce-plugin[redis-lettuce]
 |Connects QALIPSIS to https://redis.io/[Redis].
+
+|link:#_slack-plugin[slack]
+|Sends campaign notifications to a defined https://slack.com/[slack] channel.
+
+|link:#_mail-plugin[mail]
+|Sends campaign notifications to a defined email address.
 |===
 
 
@@ -163,5 +169,12 @@ include::{includedir}/sections/plugins/08m_rabbitmq.adoc[]
 <<<<
 
 include::{includedir}/sections/plugins/08n_redis-lettuce.adoc[]
+
+<<<<
+    
+include::{includedir}/sections/plugins/08p_slack.adoc[]
+
+<<<<
+include::{includedir}/sections/plugins/08q_mail.adoc[]
 
 <<<<

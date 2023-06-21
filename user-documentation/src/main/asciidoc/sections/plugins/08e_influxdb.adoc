@@ -52,7 +52,7 @@ influxdb().poll {
             |> range(start: -15m)
             |> filter(
                 fn: (r) => r._measurement == "battery_state" 
-                )               
+            )               
     """.trimIndent()
     )
     pollDelay(Duration.ofSeconds(1))
@@ -111,7 +111,6 @@ Example::
 Notable parameter::
 * `connect` (required): configures the connection to https://www.influxdata.com/[InfluxDB].
 
-
 Tips::
 * Use the `save` step after a `collect` step to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.
 * The `save` step is extremely flexible: bucket, tags, measurement and fields might depend on the context and input value received from the previous step.
@@ -144,12 +143,12 @@ Example::
     query { _, input ->
         """
             from(bucket: "${iot}")
-                    |> range(start: -15m)
-                    |> filter(
-                        fn: (r) => r._measurement == "${"battery_state"}" and
-                            r.${"device_id"} == "${input.deviceId}" and
-                            r.${"timestamp"} == "${input.timestamp.epochSecond}"
-                        )               
+                |> range(start: -15m)
+                |> filter(
+                    fn: (r) => r._measurement == "${"battery_state"}" and
+                    r.${"device_id"} == "${input.deviceId}" and
+                    r.${"timestamp"} == "${input.timestamp.epochSecond}"
+                )               
         """.trimIndent()
     }
 }
@@ -166,54 +165,59 @@ Reference documentation::
 Refer to the https://docs.influxdata.com/[InfluxDB] documentation for further parameter and configuration information.
 
 
-== Configuration of publication of events and meters to InfluxDB
-=== Events
-
-Configuration namespace::
+=== Configuration of publication of events and meters to InfluxDB
+==== Configuration namespace
+Events::
 `events.export.influxdb`
-Parameters::
-* `enabled`: boolean flag that activates/deactivates event publishing to InfluxDB; defaults to `false`; *must* be set to `true`.
-* `url`: string URL to the InfluxDB instance; defaults to `http://localhost:8086`.
-* `min-level`: minimum accepted level of events; defaults to INFO; allowable values are `EventLevel`values: TRACE, DEBUG, INFO, WARN, ERROR, OFF. 
-* `linger-period`: maximum period between publication of events to InfluxDB; positive duration, defaults to `10s`.
-* `batch-size`: maximum number of events buffered between two publications of events to InfluxDB; positive integer; defaults to `2000`.
-* `publishers`: number of concurrent publication of events that can run; positive integer; defaults to `1` (no concurrency).
-* `username`: name of the user for basic authentication when connecting to InfluxDB; defaults to `user`.
-* `password`: password of the user for basic authentication when connecting to InfluxDB; defaults to `passpasspass`.
-* `org`: name of the organization to use for basic authentication when connecting to InfluxDB; defaults to `qalipsis`.
-* `bucket`: password of the bucket to use for saving events to InfluxDB; defaults to `qalipsis-event`.
 
-=== Meters
-Configuration namespace::
+Meters::
 `meters.export.influxdb`
 
-Parameters::
-* `enabled`: boolean flag that activates/deactivates meter publishing to InfluxDB; defaults to `false`; *must* be set to `true`.
-* `step` (optional): The step size (reporting frequency); defaults to `PT10S`.
-* `url`: string URL to the InfluxDB instance; defaults to `http://localhost:8086`.
-* `org`: name of the organization to use for basic authentication when connecting to InfluxDB; defaults to `qalipsis`.
-* `bucket`: password of the bucket to use for saving meters to InfluxDB; defaults to `qalipsis-meter`.
-
-=== Example
+==== Example configuration file
 [source,kotlin,linenumbers]
 ----
 events:
-  export:
-    influxdb:
-      url: http://localhost:8086
-      enabled: true
-      min-level: INFO
-      linger-period: 10s
-      batch-size: 2000
-      org: qalipsis
-      bucket: qalipsis-event
+    export:
+        influxdb:
+            url: http://localhost:8086
+            enabled: true
+            min-level: INFO
+            linger-period: 10s
+            batch-size: 2000
+            org: qalipsis
+            bucket: qalipsis-event
+            username: user
+            password: paspasspass
 
 meters:
-  export:
-    influxdb:
-      url: http://localhost:8086
-      enabled: true
-      step: PT10S
-      org: qalipsis
-      bucket: qalipsis-event
+    export:
+        influxdb:
+            url: http://localhost:8086
+            enabled: true
+            step: PT10S
+            org: qalipsis
+            bucket: qalipsis-meter
+            username: user
+            password: passpasspass
 ----
+Event parameters::
+* `url` (required): string URL to the InfluxDB instance; defaults to `http://localhost:8086`.
+* `enabled` (required): boolean flag that activates/deactivates event publishing to InfluxDB; defaults to `false`; *must* be set to `true`.
+* `min-level` (required): minimum accepted level of events; defaults to INFO; allowable values are `EventLevel`values: TRACE, DEBUG, INFO, WARN, ERROR, OFF. 
+* `linger-period` (required): maximum period between publication of events to InfluxDB; positive duration, defaults to `10s`.
+* `batch-size` (required): maximum number of events buffered between two publications of events to InfluxDB; positive integer; defaults to `2000`.
+* `org` (required): name of the organization to use for basic authentication when connecting to InfluxDB; defaults to `qalipsis`.
+* `bucket` (required): password of the bucket to use for saving events to InfluxDB; defaults to `qalipsis-event`.
+* `username` (required): name of the user for basic authentication when connecting to InfluxDB; defaults to `user`.
+* `password` (required): password of the user for basic authentication when connecting to InfluxDB; defaults to `passpasspass`.
+* `publishers` (optional): number of concurrent publication of events that can run; positive integer; defaults to `1` (no concurrency).
+
+
+Meter parameters::
+* `url` (required): string URL to the InfluxDB instance; defaults to `http://localhost:8086`.
+* `enabled` (required): boolean flag that activates/deactivates meter publishing to InfluxDB; defaults to `false`; *must* be set to `true`.
+* `step` (required): step size (reporting frequency); defaults to `PT10S`.
+* `org` (required): name of the organization to use for basic authentication when connecting to InfluxDB; defaults to `qalipsis`.
+* `bucket` (required): password of the bucket to use for saving meters to InfluxDB; defaults to `qalipsis-meter`.
+* `username` (required): name of the user for basic authentication when connecting to InfluxDB; defaults to `user`.
+* `password` (required): password of the user for basic authentication when connecting to InfluxDB; defaults to `passpasspass`.

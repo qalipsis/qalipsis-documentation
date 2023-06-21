@@ -1,7 +1,10 @@
-= Mail Plugin
+== Mail plugin
 
-== Overview
+=== Overview
 QALIPSIS supports email messaging, to notify users of the status of their campaigns after it runs. This is achieved by configuring and enabling the QALIPSIS publisher for mail.
+
+=== Configuring and activating the QALIPSIS publisher for mail
+To activate the QALIPSIS publisher for mail, create a configuration file in your QALIPSIS project.
 
 Configuration namespace:: 
 `report.export.mail`
@@ -16,48 +19,50 @@ report:
       enabled: true
       username: qalipsis-user
       password: passpass
-      status: #Using a list of SUCCESS, FAILED and WARNING triggers notification only when 
-        #the status of a campaign report is success, a warning or a failure. It ignores every other statuses
-        - SUCCESS
+      status: <1>
+        - SUCCESSFUL
         - FAILED
         - WARNING
-      authenticationMode: USERNAME_PASSWORD #allows authentication requests for a network connection
+      authenticationMode: USERNAME_PASSWORD <2> 
       from: foo@bar.com
       to: 
         - fooadmin1@bar.com
         - fooadmin2@bar.com
-      junit: false #Junit report attachments would not be included in the email.
+      junit: false  <3> 
       ssl: true
       starttls: true
       host: smtp.gmail.com
       port: 587
 ----
-// This section of the QALIPSIS documentation, gives insight on how to go about adding new configuration properties that sets or override the default properties.
+<1> Mail notifications are triggered only when the status of a campaign report is `FAILED`, `SUCCESSFUL`, or `WARNING`. All other campaign statuses are ignored.
+<2> Allows authentication requests for a network connection.
+<3> Junit report attachments would not be included in the email.
 
-// After these steps, you are all set to receive email message notifications in your configured inbox.
-
+//-
 Parameters::
-* `enabled` (required): boolean flag that activates/deactivates campaign report publishing to mail; defaults to false; must be set to true.
-* `status` (required): specifies which campaign report statuses should trigger a notification.
+* `enabled` (required): boolean flag that activates/deactivates campaign report publishing to mail; defaults to false; must be set to `true` to enable notifications.
+* `username` (required): username to be used in authenticating network connection requests when password authentication is required (when the AuthenticationMode is set to USERNAME_PASSWORD).
+* `password` (required): password to be used in authenticating network connection requests when password authentication is required (when the AuthenticationMode is set to USERNAME_PASSWORD).
+* `status` (required): specifies which campaign report status(es) should trigger a notification.
 +
-Allowable values are  any set of `ReportExecutionStatusvalues`: ALL, FAILED, SUCCESSFUL, WARNING, ABORTED; defaults to ALL.
+Allowed values are any set of `ReportExecutionStatus` values: `ALL`, `FAILED`, `SUCCESSFUL`, `WARNING`, `ABORTED`; defaults to `ALL`.
 +
-ALL triggers notification for any of the campaign report statuses.
+** Selecting `ALL` triggers a notification for any campaign report status.
 +
-A combination of ABORTED and FAILED statuses only triggers notification when the campaign report status is either ABORTED OR FAILED. 
+** Selecting two or more status values triggers a notification when the campaign report status is the same as any of the selected status values. 
 +
-Selecting just one value (e.g. SUCCESSFUL) triggers notifications only when the campaign is SUCCESSFUL.
+** Selecting just one status value triggers a notification only when the campaign report status is the same as the selected status value.
 
-* `username`: username to be used in authenticating network connection requests when password authentication is required (when the AuthenticationMode is set to USERNAME_PASSWORD).
-* `password`: password to be used in authenticating network connection requests when password authentication is required (when the AuthenticationMode is set to USERNAME_PASSWORD).
-* `host`: the host name of the mail server to connect to; defaults to localhost.
-* `port`: the port number of the mail server to connect to; defaults to 25.
-* `authenticationMode`: authentication options for SMTP server.
-+
-Allowable values are any set of AuthenticationMode values: USERNAME_PASSWORD, PLAIN; defaults to PLAIN.
-* `from`: email to indicate sender address; defaults to no-reply@@qalipsis.io.
+* `authenticationMode` (required): authentication options for SMTP server; allowed values are any set of `AuthenticationMode` values: `USERNAME_PASSWORD`, `PLAIN`; defaults to `PLAIN`.
+* `from` (required): email to indicate sender address; defaults to `no-reply@@qalipsis.io`.
 * `to` (required): list of valid email addresses that are recipients of the email.
-* `cc`: list of valid email addresses to be copied in the email; defaults to an empty list.
-* `junit`: boolean flag to activate/deactivate inclusion of Junit report as zipped attachments, if they exist; defaults to false.
-* `ssl`: boolean flag to enable/disable use of SSL to connect; defaults to false.
-* `starttls`: boolean flag to enable/disable use of the STARTTLS command (if supported by the server); defaults to false.
+* `cc` (optional): list of valid email addresses to be copied in the email; defaults to an empty list.
+* `junit` (required): boolean flag that activates/deactivates inclusion of a Junit report as a zipped attachment, if a report exists; defaults to `false`.
+* `ssl` (required): boolean flag that enables/disables the use of SSL to connect; defaults to `false`.
+* `starttls` (required): boolean flag to enable/disable use of the STARTTLS command (if supported by the server); defaults to `false`.
+* `host` (required): the host name of the mail server to connect to; defaults to `localhost`.
+* `port` (required): the port number of the mail server to connect to; defaults to `25`.
+
+Reference Documentation::
+Refer to the https://docs.qalipsis.io/#_external-property-sources[QALIPSIS documentation] for information about 
+adding configuration properties that set or override the default parameters.
