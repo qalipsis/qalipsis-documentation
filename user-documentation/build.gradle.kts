@@ -3,7 +3,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath("com.github.jruby-gradle:jruby-gradle-plugin:2.0.0-alpha.6")
+        classpath("com.github.jruby-gradle:jruby-gradle-plugin:2.1.0-alpha.2")
     }
 }
 
@@ -12,9 +12,9 @@ buildscript {
 plugins {
     java
     "com.github.jruby-gradle.base"
-    id("org.asciidoctor.jvm.convert") version "3.1.0"
-    id("org.asciidoctor.jvm.pdf") version "3.1.0"
-    id("org.asciidoctor.jvm.gems") version "3.1.0"
+    id("org.asciidoctor.jvm.convert") version "3.3.2"
+    id("org.asciidoctor.jvm.pdf") version "3.3.2"
+    id("org.asciidoctor.jvm.gems") version "3.3.2"
 }
 
 description = "User documentation"
@@ -24,8 +24,8 @@ repositories {
     jcenter()
 }
 dependencies {
-    asciidoctorGems("rubygems:asciidoctor-diagram:2.0.1")
-    asciidoctorGems("rubygems:rouge:3.16.0")
+    asciidoctorGems("rubygems:asciidoctor-diagram:2.2.10")
+    asciidoctorGems("rubygems:rouge:4.1.3")
 }
 
 asciidoctorj {
