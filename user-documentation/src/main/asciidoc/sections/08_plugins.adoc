@@ -85,7 +85,7 @@ Note: Before using a plugin, confirm that the related dependency has been added 
 |Connects QALIPSIS to https://www.elastic.co/[Elasticsearch].
 
 |link:#_graphite-plugin[graphite]
-|Waiting on info...
+|Connects QALIPSIS to https://github.com/graphite-project[Graphite] using the pickle or plaintext protocol.
 
 |link:#_influxdb-plugin[influxdb]
 |Connects QALIPSIS to https://www.influxdata.com/[InfluxDB].
@@ -105,6 +105,9 @@ Note: Before using a plugin, confirm that the related dependency has been added 
 |link:#_netty-plugin[netty]
 |Supports https://datatracker.ietf.org/doc/html/rfc793[TCP], https://datatracker.ietf.org/doc/html/rfc768[UDP], https://httpwg.org/[HTTP] and https://mqtt.org/[MQTT] clients
 
+|link:#_timescaldb-plugin[timescaledb]
+|Connects QALIPSIS to https://timescaledb.com/[TimescaleDB]
+
 |link:#_r2dbc-jasync-plugin[r2dbc-jasync]
 |Connects connects QALIPSIS to https://mariadb.org/[MariaDB], https://www.mysql.com[MySQL] and https://www.postgresql.org/[PostgreSQL].
 
@@ -115,12 +118,14 @@ Note: Before using a plugin, confirm that the related dependency has been added 
 |Connects QALIPSIS to https://redis.io/[Redis].
 
 |link:#_slack-plugin[slack]
-|Sends campaign notifications to a defined https://slack.com/[slack] channel.
+|Sends campaign notifications to a defined https://slack.com/[Slack] channel.
 
 |link:#_mail-plugin[mail]
 |Sends campaign notifications to a defined email address.
-|===
 
+|link:#_gradle-plugin[gradle]
+|Connects Qalipsis to the https://gradle.org[Gradle] build tool.
+|===
 
 <<<<
 
@@ -160,6 +165,10 @@ include::{includedir}/sections/plugins/08j_netty.adoc[]
 
 <<<<
 
+include::{includedir}/sections/plugins/08k_timescaledb.adoc[]
+
+<<<<
+
 include::{includedir}/sections/plugins/08l_r2dbc-jasync.adoc[]
 
 <<<<
@@ -175,6 +184,11 @@ include::{includedir}/sections/plugins/08n_redis-lettuce.adoc[]
 include::{includedir}/sections/plugins/08p_slack.adoc[]
 
 <<<<
+
 include::{includedir}/sections/plugins/08q_mail.adoc[]
+
+<<<<
+    
+include::{includedir}/sections/plugins/08r_gradle.adoc[]
 
 <<<<

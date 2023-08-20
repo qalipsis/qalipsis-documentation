@@ -1,4 +1,4 @@
-== graphite plugin
+== Graphite plugin
 
 === Overview
 
@@ -28,11 +28,14 @@ The poll step within the the Graphite plugin polls the newest data periodically.
 Ancestor::
 Scenario or Step
 
-Functionality::  //need input here
+// Functionality::  
+//need input here
 
-Example:: //need appropriate example 
+// Example:: 
+//need appropriate example 
 
-Notable parameters:: // need list of parameters and their definitions
+// Notable parameters:: 
+// need list of parameters and their definitions
 
 
 Reference documentation::
@@ -47,9 +50,11 @@ Scenario or Step
 Functionality::
 The `save` step's input and step context are used to generate documents to save into a table.
 
-Example:: // need appropriate example
+// Example:: 
+// need appropriate example
 
-Notable parameters:: // need a list of parameters and their definitions.
+// Notable parameters:: 
+// need list of parameters and their definitions
 
 
 Reference documentation::

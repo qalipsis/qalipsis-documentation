@@ -9,9 +9,9 @@ With QALIPSIS 0.6:
 * You can create scenarios with different branches and running with many minions.
 * You can use its many native steps and plugins to fire load on your system and feed QALIPSIS with data to verify load strength.
 
-QALIPSIS 0.6 runs embedded, standalone and distributed. A history of events and metrics can be logged or saved in different tools like Elasticsearch, Graphite, TimescaleDB and InfluxDB. Plugins for other platforms will be available in future releases.
+QALIPSIS 0.6 can run in embedded, standalone and distributed modes. It has the capability to log and save a history of events and metrics using various tools such as Elasticsearch, Graphite, TimescaleDB and InfluxDB.
 
-Future releases of QALIPSIS will include more plugins, more steps for load injection and verifications as well as other improvements. 
+In future QALIPSIS releases, you can expect an expansion of plugins, an increase in load injection steps and verification processes and various other improvements. 
 
 Feedback on this release, including bugs and suggested enhancements, is welcome and may be sent to the QALIPSIS team at https://github.com/qalipsis[Github, window=\"_blank\"].
 

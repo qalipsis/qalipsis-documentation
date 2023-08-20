@@ -5,22 +5,22 @@ QALIPSIS is an enterprise-grade load, performance and end-to-end testing tool es
 
 * QALIPSIS is developer-centric with a low learning curve that makes it easy to use and extremely efficient.
 * QALIPSIS is developed in Kotlin to gain the benefits of the Java ecosystem and provide seamless system performance.
-* The basic out-of-the box QALIPSIS tool is completely free of charge.
+* The basic out-of-the box QALIPSIS is completely free of charge.
 +
-Commercial-licensed-based plugins, the cloud-based application, and other premium extensions are not included in the basic out-of-the box QALIPSIS tool.
+Commercial-licensed-based plugins, the cloud-based application, and other premium extensions are not included in the basic out-of-the box QALIPSIS.
 * QALIPSIS is designed to test the performance of distributed and monolithic systems.
 * QALIPSIS collects data from operating systems, databases, and monitoring tools.
-* QALIPSIS cross-checks system metrics and performs data verification to ensure that the test systems is performing as expected. 
+* QALIPSIS cross-checks system metrics and performs data verification to ensure that the test system is performing as expected. 
 
 == Features
 === User-friendly interface
 The QALIPSIS Graphical User Interface (GUI) allows users, depending on their role, to configure and run load, performance and end-to-end tests with capabilities including, but not limited to:
 
-* Create a campaign
-* Configure the load distribution
-* Increase/decrease the number of simulated users
-* Start/stop the campaign
-* View reports
+* Creating a campaign.
+* Configuring the load distribution.
+* Increasing/decreasing the number of simulated users.
+* Starting/stopping the campaign.
+* Viewing reports.
 
 === Automation friendly performance verification
 Using the Command Line Interface (CLI) or the Gradle plugin, you can automatically and repeatedly verify the condition and performance of your system.
@@ -34,7 +34,7 @@ QALIPSIS provides a Gradle plugin to simplify the configuration, packaging and d
 
 You do not need to be a Kotlin expert or a master in the technology that you want to test. QALIPSIS DSL is a meta-language that most users can learn within minutes and it provides the means to execute all of the operations in your scenarios.
 
-Further documentation and examples guide you through your more advanced use cases.
+Further documentation and examples guide you through more advanced use cases.
 
 Downloading a ready-to-use project for your IDE is easy with QALIPSIS and allows integration with popular DevOps tools to test your software and track the impact of recent changes.
 
@@ -51,22 +51,17 @@ Aggregated assertions allow you to verify the overall results of a scenario. You
 QALIPSIS events and meters provide extended details of load-test operations, providing users with various options for accessing the results.
 The results visualizations and dashboards, with details of each test-case execution, provide valuable insight for identifying the bottlenecks in your applications and uncovering the components and conditions of failures.
 
-QALIPSIS Gradle Plugin integrates the automated execution of QALIPSIS scenarios with your CI/CD pipelines, in order to validate the performance and functionalities on a regular and frequent basis.
-This helps you to uncover the problems immediately after they were introduced in your system and save a lot of time and money in their resolution.
+The QALIPSIS Gradle plugin integrates the automated execution of QALIPSIS scenarios with your CI/CD pipelines to validate performance and functionality on a regular and frequent basis. This helps you uncover problems immediately after they are introduced in your system, saving time and money during resolution.
 
-Alternatively, you can also use QALIPSIS for constant monitoring: a long-running campaign allows you to monitor the availability and responsiveness of your system over a long period of time.
-Even the statistics of running campaigns are accessible in real-time and you can observe their evolution and detect issues at their earliest occurrence.
-Time-to-solution is made faster by the ability to analyze the problem in real time and conditions.
+Alternatively, you can use QALIPSIS for constant monitoring. A long-running campaign lets you monitor the availability and responsiveness of your system over a long period of time. The statistics of running campaigns are accessible in real-time, allowing you to observe their evolution and detect issues at their earliest occurrence. Time-to-solution is faster with the ability to analyze problems in real time and conditions.
 
 === Concurrent load simulations and data ingestion
 
-Combining the double benefit of a lightweight architecture and a deployment as a cluster, QALIPSIS makes it possible to simulate the load from thousands to millions of users (e.g. website visitors, connected IoT devices, etc.).
+Combining the double benefit of a lightweight architecture and deployment as a cluster, QALIPSIS makes it possible to simulate the load from thousands to millions of users (e.g. website visitors, connected IoT devices, etc.).
 
-You can execute load, performance and end-to-end test campaigns running several scenarios, and analyze how behaviors of certain personas affect
-the experience of others.
+You can execute load, performance and end-to-end test campaigns running several scenarios, and analyze how behaviors of certain personas affect the experience of others.
 
-Finally, QALIPSIS does not only inject outgoing data to your system to test, but also ingests incoming data sources to compare their values with
-the ones generated by your tests. You can now cross-verify requests and responses with infrastructure metrics and messages and databases records.
+QALIPSIS not only injects outgoing data into your system to test; it also ingests incoming data sources to compare their values with the ones generated by your tests. You can cross-verify requests and responses with infrastructure metrics, messages, and database records.
 
 === Operating system independent
 QALIPSIS load, performance and end-to-end testing can be performed from any operating system supporting Java with the same impressive results.
@@ -77,27 +72,27 @@ QALIPSIS was designed with distributed systems and current developer practices i
 === For developers 
 QALIPSIS empowers developers to:
 
-* Choose preferred testing tools and programming language for writing test scenarios.
-* Cross-verify data from different sources: bring responses to requests, infrastructure metrics, middleware events and database records in the same port to compare them and verify that they match your expectations.
-* Unlock the full power of the Java ecosystem by making use of any library, protocol or system.
-* Reuse pieces of software to faster develop scenarios.
+* Choose their preferred testing tools and programming language for creating test scenarios.
+* Cross-verify data from diverse sources, consolidating responses to requests, infrastructure metrics, middleware events, and database records in the same platform for comparison and validation against expectations.
+* Harness the full power of the Java ecosystem, leveraging any library, protocol or system.
+* Reuse software components to expedite scenario development. 
 * Simulate users, third-party software and IoT devices.
 * Simulate real-user and device behavior to make tests more relevant.
-* Generate detailed and relevant results by using distributed tracing markers to follow the complete execution workflow from end to end.
-* Customize reports and dashboards.
+* Generate detailed and relevant results by using distributed tracing markers to track the complete execution workflow from end to end.
+* Customize reports and dashboards to meet requirements.
 * Perform tests on development machines, containers and virtual machines with excellent results.
-* Integrate a standard DevOps workflow for performance testing before the deployment of health checks on production environments.
-* Create a scenario in just a few minutes by enabling the utilization of any Java library of choice (such as JUnit, Hamcrest, AssertJ) or pieces of software or proprietary libraries.
-* Test non-http technologies using numerous plug-ins, such as databases and messaging platforms.
+* Seamlessly integrate a standard DevOps workflow for performance testing, incorporating health checks into production environments before the deployment.
+* Create scenarios within minutes by enabling the utilization of any Java library of choice (such as JUnit, Hamcrest, AssertJ) or other proprietary software libraries.
+* Test non-http technologies using various plugins, including databases and messaging platforms.
 
 === For IT operations teams
 QALIPSIS provides IT Operations teams solutions to:
 
-* Monitor how deployments and other IT operations can affect the availability and overall performance of the system.
-* Expose bottlenecks and find correlations between load and resource consumption by unifying the verification of load-test and infrastructure metrics.
-* Identify issues before users and customers do by verifying the size and configuration of the system's infrastructure.
-* Examine how the system performs during normal and peak loads by running load tests from different geographic locations at varying times.
-* Generate exceptional results on virtual engines, containers and conventional development machines.
-* Allow for implementation and integration of verifications in their standard DevOps workflow.
+* Monitor the impact of deployments and other IT operations on system availability and overall performance.
+* Expose bottlenecks and uncover correlations between load and resource consumption by unifying the verification of load-test and infrastructure metrics.
+* Proactively identify issues before they reach users and customers by validating the size and configuration of the system's infrastructure.
+* Evaluate system performance under normal and peak loads by conducting load tests from diverse geographic locations at different times.
+* Achieve exceptional results across virtual engines, containers and conventional development machines.
+* Seamlessly integrate verifications into their standard DevOps workflow, enabling implementation and alignment with best practices.
 
 

@@ -1,0 +1,7 @@
+== Gradle Plugin
+
+=== Overview
+
+More information will be provided soon on how the Gradle extends the capabilities of QALIPSIS. 
+
+In the meantime, refer to the official Gradle documentation at https://gradle.org/kotlin/[Gradle] .

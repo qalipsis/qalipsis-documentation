@@ -296,7 +296,7 @@ This section provides an explanation and examples of the `shelve` and `unshelve`
 When using a distributed architecture, make sure the cached value can be serialized by the used implementation of shared state registry. The ID of the minion is automatically added to the key to avoid collision.
 
 * `unshelve` extracts a specific value from the cache using the keys passed as arguments. In the example, `unshelve<Int, Double>("value-1")` takes two type arguments `<Int, Double>`, which specify the types of the input of the step and the one of the value with key `value-1`, retrieved from the cache.
-
++
 It then extracts the values associated with the key `"value-1"`, which is of type `Double`. The extracted values are collected into a new collection of type `List<Double>`.
 +
 [source,kotlin,linenumbers]
