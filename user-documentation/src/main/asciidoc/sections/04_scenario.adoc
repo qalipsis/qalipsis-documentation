@@ -342,6 +342,7 @@ fun myScenario() {
                 .onEach { temperature ->
                     log.info("The temperature is $temperature degrees celsius)
                 }
+                
                 r2dbc().save { temperatures ->  <2>
                 }
             }
@@ -353,7 +354,7 @@ fun myScenario() {
 ----
 <1> Log the values
 <2> Save the values.     
-<3> Convert the logged and saved values from °C to °F.
+<3> Convert the received values from °C to °F and distribute them one by one.
 
 == Singleton step
 A singleton step is designed to be executed only once by one minion. Its purpose is to gather data to provide to the other minions as they pass through it.  The minions can use the data to feed other steps or verify expected results in the tested system.

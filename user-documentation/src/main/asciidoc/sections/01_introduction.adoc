@@ -57,7 +57,7 @@ Alternatively, you can use QALIPSIS for constant monitoring. A long-running camp
 
 === Concurrent load simulations and data ingestion
 
-Combining the double benefit of a lightweight architecture and deployment as a cluster, QALIPSIS makes it possible to simulate the load from thousands to millions of users (e.g. website visitors, connected IoT devices, etc.).
+Combining the double benefits of a lightweight architecture and deployment as a cluster, QALIPSIS makes it possible to simulate the load from thousands to millions of users (e.g. website visitors, connected IoT devices, etc.).
 
 You can execute load, performance and end-to-end test campaigns running several scenarios, and analyze how behaviors of certain personas affect the experience of others.
 

@@ -229,7 +229,7 @@ GRANT ALL ON SCHEMA meters TO qalipsis;
 
 === Configure the database for the master data
 [start]
-. Navigate to your installation folder where the  `qalipsis.sh` and `qalipsis.bat` files are located.
+. Navigate to your installation folder where the `qalipsis.sh` and `qalipsis.bat` files are located.
 . Create a `qalipsis.yml` file to configure access to the database for the master data:
 +
 [source,kotlin, linenumbers]
@@ -314,9 +314,9 @@ meters:
 +
 Run `qalipsis.bat --autostart`
 
-QALIPSIS will start and provide REST endpoints on port 5432.
+QALIPSIS will start and provide REST endpoints on port 8080.
 
-Note: Open source QALIPSIS OSS does not support native security. For a native secured installation, we encourage you to https://qalipsis.io/#contact[contact] the QALIPSIS team to request a license for QALIPSIS Enterprise. 
+Note: Open source QALIPSIS OSS does not support native security. For a native secured installation, we encourage you to https://qalipsis.io/#contact[contact] the QALIPSIS team to request a license for QALIPSIS Commercial edition. 
 
 == Cluster Installations 
 === Overview
@@ -349,7 +349,7 @@ A light cluster consists of:
 A high-load cluster requires significant effort for installation and operation; however, it is extremely scalable.
 
 NOTE::
-A high-load cluster is only possible with QALIPSIS Enterprise.  If you are interested in deploying a  high-load cluster, https://qalipsis.io/#contact[contact] the QALIPSIS team to request a license for QALIPSIS Enterprise.
+A high-load cluster is only possible with QALIPSIS Commercial edition.  If you are interested in deploying a high-load cluster, https://qalipsis.io/#contact[contact] the QALIPSIS team to request a license for QALIPSIS Commercial edition.
 
 A high-load cluster consists of:
 

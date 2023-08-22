@@ -125,7 +125,7 @@ The head node within a QALIPSIS cluster is responsible for orchestration and rep
 * It supports seamless integration with external third-party tools for reporting, notifications and analysis.
 * It ensures continuous access to QALIPSIS features and data, even when there are no active factory nodes.
 
-QALIPSIS Enterprise edition supports additional responsibilities for the head node, including:
+QALIPSIS Commercial edition supports additional responsibilities for the head node, including:
 
 * Improved security with OAuth2 authentication support; users are able to authenticate using their existing credentials.
 
@@ -137,13 +137,13 @@ The factory nodes of a QALIPSIS cluster are distributed components that host the
 
 The factories are the "working" nodes of cluster, and contains the executable version of your scenarios.
 
-Factories have a dual role: they inject load into the system under test test and retrieve records from various data sources like databases and messaging platforms.  
+Factories have a dual role: they inject load into the system under test and retrieve records from various data sources like databases and messaging platforms.  
 
 The retrieval of records enables you to compare data both within and outside the system. Importantly, setting up additional firewall rules for data reception in the factory is not necessary. QALIPSIS plugins are designed with specialized poll and search operations, simplifying the process of external data retrieval without requiring adjustments to your existing infrastructure.
 
-You can add factories to your cluster to expand your load capacity; the factories can be synchronized and establish communication through low-latency messaging platforms such as  Redis Pub/Sub and Kafka.
+You can add factories to your cluster to expand your load capacity; the factories can be synchronized and establish communication through low-latency messaging platforms such as Redis Pub/Sub and Kafka.
 
-Unlike the head node, which remains a consistent presence in the cluster, factories are dynamically added or removed as needed. This approach helps minimize resource consumption during periods when no campaign is running.
+Unlike the head node, which remains a consistent presence in the cluster, factories can be dynamically added or removed as needed. This approach helps minimize resource consumption during periods when no campaign is running.
 
 
 
