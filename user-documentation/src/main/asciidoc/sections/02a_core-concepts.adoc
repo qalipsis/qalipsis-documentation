@@ -8,19 +8,20 @@ The aim of QALIPSIS is to execute actions that inject load into IT systems to mo
 
 The actions are performed by minions that inject load into a system and then run through a preconfigured scenario consisting of steps and assertions. If running QALIPSIS on a distributed system, you can create clusters with Head and Factory nodes to inject higher load.
 
-Before attempting to configure QALIPSIS to run on your system, it is important to understand the core concepts of the tool:
+Prior to configuring QALIPSIS to run on your system, it is crucial to understand the core concepts of the tool:
 
 * Minions
 * Scenarios
 * Steps
 * Assertions
-* Head
-* Factory
+* Nodes
+** Head
+** Factory
 
 == Minions
 Minions are simulations of website users, IoT devices, or other systems. They each perform a complete scenario.
 
-Any number of minions can act on a scenario. The minion count for a scenario is set during scenario configuration (refer to <<#Scenario specifications>>) or at runtime (refer to <<QALIPSIS configuration>>).
+Any number of minions can act on a scenario. The minion count for a scenario is set during scenario configuration (refer to <<Scenario specifications>>) or at runtime (refer to <<QALIPSIS configuration>>).
 
 Note that a minion count entered at runtime overrides the minion count set during scenario configuration.
 
@@ -85,10 +86,10 @@ Each step has a unique configuration depending on the purpose of the step. The s
 . Delivers output data.
 
 
-Steps are configured using core operators to achieve:
+Steps are configured using core operators:
 
 * Assertions and verifications
-* Timing
+* Timing 
 * Conditional
 * Converting
 * Error Handling
@@ -118,31 +119,36 @@ Additionally, QALIPSIS can generate JUnit-like reports to simplify existence wit
 Nodes are distributed instances within a QALIPSIS cluster. QALIPSIS nodes are designated as either a head or a factory.
 
 === Head
-The head node of a QALIPSIS cluster is responsible for orchestration and reporting.
+The head node within a QALIPSIS cluster is responsible for orchestration and reporting.
 
-It is the direct interface for all the interactions with QALIPSIS, via a graphical UI and a REST API.
-It supports the integration with third-party tools for reporting, notifications and analysis, and provides permanent
-access to QALIPSIS features and data, even when no factory is running.
+* It is the direct interface for all the interactions with QALIPSIS, via a graphical UI and a REST API.
+* It supports seamless integration with external third-party tools for reporting, notifications and analysis.
+* It ensures continuous access to QALIPSIS features and data, even when there are no active factory nodes.
 
-Furthermore, our enterprise edition supports OAuth2 authentication and redundancy of the head, so that your
-installation of QALIPSIS reveals no single point of failure.
+QALIPSIS Commercial edition supports additional responsibilities for the head node, including:
+
+* Improved security with OAuth2 authentication support; users are able to authenticate using their existing credentials.
+
+* Head node redundancy; if one node fails, a backup is available to seamlessly take over, eliminating a single point of failure and enhancing the reliability of the system. 
 
 === Factory
 
-The factory node of a QALIPSIS cluster hosts the minions that will execute the load tests and assertions.
+The factory nodes of a QALIPSIS cluster are distributed components that host the minions that execute load tests and assertions.
 
-It is the "working" node of the QALIPSIS cluster, and contains the executable version of your scenarios.
+The factories are the "working" nodes of cluster, and contains the executable version of your scenarios.
 
-A factory is not only responsible for injecting the load onto your system under test, but also for fetching records
-from different data sources (databases, messaging platforms...), allowing you to compare the data outside and
-inside your black-box system. No additional firewall rule is required to receive data in a factory. QALIPSIS plugins
-implement dedicated poll and search operations, making it easy to retrieve external data without making changes
-to your infrastructure.
+Factories have a dual role: they inject load into the system under test and retrieve records from various data sources like databases and messaging platforms.  
+
+The retrieval of records enables you to compare data both within and outside the system. Importantly, setting up additional firewall rules for data reception in the factory is not necessary. QALIPSIS plugins are designed with specialized poll and search operations, simplifying the process of external data retrieval without requiring adjustments to your existing infrastructure.
+
+You can add factories to your cluster to expand your load capacity; the factories can be synchronized and establish communication through low-latency messaging platforms such as Redis Pub/Sub and Kafka.
+
+Unlike the head node, which remains a consistent presence in the cluster, factories can be dynamically added or removed as needed. This approach helps minimize resource consumption during periods when no campaign is running.
 
 
-You can add factories to your cluster in order to scale your load capacity; the factories can be synchronized and communicate with low-latency messaging platforms like Redis Pub/Sub and Kafka.
 
-While the head is a long-live node, factories come and go as necessary to reduce resource consumption when no campaign is running.
+
+
 
 
 

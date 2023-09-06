@@ -1,4 +1,4 @@
-= Scenario specification
+= Scenario specifications
 
 == Overview
 A scenario specification is the total of all of the steps required to configure the scenario and to execute it at run-time.
@@ -20,7 +20,7 @@ A scenario specification is made up of several parts.
 @Scenario("hello-world")
 fun myScenario()
 ----
-. Assigning the kebab-cased scenario name (_hello world_):
+. Assigning the kebab-cased scenario name (_hello-world_):
 +
 [source,kotlin,linenumbers]
 ----
@@ -58,7 +58,7 @@ fun myScenario(){
     }
 }
 ----
-. Identifying the root of the (load-injected) tree receiving all the minions.
+. Identify the root of the (load-injected) tree receiving all the minions.
 +
 [source,kotlin,linenumbers]
 ----
@@ -74,7 +74,7 @@ fun myScenario(){
 }
 .start() // Root of the load injected tree.
 ----
-. Adding step specifications to the tree:
+. Add step specifications to the tree:
 +
 [source,kotlin,linenumbers]
 ----
@@ -309,37 +309,52 @@ fun myScenario() {
             regular(1000, 50)
         }
     }
-    myScenario.start() // Root branch receiving all minions.
+    myScenario.start() <1>
         .returns<string>{ "My input" }
-    myScenario // Second branch visited by a unique minion.
+    myScenario <2> 
         .returns<String>{ "My other input" }
 }
 ----
+<1> Root branch receiving all minions.
+<2> Second branch visited by a unique minion.
+
 Note that only one use of `.start()` is permitted and only one step after it.
  
-To create two load-injected branches, you can use the `.split` command.
+To create more than one load-injected branch, you can use the `.split` command.
 
-`.split` provides the output of a unique step to several steps by initiating the divergence of two load-injected branches, both running concurrently and receiving all the minions. 
+`.split` provides the output of a unique step to several steps by initiating the divergence of two or more load-injected branches, all running concurrently and receiving all the minions. 
 
-In the following example, two branches are diverging: one with the step `.map{}` and a second with `flatten().filterNotNull()`.  Both run concurrently after `.split`.
+In the following example, two branches are diverging. The purpose of the divergence is log and save a collection of temperatures from an IoT source.
+
+* The first branch uses `.flatten()` to log the temperature values (in °C).
+* The second branch uses `r2dbc().save` to save the collection of values.
+
+`.flatMap` then converts the logged and saved temperature values from °C to °F for use throughout the rest of the campaign.
+
 [source,kotlin,linenumbers]
 ----
 @Scenario("hello-world")
 fun myScenario() {
-    val myScenario = scenario {
-    .start()
-        .split { 
-             .map {
-             .returns<String>{ "My other input"
-             }
-            flatten() {
-                .filterNotNull() 
-            .returns<String>{ "My other input" }
+    scenario {
+        .start()
+            .split {  
+                flatten()   <1> 
+                .onEach { temperature ->
+                    log.info("The temperature is $temperature degrees celsius)
+                }
+                
+                r2dbc().save { temperatures ->  <2>
+                }
             }
-        }
+            .flatMap { temperatureCelsius ->   <3>
+                (temperatureCelsius * 9/5) + 32
+            }
     }
 }
 ----
+<1> Log the values
+<2> Save the values.     
+<3> Convert the received values from °C to °F and distribute them one by one.
 
 == Singleton step
 A singleton step is designed to be executed only once by one minion. Its purpose is to gather data to provide to the other minions as they pass through it.  The minions can use the data to feed other steps or verify expected results in the tested system.
@@ -349,13 +364,13 @@ Examples of a singleton step include:
 * A database poller.
 * A message consumer.
 
-While the singleton step is executed only once, it provides provides data to all the minions passing through it.
+While the singleton step is executed only once, it provides data to all the minions passing through it.
 
 A singleton step does not defer from other steps. It is executed using one minion, which looks like any other minion. Even if the singleton step is created on a load-injected branch, it remains aside and is proxied.
 
 The proxy will be executed by all the minions going through the branch, while the singleton step will only have its own one, only aiming at triggering its operation: polling, reading a file, starting a message consumer, etc.
 
-The singleton step and its proxy are connected by a topic, which actually defines the way the polled/read/ consumed records are provided to the minions.
+The singleton step and its proxy are connected by a topic, which actually defines the way the polled/read/consumed records are provided to the minions.
 
 == Data distribution from the singleton step to the load minions
 For convenience purpose, QALIPSIS proposes three different modes of distributing records out of a singleton step:
@@ -369,7 +384,6 @@ Note: You can develop your own singleton step by creating a plugin for it. Detai
 QALIPSIS provides all required statements out-of-the-box.
 
 === Loop
-
 When the number of records emitted by the singleton step is finite (such as a file), you might want to loop in the whole set of data to be sure there will always be data for the minions.
 
 //[example]
@@ -380,7 +394,7 @@ When there is no more data for a minion, it receives the same data again from th
 
 === Unicast/forward once
 
-Each minion receives the next unused record emitted from the step. Once there are no more records to provide, all the minions remain blocked in the step.
+Each minion receives the next unused record emitted from the singleton step. Once there are no more records to provide, all the minions remain blocked in the step.
 
 //[example]
 //Create and insert singleton-unicast graphic here

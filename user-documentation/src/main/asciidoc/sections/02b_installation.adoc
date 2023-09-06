@@ -16,7 +16,7 @@ Using QALIPSIS as an embedded service is convenient for execute campaigns in you
 
 It requires only three steps:
 
-. Add the dependencies to run QALIPSIS and develop your scenario.
+. Add the dependencies needed to run QALIPSIS and develop your scenario.
 +
 [source,kotlin,linenumbers]
 ----
@@ -63,8 +63,11 @@ class My Scenario {
 ----
 Qalipsis.main("-s", "do-something-useful", "-c", "myconfig=thevalue", "my-other-args")
 ----
+
 Alternately, you can use the following method:
-.. Import the test fixtures module for the runtime
+
+[start=1]
+. Import the test fixtures module for the runtime
 +
 [source,kotlin,linenumbers]
 ----
@@ -139,7 +142,7 @@ If any of your use cases includes data that you want to retain in QALIPSIS for c
 
 === Configuring a transient installation for project deployment
  
-The QALIPSIS Gradle Plugin provides tasks to create an installable archive from your project. It proposes a unique task to create a ZIP archive and a TAR.GZ archive. The installation is similar whether using a ZIP archive or a TAR.GZ archive; installation using a ZIP archive are described in this section.
+The QALIPSIS Gradle Plugin provides tasks to create an installable archive from your project. It proposes a unique task to create a ZIP archive and a TAR.GZ archive. The installation is similar whether using a ZIP archive or a TAR.GZ archive; installation using a ZIP archive is described in this section.
 
 In your QALIPSIS project, execute the task `package-standalone` which will assemble your project and create a ZIP file: `build/install/qalipsis-your-project-name.zip`.
 
@@ -150,7 +153,7 @@ The ZIP archive contains your scenario, classes, and all required dependencies t
 * Navigate to the QALIPSIS folder on your system:
 
  ** Linux, Unix or Mac systems:`/your/installation/folder/qalipsis-your-project-name` 
- ** Windows systems:`C:\your\installation\folder\qalipsis-your-project-name on Windows`
+ ** Windows systems:`C:\your\installation\folder\qalipsis-your-project-name' 
 
 * Start QALIPSIS:
 ** On Linux, Unix or Mac systems: 
@@ -158,8 +161,7 @@ The ZIP archive contains your scenario, classes, and all required dependencies t
 . Run `chmod +x -R`
 . Run `./qalipsis.sh --autostart`
 
-** On Windows systems:
-. Run `qalipsis.bat --autostart`
+** On Windows systems: run `qalipsis.bat --autostart`
 
 An additional argument is not required, as the transient, non-persistent execution, is the default.
 
@@ -169,7 +171,7 @@ An additional argument is not required, as the transient, non-persistent executi
 
 * To save the results, export them results to a file(s) using an exporter such as JUnit.
 
-If you want to tweak the configuration, create and include in your project a `qalipsis.yml` or `config/qalipsis.yml` file that contains the part of the configuration that you want to overwrite.
+If you want to tweak the configuration, create and include in your project a `qalipsis.yml` or `config/qalipsis.yml` file that contains the parts of the configuration that you want to overwrite.
 
 Note that the `config/qalipsis.yml` file has precedence over the `qalipsis.yml` if both are present in the configuration.
 
@@ -181,6 +183,7 @@ If any of your use cases includes data that you want to retain in QALIPSIS for c
 Standalone installations of QALIPSIS are designed for low to normal load operations that require data tracking. They allow you to tweak the deployment configuration to track the history of executions. 
 
 A standalone installation:
+
 * Executes all QALIPSIS components as in a transient installation.
 * Provides durability in data and history tracking.
 * Provides REST endpoints to interact with QALIPSIS.
@@ -193,21 +196,22 @@ If you want to configure a different database for the time-series data, refer to
  
 This section will guide you through the configuration of a <<Transient>> installation to a persistent standalone installation.
 
-While this installation requires the installation of a PostgreSQL database, we will not go into those details which are provided in the official http://postgresql.org[PostgreSQL] documentation.
+While this installation requires the installation of a PostgreSQL database, we will not go into those details here as they are provided in the official http://postgresql.org[PostgreSQL] documentation.
 
 === Prepare the installation
 Execute the following steps as for a <<Transient>> installation:
 
-* In your QALIPSIS project, execute the task `package-standalone` to create a ZIP file: `build/install/qalipsis-your-project-name.zip`.
+. In your QALIPSIS project, execute the task `package-standalone` to create a ZIP file: `build/install/qalipsis-your-project-name.zip`.
 
-* Add the ZIP archive to your installation folder of choice and extract the compressed files: `unzip qalipsis-your-project-name.zip`. 
+. Add the ZIP archive to your installation folder of choice and extract the compressed files: `unzip qalipsis-your-project-name.zip`. 
 
 === Prepare the database
-* Install your PostgreSQL database
-* Create a user with the name `qalipsis`. 
-* Create a database with the name `qalipsis`. 
-* Connect to the database `qalipsis` with your admin user (generally `postgres`).
-* Execute the following:
+[start]
+. Install your PostgreSQL database
+. Create a user with the name `qalipsis`. 
+. Create a database with the name `qalipsis`. 
+. Connect to the database `qalipsis` with your admin user (generally `postgres`).
+. Execute the following:
 +
 [example,kotlin, linenumbers]
 ----
@@ -224,8 +228,9 @@ GRANT ALL ON SCHEMA meters TO qalipsis;
 ---- 
 
 === Configure the database for the master data
-* Navigate to your installation folder where the  `qalipsis.sh` and `qalipsis.bat` files are located.
-* Create a `qalipsis.yml` file to configure access to the database for the master data:
+[start]
+. Navigate to your installation folder where the `qalipsis.sh` and `qalipsis.bat` files are located.
+. Create a `qalipsis.yml` file to configure access to the database for the master data:
 +
 [source,kotlin, linenumbers]
 ----
@@ -241,7 +246,7 @@ datasources:
 <2> The `maximumPoolSize` and `minimumIdle` are the REST endpoints and depend on your number of users. Increase the value of `maximumPoolSize` if you observe errors or a high latency when using the REST endpoints.
 
 === Configure the database for the events and meters
-The connection to PostgreSQL for events and meters is provided by the timescale plugin, which is embedded by default in all the head, transient and standalone installation you will build with the QALIPSIS Gradle plugin.
+The connection to PostgreSQL for events and meters is provided by the timescaledb plugin, which is embedded by default in all the head, transient and standalone installations you will build with the QALIPSIS Gradle plugin.
 
 In the file qalipsis.yml add the following details:
 
@@ -292,13 +297,14 @@ meters:
 
 === Start QALIPSIS
 
-Navigate to the QALIPSIS folder on your system:
+[start]
+. Navigate to the QALIPSIS folder on your system:
 
 * Linux, Unix or Mac systems:`/your/installation/folder/qalipsis-your-project-name`
 
 * Windows systems:`C:\your\installation\folder\qalipsis-your-project-name on Windows`
 
-Start QALIPSIS:
+. Start QALIPSIS:
 
 * On Linux, Unix or Mac systems: 
 . Run `chmod +x -R`
@@ -308,25 +314,24 @@ Start QALIPSIS:
 +
 Run `qalipsis.bat --autostart`
 
-QALIPSIS will start and provide REST endpoints on port 5432.
+QALIPSIS will start and provide REST endpoints on port 8080.
 
-Open source QALIPSIS OSS does not support native security. For a native secured installation, we encourage you to https://qalipsis.io/#contact[contact] the QALIPSIS team to request a license for QALIPSIS Enterprise. 
+Note: Open source QALIPSIS OSS does not support native security. For a native secured installation, we encourage you to https://qalipsis.io/#contact[contact] the QALIPSIS team to request a license for QALIPSIS Commercial edition. 
 
 == Cluster Installations 
 === Overview
 Clusters provide a scalable and durable installation of QALIPSIS, allowing increased load needs, more scenarios and more users. 
 
-In a cluster, QALIPSIS is split into several components which collaborate using third-parties systems to exchange data.
+In a cluster, QALIPSIS is split into several components which collaborate using third-party systems to exchange data.
 
-Heads are the components users use to interact with QALIPSIS.
-Factories are hidden and inaccessible to users. Factories only initiate outbound connections which allows them to securely run behind firewalls without limitation.
+Heads are the components that users use to interact with QALIPSIS. Factories, on the other hand, are hidden and inaccessible to users. They exclusively initiate outbound connections, enabling them to securely operate behind firewalls without limitations.
 
-Heads should remain active permanently to provide the best user experience. 
-Factories can remain active or come and go on demand without limiting the campaign results analysis.
+Heads should remain active permanently to ensure the best user experience. 
+Factories can either remain active or be activated as needed, without affecting the analysis of campaign results.
 
-Clusters can also be deployed in https://kubernetes.io/docs/concepts/security/[Kubernetes] or https://www.redhat.com/en/technologies/cloud-computing/openshift[OpenShift] or in a hybrid system with some factories on physical machines and others on virtual machines.
+ Clusters can be deployed in different environments, including https://kubernetes.io/docs/concepts/security/[Kubernetes], https://www.redhat.com/en/technologies/cloud-computing/openshift[OpenShift], or a hybrid system with some factories on physical machines and others on virtual machines.
 
-The following sections describe how to install QALIPSIS as clusters of different forms that provide different levels of scalability and availability.
+The following sections explain the installation process for various forms of QALIPSIS clusters that offer different levels of scalability and availability.
 
 === Light cluster
 A light cluster requires minimal effort for installation; however, it is limited in terms of load capability.
@@ -344,7 +349,7 @@ A light cluster consists of:
 A high-load cluster requires significant effort for installation and operation; however, it is extremely scalable.
 
 NOTE::
-A high-load cluster is only possible for enterprise installations.  If you are interested in deploying a  high-load cluster, https://qalipsis.io/#contact[contact] the QALIPSIS team to request a license for QALIPSIS Enterprise.
+A high-load cluster is only possible with QALIPSIS Commercial edition.  If you are interested in deploying a high-load cluster, https://qalipsis.io/#contact[contact] the QALIPSIS team to request a license for QALIPSIS Commercial edition.
 
 A high-load cluster consists of:
 
@@ -361,11 +366,11 @@ The purpose of an amendable installation is to allow you to add scenarios to the
 
 As a prerequisite, you need to install QALIPSIS as described in the <<Transient installations,`transient`>>, <<Standalone Installations,`standalone`>> or <<Cluster Installations,`cluster`>> installation sections. 
 
-When packaging an installation, you do not need to create a scenario for the project. An "empty" installation is a valid installation. Executing QALIPSIS on an "empty" installation will return an exit code different from 0 and a `no scenario found` warning.
+Note: When packaging an installation, you do not need to create a scenario for the project. An "empty" installation is a valid installation. Executing QALIPSIS on an "empty" installation will return an exit code different from 0 and a `no scenario found` warning.
 
 When your QALIPSIS installation is complete:
 
-. Create a new QALIPSIS project using the QALIPSIS Gradle plugin
+. Create a new QALIPSIS project using the QALIPSIS Gradle plugin.
 . Create a scenario in your project. 
 . Add implementation or runtime dependencies to your Gradle project, as you would with any Gradle project.
 . Execute the task `package-scenario` on your Gradle module, which will assemble your project and create a ZIP file:
@@ -378,8 +383,10 @@ This archive contains your scenario and all the non-QALIPSIS dependencies you ha
 . Copy each file in the expanded folder into the folder with scenarios of your existing installation.
 . If it is still running, restart QALIPSIS to load the new scenarios.
 
-:warning: WARNING
-Different scenarios might require different dependencies; pay attention to the conflict of versions when you overwrite existing files in an existing installation.
+:warning: 
+WARNING
+
+Different scenarios might require different dependencies; pay attention to the conflict of versions when you overwrite existing files in an existing installation. 
 
 To avoid conflicts, use the same versions of dependencies across all scenarios/projects deployed in the same installation.
 
@@ -408,7 +415,7 @@ ADD build/scenario/qalipsis-scenario-your-project-name.zip /opt/qalipsis
 === Where can you use the images?
 All of the images are tested to run as https://www.docker.com/[Docker], https://kubernetes.io/[Kubernetes] or https://www.redhat.com/en/technologies/cloud-computing/openshift[OpenShift] containers and can be configured with additional program arguments or a mounted configuration file.
 
-You can refer to the official documentation for each platform to learn how to attach a configuration file and arguments to the execution of QALIPSIS.
+Refer to the official documentation for each platform to learn how to attach a configuration file and arguments to the execution of QALIPSIS.
 
 
  

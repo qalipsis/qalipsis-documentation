@@ -74,6 +74,7 @@ Be precise when specifying the information to monitor. Recording too much inform
 === Exporting monitored data
 QALIPSIS supports different technologies to record events and meters, providing the flexibility of using different analytic solutions that best suit your preferences and requirements.
 You can globally enable the export of events and meters to databases or messaging platforms.
+
 * To enable the export of events:
 +
 [source,kotlin,linenumbers]
@@ -86,13 +87,14 @@ events.export.enabled=true
 ----
 meters.export.enabled=true
 ----
+
 Plugin steps must also be configured to export monitoring data. At the time of this writing, the following plugins are supported:
 
-* Graphite: Refer to the link:plugins/08d_graphite.adoc[Graphite plugin] section for details.
-* Elasticsearch: Refer to the link:plugins/08c_elasticsearch.adoc[Elasticsearch plugin] section for details. 
-* Apache Kafka: Refer to the link:plugins/08h_kafka.adoc[Kafka plugin]  section for details.  
-* TimescaleDB and PostgreSQL: Refer to the link:plugins/08d_timescaledb.adoc[TimescaleDB plugin] section for details.
-* InfluxDB: Refer to the link:plugins/08e_Influxdb.adoc[InfluxDB plugin] section for details.
+* Graphite: Refer to the link:#_graphite-plugin[Graphite plugin] section for details.
+* Elasticsearch: Refer to the link:#_elasticsearch-plugin[Elasticsearch plugin] section for details. 
+* Apache Kafka: Refer to the link:#_apache-kafka-plugin[Apache Kafka plugin] section for details.  
+* TimescaleDB and PostgreSQL: Refer to the link:#_timescaledb-plugin[TimescaleDB plugin] section for details.
+* InfluxDB: Refer to the link:#_influxdb-plugin[InfluxDB plugin] section for details.
 
 NOTE: It is important to balance the count of publishers (when configurable) with the amount of event data that steps generate.  If the amount of data is too large for the publishers to keep up with, there may be unwanted side effects. For example, the events buffer size may increase enough to cause memory issues and QALIPSIS may need time to exit after the end of a campaign to empty the buffers.
 
