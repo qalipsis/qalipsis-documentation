@@ -1,0 +1,120 @@
+== Jakarta EE Plugin
+
+=== Overview
+
+The Jakarta EE plugin connects QALIPSIS to a messaging platform that supports https://jakarta.ee/[JAKARTA EE].
+
+Technology addressed::
+jakartaee: https://jakarta.ee/[]
+
+Dependency::
+`io.qalipsis.plugins.jakarta.jakarta`
+
+Namespace in scenario::
+` .jakarta()`
+
+Client library::
+Refer to https://jakarta.ee/[Jarkata EE].
+
+Supported steps::
+* <<Consume,`consume`>>: consumes data from a messaging platform supporting Jakart EE.
+* <<Produce,`produce`>>: pushes data to a messaging platform supporting Jakart EE.
+
+Example scenarios using a combination of Jakarta EE supported steps are provided on https://github.com/qalipsis/qalipsis-examples/tree/main/jakarta-ee-messaging[Github].
+
+
+=== Consume step
+The `consume` step within the Jakart EE plugin consumes records from https://activemq.apache.org/[ActiveMQ].
+
+Ancestor::
+Scenario 
+
+Functionality::
+The `consume` step polls data from the designated https://activemq.apache.org/[ActiveMQ] connection, step context, and the data deserializer.
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+it.jakarta().consume {
+  queues("battery_state")
+  queueConnection {
+    ActiveMQConnectionFactory(
+      "tcp://localhost:61616",
+      "qalipsis_user",
+      "qalipsis_password"
+    ).createQueueConnection()
+  }
+}
+  .deserialize(JakartaJsonDeserializer(targetClass = BatteryState::class))
+  .map { result ->
+    result.record.value
+  }
+----
+
+Notable parameters::
+* `consume`: configures the the https://activemq.apache.org/[ActiveMQ] connection.
+** `queues`: specifies the queue(s) for the connection.
+** `QueueConnection`: provides the java https://activemq.apache.org/[ActiveMQ] connection for the specified `queues`.
+** `topics` (optional): specifies the topic(s) for the connection.
+** `TopicConnection` (optional): provides the java https://activemq.apache.org/[ActiveMQ] connection for the specified `topics`.
+* `broadcast` (optional): specifies the broadcast parameters for the step.
+* `deserialize`: specifies the class to use to deserialize the body of the response.
+
+Tip::
+The https://activemq.apache.org/[ActiveMQ] connection can be configured for either `queues` (`QeueConnection`) or `topics` (`TopicConnection`), but not both.
+
+Reference documentation::
+Refer to the  https://jakarta.ee/resources/#documentation[Jakarta EE] documentation for further parameter and configuration information.
+
+=== Produce step
+The `produce` step within the Jakarta EE plugin produces records in https://activemq.apache.org/[ActiveMQ]
+
+Ancestor::
+Step
+
+Functionality::
+The `produce` step within the Jakarta EE plugin produces records in https://activemq.apache.org/[ActiveMQ] using https://jakarta.ee/[Jakarta EE]
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+.jakarta()
+.produce {
+
+  connect {
+    ActiveMQConnectionFactory(
+      "tcp://localhost:61616",
+      "qalipsis_user",
+      "qalipsis_password"
+    ).createQueueConnection()
+  }
+
+  session {
+    it.createSession(false, Session.AUTO_ACKNOWLEDGE)
+  }
+
+  records { _, input ->
+    listOf(
+      JakartaProducerRecord(
+        destination = Queue("battery_state"),
+        messageType = JakartaMessageType.BYTES,
+        value = objectMapper.writeValueAsBytes(input)
+      )
+    )
+  }
+}
+----
+Notable parameters::
+* `connect`: specifies the connection type for the `JakartaProducerRecord`(s).
+* `records`: generates and configures a list of produced records.
+** `destination`:  defines the destination for each `JakartaProducerRecord` as either queues (`QueueConnection`) or topics (`TopicConnection`).
+** `messageType`: indicates the `JakartaMessageType` as: `TEXT`, `AUTO`, `BYTES`, or `OBJECT`.
+** `value`: defines the message to be displayed at the `destination`. 
+
+Tip::
+If you are not sure about the `JakartaMessageType`, use `AUTO` to allow the system to infer the type and display the result. 
+
+Reference documentation::
+Refer to the  https://jakarta.ee/resources/#documentation[Jakarta EE] documentation for further parameter and configuration information.
