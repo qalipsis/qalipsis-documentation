@@ -48,7 +48,7 @@ elasticsearch().poll {
             }""".trimIndent()
     }
     index("battery-state")   
-    pollDelay(Duration.ofSeconds(1))  
+    pollDelay(delay = Duration.ofSeconds(1))  
 }
 ----
 Notable parameters::
@@ -85,19 +85,22 @@ Example::
 .save {
     name = "save"
     client {
-        RestClient.builder(HttpHost.create("http://localhost:9200")).build() 
+        RestClient.builder(HttpHost.create("http://localhost:9200"))
+            .build() 
     }
     documents { _, input ->
         listOf(
             Document(
                 index = "battery-state",
-                id = input.primaryKey,
+                id = input.deviceId,
                 source = objectMapper.writeValueAsString(input)  
             )
         )
     }
 }
 ----
+
+
 Notable Parameters::
 
 * `client`: configures the REST client to connect to https://www.elastic.co/[Elasticsearch].
@@ -125,7 +128,7 @@ Example::
         RestClient.builder(HttpHost.create("http://localhost:9200")).build()
     }
     index { _, _ -> listOf("battery-state") }   
-    query { _, input ->
+    query { _, input ->                         
         """{
             "query": {
                 "bool": {

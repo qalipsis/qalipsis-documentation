@@ -165,7 +165,8 @@ The `MQTT Publish` step within the Netty plugin sends data to an MQTT server.
 Ancestor::
 Step
  
-//Functionality::
+Functionality::
+The MQTT Publish step provides a variety of options for controlling the quality and reliability of messages that are published to the server.
 
 Example::
 +
@@ -173,15 +174,15 @@ Example::
 ----
 .netty().mqttPublish {
     connect {
-        host =  "mqtt.anyhost.com"
-        port = 1883
+        host =  "localhost"
+        port = 11883
     }
     clientName("qalipsis-mqtt-client")
     records { _, batteryState ->
         listOf(
             MqttPublishRecord(
                 value = objectMapper.writeValueAsString(batteryState),
-                topicName = ServerConfiguration.TOPIC_NAME
+                topicName = "battery-state"
             )
         )
     }
@@ -200,7 +201,8 @@ The `MQTT Subscribe` step within the Netty plugin consumes data from an MQTT ser
 
 Ancestor::
 Step
-//Functionality::
+Functionality::
+The MQTT Subscribe step provides a variety of options for controlling the quality and reliability of the messages that are subscribed to from the server.
 
 Example::
 +
@@ -208,8 +210,8 @@ Example::
 ----
 it.netty().mqttSubscribe {
     connect {
-        host = ServerConfiguration.HOST
-        port = ServerConfiguration.PORT
+        host = localhost
+        port = 11883
     }
     clientName("qalipsis-mqtt-client-subscriber")
     topicFilter(ServerConfiguration.TOPIC_NAME)

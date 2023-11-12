@@ -51,7 +51,7 @@ Notable parameters::
 ** `topics` (optional): specifies the topic(s) for the connection.
 ** `TopicConnection` (optional): provides the java https://activemq.apache.org/[ActiveMQ] connection for the specified `topics`.
 * `broadcast` (optional): specifies the broadcast parameters for the step.
-* `deserialize`: specifies the class to use to deserialize the body of the response.
+* `deserialize` (optional): specifies the class to use to deserialize the body of the response.
 
 Tip::
 The https://activemq.apache.org/[ActiveMQ] connection can be configured for either `queues` (`QeueConnection`) or `topics` (`TopicConnection`), but not both.
