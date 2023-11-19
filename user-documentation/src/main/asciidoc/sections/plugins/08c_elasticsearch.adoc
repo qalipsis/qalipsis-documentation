@@ -1,4 +1,4 @@
-== Elasticsearch plugin
+== Elasticsearch plugin 
 
 === Overview
 The Elasticsearch plugin connects QALIPSIS to https://www.elastic.co/[Elasticsearch].
@@ -48,7 +48,7 @@ elasticsearch().poll {
             }""".trimIndent()
     }
     index("battery-state")   
-    pollDelay(delay = Duration.ofSeconds(1))  
+    pollDelay(Duration.ofSeconds(1))  
 }
 ----
 Notable parameters::

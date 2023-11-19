@@ -38,7 +38,7 @@ Example::
 mongodb().poll {
     name = "poll"
     connect {
-        MongoClients.create("mongodb://admin:password@localhost:27017")
+        MongoClients.create("mongodb://James23:SantaFe1987@localhost:27017")
     }
     search {
         database = "iot"
@@ -82,7 +82,7 @@ Example::
 .save {
     name = "save"
     connect {
-        MongoClients.create("mongodb://admin:password@localhost:27017")
+        MongoClients.create("mongodb://James23:SantaFe1987@localhost:27017")
     }
     query {
         database { _, _ ->
@@ -125,7 +125,7 @@ Example::
 .search {
     name = "search"
     connect {
-        MongoClients.create("mongodb://admin:password@localhost:27017")
+        MongoClients.create("mongodb://James23:SantaFe1987@localhost:27017")
     }
     search {
         database { _, _ -> "iot" }

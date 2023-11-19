@@ -46,8 +46,8 @@ rabbitmq()
     connection {
       host = "localhost"
       port = 5672
-      password = "qalipsis"
-      username = "qalipsis"
+      username = "Celia45"
+      password = "Columbus1963"
     }
     queue(queueName = "battery_state")
 }
@@ -83,8 +83,8 @@ Example::
   connection {
     host = "localhost"
     port = 5672
-    password = "qalipsis"
-    username = "qalipsis"
+      username = "Celia45"
+      password = "Columbus1963"
   }
   records { _, input ->
     listOf(

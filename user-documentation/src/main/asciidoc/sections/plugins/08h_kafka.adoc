@@ -90,9 +90,9 @@ Example::
     records { _, input ->
       listOf(
         KafkaProducerRecord(
-          "battery_state",
-      value = objectMapper.writeValueAsString(input),
-      key = input.deviceId
+          topic = "battery_state",
+          value = objectMapper.writeValueAsString(input),
+          key = input.deviceId
         )
       )
     }

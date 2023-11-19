@@ -43,8 +43,8 @@ it.redisLettuce()
       nodes = listOf("localhost:6379")
       database = 0
       redisConnectionType = RedisConnectionType.SINGLE
-      authPassword = ""
-      authUser = ""
+      authUser = "Celia45"
+      authPassword = "Columbus1963"
     }
     keyOrPattern("battery_state_save_and_poll")
     pollDelay(Duration.ofSeconds(1))
@@ -85,8 +85,8 @@ Example::
     nodes = listOf("localhost:6379")
     database = 0
     redisConnectionType = RedisConnectionType.SINGLE
-    authPassword = ""
-    authUser = ""
+      authUser = "Celia45"
+      authPassword = "Columbus1963"
   }
 
   records { _, input ->
@@ -130,11 +130,11 @@ redisLettuce()
     nodes = redis://localhost:6439
     database = 0
     redisConnectionType = RedisConnectionType.SINGLE
-    authPassword = ""
-    authUser = ""
+      authUser = "Celia45"
+      authPassword = "Columbus1963"
   }
   streamKey("battery_state_produce_and_consume")
-  offset("LettuceStreamsConsumerOffset.FROM_BEGINNING")
+  offset(LettuceStreamsConsumerOffset.FROM_BEGINNING)
   group("consumer")
 }
 ----
@@ -168,8 +168,8 @@ Example::
     nodes = listOf("localhost:6379")
     database = 0
     redisConnectionType = RedisConnectionType.SINGLE
-    authPassword = ""
-    authUser = ""
+      authUser = "Celia45"
+      authPassword = "Columbus1963"
   }
 
   records { _, input ->

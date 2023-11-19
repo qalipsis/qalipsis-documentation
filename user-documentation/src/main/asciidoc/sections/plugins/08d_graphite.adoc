@@ -76,7 +76,7 @@ Ancestor::
 Scenario or Step
 
 Functionality::
-The `save` step's input and step context are used to generate documents to save into a database table.
+The `save` step's input and step context are used to generate documents to save into Graphite.
 
 Example::
 [source,kotlin,linenumbers]

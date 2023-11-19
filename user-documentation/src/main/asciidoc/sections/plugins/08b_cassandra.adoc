@@ -44,13 +44,13 @@ cassandra().poll {
         keySpace = "iot"
         datacenterName = "datacenter1"                           
     }
-    query(queryString ="SELECT deviceid, timestamp, batterylevel FROM batteryState WHERE company = ? ORDER BY timestamp")
+    query("SELECT deviceid, timestamp, batterylevel FROM batteryState WHERE company = ? ORDER BY timestamp")
     parameters("ACME Inc.")
     tieBreaker {
         name = "timestamp"
         type = GenericType.INSTANT
     }
-    pollDelay(duration = Duration.ofSeconds(1))
+    pollDelay(Duration.ofSeconds(1))
 }
 ----
  Notable parameters::

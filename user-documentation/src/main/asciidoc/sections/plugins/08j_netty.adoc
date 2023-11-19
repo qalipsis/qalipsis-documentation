@@ -177,7 +177,7 @@ Example::
         host =  "localhost"
         port = 11883
     }
-    clientName("qalipsis-mqtt-client")
+    clientName("mqtt-client-1")
     records { _, batteryState ->
         listOf(
             MqttPublishRecord(
@@ -213,7 +213,7 @@ it.netty().mqttSubscribe {
         host = localhost
         port = 11883
     }
-    clientName("qalipsis-mqtt-client-subscriber")
+    clientName("mqtt-client-1")
     topicFilter(ServerConfiguration.TOPIC_NAME)
 }
 ----
