@@ -44,12 +44,12 @@ Example::
 r2dbcJasync().poll {
     protocol(Protocol.POSTGRESQL)
     connection {
-        database = "qalipsis_db"
-        port = jdbc:mysql://localhost:5432;
-        username = "JohnAmes"
-        password = "Fortune3018"
+        database = "iot"
+        port = 5432
+        username = "DavidW"
+        password = "Awesome_1978"
     }
-    query("select * from ${"qalipsis_db"} order by \"${"timestamp"}\"")
+    query("select * from battery_state order by \"timestamp\"")
     pollDelay(Duration.ofSeconds(1))
 }
 ----
@@ -84,17 +84,16 @@ Example::
 .save {
     protocol(Protocol.POSTGRESQL)
     connection {
-        database = "qalipsis_db"
-        port = jdbc:mysql://localhost:5432
-        username = "JohnAmes"
-        password = "Fortune3018"
+        database = "iot"
+        port = 5432
+        username = "DavidW"
+        password = "Awesome_1978"
     }
     tableName { _, _ ->
-        "qalipsis_table"
+        "battery_state"
     }
     columns { _, _ ->
         listOf(
-            "id",
             "device_id",
             "timestamp",
             "battery_level"
@@ -103,7 +102,6 @@ Example::
     values { _, input ->
         listOf(
             JasyncSaveRecord(
-                input.primaryKey(),
                 input.deviceId,
                 input.timestamp.epochSecond,
                 input.batteryLevel
@@ -140,13 +138,13 @@ Example::
 .search {
     protocol(Protocol.MARIADB)
     connection {
-        database = "qalipsis_db"
-        port = jdbc:mysql://localhost:5432
-        username = "JohnAmes"
-        password = "Fortune3018"
+        database = "iot"
+        port = 3306
+        username = "DavidW"
+        password = "Awesome_1978"
     }
     query { _, _ ->
-        val request = "SELECT DISTINCT * from ${qalipsis_db} where ${"timestamp"} = ? AND ${"device_id"} = ?"
+        val request = "SELECT DISTINCT * from battery_state where timestamp = ? AND device_id = ?"
         request
     }
     parameters { _, input ->

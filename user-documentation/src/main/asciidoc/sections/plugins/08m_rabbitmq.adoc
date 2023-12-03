@@ -40,24 +40,23 @@ Example::
 +
 [source,kotlin,linenumbers]
 ----
-rabbitmq().
-  consume {
-    queue("user")
+rabbitmq()
+  .consume {
+    name = "consume"
     connection {
       host = "localhost"
       port = 5672
-      password = "Ceila1995"
-      username = "PaulSmith"
+      username = "Celia45"
+      password = "Columbus1963"
     }
-    concurrency(2)
-    prefetchCount (11)
+    queue(queueName = "battery_state")
 }
 ----
 Notable parameters::
-* `queue`: defines the name of the queue to consume.
-* `connection`: configures the connection to the RabbitMQ broker; defaults to `localhost:5672`
-* `concurrency:` defines the number of concurrent channels producing messages to RabbitMQ; defaults to 1.
-* `prefetchCount`: defines the prefetch count value; defaults to 10. 
+* `connection` (required): configures the connection to the RabbitMQ broker; defaults to `localhost:5672`
+* `queue` (required): defines the name of the queue to consume.
+* `concurrency (optional):` defines the number of concurrent channels producing messages to RabbitMQ; defaults to 1.
+* `prefetchCount`(optional): defines the prefetch count value; defaults to 10. 
 * `broadcast` (optional): specifies the broadcast parameters for the step.
 
 Tip::
@@ -84,8 +83,8 @@ Example::
   connection {
     host = "localhost"
     port = 5672
-    password = "Ceila1995"
-    username = "PaulSmith"
+      username = "Celia45"
+      password = "Columbus1963"
   }
   records { _, input ->
     listOf(

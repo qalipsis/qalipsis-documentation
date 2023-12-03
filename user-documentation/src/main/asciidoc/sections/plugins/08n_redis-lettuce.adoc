@@ -38,17 +38,17 @@ Example::
 [source,kotlin,linenumbers]
 ----
 it.redisLettuce()
-.pollSscan {
-  connection {
-    nodes = redis://localhost:6439
-    database = 0
-    redisConnectionType = RedisConnectionType.SINGLE
-    authPassword = "    authPassword = "Brother1999"
-    authUser = "JohnJacobson"
+  .pollSscan {
+    connection {
+      nodes = listOf("localhost:6379")
+      database = 0
+      redisConnectionType = RedisConnectionType.SINGLE
+      authUser = "Celia45"
+      authPassword = "Columbus1963"
+    }
+    keyOrPattern("battery_state_save_and_poll")
+    pollDelay(Duration.ofSeconds(1))
   }
-  keyOrPattern(sscan)
-  pollDelay(Duration.ofSeconds(1))
-}
 ----
 Notable parameters::
 * `Connection` (required): specifies the connection parameters.
@@ -82,11 +82,11 @@ Example::
 .redisLettuce()
 .save {
   connection {
-    nodes = redis://localhost:6439
+    nodes = listOf("localhost:6379")
     database = 0
     redisConnectionType = RedisConnectionType.SINGLE
-    authPassword = "Brother1999"
-    authUser = "JohnJacobson"
+      authUser = "Celia45"
+      authPassword = "Columbus1963"
   }
 
   records { _, input ->
@@ -130,11 +130,11 @@ redisLettuce()
     nodes = redis://localhost:6439
     database = 0
     redisConnectionType = RedisConnectionType.SINGLE
-    authPassword = "Brother1999"
-    authUser = "JohnJacobson"
+      authUser = "Celia45"
+      authPassword = "Columbus1963"
   }
   streamKey("battery_state_produce_and_consume")
-  offset("FROM_BEGINNING")
+  offset(LettuceStreamsConsumerOffset.FROM_BEGINNING)
   group("consumer")
 }
 ----
@@ -158,9 +158,6 @@ The `produce` step within the Redis-lettuce plugin produces records into the Red
 Ancestor::
 Step
 
-Functionality::
-The `produce` step produces a batch of records into one or more Redis stream topics. The record values may be provided by previous step(s).
-
 Example::
 +
 [source,kotlin,linenumbers]
@@ -168,11 +165,11 @@ Example::
 .redisLettuce()
 .streamsProduce {
   connection {
-    nodes = redis://localhost:6439
+    nodes = listOf("localhost:6379")
     database = 0
     redisConnectionType = RedisConnectionType.SINGLE
-    authPassword = "Brother1999"
-    authUser = "JohnJacobson"
+      authUser = "Celia45"
+      authPassword = "Columbus1963"
   }
 
   records { _, input ->

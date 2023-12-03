@@ -20,7 +20,7 @@ DataStax: refer to the https://docs.datastax.com/[DataStax].
 Datastax is a modern, feature-rich and highly tunable Java client library for Apache Cassandra using Cassandra’s binary protocol and Cassandra Query Language.
 
 Supported steps::
-* <<poll step,`poll`>>: polls the newest data periodically.
+* <<Poll step,`poll`>>: polls the newest data periodically.
 * <<Save step,`save`>>: saves records generated from the input and step context.
 * <<Search step,`search`>>: searches records and builds a query from the input and step context.
 
@@ -44,7 +44,7 @@ cassandra().poll {
         keySpace = "iot"
         datacenterName = "datacenter1"                           
     }
-    query("SELECT deviceid, timestamp, batterylevel FROM devices WHERE company = ? ORDER BY timestamp")
+    query("SELECT deviceid, timestamp, batterylevel FROM batteryState WHERE company = ? ORDER BY timestamp")
     parameters("ACME Inc.")
     tieBreaker {
         name = "timestamp"
@@ -77,7 +77,7 @@ Ancestor::
  Step
 
 Functionality::
- The `save` step's input and step context are used to generate documents to save into a table.
+ The `save` step's input and step context are used to generate documents to save into a database.
 
 Example::
 [source,kotlin,linenumbers]
@@ -94,7 +94,7 @@ Example::
         "batteryState"
     }
 
-    columns { _, _ ->    
+    columns { _, _ ->   
         listOf(
             "company",
             "deviceid",
@@ -115,6 +115,7 @@ Example::
     }
 }
 ----
+
 Notable parameters::
 * `connect` (required): configures the connection to https://cassandra.apache.org[Apache Cassandra].
 * `keyspace` (required): the outermost object that determines how data replicates on nodes.
@@ -143,11 +144,11 @@ cassandra().search {
 
     connect {
         servers = listOf("localhost:9042")
-        keyspace = "test_keyspace"
-        datacenterName = "test_datacenter"
+        keyspace = "iot"
+        datacenterName = "datacenter1"
     }
     query { _, _ ->
-        "SELECT * FROM "batteryState" WHERE  "company"= ? AND "deviceid"" = ? AND timestamp = ?"
+        "SELECT * FROM batteryState WHERE company= ? AND deviceid = ? AND timestamp = ?"
     }
     parameters { _, input ->
         listOf("ACME Inc.", input.input.deviceId, input.input.timestamp)

@@ -96,6 +96,9 @@ Note: Before using a plugin, confirm that the related dependency has been added 
 |link:#_jms-plugin[jms]
 |Connects QALIPSIS to a messaging platform that supports https://www.oracle.com/java/technologies/java-message-service.html[JMS] (for example, https://activemq.apache.org/[ActiveMQ]).
 
+|link:#_jakarta-ee-plugin[jarkataee]
+|Connects QALIPSIS to a messaging platform that supports https://jakarta.ee/[Jakarta EE].
+
 |link:#_kafka-plugin[kafka]
 |Connects QALIPSIS to an https://kafka.apache.org/[Apache Kafka] cluster.
 
@@ -153,7 +156,11 @@ include::{includedir}/sections/plugins/08g_jms.adoc[]
 
 <<<<
 
-include::{includedir}/sections/plugins/08h_kafka.adoc[]
+include::{includedir}/sections/plugins/08g_jms.adoc[]
+
+<<<<
+
+include::{includedir}/sections/plugins/08s_jakarta.adoc[]
 
 <<<<
 

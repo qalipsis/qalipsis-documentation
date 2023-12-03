@@ -9,8 +9,10 @@ Technology addressed::
 
 Dependency::
 `io.qalipsis:plugin-timescaledb`
+
 Namespace in scenario::
 `timescaledb()`
+
 Client library::
 https://docs.timescale.com/keywords/Toolkit/
 

@@ -88,15 +88,15 @@ Example::
     bootstrap("localhost:9092")
     clientName("producer")
     records { _, input ->
-    listOf(
-      KafkaProducerRecord(
-      ServerConfiguration.TOPIC,
-      value = objectMapper.writeValueAsString(input),
-      key = input.primaryKey
+      listOf(
+        KafkaProducerRecord(
+          topic = "battery_state",
+          value = objectMapper.writeValueAsString(input),
+          key = input.deviceId
+        )
       )
-    )
     }
-    }
+  }
 ----
 Notable parameters::
 * `keySerializer`: describes how to serialize the record keys to send  to `kafka`.
