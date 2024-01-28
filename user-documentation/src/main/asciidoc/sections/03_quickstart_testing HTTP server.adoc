@@ -54,7 +54,7 @@ services:
 . Click `Generate`. An archive containing a skeleton of the project is proposed for download.
 . Download the proposed project archive. 
 
-// insert graphic/screenshot of the Bootstrap QALIPSIS page
+// insert graphic/screenshot of the Bootstrap QALIPSIS page when available
 
 == Configure a scenario
 === Edit the downloaded scenario skeleton
@@ -286,6 +286,9 @@ events:
 ----
 
 This enables the logging of the events with severity WARN and higher to a file called `qalipsis-events.log`.
+
+// Do we still want to exclude the following???
+
 
 // Execute the scenario again; the events file is created and contains the details of the individual failed assertions:
 
