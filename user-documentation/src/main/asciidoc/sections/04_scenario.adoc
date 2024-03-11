@@ -123,6 +123,8 @@ Once you have specified the number of minions in your scenario, you need to spec
 ** Faster
 * Regular
 * Timeframe
+* Stages
+* User Defined
 
 You can use one of the out-of-the-box profiles or create your own.
 
@@ -162,7 +164,7 @@ The following example injects minions every 200 ms: first 10, then 20 new minion
 fun myScenario() {
     val myScenario = scenario {
         profile {
-            more(200, 10, 2.0, 1000)
+            more(periodMs = 200, minionsCountProLaunchAtStart = 10, multiplier = 2.0, maxMinionsCountProLaunch = 1000)
         }
     }
 }
@@ -174,7 +176,7 @@ The speed-factor at runtime will be applied to the # of minions injected: a spee
 +
 A regular execution profile sets the injection of a set amount of minions at a set pace.
 +
-The following example sets the execution of 200 minions every 10 ms.
+The following example sets the execution of 200 minions every 10 ms until the total number of minions is started.
 +
 [source,kotlin,linenumbers]
 ----
@@ -182,7 +184,7 @@ The following example sets the execution of 200 minions every 10 ms.
 fun myScenario() {
     val myScenario = scenario {
         profile {
-        regular(200, 10)
+            regular(periodMs = 10, minionsCountProLaunch = 200)
         }
     }
 }
@@ -202,13 +204,49 @@ The following example starts an equal number of minions every 20 ms, so that the
 fun myScenario() {
     val myScenario = scenario {
         profile {
-            timeframe(20, 40000)
+            timeframe(periodInMs = 20, timeFrameInMs = 40000)
         }
     }
 }
 ----
 +
 The speed-factor at runtime will be applied to the interval: a speed factor of 2 will divide the interval by 2.
+
+* `stages` execution profile
+
+A `stages` execution profile injects more and more minions into the test step by step, keeping them all active until the end of the test.
+
+** Each stage:
+*** Defines the number of minions to add.
+*** How fast the minions should be added (resolution)
+*** The total duration of the stage (how long to wait until the next stage starts or the test ends if the stage is the last stage).
+** Contrary to the other execution profiles, stages ignores the total `minionsCount` defined in the scenario and only relies on the sum of all the minions started in the stages.
+
+Note that resolution is an optional parameter with a default value of 500 ms. 
+
+The following example starts a `stages` execution profile that includes two stages. 
+
+* The first stage:
+** Injects 234 minions into the test within 12 seconds and 500 ms apart.
++
+10 minions are injected 9 times (500 ms apart) after the firtst injection; 4 minions are injected in the final injection.
+
+** Lasts a total of 30 seconds. 
+
+
+* The second stage:
+** Starts 30 seconds after the first stage starts.
+** Injects 15 minions within 500 ms after the stage starts.
+** Lasts a total of 1500 ms.
+
+
+[source,kotlin,linenumbers]
+----
+stages {
+    stage(minionsCount = 234, rampUpDuration = Duration.ofSeconds(12), totalDuration = Duration.ofSeconds(30), resolution = Duration.ofMillis(500))
+    stage(minionsCount = 15, rampUpDurationMs = 500, totalDurationMs = 1500)
+}
+----
 
 * User defined execution profiles
 +

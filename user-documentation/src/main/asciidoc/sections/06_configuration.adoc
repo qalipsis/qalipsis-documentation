@@ -62,7 +62,7 @@ Following is an example of the command to set the load factor:
 `campaign.minions-factor, double, default to 1`
 +
 . `Speed Factor`.
-The speed factor command is applied on the executopn profile to accelerate or slow down the pace of the minions released. 
+The speed factor command is applied on the execution profile to accelerate or slow down the pace of the minions released. 
 +
 For example:
 +
