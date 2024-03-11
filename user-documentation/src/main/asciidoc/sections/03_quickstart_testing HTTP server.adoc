@@ -14,6 +14,7 @@ Before starting, you need:
 This guide will take you through the following steps for testing a simple HTTP service:
 
 . Start an HTTP server and a docker environment for the project. 
+
 . Create a project. 
 . Configure a scenario.
 . Add steps to the scenario.
@@ -25,7 +26,7 @@ This guide will take you through the following steps for testing a simple HTTP s
 . Create a Java archive of your project so that you can transport it as needed and run it anywhere.
 . <<Enable event logging>> to allow you to view errors in the report. 
 
-== Start an HTTP server
+== Start an HTTP server and a docker environment
 
 . Create a file named `docker-compose.yml` in your working directory with the following content:
 +
@@ -46,20 +47,24 @@ services:
 . Start the created docker environment with the command `docker compose up -d`.
 
 == Create a project
-. In your browser, open the website https://bootstrap.qalipsis.io[Bootstrap QALIPSIS].
-. Verify that your system has the pre-requisites listed on the https://bootstrap.qalipsis.io[Bootstrap QALIPSIS] page.
-. In the "Name" field, enter "Quickstart".
-. In the "plugins" menu, select `netty`.
-. In the assertions libraries menu, select `Kotest`.
-. Click `Generate`. An archive containing a skeleton of the project is proposed for download.
-. Download the proposed project archive. 
+. Open the bootstra-project in GitHub: https://github.com/qalipsis/bootstrap-project.
++
+This repository contains a preconfigured project with a skeleton to develop a scenario.
 
-// insert graphic/screenshot of the Bootstrap QALIPSIS page when available
+
+
+. From the `<> Code` dropdown, select `Download ZIP`.
+. Extract the zipped files to your project directory on your computer.
+. Open the `build.gradle.kts` file and uncomment the required plugins.
+. Reload the Gradle project.
+. Rename  `MyBootstrapScenario.kt` (in the src/main/kotlin/my/bootstrap folder) to better identify your scenario.
+. Rename the docker images as appropriate.
+ 
 
 == Configure a scenario
 === Edit the downloaded scenario skeleton
 . Open the downloaded project archive in your IDE. 
-. Edit the file `src/main/kotlin/Quickstart.kt`.
+. Edit the file that you renamed above.
 
 The scenario skeleton should be displayed:
 [source,kotlin,linenumbers]
@@ -287,35 +292,14 @@ events:
 
 This enables the logging of the events with severity WARN and higher to a file called `qalipsis-events.log`.
 
-// Do we still want to exclude the following???
+The `qalipsis-events.log` contains a contains the details of the individual failed assertions.
 
+For example, the details of a failed assertion may be displayed as:
 
-// Execute the scenario again; the events file is created and contains the details of the individual failed assertions:
+2022-03-31T06:33:55.937Z  WARN --- step.assertion.failure;io.qalipsis.plugins.netty.tcp.ConnectionAndRequestResult@1e869276
 
-//
-//```
-//2022-03-31T06:33:55.937Z  WARN --- step.assertion.failure;io.qalipsis.plugins.netty.tcp.ConnectionAndRequestResult@1e869276
-//MetersImpl(timeToSuccessfulConnect=null, timeToFailedConnect=null, timeToSuccessfulTlsConnect=null, timeToFailedTlsConnect=null, bytesCountToSend=85, sentBytes=85, timeToFirstByte=PT0.10696475S, timeToLastByte=PT0.1163375S, receivedBytes=394)
-//PT0.10696475S should be <= PT0.1S;campaign=quickstart-campaign-4d39026fd7,minion=quickstart-http-62qr1n87xx,scenario=quickstart,dag=dag-1,step=verify-patch,context-creation=2022-03-31T06:33:55.730Z,parent-step=_629qthims5,_ step-type=Verification,iteration=0,attempts-after-failure=0,isExhausted=true,isTail=true,isCompleted=true_
-//2022-03-31T06:33:56.916Z  WARN --- step.assertion.failure;io.qalipsis.plugins.netty.tcp.ConnectionAndRequestResult@19a03b37
-//MetersImpl(timeToSuccessfulConnect=null, timeToFailedConnect=null, timeToSuccessfulTlsConnect=null, timeToFailedTlsConnect=null, bytesCountToSend=85, sentBytes=85, timeToFirstByte=PT0.128673083S, timeToLastByte=PT0.128737375S, receivedBytes=394)
-//PT0.128673083S should be <= PT0.1S;campaign=quickstart-campaign-4d39026fd7,minion=quickstart-http-62sqemkv8j,scenario=quickstart,dag=dag-1,step=verify-patch,context-creation=2022-03-31T06:33:56.735Z,parent-step=_629qthims5,_ step-type=Verification,iteration=0,attempts-after-failure=0,isExhausted=true,isTail=true,isCompleted=true_
-
-//```
-//Essentially, you want to view the following pertinent parts of the message:
-//```
-//2022-03-31T06:33:55.937Z ... PT0.10696475S should be <= PT0.1S ... campaign=quickstart-campaign-4d39026fd7,... scenario=quickstart,... step=verify-patch
-
-//```
-
-//* The exact instant when the failed assertion occurred:
-//+
-//`2022-03-31T06:33:55` (March 31, 2022 at 06:33:55 UTC) in the example above.
-
-
-//* The reason for the failure:
-//+
-//`PT0.10696475S should be <= PT0.1S`
-//* The campaign (`quickstart-campaign-4d39026fd7`), scenario (`quickstart`-http), and verification step (verify-patch) where the failed assertion occurred.
-
+The pertinent parts of the above message are:
+* The exact instant when the failed assertion occurred:`2022-03-31T06:33:55`
+* The reason for the failure: `PT0.10696475S should be <= PT0.1S`: 
+* The campaign (`quickstart-campaign-4d39026fd7`), scenario (`quickstart`-http), and verification step (verify-patch) where the failed assertion occurred.
 
