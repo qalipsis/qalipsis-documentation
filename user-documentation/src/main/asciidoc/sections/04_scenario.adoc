@@ -114,19 +114,25 @@ fun myScenario() {
 ----
 Load-injected trees receive all of the minions; non-load injected trees receive only one minion. 
 
-=== Execution profile / ramping strategies
-* Mandatory
-* There is no default
+=== Execution profile
 
-Once you have specified the number of minions to be injected into your scenario, you need to specify how they will be injected.
+Once you have specified the number of minions in your scenario, you need to specify the pace that the minions are injected into the system. QALIPSIS out-of-the-box execution profiles include:
 
-You can use an out-of-the-box strategy or create your own.
+* Accelerated
+** More
+** Faster
+* Regular
+* Timeframe
+* Stages
+* User Defined
 
-In the following sections we will explain how to use a few of the out-of-the-box ramping strategies. 
+You can use one of the out-of-the-box profiles or create your own.
 
-* Accelerated Ramping Strategies
+In the following sections we will explain how to use some of the out-of-the-box execution profiles. 
+
+* Accelerated execution profiles
 +
-An accelerating ramping strategy injects either a set number of minions at an accelerated pace or an accelerated number of minions at a set pace.
+An accelerated execution profile injects either a set number of minions at an accelerated pace or an accelerated number of minions at a set pace.
 +
 . Accelerated pace using `faster`.
 +
@@ -158,7 +164,7 @@ The following example injects minions every 200 ms: first 10, then 20 new minion
 fun myScenario() {
     val myScenario = scenario {
         profile {
-            more(200, 10, 2.0, 1000)
+            more(periodMs = 200, minionsCountProLaunchAtStart = 10, multiplier = 2.0, maxMinionsCountProLaunch = 1000)
         }
     }
 }
@@ -166,11 +172,11 @@ fun myScenario() {
 +
 The speed-factor at runtime will be applied to the # of minions injected: a speed factor of 2 will increase the number of minions by 2 at each injection.
 
-* `regular` Ramping Strategy
+* `regular` execution profile
 +
-A regular ramping strategy sets the injection of a set amount of minions at a set pace.
+A regular execution profile sets the injection of a set amount of minions at a set pace.
 +
-The following example sets the execution of 200 minions every 10 ms.
+The following example sets the execution of 200 minions every 10 ms until the total number of minions is started.
 +
 [source,kotlin,linenumbers]
 ----
@@ -178,16 +184,17 @@ The following example sets the execution of 200 minions every 10 ms.
 fun myScenario() {
     val myScenario = scenario {
         profile {
-        regular(200, 10)
+            regular(periodMs = 10, minionsCountProLaunch = 200)
         }
     }
 }
 ----
 +
 The speed-factor at runtime will be applied to the interval: a speed factor of 2 will divide the interval by 2.
-* `timeframe` Ramping Strategy
+
+* `timeframe` execution profile
 +
-A time frame ramping strategy injects an equal number of minions at an equal interval within a set timeframe.
+A time frame execution profile injects an equal number of minions at an equal interval within a set timeframe.
 +
 The following example starts an equal number of minions every 20 ms, so that they all are active after 40000 ms.
 +
@@ -197,7 +204,7 @@ The following example starts an equal number of minions every 20 ms, so that the
 fun myScenario() {
     val myScenario = scenario {
         profile {
-            timeframe(20, 40000)
+            timeframe(periodInMs = 20, timeFrameInMs = 40000)
         }
     }
 }
@@ -205,9 +212,45 @@ fun myScenario() {
 +
 The speed-factor at runtime will be applied to the interval: a speed factor of 2 will divide the interval by 2.
 
-* User Defined Ramping Strategies
+* `stages` execution profile
+
+A `stages` execution profile injects more and more minions into the test step by step, keeping them all active until the end of the test.
+
+** Each stage:
+*** Defines the number of minions to add.
+*** How fast the minions should be added (resolution)
+*** The total duration of the stage (how long to wait until the next stage starts or the test ends if the stage is the last stage).
+** Contrary to the other execution profiles, stages ignores the total `minionsCount` defined in the scenario and only relies on the sum of all the minions started in the stages.
+
+Note that resolution is an optional parameter with a default value of 500 ms. 
+
+The following example starts a `stages` execution profile that includes two stages. 
+
+* The first stage:
+** Injects 234 minions into the test within 12 seconds and 500 ms apart.
 +
-A user-defined ramping strategy is totally open to the developer's creativity or needs. It consists of returning a `MinionsStartingLine` considering the previous period in milliseconds, the total number of minions to start and the speed factor to apply.
+10 minions are injected 9 times (500 ms apart) after the firtst injection; 4 minions are injected in the final injection.
+
+** Lasts a total of 30 seconds. 
+
+
+* The second stage:
+** Starts 30 seconds after the first stage starts.
+** Injects 15 minions within 500 ms after the stage starts.
+** Lasts a total of 1500 ms.
+
+
+[source,kotlin,linenumbers]
+----
+stages {
+    stage(minionsCount = 234, rampUpDuration = Duration.ofSeconds(12), totalDuration = Duration.ofSeconds(30), resolution = Duration.ofMillis(500))
+    stage(minionsCount = 15, rampUpDurationMs = 500, totalDurationMs = 1500)
+}
+----
+
+* User defined execution profiles
++
+A user-defined execution profile is totally open to the developer's creativity or needs. It consists of returning a `MinionsStartingLine` considering the previous period in milliseconds, the total number of minions to start, and the speed factor to apply.
 +
 The following example releases 1/100th of all the minions after 1000 ms, then applies different rules depending on the past interval:
 
@@ -234,11 +277,10 @@ fun myScenario() {
 ----
 +
 Whatever definition you choose: 
-+
-** The maximum number of minions launched cannot be more than the `totalMinions`.
-**  Generating a negative interval results in an immediate start.
-+
-** When calling the first iteration of a user-defined strategy, the initial value of `pastPeriodMs` is 0.
+
+*** The maximum number of minions launched cannot be more than the `totalMinions`.
+***  Generating a negative interval results in an immediate start.
+*** When calling the first iteration of a user-defined strategy, the initial value of `pastPeriodMs` is 0.
 
 === Retry policy
 * Optional
