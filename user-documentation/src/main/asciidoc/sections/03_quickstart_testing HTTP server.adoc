@@ -47,18 +47,17 @@ services:
 . Start the created docker environment with the command `docker compose up -d`.
 
 == Create a project
-. Open the bootstra-project in GitHub: https://github.com/qalipsis/bootstrap-project.
-+
+
+. Clone or download the bootstrap-project in GitHub: https://github.com/qalipsis/bootstrap-project.
++ 
 This repository contains a preconfigured project with a skeleton to develop a scenario.
-
-
 
 . From the `<> Code` dropdown, select `Download ZIP`.
 . Extract the zipped files to your project directory on your computer.
 . Open the `build.gradle.kts` file and uncomment the required plugins.
 . Reload the Gradle project.
 . Rename  `MyBootstrapScenario.kt` (in the src/main/kotlin/my/bootstrap folder) to better identify your scenario.
-. Rename the docker images as appropriate.
+. Rename the docker images in `build.gradle.kts` as appropriate.
  
 
 == Configure a scenario
@@ -301,5 +300,5 @@ For example, the details of a failed assertion may be displayed as:
 The pertinent parts of the above message are:
 * The exact instant when the failed assertion occurred:`2022-03-31T06:33:55`
 * The reason for the failure: `PT0.10696475S should be <= PT0.1S`: 
-* The campaign (`quickstart-campaign-4d39026fd7`), scenario (`quickstart`-http), and verification step (verify-patch) where the failed assertion occurred.
+* The campaign (`quickstart-campaign-4d39026fd7`), scenario (`quickstart-http`), and verification step (`verify-patch`) where the failed assertion occurred.
 
