@@ -9,6 +9,7 @@ Before starting, you need:
 * Java 11 SDK or above installed on your system.
 * Docker installed on your system.
 
+
 == What this guide covers 
 
 This guide will take you through the following steps for testing a simple HTTP service:
@@ -27,6 +28,9 @@ This guide will take you through the following steps for testing a simple HTTP s
 . <<Enable event logging>> to allow you to view errors in the report. 
 
 == Start an HTTP server and a docker environment
+
+image::Minions - Docker container.png[Minions - Docker container,200,200,align="center"]
+
 
 . Create a file named `docker-compose.yml` in your working directory with the following content:
 +

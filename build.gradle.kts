@@ -17,7 +17,6 @@ allprojects {
     repositories {
         mavenLocal()
         mavenCentral()
-        jcenter()
         maven {
             name = "rubygems"
             setUrl("https://rubygems-proxy.torquebox.org/releases")

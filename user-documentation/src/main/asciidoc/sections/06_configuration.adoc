@@ -1,6 +1,7 @@
 = QALIPSIS configuration
 
 == Starting QALIPSIS in different modes
+image::Minions - Start.png[Minions - Start,150,float="right",align="center"]
 Two modes of QALIPSIS configuration are currently supported:
 
 * Interactive
@@ -90,8 +91,9 @@ The precedence of the configuration sources, from lowest to highest levels is ou
 
 * Default configuration embedded in QALIPSIS artifacts
 * Class path files:  the files in /config have precedence over those in the root
-* Working directory files: the files in /config have precedence over those in the root -OS Environment variables
-** Java System properties(-DmyArg=value)
-** Command line arguments (using -c “myArg=value”).
+* Working directory files: the files in /config have precedence over those in the root
+* OS Environment variables
+* Java System properties(-DmyArg=value)
+* Command line arguments (using -c “myArg=value”).
 
 

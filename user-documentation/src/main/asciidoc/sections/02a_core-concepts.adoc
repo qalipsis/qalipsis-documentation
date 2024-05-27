@@ -1,5 +1,4 @@
-
-= QALIPSIS core concepts 
+= QALIPSIS core concepts
 
 == Overview
 Once you have a minimal understanding of the core concepts, you will be ready to create a QALIPSIS scenario to verify that your software is performing as expected.
@@ -20,6 +19,8 @@ Prior to configuring QALIPSIS to run on your system, it is crucial to understand
 
 == Minions
 Minions are simulations of website users, IoT devices, or other systems. They each perform a complete scenario.
+
+image::Minions - Welcome.png[minions-welcome,200,100,float="right",align="center"]
 
 Any number of minions can act on a scenario. The minion count for a scenario is set during scenario configuration (refer to <<Scenario specifications>>) or at runtime (refer to <<QALIPSIS configuration>>).
 
@@ -117,6 +118,8 @@ Additionally, QALIPSIS can generate JUnit-like reports to simplify existence wit
 
 == Nodes
 Nodes are distributed instances within a QALIPSIS cluster. QALIPSIS nodes are designated as either a head or a factory.
+
+image::head_factory.png[head_factory,200,100,align="center"]
 
 === Head
 The head node within a QALIPSIS cluster is responsible for orchestration and reporting.

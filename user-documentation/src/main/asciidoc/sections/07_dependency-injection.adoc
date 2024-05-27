@@ -107,14 +107,23 @@ The example is for a scenario method, but can also be used for the constructor o
 ----
     @Scenario
     fun fromLoginToCheckout(
-        classToInject: ClassToInject, // An instance of `ClassToInject` is injected, failing if missing.
-        mayBeOtherClassToInject: Optional<OtherClassToInject>,  // An instance of `Optional<OtherClassToInject>` is injected, replaced by an empty optional if missing.
-        @Named("myInjectable") namedInterfaceToInject: InterfaceToInject, // An instance of `InterfaceToInject` qualified by the name `myInjectable` is injected, failing if missing.
-        injectables: List<InterfaceToInject>, // A `List` of all the instances of classes inheriting from `InterfaceToInject` is injected
-        @Named("myInjectable") namedInjectables: List<InterfaceToInject>, // A `List` of all the instances of classes inheriting from `InterfaceToInject` and qualified by the name `myInjectable` is injected
-        @Property(name = "this-is-a-test") property: Duration, // The value of the property `this-is-a-test` is injected after its conversion to a `Duration`, failing if missing
-        @Property(name = "this-is-another-test", orElse = "10") propertyWithDefaultValue: Int, // The value of the property `this-is-another-test` is injected after its conversion to a `Int`, replace by 10 as Int if missing
-        @Property(name = "this-is-yet-another-test") mayBeProperty: Optional<String> // The value of the property `this-is-yet-another-test` is injected after its conversion to a `String`, replaced by an empty optional if missing
+        classToInject: ClassToInject, <1>
+        mayBeOtherClassToInject: Optional<OtherClassToInject>,  <2> 
+        @Named("myInjectable") namedInterfaceToInject: InterfaceToInject, <3> 
+        injectables: List<InterfaceToInject>, <4> 
+        @Named("myInjectable") namedInjectables: List<InterfaceToInject>, <5> 
+        @Property(name = "this-is-a-test") property: Duration, <6> 
+        @Property(name = "this-is-another-test", orElse = "10") propertyWithDefaultValue: Int, <7> 
+        @Property(name = "this-is-yet-another-test") mayBeProperty: Optional<String> <8> 
     ) {
     }
+<1> An instance of `ClassToInject` is injected, failing if missing.
+<2> An instance of `Optional<OtherClassToInject>` is injected, replaced by an empty optional if missing.
+<3> An instance of `InterfaceToInject` qualified by the name `myInjectable` is injected, failing if missing.
+<4> A `List` of all the instances of classes inheriting from `InterfaceToInject` is injected.
+<5> A `List` of all the instances of classes inheriting from `InterfaceToInject` and qualified by the name `myInjectable` is injected.
+<6> The value of the property `this-is-a-test` is injected after its conversion to a `Duration`, failing if missing.
+<7> The value of the property `this-is-another-test` is injected after its conversion to a `Int`, replace by 10 as Int if missing.
+<8> The value of the property `this-is-yet-another-test` is injected after its conversion to a `String`, replaced by an empty optional if missing.
+
 ----
