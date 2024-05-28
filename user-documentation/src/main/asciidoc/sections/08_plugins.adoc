@@ -30,8 +30,10 @@ A plugin contains one or several technical functionalities of the software that 
 ** Transforming data.
 * An events logger.
 * A meter registry.
- 
+
 Default implementations of the above functionalities are part of the QALIPSIS core. However, the default implementations may not be suited for your scenario (e.g., if productive testing or constant monitoring are requirements). QALIPSIS plugins enhance the above functionalities by providing related implementations.
+
+image::config_plugins.png[config_plugins,90%,align="center"]
 
 == Plugin integration
 To create a test scenario, a tiny Gradle project is required. The plugin is simply added as a dependency to the class path of the project. You can read more about scenario configuration within the <<Quickstart guide: Testing an HTTP server with QALIPSIS>>.

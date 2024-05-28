@@ -334,6 +334,9 @@ Factories can either remain active or be activated as needed, without affecting 
 The following sections explain the installation process for various forms of QALIPSIS clusters that offer different levels of scalability and availability.
 
 === Light cluster
+
+image::head_factory_redis.png[Light cluster,400,float="right",align="center"]
+
 A light cluster requires minimal effort for installation; however, it is limited in terms of load capability.
 
 The main advantage of a light cluster installation is to provide a secure geographical/network-based distribution of load and data consumption for private networks.
@@ -346,6 +349,7 @@ A light cluster consists of:
 * A Redis instance (or a Redis cluster) to host shared data and exchange messages between the QALIPSIS head and factories.
 
 === High-load cluster
+
 A high-load cluster requires significant effort for installation and operation; however, it is extremely scalable.
 
 NOTE::
@@ -391,15 +395,21 @@ Different scenarios might require different dependencies; pay attention to the c
 To avoid conflicts, use the same versions of dependencies across all scenarios/projects deployed in the same installation.
 
 == Containers
+
+image::Minions - Docker container.png[Minions - Docker container,200,200,float="right",align="center"]
+
 Docker images from QALIPSIS work like prepared installations that you can amend with your own scenarios and configuration.
 
 Three images are available on the Docker hub free to all QALIPSIS users: 
+
 
 * `qalipsis-oss:<version|latest>` to start a container as a transient or standalone application.
 
 * `qalipsis-oss-head:<version|latest>` contains only the components to execute a head in a cluster.
 
 * `qalipsis-oss-factory:<version|latest>` contains only the components to execute a factory in a cluster.
+
+
 
 === Prepare the images
 While the images available on the Docker hub are ready to use, empty standalone and factory images cannot do much for you.

@@ -3,6 +3,7 @@ ifndef::imagesdir[:imagesdir: ./images]
 :favicon: ./images/qalipsis.ico
 :stylesheet: {includedir}/stylesheets/qalipsis.css
 = image:qalipsis.png[qalipsis,60] QALIPSIS - User guide
+:reproducible:
 
 NOTE:: This documentation as well as the QALIPSIS software is a work in progress and not yet officially released.
 +

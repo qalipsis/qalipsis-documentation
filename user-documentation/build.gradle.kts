@@ -21,7 +21,6 @@ description = "User documentation"
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 dependencies {
     asciidoctorGems("rubygems:asciidoctor-diagram:2.2.10")
@@ -42,7 +41,7 @@ tasks {
     "asciidoctor"(org.asciidoctor.gradle.jvm.AsciidoctorTask::class) {
         setSourceDir(file("src/main/asciidoc"))
         sources(delegateClosureOf<PatternSet> {
-            include("**/*.adoc")
+            include("index.adoc")
         })
         resources(delegateClosureOf<CopySpec> {
             from("src/main/resources") {
@@ -57,7 +56,8 @@ tasks {
 
         // To later apply the CSS: https://asciidoctor.org/docs/produce-custom-themes-using-asciidoctor-stylesheet-factory/
         options(mapOf("doctype" to "book", "ruby" to "erubis"))
-        attributes(mapOf(
+        attributes(
+            mapOf(
                 "build-gradle" to file("build.gradle"),
                 "outputDir" to file("build/docs"),
                 "source-highlighter" to "coderay",
@@ -69,16 +69,16 @@ tasks {
                 "sectlinks" to "true",
                 "docinfo" to "shared",
                 "idseparator" to "-",
-                "revnumber" to "${project.version}"
-        ))
-
-        //dependsOn(*(dependsOn.plus("asciidoctorPdf").toTypedArray()))
+                "revnumber" to "${project.version}",
+                "reproducible" to "", // Remove the "Last Updated" tag at the end of the document.
+            )
+        )
     }
 
     "asciidoctorPdf"(org.asciidoctor.gradle.jvm.pdf.AsciidoctorPdfTask::class) {
         setSourceDir(file("src/main/asciidoc"))
         sources(delegateClosureOf<PatternSet> {
-            include("**/*.adoc")
+            include("index.adoc")
         })
 
         resources(delegateClosureOf<CopySpec> {
@@ -89,7 +89,8 @@ tasks {
 
         // To later apply the CSS: https://asciidoctor.org/docs/produce-custom-themes-using-asciidoctor-stylesheet-factory/
         options(mapOf("doctype" to "book", "ruby" to "erubis"))
-        attributes(mapOf(
+        attributes(
+            mapOf(
                 "build-gradle" to file("build.gradle"),
                 "outputDir" to file("build/docs"),
                 "source-highlighter" to "coderay",
@@ -102,7 +103,9 @@ tasks {
                 "sectlinks" to "true",
                 "docinfo" to "shared",
                 "idseparator" to "-",
-                "revnumber" to "${project.version}"
-        ))
+                "revnumber" to "${project.version}",
+                "reproducible" to "", // Remove the "Last Updated" tag at the end of the document.
+            )
+        )
     }
 }

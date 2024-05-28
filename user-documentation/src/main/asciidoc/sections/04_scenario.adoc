@@ -92,9 +92,13 @@ fun myScenario(){
 ----
 
 == Default scenario configuration
+
+image::Scenario.png[scenario,400,align="center"]
+
 Every scenario has a default configuration.
 
 === Number of minions
+
 * Optional
 * Default = 1
 
