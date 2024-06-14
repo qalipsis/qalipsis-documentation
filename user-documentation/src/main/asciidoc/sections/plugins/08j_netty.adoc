@@ -50,7 +50,6 @@ Example::
 [source,kotlin,linenumbers]
 ----
 netty().http {
-    request { context, input -> SimpleHttpRequest(HttpMethod.HEAD, "/head") }
     connect {
         url("https://my-website.com:8080/test")
         connectTimeout = Duration.ofSeconds(5)
@@ -73,11 +72,11 @@ netty().http {
         size = 143
         checkHealthBeforeUse = true
     }
+    request { context, input -> simple(HttpMethod.HEAD, "/head") }
 }.deserialize(String::class)
 
 ----
 Notable parameters::
-* `request`: a factory to create the request to exchange, using the step context and the input as arguments.
 * `connect`: configures the connection to the remote endpoint.
 ** `version`: version of the HTTP protocol to use: `HTTP_1_1` or `HTTP_2_0`,; defaults to `HTTP_1_1`.
 ** `url`: the root URL, the path of the request is appended to it.
@@ -104,6 +103,7 @@ Notable parameters::
 * `pool`: configuration of the pool of connections; the `pool` is disabled by default.
 ** `size`: number of constant connections maintained in the pool.
 ** `checkHealthBeforeUse`: verifies the health of the connection when polled from the `pool` and before it is used.
+* `request`: a factory to create the request to exchange, using the step context and the input as arguments. You can create `simple`, `form` or `multipart` requests.
 * `deserialize`: specifies the class to use to deserialize the body of the response.
 
 Reference Documentation::
@@ -124,7 +124,7 @@ Example::
 [source,kotlin,linenumbers]
 ----
 netty().httpWith("name-of-a-previous-HTTP-step") {
-    request { context, input -> SimpleHttpRequest(HttpMethod.HEAD, "/head") }
+    request { context, input -> simple(HttpMethod.HEAD, "/head") }
 }.deserialize(String::class)
 ----
 
@@ -359,10 +359,6 @@ netty().udp {
     connect {
         address("remote-server.acme.com", 9000)
         connectTimeout = Duration.ofMinutes(1)
-    }
-    pool {
-        size = 143
-        checkHealthBeforeUse = true
     }
 }
 ----
