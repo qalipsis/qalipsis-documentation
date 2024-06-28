@@ -34,8 +34,8 @@ Supported steps::
 === HTTP step
 The `HTTP` step within the Netty plugin executes an HTTP request using https://datatracker.ietf.org/doc/rfc2616[`HTTP 1.1`] or https://datatracker.ietf.org/doc/rfc7540[`HTTP 2.0`].
 
-Ancestors::
-Scenario and Step
+Ancestor::
+Scenario or Step
 
 Functionality::
 * The `HTTP` step establishes a connection with the server using either a pool of connections or an individual connection for each minion.
@@ -227,7 +227,7 @@ Notable Parameters::
 The `TCP` step within the Netty plugin is a client for `TCP`.
  
 Ancestor::
-Scenario and Step
+Scenario or Step
 
 Functionality::
 The TCP step establishes a connection with the server using either a pool of connections or an individual connection for each minion.
@@ -344,8 +344,8 @@ The `UDP` step within the Netty plugin is a client for UDP.
 
 It is best practice to use the  `UDP` step when reusing a `TCP` connection across several steps without a pool of connections.
 
-Ancestors:
-Scenario and Step
+Ancestor:
+Scenario or Step
 
 Functionality::
 The `UDP` step creates a UDP Datagram packet from the `request` and sends it to the remote endpoint and expects a response.

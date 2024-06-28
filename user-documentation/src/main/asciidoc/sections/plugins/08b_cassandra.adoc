@@ -30,7 +30,7 @@ Example scenarios using a combination of Cassandra supported steps are provided 
 The `poll` step within the Cassandra plugin polls the newest records from the database table.
 
 Ancestor::
-Scenario or step
+Scenario or Step
 
 Functionality::
 The `poll` step is created only once in a scenario; it is then used throughout the scenario as called. The `poll` step within the Cassandra plugin uses a strategy of “delivered at least once."
@@ -83,7 +83,7 @@ Example::
 [source,kotlin,linenumbers]
 ----
 .cassandra() 
-.save {
+.save {  
     connect {   
         servers = listOf("localhost:9042")
         keyspace = "iot"
@@ -94,7 +94,7 @@ Example::
         "batteryState"
     }
 
-    columns { _, _ ->   
+    columns { _, _ ->  
         listOf(
             "company",
             "deviceid",
@@ -103,7 +103,7 @@ Example::
         )
     }
                
-    rows { _, input ->    
+    rows { _, input ->   
         listOf(
             CassandraSaveRow(
                 "'ACME Inc.'",

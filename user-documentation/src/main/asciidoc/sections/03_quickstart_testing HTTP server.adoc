@@ -47,19 +47,45 @@ services:
 . Start the created docker environment with the command `docker compose up -d`.
 
 == Create a project
+QALIPSIS uses a Gradle plugin to simplifiy the creation of new QALIPSIS projects. The Gradle plugin is integrated into the Bootstrap project.
 
-. Clone or download the bootstrap-project in GitHub: https://github.com/qalipsis/bootstrap-project.
+. Clone or download the bootstrap-project from GitHub: https://github.com/qalipsis/bootstrap-project.
 + 
 This repository contains a preconfigured project with a skeleton to develop a scenario.
 
-. From the `<> Code` dropdown, select `Download ZIP`.
-. Extract the zipped files to your project directory on your computer.
-. Open the `build.gradle.kts` file and uncomment the required plugins.
-. Reload the Gradle project.
-. Rename  `MyBootstrapScenario.kt` (in the src/main/kotlin/my/bootstrap folder) to better identify your scenario.
-. Rename the docker images in `build.gradle.kts` as appropriate.
+.. From the `<> Code` dropdown, select `Download ZIP`.
+.. Extract the zipped files to your project directory on your computer.
+. Open the `build.gradle.kts` file. 
+.. Add the required QALIPSIS plugins in the section qalipsis { plugins {} }.
++
+For example:
++
+[source,kotlin,linenumbers]
+----
+qualips{
+    plugins{
+        apacheKafka()
+        netty()
+        elasticsearch()
+        influxDb()
+        r2dbcJasync()
+    }
+}
+----
+.. Add the dependencies you need for your project.
++
+For example:
++
+[source,kotlin,linenumbers]
+----
+dependencies{
+    implementation("com.willowtreeapps.assertk:assertk:0.+")
+    }
+----
+. Reload the Gradle project if your IDE or editor provides this functionality.
+. Rename the file `src/main/kotlin/my/bootstrap/MyBootstrapScenario.kt` to better represent your project.
+. Rename the docker images in the docker {} area as appropriate for your project.
  
-
 == Configure a scenario
 === Edit the downloaded scenario skeleton
 . Open the downloaded project archive in your IDE. 
@@ -98,6 +124,7 @@ Configure the scenario to inject 10,000 minions at a rate of 100 minions every 5
 Add and configure steps within the scenario that will send an HTTP request to the server and verify that the server's response is as expected.
 
 ==== Send an HTTP request
+
 Add an `http` step to the scenario that will send a POST request to the server. 
 
 [source,kotlin]
@@ -129,6 +156,7 @@ Add an `http` step to the scenario that will send a POST request to the server.
 <6> Configures the HTTP request (HTTP method, path and body) that will be sent to the server.
 <7> Enables reporting of errors for the `http` step.
 
+==== Execute the scenario
 Execute the scenario using Gradle: `./gradlew run`. This allows you to observe requests logged by the HTTP server. However, it does not verify that the server is returning what you expect.
 
 // [ insert screen shot here of the report]
@@ -268,8 +296,7 @@ Messages:
 Execute the statement `./gradlew assemble`.
 
 A JAR archive ending with `-qalipsis.jar` is created in the folder `build/libs`.
-This archive contains all dependencies and is self-sufficient to execute your scenario on any machine with
-a Java Runtime Environment installed.
+This archive contains all dependencies and is self-sufficient to execute your scenario on any machine with a Java Runtime Environment installed.
 
 To execute your scenario:
 . Open a terminal and navigate to the folder where the JAR archive is stored.
