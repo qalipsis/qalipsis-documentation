@@ -56,14 +56,14 @@ This repository contains a preconfigured project with a skeleton to develop a sc
 .. From the `<> Code` dropdown, select `Download ZIP`.
 .. Extract the zipped files to your project directory on your computer.
 . Open the `build.gradle.kts` file. 
-.. Add the required QALIPSIS plugins in the section qalipsis { plugins {} }.
+.. Add the required QALIPSIS plugins in the section `qalipsis { plugins {} }`.
 +
 For example:
 +
 [source,kotlin,linenumbers]
 ----
-qualips{
-    plugins{
+qualips {
+    plugins {
         apacheKafka()
         netty()
         elasticsearch()
@@ -80,7 +80,7 @@ For example:
 ----
 dependencies{
     implementation("com.willowtreeapps.assertk:assertk:0.+")
-    }
+}
 ----
 . Reload the Gradle project if your IDE or editor provides this functionality.
 . Rename the file `src/main/kotlin/my/bootstrap/MyBootstrapScenario.kt` to better represent your project.

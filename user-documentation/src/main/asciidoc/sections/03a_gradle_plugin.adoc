@@ -21,22 +21,6 @@ plugins {
     id 'io.qalipsis.bootstrap' version '0.1.0'
 }
 ----
-=== With a custom project 
-Kotlin::
-[source,kotlin,linenumbers]
-----
-plugins {
-    id("io.qalipsis.gradle") version "0.1.0"
-}
-----
-
-Groovy::
-[source,kotlin,linenumbers]
-----
-plugins {
-    id 'io.qalipsis.gradle' version '0.1.0'
-}
-----
 
 == Version Configuration
 The Gradle plugin includes a default QALIPSIS version; you can specify a different version in the appropriate build file.
@@ -64,7 +48,7 @@ To specify version 0.10.a, add the version in the gradle.properties or Gradle ex
 qalipsis.version=0.10.a
 ----
 
-== Adding Qalipsis plugins
+== Adding QALIPSIS plugins
 To integrate QALIPSIS plugins, configure them in build.gradle.kts or build.gradle:
 
 Kotlin::
@@ -110,7 +94,7 @@ Gradle is available for the following QALIPSIS plugins:
 
 == Executing QALIPSIS
 === Default Execution
-The Qalipsis `RunAllScenarios` task runs all scenarios in your project's classpath.
+The QALIPSIS `RunAllScenarios` task runs all scenarios in your project's classpath.
 
 Kotlin::
 [source,kotlin,linenumbers]
