@@ -1,0 +1,37 @@
+= Containers
+
+image::Minions - Docker container.png[Minions - Docker container,200,200,float="right",align="center"]
+
+Docker images from QALIPSIS work like prepared installations that you can amend with your own scenarios and configuration.
+
+Three images are available on the Docker hub free to all QALIPSIS users: 
+
+
+* `qalipsis-oss:<version|latest>` to start a container as a transient or standalone application.
+
+* `qalipsis-oss-head:<version|latest>` contains only the components to execute a head in a cluster.
+
+* `qalipsis-oss-factory:<version|latest>` contains only the components to execute a factory in a cluster.
+
+
+
+== Prepare the images
+While the images available on the Docker hub are ready to use, empty standalone and factory images cannot do much for you.
+
+You can add your own scenarios and dependencies as prepared for an <<Amendable installations,Amendable installation>> with the following Docker file:
+
+[example,kotlin, linenumbers]
+----
+from qalipsis-oss:latest
+
+ADD build/scenario/qalipsis-scenario-your-project-name.zip /opt/qalipsis
+----
+== Where can you use the images?
+All of the images are tested to run as https://www.docker.com/[Docker], https://kubernetes.io/[Kubernetes] or https://www.redhat.com/en/technologies/cloud-computing/openshift[OpenShift] containers and can be configured with additional program arguments or a mounted configuration file.
+
+Refer to the official documentation for each platform to learn how to attach a configuration file and arguments to the execution of QALIPSIS.
+
+
+ 
+
+ 

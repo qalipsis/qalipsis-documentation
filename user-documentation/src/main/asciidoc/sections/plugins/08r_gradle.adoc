@@ -1,6 +1,0 @@
-== Gradle Plugin
-
-=== Overview
-
-More information will be provided soon on how the Gradle plugin extends the capabilities of QALIPSIS and makes the programming of scenarios faster and the integrations into DevOps easier.  
-

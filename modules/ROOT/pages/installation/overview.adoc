@@ -1,0 +1,10 @@
+
+= Installing QALIPSIS
+
+== Overview
+
+There are several ways to install, operate and use QALIPSIS, depending on your use case, load needs and IT-landscape complexity.
+
+This section discusses different approaches, including the benefits and consequences of each approach.
+
+If you find yourself in a situation that requires professional support to assist in the preparation, installation and operation phases, do not hesitate to contact our team at https://qalipsis.io/#contact.

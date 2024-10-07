@@ -1,0 +1,158 @@
+= Graphite plugin
+
+== Overview
+
+The `https://github.com/graphite-project/graphite-web[Graphite]` plugin connects QALIPSIS to Graphite using the pickle or plaintext protocol.
+
+Technology addressed::
+
+Graphite: https://graphiteapp.org/
+
+Dependency::
+`io.qalipsis:plugin-graphite`
+
+Namespace in scenario::
+`graphite()`
+
+Client library::
+* https://netty.io/[Netty]
+* https://ktor.io/[Ktor]
+
+Supported steps::
+* <<Poll step,`poll`>>: polls data from Graphite. 
+* <<Save step,`save`>>: saves events and records to Graphite. 
+
+Example scenarios using a combination of Graphite supported steps are provided in https://github.com/qalipsis/qalipsis-examples/tree/main/graphite[Github].
+
+== Poll step
+The poll step within the the Graphite plugin collects metrics from a Graphite server and broadcasts them to other components.
+
+Ancestor::
+Scenario or Step
+
+Functionality::  
+The ‘poll’ step is typically used to collect and distribute metrics for monitoring and visualization purposes.
+
+ 
+Example::
+[source,kotlin,linenumbers]
+----
+graphite().poll {
+  name = "my-poll-step"
+
+  connect { 
+    server("http://localhost:8080")
+  }
+
+  query( 
+    GraphiteQuery("device.battery-state.*")
+      .from( 
+        GraphiteMetricsTime(
+          2,
+          GraphiteMetricsTimeSignUnit.MINUS,
+          GraphiteMetricsTimeUnit.DAYS
+        )
+      )
+      .noNullPoints(true)
+  )
+  broadcast(123, Duration.ofSeconds(20))
+  pollDelay(Duration.ofSeconds(1))
+}
+----
+
+Notable parameters:: 
+* `connect` (required): configures the connection to the https://github.com/graphite-project/graphite-web[Graphite] server.
+* `query` (required): specifies a query to retrieve metrics from the Graphite server. 
+* `broadcast` (required): specifies the broadcast parameters for the step. 
+* `pollDelay` (required): `query` (required): specifies a query to retrieve metrics from the https://github.com/graphite-project/graphite-web[Graphite] server.
+
+Reference documentation::
+Refer to the https://github.com/graphite-project/graphite-web/tree/master/docs[Graphite] documentation for parameter and configuration information. 
+
+== Save step
+The `save` step within the Graphite plugin persists records into a Graphite database using the save query.
+
+Ancestor::
+Scenario or Step
+
+Functionality::
+The `save` step's input and step context are used to generate documents to save into Graphite.
+
+Example::
+[source,kotlin,linenumbers]
+----
+.graphite()
+.save {
+
+  connect {
+    server("localhost", 2003)
+  }
+
+  records { _, input ->
+    listOf(
+      GraphiteRecord(
+        metricPath = "device.battery-state.${input.deviceId.lowercase()}",
+        value = input.batteryLevel,
+        timestamp = input.timestamp
+      )
+    )
+  }
+}
+----
+
+Notable parameters::
+* connect (required): configures the connection to the https://github.com/graphite-project/graphite-web[Graphite] server.
+* records (required): generates and configures a list of saved records.
+
+
+Reference documentation::
+Refer to the https://github.com/graphite-project/graphite-web/tree/master/docs[Graphite] documentation for further parameter and configuration information. 
+
+== Configuration of publication of events and meters to Graphite.
+
+=== Configuration namespace
+Events::
+`events.export.graphite`
+
+Meters::
+`meters.export.graphite`
+
+=== Example configuration file
+[source,kotlin,linenumbers]
+----
+events:
+  export:
+    graphite:
+      enabled: true
+      min-level: INFO
+      host: localhost
+      port: 2004
+      protocol: pickle
+      batch-size: 2
+      linger-period: 10s
+      publishers: 2
+
+meters:
+  export:
+    graphite:
+      host: localhost
+      port: 2004
+      enabled: true
+      step: PT10S
+----
+
+Event parameters::
+* `enabled` (required): boolean flag that activates/deactivates event publishing to Graphite; defaults to `false`; *must* be set to `true`.
+* `min-level` (required): minimal accepted level of events; defaults to INFO; allowed values are `EventLevel` values: `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `OFF`. 
+* `host` (required): defaults to `localhost`; cannot be blank.
+* `port` (required): positive integer; defaults to `2004`
+* `protocol` (required): the GraphiteProtocol type; default is `pickle`; available choices are `pickle` or `plaintext`.
+* `batch-size` (required): maximum number of events buffered between two publications of events to Graphite; positive integer; defaults to `2`.
+* `linger-period` (required): maximum period between two publications of events to Graphite; positive duration; defaults to `10s`.
+* `publishers` (required): maximum number of concurrent publication of events to Graphite; positive integer; defaults to `2`.
+
+Meter parameters::
+* `enabled` (required): boolean flag that activates/deactivates meter publishing to Graphite; defaults to `false`; *must* be set to `true`.
+* `host` (required): defaults to localhost; cannot be blank.
+* `port` (required): positive integer; defaults to `2004`.
+* `step` (required): The step size (reporting frequency); defaults to `PT10S`.

@@ -1,0 +1,129 @@
+= Dependency injection
+
+QALIPSIS relies on the https://docs.micronaut.io/latest/guide/index.html#ioc[Dependency injection framework] from Micronaut and supports the injection of dependencies in the constructors of the scenario declaring classes and methods annotated with `@Scenario`.
+
+WARNING: Ensure you have the following dependency in the project where your beans or factories are compiled: `kapt("io.qalipsis:qalipsis-api-processors:{revnumber}")`
+
+== Injecting a singleton bean
+You can declare a singleton bean using the annotation `@jakarta.inject.Singleton` on a type, or https://docs.micronaut.io/latest/guide/index.html#factories[use a Micronaut factory].
+
+=== Creation of beans
+[source,kotlin,linenumbers]
+----
+import jakarta.inject.Singleton
+@Singleton // The annotation `@jakarta.inject.Singleton` can be added to a class to automatically create a bean and declare it as singleton.
+class NoRetry : RetryPolicy {
+    suspend fun <I, O> execute(context: StepContext<I, O>, executable: suspend (StepContext<I, O>) -> Unit){
+        executable(context)
+    }
+}
+@Factory
+class ExecutorFactory {
+    @Singleton // The annotation `@jakarta.inject.Singleton` added to a method declares the returned bean as a singleton.
+    fun simpleExecutor(retryPolicy: RetryPolicy): Executor { // The retry policy is automatically injected into the factory method.
+        return SimpleExecutor(retryPolicy)
+    }
+}
+----
+Once beans are created, you can inject them in the constructor or the scenario method:
+
+=== Injection of beans
+[source,kotlin,linenumbers]
+----
+class EcommercePurchase(private val retryPolicy: RetryPolicy) {// The previously created bean of type `RetryPolicy` is injected in the constructor of the scenario declaring class.
+
+    @Scenario("login-select-and-checkout")
+    fun fromLoginToCheckout(executor: Executor) {// The previously created bean of type `Executor` is injected in the scenario declaring method.
+        scenario {
+            retryPolicy(retryPolicy)
+        }
+        // ...
+    }
+}
+----
+== Qualifying the bean to inject
+When several beans exist for the same type, you might want to select the one to inject.
+QALIPSIS supports named injection as in the following example.
+[source,kotlin]
+----
+import jakarta.inject.Named
+
+class EcommercePurchase(@param:Named("default") private val retryPolicy: RetryPolicy) { // When the constructor parameter is a property, precise the target of the annotation.
+
+    @Scenario("login-select-and-checkout")
+    fun fromLoginToCheckout(@Named("simple") executor: Executor) { // The annotation `@Named` selects the bean of type `Executor` qualified by the name "simple" for the injection.
+        scenario {
+            retryPolicy(retryPolicy)
+        }
+        // ...
+    }
+}
+----
+QALIPSIS only supports name qualifiers; however, you can read more about other qualifiers in the https://docs.micronaut.io/latest/guide/index.html#qualifiers[Micronaut] documentation.
+
+== Injecting a property value
+Properties for the runtime property sources are also injectable in scenario declaring classes,  constructors, and methods.
+[source,kotlin, linenumbers]
+----
+import io.qalipsis.api.annotations.Property
+
+class EcommercePurchase {
+
+    @Scenario("login-select-and-checkout")
+    fun fromLoginToCheckout(@Property(name = "ecommerce-purchase.action-pace", orElse = "10s") actionPaceDuration: Duration) { // <1>
+        scenario {
+            // ...
+        }
+        .constantPace(actionPaceDuration.toMillis())
+        // ...
+    }
+}
+----
+
+The default value set in `orElse` is optional.
+
+More information about property sources is available in the  https://docs.micronaut.io/latest/guide/index.html#propertySource[Micronaut] documentation.
+
+== Injecting iterable containers
+QALIPSIS supports the injection of a single instance of beans as shown above, as well as an `Iterable` or any of its subtypes `Collection`, `List`, `Set` and their derivatives and `Optional` for properties as in the example below.
+
+[source,kotlin, line numbers]
+----
+class EcommercePurchase(private val retryPolicies: List<RetryPolicy>) {
+
+    @Scenario("e-commerce-purchase")
+    fun fromLoginToCheckout(@Property("startDelay") executor: Optional<Duration>) {
+
+        // ...
+    }
+}
+----
+== Summary
+The sample code below includes all the supported methods of injection for beans and properties.
+
+The example is for a scenario method, but can also be used for the constructor of a class declaring scenarios.
+
+[source,kotlin,linenumbers]
+----
+    @Scenario
+    fun fromLoginToCheckout(
+        classToInject: ClassToInject, <1>
+        mayBeOtherClassToInject: Optional<OtherClassToInject>,  <2> 
+        @Named("myInjectable") namedInterfaceToInject: InterfaceToInject, <3> 
+        injectables: List<InterfaceToInject>, <4> 
+        @Named("myInjectable") namedInjectables: List<InterfaceToInject>, <5> 
+        @Property(name = "this-is-a-test") property: Duration, <6> 
+        @Property(name = "this-is-another-test", orElse = "10") propertyWithDefaultValue: Int, <7> 
+        @Property(name = "this-is-yet-another-test") mayBeProperty: Optional<String> <8> 
+    ) {
+    }
+<1> An instance of `ClassToInject` is injected, failing if missing.
+<2> An instance of `Optional<OtherClassToInject>` is injected, replaced by an empty optional if missing.
+<3> An instance of `InterfaceToInject` qualified by the name `myInjectable` is injected, failing if missing.
+<4> A `List` of all the instances of classes inheriting from `InterfaceToInject` is injected.
+<5> A `List` of all the instances of classes inheriting from `InterfaceToInject` and qualified by the name `myInjectable` is injected.
+<6> The value of the property `this-is-a-test` is injected after its conversion to a `Duration`, failing if missing.
+<7> The value of the property `this-is-another-test` is injected after its conversion to a `Int`, replace by 10 as Int if missing.
+<8> The value of the property `this-is-yet-another-test` is injected after its conversion to a `String`, replaced by an empty optional if missing.
+
+----

@@ -1,0 +1,29 @@
+= Amendable installations
+
+The purpose of an amendable installation is to allow you to add scenarios to the installation without having to rebuild a new installation archive after each change.
+
+As a prerequisite, you need to install QALIPSIS as described in the <<Transient installations,`transient`>>, <<Standalone Installations,`standalone`>> or <<Cluster Installations,`cluster`>> installation sections. 
+
+Note: When packaging an installation, you do not need to create a scenario for the project. An "empty" installation is a valid installation. Executing QALIPSIS on an "empty" installation will return an exit code different from 0 and a `no scenario found` warning.
+
+When your QALIPSIS installation is complete:
+
+. Create a new QALIPSIS project using the QALIPSIS Gradle plugin.
+. Create a scenario in your project. 
+. Add implementation or runtime dependencies to your Gradle project, as you would with any Gradle project.
+. Execute the task `package-scenario` on your Gradle module, which will assemble your project and create a ZIP file:
++
+`build/scenario/qalipsis-scenario-your-project-name.zip`
++
+This archive contains your scenario and all the non-QALIPSIS dependencies you have manually added to your Gradle project.
+. Copy and paste the archive to a folder with an existing installation of QALIPSIS transient, standalone or factory of a cluster.
+. Extract the compressed files: `unzip qalipsis-scenario-your-project-name.zip`.
+. Copy each file in the expanded folder into the folder with scenarios of your existing installation.
+. If it is still running, restart QALIPSIS to load the new scenarios.
+
+:warning: 
+WARNING
+
+Different scenarios might require different dependencies; pay attention to the conflict of versions when you overwrite existing files in an existing installation. 
+
+To avoid conflicts, use the same versions of dependencies across all scenarios/projects deployed in the same installation.

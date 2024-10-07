@@ -1,0 +1,142 @@
+= Using the Gradle plugin
+
+The QALIPSIS Gradle plugin simplifies the creation of new QALIPSIS projects and the integration of QALIPSIS projects into CI pipelines.
+
+== Setup 
+The gradle plugin is built into the bootstrap project. If you choose not use the bootstrap project skeleton, you can still setup your project to take advantage of the gradle plugin.
+
+=== With Bootstrap
+Kotlin::
+[source,kotlin,linenumbers]
+----
+plugins {
+    id("io.qalipsis.bootstrap") version "0.1.0"
+}
+----
+
+Groovy::
+[source,kotlin,linenumbers]
+----
+plugins {
+    id 'io.qalipsis.bootstrap' version '0.1.0'
+}
+----
+
+== Version Configuration
+The Gradle plugin includes a default QALIPSIS version; you can specify a different version in the appropriate build file.
+
+Kotlin::
+In build.gradle.kts, to specify version 0.10.a:
+[source,kotlin,linenumbers]
+----
+qalipsis {
+    version("0.10.a")
+}
+----
+Groovy::
+In build.gradle, to specify version 0.10.a:
+[source,kotlin,linenumbers]
+----
+qalipsis {
+    version = '0.10.a'
+}
+----
+As a Gradle property::
+To specify version 0.10.a, add the version in the gradle.properties or Gradle execution options:
+[source,kotlin,linenumbers]
+----
+qalipsis.version=0.10.a
+----
+
+== Adding QALIPSIS plugins
+To integrate QALIPSIS plugins, configure them in build.gradle.kts or build.gradle:
+
+Kotlin::
+[source,kotlin,linenumbers]
+----
+qalipsis {
+    plugins {
+        apacheKafka()
+        jackson()
+    }
+}
+----
+
+Groovy::
+[source,kotlin,linenumbers]
+----
+qalipsis {
+    plugins {
+        apacheKafka()
+        jackson()
+    }
+}
+----
+
+Gradle is available for the following QALIPSIS plugins:
+
+* apacheCassandra
+* apacheKafka
+* elasticsearch
+* graphite
+* influxDb
+* jackson
+* jms
+* jakartaMessaging
+* mail
+* mongoDb
+* netty
+* r2dbcJasync
+* rabbitMq
+* redisLettuce
+* slack
+* timescaleDb
+
+== Executing QALIPSIS
+=== Default Execution
+The QALIPSIS `RunAllScenarios` task runs all scenarios in your project's classpath.
+
+Kotlin::
+[source,kotlin,linenumbers]
+----
+tasks {
+    named("qalipsisRunAllScenarios") {
+        configuration(
+            "report.export.junit.enabled" to "true",
+            "report.export.junit.folder" to project.layout.buildDirectory.dir("test-results/my-new-scenario").get().asFile.path
+        )
+    }
+}
+----
+Groovy::
+[source,kotlin,linenumbers]
+----
+tasks.named('qalipsisRunAllScenarios') {
+    configuration 'report.export.junit.enabled': 'true',
+                  'report.export.junit.folder': layout.buildDirectory.dir('test-results/my-new-scenario').get().asFile.path
+}
+----
+=== Custom Execution
+You can create custom tasks of type `RunQalipsis` to run specific scenarios with custom configurations.
+
+Kotlin::
+[source,kotlin,linenumbers]
+----
+tasks {
+    create("executeRestApiSpikeTest", RunQalipsis::class.java) {
+        scenarios("spike-test-of-rest-api", "constant-monitoring")
+        configuration("report.export.junit.enabled" to "true",
+            "report.export.junit.folder" to project.layout.buildDirectory.dir("test-results/my-new-scenario").get().asFile.path
+        )
+    }
+}
+----
+Groovy::
+[source,kotlin,linenumbers]
+----
+tasks.create('executeRestApiSpikeTest', RunQalipsis) {
+    scenarios 'spike-test-of-rest-api', 'constant-monitoring'
+    configuration 'report.export.junit.enabled': 'true',
+                  'report.export.junit.folder': layout.buildDirectory.dir('test-results/my-new-scenario').get().asFile.path
+}
+----

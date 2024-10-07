@@ -1,22 +1,22 @@
 # QALIPSIS
 
-## Build the project in a prepared Docker image
+## Introduction
 
-1. Start at the root of the project
-1. Create the builder image: `docker build ./docker/builder -t aerisconsulting/openjdk:11`
-1. Start the builder image in your local folder:
-    1. For Unix-like systems: `docker run -it --rm -v $(pwd):/scripts -w /scripts aerisconsulting/openjdk:11 bash`
-    1. For Windows: `docker run -it --rm -v %CD%:/scripts -w /scripts aerisconsulting/openjdk:11 bash`
-1. Now you are "in" the builder image, execute Gradle with the tasks you need: `./gradlew clean asciidoctor assemble`
+This repository contains the pages for the documentation of QALIPSIS.
+The documentation website is build by [Antora](https://antora.org/) in a [dedicated repository](https://github.com/qalipsis/documentation-build.git).
 
-   **Windows only**: Ensure that git is **not** converting line endings of gradlew from Unix style (LF) to Windows
-   style (CRLF), otherwise the builder will fail when executing `./gradlew`. Automatic conversion can be disabled
-   via `git config core.autocrlf false`.
-1. Avoid to restart your image too often in order to keep the Gradle / Maven cache. You can also map the folders between
-   your machine and the container:
-    1. For Unix-like (Linux, MacOS)
-       systems: `docker run -it --rm -v $(pwd):/scripts -v $HOME/.m2:/root/.m2 -v /var/run/docker.sock:/var/run/docker.sock -w /scripts aerisconsulting/openjdk:11 bash`
-    1. For
-       Windows: `docker run -it --rm -v %CD%:/scripts -v %USERPROFILE% /.m2:/root/.m2 -w /scripts aerisconsulting/openjdk:11 bash`  
-1. To create the documentation as PDF files, run `./gradlew asciidoctorPdf`
-1. To create the documentation as HTML files, run `./gradlew asciidoctor`
+## How to add a new page
+
+Just add a new ASCIIDOC file in the dedicated folder - or create a new one.
+References between files should always use the cross-reference syntax, based upon the ROOT folder, e.g.
+
+```
+xref:specifications/steps.adoc[Steps specifications]
+```
+
+To add an entry into the menu, add the cross-reference to the file `nav.doc`. When no title is specified in the link,
+the first heading will be used as link text.
+
+```
+xref:installation/overview.adoc[]
+```

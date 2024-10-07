@@ -1,0 +1,85 @@
+= Embedded
+It is extremely simple to use QALIPSIS as an embedded service into your existing JVM applications.
+
+Using QALIPSIS as an embedded service is convenient for execute campaigns in your tests (JUnit or others) or to create your own applications that can trigger campaigns.
+
+It requires only three steps:
+
+. Add the dependencies needed to run QALIPSIS and develop your scenario.
++
+[source,kotlin,linenumbers]
+----
+dependencies {
+    implementation(platform("io.qalipsis:qalipsis-platform:<version>"))
+    kapt("io.qalipsis:api-processors")
+    
+    runtimeOnly("io.qalipsis:head")
+    runtimeOnly("io.qalipsis:factory")
+    implementation(test"io.qalipsis:runtime")
+    
+    // Examples of plugins
+    implementation("io.qalipsis.plugin:cassandra")
+    implementation("io.qalipsis.plugin:jackson")
+}
+----
+
+. Develop your scenario.
++
+[source,kotlin,linenumbers]
+----
+import io.qalipsis.api.annotations.Scenario
+...
+
+class My Scenario {
+
+    @Scenario("do-something-useful") // Do not forget the annotation!
+    fun doSomethingUseful() {
+        scenario {
+            minionsCount = 10_000
+            profile {
+                stages {
+                  ...
+                }
+            }
+        }.start()
+        ....
+    }
+}
+----
+. Start QALIPSIS in your application:
++
+[source,kotlin,linenumbers]
+----
+Qalipsis.main("-s", "do-something-useful", "-c", "myconfig=thevalue", "my-other-args")
+----
+
+Alternately, you can use the following method:
+
+[start=1]
+. Import the test fixtures module for the runtime
++
+[source,kotlin,linenumbers]
+----
+dependencies {
+    implementation(platform("io.qalipsis:qalipsis-platform:<version>"))
+    kapt("io.qalipsis:api-processors")
+
+    runtimeOnly("io.qalipsis:head")
+    runtimeOnly("io.qalipsis:factory")
+    implementation(test"io.qalipsis:runtime")
+    implementation(testFixtures("io.qalipsis:runtime")) // Here is the additional dependency.
+    
+    // Examples of plugins
+    implementation("io.qalipsis.plugin:cassandra")
+    implementation("io.qalipsis.plugin:jackson")
+}
+----
+
+. Use the builder to start QALIPSIS
++
+[source,kotlin,linenumbers]
+----
+QalipsisTestRunner.withScenarios("do-something-useful")
+    .withConfiguration("myconfig=thevalue")
+    .execute("my-other-args")
+----

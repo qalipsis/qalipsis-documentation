@@ -1,0 +1,102 @@
+= JMS plugin
+
+== Overview
+The JMS plugin connects QALIPSIS to a messaging platform that supports https://www.oracle.com/java/technologies/java-message-service.html[JMS].
+
+Technology addressed::
+JMS: https://www.oracle.com/java/technologies/java-message-service.html[]
+
+Dependency::
+`io.qalipsis.plugin:qalipsis-plugin-jms`
+
+Namespace in scenario::
+jms()
+ 
+Client library::
+JMS API: refer to 
+https://docs.oracle.com/javaee/7/api/javax/jms/package-summary.html[Java Interface Summary].
+
+Supported steps::
+* <<Consume step,`consume`>>: consumes data from a messaging platform supporting JMS.
+* <<Produce step,`produce`>>: pushes data to a messaging platform supporting JMS.
+
+An example scenario that uses a combination of the JMS  `consume` and `produce` steps is provided on https://github.com/qalipsis/qalipsis-examples/tree/master/jms[GitHub].
+
+== Consume step 
+The `consume` step within the JMS plugin consumes records from https://activemq.apache.org/[ActiveMQ].
+ 
+Ancestor::
+Scenario
+ 
+Functionality::
+The `consume` step polls data from the designated https://activemq.apache.org/[ActiveMQ] connection, step context, and the data deserializer.
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+jms().consume {
+    queues("battery_state")
+    queueConnection { ActiveMQConnectionFactory("tcp://localhost:61616").createQueueConnection() }
+}
+    .deserialize(JmsJsonDeserializer(targetClass = BatteryState::class))
+    .map { result ->
+        result.record.value
+    }
+----
+Notable parameters::
+* `consume`: configures the the https://activemq.apache.org/[ActiveMQ] connection.
+** `queues`: specifies the queue(s) for the connection.
+** `QueueConnection`: provides the java https://activemq.apache.org/[ActiveMQ] connection for the specified `queues`.
+** `topics` (optional): specifies the topic(s) for the connection.
+** `TopicConnection` (optional): provides the java https://activemq.apache.org/[ActiveMQ] connection for the specified `topics`.
+* `broadcast` (optional): specifies the broadcast parameters for the step.
+* `deserialize` (optional): specifies the class to use to deserialize the body of the response.
+
+Tip::
+The https://activemq.apache.org/[ActiveMQ] connection can be configured for either `queues` (`QeueConnection`) or `topics` (`TopicConnection`), but not both.
+
+Reference documentation::
+Refer to the  https://www.oracle.com/java/technologies/java-message-service.html[JMS] documentation for further parameter and configuration information.
+ 
+== Produce step
+The `produce` step within the JMS plugin produces records in https://activemq.apache.org/[ActiveMQ] using https://www.oracle.com/java/technologies/java-message-service.html[JMS].
+ 
+Ancestor::
+Step
+ 
+Functionality::
+The `produce` step produces a batch of records into one or more https://www.oracle.com/java/technologies/java-message-service.html[JMS] `destinations`. The record values may be provided by previous steps.
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+.jms()
+.produce {
+    connect {
+        ActiveMQConnectionFactory("tcp://localhost:61616").createConnection()
+    }
+    records { _, input ->
+        listOf(
+            JmsProducerRecord(
+                destination = ActiveMQQueue().createDestination("battery_state"),
+                messageType = JmsMessageType.BYTES,
+                value = objectMapper.writeValueAsBytes(input)
+            )
+        )
+    }
+}
+----
+Notable parameters::
+* `connect`: specifies the connection type for the `JmsProducerRecord`(s).
+* `records`: generates and configures a list of produced records.
+** `destination`:  defines the destination for each `JmsProducerRecord` as either queues (`QueueConnection`) or topics (`TopicConnection`).
+** `messageType`: indicates the `JmsMessageType` as: `TEXT`, `AUTO`, `BYTES`, or `OBJECT`.
+** `value`: defines the message to be displayed at the `destination`. 
+
+Tip::
+If you are not sure about the `JmsMessageType`, use `AUTO` to allow the system to infer the type and display the result. 
+
+Reference documentation::
+Refer to the  https://www.oracle.com/java/technologies/java-message-service.html[JMS] documentation for further parameter and configuration information.

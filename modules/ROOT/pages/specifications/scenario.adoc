@@ -1,0 +1,476 @@
+= Scenario specifications
+
+== Overview
+A scenario specification is the total of all of the steps required to configure the scenario and to execute it at run-time.
+
+In order to provide maximum flexibility for configuring a scenario and the best performance while executing it, QALIPSIS splits its configuration from its execution.
+
+* In the configuration phase, you develop specifications for the scenario.
+* In the execution phase, you set the runtime parameters for the scenario(s) you are executing.
+
+This section focuses on scenario configuration. Details on scenario execution are provided in xref:configuration/basics.adoc[QALIPSIS Configuration].
+
+== Configuring a scenario specification
+A scenario specification is made up of several parts.
+
+. A declaration of the function that declares the scenario:
++
+[source,kotlin,linenumbers]
+----
+@Scenario("hello-world")
+fun myScenario()
+----
+. Assigning the kebab-cased scenario name (_hello-world_):
++
+[source,kotlin,linenumbers]
+----
+@Scenario("hello-world")
+fun myScenario(){
+    val myScenario = scenario { }
+----
+. Configuring the scenario.
+.. Assume the default configuration parameters:
++
+[source,kotlin,linenumbers]
+----
+@Scenario("hello-world")
+fun myScenario()
+    val myScenario = scenario { // Scenario default configuration parameter values
+    }
+----
+The default parameters include:
+* minionCount = 1
+* retryPolicy = no retry
+---
+
+. Include defined parameters within the configuration, as in the following example:
++
+[source,kotlin,linenumbers]
+----
+@Scenario("hello-world")
+fun myScenario(){
+    val myScenario = scenario {
+        minionsCount = 1000
+        retryPolicy(instanceOfRetryPolicy)
+        profile {
+          regular(1000, 50)
+        }
+    }
+}
+----
+. Identify the root of the (load-injected) tree receiving all the minions.
++
+[source,kotlin,linenumbers]
+----
+@Scenario("hello-world")
+fun myScenario(){
+    val myScenario = scenario {
+        minionsCount = 1000
+        retryPolicy(instanceOfRetryPolicy)
+        profile {
+          regular(1000, 50)
+        }
+    }
+}
+.start() // Root of the load injected tree.
+----
+. Add step specifications to the tree:
++
+[source,kotlin,linenumbers]
+----
+@Scenario("hello-world")
+fun myScenario(){
+    val myScenario = scenario {
+        minionsCount = 1000
+        retryPolicy(instanceOfRetryPolicy)
+        profile {
+            regular(1000, 50)
+        }
+    }
+}
+.start() // Add step specifications here.
+----
+
+== Default scenario configuration
+
+image::Scenario.png[scenario,400,align="center"]
+
+Every scenario has a default configuration.
+
+=== Number of minions
+
+* Optional
+* Default = 1
+
+Whether you want to simulate users, IoT devices or third-party systems, each simulation is identified with a unique minion:
+
+* The more minions, the more load.
+* Minions execute concurrently and through all trees.
+* You can specify a default `minionsCount` (1000 in the following example):
+[source,kotlin,linenumbers]
+----
+@Scenario("hello-world")
+fun myScenario() {
+    val myScenario = scenario {
+        minionsCount = 1000
+    }
+}
+----
+Load-injected trees receive all of the minions; non-load injected trees receive only one minion.
+
+=== Execution profile
+
+Once you have specified the number of minions in your scenario, you need to specify the pace that the minions are injected into the system. QALIPSIS out-of-the-box execution profiles include:
+
+* Immediate
+* Accelerated
+** More
+** Faster
+* Regular
+* Timeframe
+* Stages
+* User Defined
+
+You can use one of the out-of-the-box profiles or create your own.
+
+In the following sections we will explain how to use some of the out-of-the-box execution profiles.
+
+* Immediate execution profile
+
+Starts all the minions right away, this is the default behavior when no profile is specified.
+This profile is not really dedicated to campaigns with high load, we encourage you to use other ones (e.g. `stages`) in that case.
+
+In the example below, all 12 minions are started in a single batch, with no delay.
+
+[source,kotlin,linenumbers]
+----
+@Scenario("hello-world")
+fun myScenario() {
+    val myScenario = scenario {
+        minionsCount = 12
+        profile {
+            immediate()
+        }
+    }
+}
+----
+
+* Accelerated execution profile
++
+An accelerated execution profile injects either a set number of minions at an accelerated pace or an accelerated number of minions at a set pace.
++
+. Accelerated pace using `faster`.
++
+The following example injects 10 minions to start,then 10 new minions after 2000 ms, 10 new minions after another 1333 (2000 / 1.5) ms, 10 new minions after 888 (2000 / 1.5 / 1.5) ms, continuing until the interval reaches 200 ms.
++
+After the interval reaches 200ms, 10 minions are injected every 200 ms until all minions are active.
++
+[source,kotlin,linenumbers]
+----
+@Scenario("hello-world")
+fun myScenario() {
+    val myScenario = scenario {
+        profile {
+            faster(2000, 1.5, 200, 10)
+        }
+    }
+}
+----
++
+The speed-factor at runtime will be applied to the multiplication factor: a speed factor of 2 will reduce the interval time in half.
+
+. Accelerated number of minions using `more`.
++
+The following example injects minions every 200 ms: first 10, then 20 new minions after 200 ms, 40 new minions after another 200 ms, to the limit of 1000 minions every 200ms until all minions are active.
++
+[source,kotlin,linenumbers]
+----
+@Scenario("hello-world")
+fun myScenario() {
+    val myScenario = scenario {
+        profile {
+            more(periodMs = 200, minionsCountProLaunchAtStart = 10, multiplier = 2.0, maxMinionsCountProLaunch = 1000)
+        }
+    }
+}
+----
++
+The speed-factor at runtime will be applied to the # of minions injected: a speed factor of 2 will increase the number of minions by 2 at each injection.
+
+* `regular` execution profile
++
+A regular execution profile sets the injection of a set amount of minions at a set pace.
++
+The following example sets the execution of 200 minions every 10 ms until the total number of minions is started.
++
+[source,kotlin,linenumbers]
+----
+@Scenario("hello-world")
+fun myScenario() {
+    val myScenario = scenario {
+        profile {
+            regular(periodMs = 10, minionsCountProLaunch = 200)
+        }
+    }
+}
+----
++
+The speed-factor at runtime will be applied to the interval: a speed factor of 2 will divide the interval by 2.
+
+* `timeframe` execution profile
++
+A time frame execution profile injects an equal number of minions at an equal interval within a set timeframe.
++
+The following example starts an equal number of minions every 20 ms, so that they all are active after 40000 ms.
++
+[source,kotlin,linenumbers]
+----
+@Scenario("hello-world")
+fun myScenario() {
+    val myScenario = scenario {
+        profile {
+            timeframe(periodInMs = 20, timeFrameInMs = 40000)
+        }
+    }
+}
+----
++
+The speed-factor at runtime will be applied to the interval: a speed factor of 2 will divide the interval by 2.
+
+* `stages` execution profile
+
+A `stages` execution profile injects more and more minions into the test step by step, keeping them all active until the end of the test.
+
+** Each stage:
+*** Defines the percentage of minions to add.
+*** How fast the minions should be added (resolution)
+*** The total duration of the stage (how long to wait until the next stage starts or the test ends if the stage is the last stage).
+** Contrary to the other execution profiles, stages ignores the total `minionsCount` defined in the scenario and only relies on the sum of all the minions started in the stages.
+
+Note that resolution is an optional parameter with a default value of 500 ms.
+
+The following example starts a `stages` execution profile that includes two stages.
+
+* The first stage:
+** Injects 40% minions into the test within 12 seconds and 500 ms apart.
+** Lasts a total of 30 seconds.
+
+* The second stage:
+** Starts 30 seconds after the first stage starts.
+** Injects 60% minions within 15 seconds after the stage starts.
+** Lasts a total of 30 seconds.
+
+
+[source,kotlin,linenumbers]
+----
+stages {
+    stage(minionsCount = 40.0, rampUpDuration = Duration.ofSeconds(12), totalDuration = Duration.ofSeconds(30), resolution = Duration.ofMillis(500))
+    stage(minionsCount = 60.0, rampUpDurationMs = 15_000, totalDurationMs = 30_000)
+}
+----
+
+* User defined execution profiles
++
+A user-defined execution profile is totally open to the developer's creativity or needs. It consists of returning a `MinionsStartingLine` considering the previous period in milliseconds, the total number of minions to start, and the speed factor to apply.
++
+The following example releases 1/100th of all the minions after 1000 ms, then applies different rules depending on the past interval:
+
+** If the previous interval was longer than 2 seconds, 1/100 of all the minions are released after 100ms;
+** Otherwise, a random interval is calculated applying the speed factor to reduce it, in order to start 1/10 of all the minions.
++
+[source,kotlin,linenumbers]
+----
+@Scenario("hello-world")
+fun myScenario() {
+    val myScenario = scenario {
+        profile {
+            define { pastPeriodMs, totalMinions, speedFactor ->
+                when {
+                    pastPeriodMs == 0L -> MinionsStartingLine(totalMinions / 100, 1000)
+                    pastPeriodMs > 2000 -> MinionsStartingLine(totalMinions / 10, 100)
+                    else -> MinionsStartingLine(totalMinions / 10,
+                        ((1000 + pastPeriodMs * Math.random()) / speedFactor).toLong().coerceAtLeast(200))
+                }
+            }
+        }
+    }
+}
+----
++
+Whatever definition you choose:
+
+*** The maximum number of minions launched cannot be more than the `totalMinions`.
+***  Generating a negative interval results in an immediate start.
+*** When calling the first iteration of a user-defined strategy, the initial value of `pastPeriodMs` is 0.
+
+=== Retry policy
+* Optional
+* Default = NoRetryPolicy
+
+Execution of steps can fail for a variety of reasons, including, but not limited to, an unreachable remote host or invalid data.
+
+When a step execution fails, it may be retried if a retry policy has been set within the scenario configuration or the step configuration.
+
+Once all attempts are executed per the defined `retryPolicy`, the step execution context is marked as exhausted and only error processing steps are executed.  Refer to the xref:specifications/steps.adoc[Step specifications] section for more information on error processing steps.
+
+There are two implementations of retries in QALIPSIS:
+
+* NoRetryPolicy: This is the default and there is no further attempt after failure.
+
+* BackoffRetryPolicy: Allows for limit-based retries when a step fails.
+
+//-
+Parameters::
+* `retries`: maximum number of attempts on a failure; positive number; default is `3`.
+* `delay`: initial delay from a failure to the next attempt; type = Duration; default is `1 second`.
+* `multiplier`: factor to multiply delay between each attempt; type = Double; default is `1.0`.
+* `maxDelay`: maximal duration allowed between two attempts; type = Duration; default is `1 hour`.
+
+Example::
+In the example below, there are 10 retries after a step failure.
+* The 1st retry occurs 1 ms after the failure.
+* The 2nd retry occurs 2 ms after the 1st retry.
+* The 3rd retry occurs 4 ms after the 2nd retry.
+* The 4th retry occurs 8 ms after the 3rd retry.
+* The 5th retry occurs 10 ms after the 4th retry.
+* The 6th through 10th retries occur 10 ms after the previous retry.
++
+
+[source,kotlin,linenumbers]
+----
+BackoffRetryPolicy(
+    retries = 10,  <1>
+    maxDelay = Duration.ofMillis(10) <2>
+    delay = Duration.ofMillis(1) <3>
+    multiplier = 2.0 <4>
+)
+----
+<1> Sets the number of retries after a step failure to `10`
+<2> Sets the max delay to `10 ms`.
+<3> Sets the first delay at `1 ms`
+<4> Sets the multiplier to `2.0`.
+
+After the defined number of `retries` are executed, the step execution context is marked as exhausted and only error processing steps are executed.  Refer to xref:specifications/steps.adoc[Step specifications] for more information on error processing steps.
+
+== Load-injected tree
+A scenario is a combination of directed acyclic graphs, joined by steps.
+
+There might be several graphs starting concurrently at the scenario root, but only one graph (the specified load-injected branch) is visited by all the minions injected into the scenario.
+
+Other graphs are considered non-injected or "side-trees" and perform data verification for when the branches rejoin.
+
+`myScenariostart().doSomething()` identifies which graph is the root receiving the load of all the minions at runtime.
+
+`myScenario.doSomething()` identifies a second graph visited by a unique minion and generally consisting of iterative operations such as polling of data sources.
+[source,kotlin,linenumbers]
+----
+@Scenario("hello-world")
+fun myScenario() {
+    val myScenario = scenario {
+        minionsCount = 1000
+        profile {
+            regular(1000, 50)
+        }
+    }
+    myScenario.start() <1>
+        .returns<string>{ "My input" }
+    myScenario <2> 
+        .returns<String>{ "My other input" }
+}
+----
+<1> Root branch receiving all minions.
+<2> Second branch visited by a unique minion.
+
+Note that only one use of `.start()` is permitted and only one step after it.
+
+To create more than one load-injected branch, you can use the `.split` command.
+
+`.split` provides the output of a unique step to several steps by initiating the divergence of two or more load-injected branches, all running concurrently and receiving all the minions.
+
+In the following example, two branches are diverging. The purpose of the divergence is log and save a collection of temperatures from an IoT source.
+
+* The first branch uses `.flatten()` to log the temperature values (in °C).
+* The second branch uses `r2dbc().save` to save the collection of values.
+
+`.flatMap` then converts the logged and saved temperature values from °C to °F for use throughout the rest of the campaign.
+
+[source,kotlin,linenumbers]
+----
+@Scenario("hello-world")
+fun myScenario() {
+    scenario {
+        .start()
+            .split {  
+                flatten()   <1> 
+                .onEach { temperature ->
+                    log.info("The temperature is $temperature degrees celsius)
+                }
+                
+                r2dbc().save { temperatures ->  <2>
+                }
+            }
+            .flatMap { temperatureCelsius ->   <3>
+                (temperatureCelsius * 9/5) + 32
+            }
+    }
+}
+----
+<1> Log the values
+<2> Save the values.
+<3> Convert the received values from °C to °F and distribute them one by one.
+
+== Singleton step
+A singleton step is designed to be executed only once by one minion. Its purpose is to gather data to provide to the other minions as they pass through it.  The minions can use the data to feed other steps or verify expected results in the tested system.
+
+Examples of a singleton step include:
+
+* A database poller.
+* A message consumer.
+
+While the singleton step is executed only once, it provides data to all the minions passing through it.
+
+A singleton step does not defer from other steps. It is executed using one minion, which looks like any other minion. Even if the singleton step is created on a load-injected branch, it remains aside and is proxied.
+
+The proxy will be executed by all the minions going through the branch, while the singleton step will only have its own one, only aiming at triggering its operation: polling, reading a file, starting a message consumer, etc.
+
+The singleton step and its proxy are connected by a topic, which actually defines the way the polled/read/consumed records are provided to the minions.
+
+== Data distribution from the singleton step to the load minions
+For convenience purpose, QALIPSIS proposes three different modes of distributing records out of a singleton step:
+
+* Loop
+* Unicast/Forward Once
+* Broadcast
+
+Note: You can develop your own singleton step by creating a plugin for it. Details for creating your own plugins will be provided in future updates to this documentation.
+
+QALIPSIS provides all required statements out-of-the-box.
+
+=== Loop
+When the number of records emitted by the singleton step is finite (such as a file), you might want to loop in the whole set of data to be sure there will always be data for the minions.
+
+//[example]
+//Create and insert singleton loop graphic here
+
+All minions receive all the records.
+When there is no more data for a minion, it receives the same data again from the beginning and loops on the whole set of records as long as it needs new ones.
+
+=== Unicast/forward once
+
+Each minion receives the next unused record emitted from the singleton step. Once there are no more records to provide, all the minions remain blocked in the step.
+
+//[example]
+//Create and insert singleton-unicast graphic here
+
+//In the example, each of the 3 minions receives a record fairly: the first asking is served. However, since the buffer is only 2, the first records are just lost, keeping only a buffer of 2 until the first minion requests a value.
+
+=== Broadcast
+
+All the minions receive all the records from the beginning. Once there are no more records to provide, all of the minions, having already received all available records, remain blocked in the step.
+
+If the size of the buffer is limited, minions landing in the step for the first time will not receive everything from the beginning, but only from the size of the buffer.
+
+//[example]
+//Create and insert broadcast graphic here
+
+//In the example, all 3 minions receive all the records in the correct order. However, since the buffer is only 2, each newly requesting minion can only receive two records in the past at the earliest.

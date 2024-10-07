@@ -1,0 +1,125 @@
+= Slack plugin
+
+== Overview
+QALIPSIS supports Slack to notify users of the status of their campaign after it runs. The process of enabling slack to trigger notifications can be grouped in two stages:
+
+- Configuring and activating the QALIPSIS publisher for Slack.
+- Creating and installing an app into a Slack workspace.
+
+== Configuring and activating the QALIPSIS publisher for Slack
+To activate the QALIPSIS publisher for Slack, create a configuration file in your QALIPSIS project. 
+
+Configuration namespace::
+ `report.export.slack`
+
+Example configuration file::
++
+[source,kotlin,linenumbers]
+----
+report:
+  export:
+    slack:
+      enabled: true
+      token: xoxb-my-awesome-bot-token
+      channel: my-qalipsis-campaign-report-channel\presentation\d\1wUY3AXkwyhOjw-5R6CuvVQF176RTH_iTs57awFDN1Kc\edit
+      status: 
+        - SUCCESS
+        - FAILED
+        - WARNING
+----
+Parameters::
+
+* `enabled` (required): boolean flag that activates/deactivates campaign report publishing to Slack; defaults to `false`; *must* be set to `true`.
+* `token` (required): the bot token of the app in charge of posting messages to the specified workspace channel, usually beginning with `xoxb`. 
+* `channel` (required): a valid Slack channel name within a workspace indicating where notifications messages should be pushed to.
+* `status` (required): specifies which campaign report statuses should trigger a notification.
++
+Allowed values are any set of `ReportExecutionStatus` values: `ALL`, `FAILED`, `SUCCESSFUL`, `WARNING`, `ABORTED`; defaults to `ALL`.
++
+ ** Selecting `ALL` triggers a notification for any campaign report status.
++
+** Selecting two or more status values triggers a notification when the campaign report status is the same as any of the selected status values. 
++
+** Selecting just one status value triggers a notification only when the campaign report status is the same as the selected status value.
+
+Reference Documentation::
+Refer to the https://docs.qalipsis.io/#_external-property-sources[QALIPSIS documentation] for information about 
+adding configuration properties that set or override the default parameters.
+
+== Creating and installing an app into the Slack workspace
+
+=== Creating an app
+You will need to create an app on the https://api.slack.com/apps[slack api website].
+
+. Navigate to the the https://api.slack.com/apps[slack api website].
+. Click on **Create an App** button
+. Select  **From an app manifest**.
+. Select the development workspace where you will build your app and click on the **Next** button.
+. Replace the content of the json manifest with the json object provided below.
++ 
+You can edit information in the `display_information` and `features` blocks to your preference, but avoid making changes in the `oauth-config` block.
+
+. Review the app summary.
+. Click the **Create App** button.
+
+//-
+json object::
+[source,kotlin,linenumbers]
+----
+{
+  "display_information": {
+    "name": "QALIPSIS-REPORT-NOTIFIER",
+    "description": "QALIPSIS notifications",
+    "background_color": "#32373d",
+    "long_description": "Receives the notifications from QALIPSIS via Slack, including execution reports. Install the App in Slack, configure the access in QALIPSIS and be notified in realtime when a campaign ends."
+  },
+  "features": {
+    "bot_user": {
+      "display_name": "QALIPSIS-REPORT-NOTIFIER",
+      "always_online": false
+    }
+  },
+  "oauth_config": {
+    "scopes": {
+      "bot": [
+        "chat:write",
+        "chat:write.public",
+        "im:read",
+        "channels:history",
+        "groups:history",
+        "mpim:history",
+        "im:history",
+        "incoming-webhook"
+      ]
+    }
+  },
+  "settings": {
+    "org_deploy_enabled": false,
+    "socket_mode_enabled": false,
+    "token_rotation_enabled": false
+  }
+}
+----     
+
+=== Installing the app into your workspace
+
+. From the to left side panel of the https://api.slack.com/apps[slack api website], click on **Basic information**.
+. From the **Basic information** menu, click on **Install to Workspace**.
+. Select or create a channel where the app you created above (**QALIPSIS-REPORT-NOTIFIER**), should post notifications. 
+. Click on **allow** to automatically install the app to your workspace.
+* Your selected slack channel is now set to receive message notifications from QALIPSIS. 
+* A *QALIPSIS* bot token will display under *Apps* in the left sidebar of your Slack workspace.
+
+//-
+Reference Documentation::
+For further information, refer to the https://api.slack.com/authentication/basics#start[official slack documentation].
+
+=== Viewing/Updating the app configuration
+
+To view/update the app configuration, right click on the **QALIPSIS** bot token (displayed under **Apps** in the left sidebar of your Slack workspace) and select _View App Details_.
+
+From the displayed _Tenant Modal_ window, click  *Configuration*. 
+The _QALIPSIS App Manager_ page displays. 
+
+* Any user can view the description and Authorizations of the app.
+* Authorized users can view and update the app configuration.

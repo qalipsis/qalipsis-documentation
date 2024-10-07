@@ -1,0 +1,30 @@
+= Ephemeral
+
+Ephemeral installations of QALIPSIS are designed to be directly embedded into third-party tools or for use in continuous integration/continuous deployment (CI/CD) applications.
+
+However, the ease of build and lightness of an ephemeral installation makes it a very portable alternative for verifying test systems and performing demos. 
+ 
+The QALIPSIS Gradle Plugin provides the task `package-ephemeral` to create an archive of your project.
+
+To configure an ephemeral installation for project deployment:
+
+* In your QALIPSIS project, execute the task `package-ephemeral` which will assemble your project and create an archive file: `build/install/your-project-name-your-version-qalipsis.jar`.
++ 
+The .jar file is a self-executable archive that contains your scenario, classes, and all required dependencies to execute your QALIPSIS project. 
+
+* Check that Java Runtime Environment 11+ is installed on your system as it is required to execute the archive.
+* Move the archived file to your folder of choice; navigate to that folder.
+* If operating on a Windows system, run `java -jar your-project-name-your-version-qalipsis.jar --autostart`. 
+* If operating on a Linux, Unix or Mac system:
+. Run `chmod +x your-project-name-your-version-qalipsis.jar` 
+. Run `java -jar your-project-name-your-version-qalipsis.jar --autostart`
+
+* QALIPSIS starts, executes the scenario(s) in the project, and quits. 
+* The results of the project are displayed on the console but are not saved to QALIPSIS.
+* To save the results, export them to a file(s) using any of our exporters such as JUnit.
+
+If you want to tweak the configuration, create and include in your project a `qalipsis.yml` or `config/qalipsis.yml` file that contains the part of the configuration that you want to overwrite. 
+
+Note that the `config/qalipsis.yml` file has precedence over the `qalipsis.yml` if both are present in the configuration.
+
+If any of your use cases includes data that you want to retain in QALIPSIS for comparison, regression testing, or other use, you should use QALIPSIS in a non-persistent standalone installation.  

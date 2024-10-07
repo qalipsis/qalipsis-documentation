@@ -1,0 +1,166 @@
+= R2DBC-jasync plugin
+
+== Overview
+The R2DBC-jasync plugin connects QALIPSIS to https://mariadb.org/[MariaDB], https://www.mysql.com[MySQL] and https://www.postgresql.org/[PostgreSQL].
+
+Technologies addressed::
+* MariaDB: https://mariadb.org/[]
+
+* MySQL: https://www.mysql.com[]
+
+* PostgreSQL: https://www.postgresql.org/[]
+
+Dependency::
+`io.qalipsis.plugin:qalipsis-plugin-r2dbc-jasync`
+
+Namespace in scenario::
+`r2dbcJasync()`
+
+Client library::
+Jasync-sql: refer to https://github.com/jasync-sql/jasync-sql[jasync-sql]
++
+Jasync-sql is an asynchronous database driver for PostgreSQL and MySQL written in kotlin.
+
+Supported steps::
+* <<Poll step,`poll`>>: polls the newest data periodically.
+* <<Save step,`save`>>: saves a batch of records generated from the input and step context.
+* <<Search step,`search`>>: searches records and builds a query from the input and step context.
+
+Example scenarios using a combination of R2DBC-jasync supported steps are provided https://github.com/qalipsis/qalipsis-examples/tree/master/r2dbc-jasync[GitHub].
+
+== Poll step 
+The `poll` step within the R2DBC-jasync plugin polls the newest records from the database, respecting a delay between each execution of a select query.
+
+Ancestor::
+Scenario
+
+Functionality::
+The `poll` step is created only once in a scenario; it is then used throughout the scenario as called. The `poll` step within the `r2b-jaysync` plugin uses a strategy of “delivered at least once”.
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+r2dbcJasync().poll {
+    protocol(Protocol.POSTGRESQL)
+    connection {
+        database = "iot"
+        port = 5432
+        username = "DavidW"
+        password = "Awesome_1978"
+    }
+    query("select * from battery_state order by \"timestamp\"")
+    pollDelay(Duration.ofSeconds(1))
+}
+----
+
+Notable parameters::
+* `connection` (required): specifies the connection parameters. 
+* `query` (required): specifies a query respecting the requirements of the target database (https://mariadb.org/[MariaDB],  https://www.mysql.com[MySQL], https://www.postgresql.org/[PostgreSQL],).
+* `pollDelay` (required): specifies the delay between query executions.
+* `broadcast` (optional): specifies the broadcast parameters for the step.
+
+Tips::
+* Use the `poll` step with a join operator when you need to verify the values saved by your tested system in the database.
+* `query` requires at least one sorting field to filter the newest results and not fetch the same records repeatedly.
+
+Reference documentation::
+Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for further parameter and configuration information.
+
+== Save step 
+The `save` step within the R2DBC-jasync plugin persists a batch of records into an SQL table using a prepared statement.
+
+Ancestor::
+Step
+
+Functionality::
+The `save` step's input and step context are used to generate the table and the list of columns and their values, which are then combined and forwarded to the database.
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+.r2dbcJasync()   
+.save {
+    protocol(Protocol.POSTGRESQL)
+    connection {
+        database = "iot"
+        port = 5432
+        username = "DavidW"
+        password = "Awesome_1978"
+    }
+    tableName { _, _ ->
+        "battery_state"
+    }
+    columns { _, _ ->
+        listOf(
+            "device_id",
+            "timestamp",
+            "battery_level"
+        )
+    }
+    values { _, input ->
+        listOf(
+            JasyncSaveRecord(
+                input.deviceId,
+                input.timestamp.epochSecond,
+                input.batteryLevel
+            )
+        )
+    }
+}
+----
+
+Notable parameter::
+* `connection` (required): specifies the connection parameters. 
+
+Tips::
+* Use the `save` step after a `collect()` step in order to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.
+* The `save` step is extremely flexible; table, columns and values might depend on the context and input value received from the previous step.
+
+Reference documentation::
+Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for further parameter and configuration information.
+
+== Search step 
+The `search` step within the R2DBC-jasync plugin searches records in the database using a search query.
+
+Ancestor::
+Step
+
+Functionality::
+The `search` step’s input and step context are used to generate a prepared statement and the values to complete it; the batch of results is then forwarded to the next step(s).
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+.r2dbcJasync()
+.search {
+    protocol(Protocol.MARIADB)
+    connection {
+        database = "iot"
+        port = 3306
+        username = "DavidW"
+        password = "Awesome_1978"
+    }
+    query { _, _ ->
+        val request = "SELECT DISTINCT * from battery_state where timestamp = ? AND device_id = ?"
+        request
+    }
+    parameters { _, input ->
+        listOf(input.timestamp.epochSecond, input.deviceId)
+    }
+}
+----
+
+Notable parameters::
+* `connection` (required): specifies the connection parameters.
+* `query`: generates a prepared statement from the step's context and input.
+* `parameters` (optional): binds values to the clauses of the prepared query.
+
+Tip::
+Use the `search` step after a `collect` step in order to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.
+
+Reference documentation::
+Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for further parameter and configuration information.
+

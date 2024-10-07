@@ -1,0 +1,122 @@
+= Jakarta EE Plugin
+
+== Overview
+
+The Jakarta EE plugin connects QALIPSIS to a messaging platform that supports https://jakarta.ee/specifications/messaging/[JAKARTA EE Messaging].
+
+Technology addressed::
+https://jakarta.ee/specifications/messaging/[Jakarta EE Messaging] and the products compliant with it.
+
+Dependency::
+`io.qalipsis.plugin:qalipsis-plugin-jakarta-ee-messaging`
+
+Namespace in scenario::
+` .jakarta()`
+
+Client library::
+Refer to https://jakarta.ee/[Jarkata EE].
+
+Supported steps::
+* <<Consume,`consume`>>: consumes data from a messaging platform supporting Jakart EE.
+* <<Produce,`produce`>>: pushes data to a messaging platform supporting Jakart EE.
+
+Example scenarios using a combination of Jakarta EE supported steps are provided on https://github.com/qalipsis/qalipsis-examples/tree/main/jakarta-ee-messaging[Github].
+
+
+== Consume step
+The `consume` step within the Jakarta EE plugin consumes records from a Jakarta-EE-Messaging-compatible product.
+
+Ancestor::
+Scenario 
+
+Functionality::
+The `consume` step polls data from the designated connection, step context, and the data deserializer.
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+it.jakarta().consume {
+  queues("battery_state")
+  queueConnection {
+    ActiveMQConnectionFactory(
+      "tcp://localhost:61616",
+      "qalipsis_user",
+      "qalipsis_password"
+    ).createQueueConnection()
+  }
+}
+  .deserialize(JakartaJsonDeserializer(targetClass = BatteryState::class))
+  .map { result ->
+    result.record.value
+  }
+----
+
+Notable parameters::
+* `queues`: specifies the queue(s) to consume.
+* `QueueConnection`: provides the connection to attach to the queue consumer, which is generally specific to the underlying product.
+* `topics` (optional): specifies the topic(s) to consume.
+* `topicConnection` (optional): provides the connection to attach to the topic consumer, which is generally specific to the underlying product.
+* `broadcast` (optional): specifies the broadcast parameters for the step.
+* `deserialize`: specifies the class to use to deserialize the body of the response.
+* `session` (optional): allows to configure the session to attach to the message producer, see the official documentation of Jakarta EE Messaging for more explanation. 
+
+Tip::
+The connection can be configured to consume either `queues` (`queueConnection`) or `topics` (`topicConnection`), but not both.
+
+Reference documentation::
+Refer to the  https://jakarta.ee/resources/#documentation[Jakarta EE] documentation for further parameter and configuration information.
+
+== Produce step
+The `produce` step within the Jakarta EE plugin produces records in a Jakarta-EE-Messaging-compatible product.
+
+Ancestor::
+Step
+
+Functionality::
+The `produce` step within the Jakarta EE plugin produces records in a Jakarta-EE-Messaging-compatible product.
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+.jakarta()
+.produce {
+
+  connect {
+    ActiveMQConnectionFactory(
+      "tcp://localhost:61616",
+      "qalipsis_user",
+      "qalipsis_password"
+    ).createQueueConnection()
+  }
+
+  session {
+    it.createSession(false, Session.AUTO_ACKNOWLEDGE)
+  }
+
+  records { _, input ->
+    listOf(
+      JakartaProducerRecord(
+        destination = Queue("battery_state"),
+        messageType = JakartaMessageType.BYTES,
+        value = objectMapper.writeValueAsBytes(input)
+      )
+    )
+  }
+}
+----
+Notable parameters::
+* `connect`: provides the connection for the `JakartaProducerRecord`(s).
+* `records`: generates a list of records to send the messaging platform.
+** `destination`:  defines the destination for each `JakartaProducerRecord` as either queues (`QueueConnection`) or topics (`TopicConnection`).
+** `messageType`: indicates the `JakartaMessageType` as: `TEXT`, `AUTO`, `BYTES`, or `OBJECT`.
+** `value`: defines the message to be displayed at the `destination`. 
+* `session` (optional): allows to configure the session to attach to the message producer, see the official documentation of Jakarta EE Messaging for more explanation. 
+* `producers` (optional, default to 1): number of producers to use, in order to scale the data production up.
+
+Tip::
+If you are not sure about the `JakartaMessageType`, use `AUTO` to allow the system to infer the type and display the result. 
+
+Reference documentation::
+Refer to the  https://jakarta.ee/resources/#documentation[Jakarta EE] documentation for further parameter and configuration information.

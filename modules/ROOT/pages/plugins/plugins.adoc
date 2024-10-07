@@ -1,0 +1,130 @@
+= Plugins
+
+== Introduction
+A plugin is a technical extension designed to extend the core capabilities of QALIPSIS.
+
+Plugins: 
+
+* Tackle the complexity implied by the multiplicity of technologies and use cases to support in the tool.
+* Reduce the coupling between the technical elements, keeping them safer and easier to maintain.
+
+The main advantages of using plugins are:
+
+* A drastic reduction in the footprint of required libraries to run a scenario.
+* A better user/developer experience, including:
+**  The ability to focus on what is absolutely relevant to the user/developer.
+** Having a smaller list of proposals when using auto-completion.
+** Faster compilation and start times.
+** Smaller artifacts to store, transport and share.
+
+By nature, a plugin is an optional component of QALIPSIS. It allows you to include only what you need while ignoring components and libraries that do not serve your your present concerns.
+
+While a certain number of plugins are proposed by the community to cover the most common use cases and technologies, a plugin can also be an extension only for yourself and remain private.
+
+== Plugin functionality
+A plugin contains one or several technical functionalities of the software that are not part of the core. The most common functionalities that a plugin might implement are:
+
+* A step to perform an action, such as:
+** Executing requests on a remote system using a specific protocol.
+** Polling data from a source.
+** Transforming data.
+* An events logger.
+* A meter registry.
+
+Default implementations of the above functionalities are part of the QALIPSIS core. However, the default implementations may not be suited for your scenario (e.g., if productive testing or constant monitoring are requirements). QALIPSIS plugins enhance the above functionalities by providing related implementations.
+
+image::config_plugins.png[config_plugins,90%,align="center"]
+
+== Plugin integration
+To create a test scenario, a tiny Gradle project is required. The plugin is simply added as a dependency to the class path of the project. You can read more about scenario configuration within the xref:tutorials/quickstart-testing-rest-api.adoc[Step specifications].
+
+If the development of a scenario requires the plugin to compile (when using a step, for example), the dependency to the plugin artifact must be added to the `implementation` dependencies.
+
+If the plugin delivers functionalities that you only need at runtime, add it to the `runtimeOnly` dependencies.
+
+== Using QALIPSIS plugins
+QALIPSIS provides several plugins targeting different technologies, systems and protocols.
+
+To use a plugin, add the related dependency to your project:
+
+Gradle - Groovy DSL:
+[source,groovy,subs="normal"]
+----
+implementation group:'io.qalipsis.plugin', name: 'qalipsis-plugin-XXX', version: '{revnumber}'
+----
+Gradle - Kotlin DSL:
+[source,kotlin,subs="normal"]
+----
+implementation("io.qalipsis.plugin:qalipsis-plugin-XXX:{revnumber}")
+----
+
+== QALIPSIS available plugins
+
+In this section, documentation is provided for currently available plugins that can be used with your QALIPSIS project.
+
+This section will be updated as more plugins are available.
+
+Note: Before using a plugin, confirm that the related dependency has been added to your project:
+
+* Gradle - Groovy DSL:
++
+`implementation group:'io.qalipsis.plugin', name: 'qalipsis-plugin-XXX', version: '{revnumber}`
+
+* Gradle - Kotlin DSL:
++
+`implementation("io.qalipsis.plugin:qalipsis-plugin-XXX:{revnumber}")`
+
+[cols="1,3"]
+|===
+
+|  *Name*
+|  *Description*
+
+|xref:plugins/cassandra.adoc[]
+|Connects QALIPSIS to https://cassandra.apache.org/index.html[APACHE Cassandra].
+
+|xref:plugins/elasticsearch.adoc[]
+|Connects QALIPSIS to https://www.elastic.co/[Elasticsearch].
+
+|xref:plugins/graphite.adoc[]
+|Connects QALIPSIS to https://github.com/graphite-project[Graphite] using the pickle or plaintext protocol.
+
+|xref:plugins/influxdb.adoc[]
+|Connects QALIPSIS to https://www.influxdata.com/[InfluxDB].
+
+|xref:plugins/jackson.adoc[]
+|Supports reading a file https://github.com/FasterXML/jackson[(JSON, XML or CSV)], converting the data to an object, and pushing the object to the next step.
+
+|xref:plugins/jms.adoc[]
+|Connects QALIPSIS to a messaging platform that supports https://www.oracle.com/java/technologies/java-message-service.html[JMS] (for example, https://activemq.apache.org/[ActiveMQ]).
+
+|xref:plugins/jakarta-ee.adoc[]
+|Connects QALIPSIS to a messaging platform that supports https://jakarta.ee/[Jakarta EE].
+
+|xref:plugins/kafka.adoc[]
+|Connects QALIPSIS to an https://kafka.apache.org/[Apache Kafka] cluster.
+
+|xref:plugins/mongodb.adoc[]
+|Connects QALIPSIS to https://mongodb.com/[MongoDb].
+
+|xref:plugins/netty.adoc[]
+|Supports https://datatracker.ietf.org/doc/html/rfc793[TCP], https://datatracker.ietf.org/doc/html/rfc768[UDP], https://httpwg.org/[HTTP] and https://mqtt.org/[MQTT] clients
+
+|xref:plugins/timescaledb.adoc[]
+|Connects QALIPSIS to https://timescaledb.com/[TimescaleDB]
+
+|xref:plugins/r2dbc-jasync.adoc[]
+|Connects connects QALIPSIS to https://mariadb.org/[MariaDB], https://www.mysql.com[MySQL] and https://www.postgresql.org/[PostgreSQL].
+
+|xref:plugins/rabbitmq.adoc[]
+|Connects QALIPSIS to https://www.rabbitmq.com/[RabbitMQ].
+
+|xref:plugins/redis-lettuce.adoc[]
+|Connects QALIPSIS to https://redis.io/[Redis].
+
+|xref:plugins/slack.adoc[]
+|Sends campaign notifications to a defined https://slack.com/[Slack] channel.
+
+|xref:plugins/mail.adoc[]
+|Sends campaign notifications to a defined email address.
+|===

@@ -1,0 +1,11 @@
+:title: QALIPSIS User guide
+
+= QALIPSIS - User guide
+
+NOTE:: This documentation as well as the QALIPSIS software is a work in progress and not yet officially released.
++
+The current artifacts are available on the Maven repository https://oss.sonatype.org/content/repositories/snapshots.
++
+If you are eager to start with QALIPSIS, you can find some examples in our dedicated https://github.com/qalipsis/qalipsis-examples[Github repository].
++
+Thank you for your understanding.
