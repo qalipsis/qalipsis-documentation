@@ -29,9 +29,6 @@ This guide will take you through the following steps for testing a simple HTTP s
 
 == Start an HTTP server and a docker environment
 
-image::Minions - Docker container.png[Minions - Docker container,200,200,align="center"]
-
-
 . Create a file named `docker-compose.yml` in your working directory with the following content:
 +
 [source,kotlin,linenumbers]

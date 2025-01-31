@@ -3,14 +3,14 @@
 * xref:core-concepts.adoc[]
 * xref:gradle-plugin.adoc[]
 
-* Tutorials
+* xref:tutorials/tutorials.adoc[Tutorials]
 ** xref:tutorials/quickstart-testing-rest-api.adoc[]
 
-* Specifications
+* xref:specifications/specifications.adoc[Specifications]
 ** xref:specifications/scenario.adoc[]
 ** xref:specifications/steps.adoc[]
 
-* Installation
+* xref:installation/installation.adoc[Installation]
 ** xref:installation/overview.adoc[]
 ** xref:installation/embedded.adoc[]
 ** xref:installation/ephemeral.adoc[]
@@ -21,13 +21,12 @@
 ** xref:installation/containers.adoc[]
 ** https://cloud.qalipsis.io/[Cloud]
 
-* Configuration
+* xref:configuration/configuration.adoc[Configuration]
 ** xref:configuration/basics.adoc[]
 ** xref:configuration/dependency-injection.adoc[]
 ** xref:configuration/monitoring-test-campaigns.adoc[]
 
-* Plugins
-** xref:plugins/plugins.adoc[]
+* xref:plugins/plugins.adoc[Plugins]
 ** xref:plugins/cassandra.adoc[]
 ** xref:plugins/elasticsearch.adoc[]
 ** xref:plugins/graphite.adoc[]

@@ -20,8 +20,6 @@ Prior to configuring QALIPSIS to run on your system, it is crucial to understand
 == Minions
 Minions are simulations of website users, IoT devices, or other systems. They each perform a complete scenario.
 
-image::Minions - Welcome.png[minions-welcome,200,100,float="right",align="center"]
-
 Any number of minions can act on a scenario. The minion count for a scenario is set during scenario configuration (refer to xref:specifications/scenario.adoc[Scenario specifications]) or at runtime (refer to xref:configuration/basics.adoc[QALIPSIS configuration]).
 
 Note that a minion count entered at runtime overrides the minion count set during scenario configuration.

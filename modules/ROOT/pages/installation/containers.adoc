@@ -1,7 +1,5 @@
 = Containers
 
-image::Minions - Docker container.png[Minions - Docker container,200,200,float="right",align="center"]
-
 Docker images from QALIPSIS work like prepared installations that you can amend with your own scenarios and configuration.
 
 Three images are available on the Docker hub free to all QALIPSIS users: 

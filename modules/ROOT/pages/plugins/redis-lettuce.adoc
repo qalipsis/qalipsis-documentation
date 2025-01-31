@@ -22,10 +22,6 @@ Supported steps::
 
 Example scenarios using a combination of Redis supported steps are provided on https://github.com/qalipsis/qalipsis-examples/tree/master/Redis[Github].
 
-
-image::head_factory_redis.png[head_factory_redis,300,300,align="center"]
-
-
 == Poll step 
 The `poll` step within the Redis-lettuce plugin polls the newest records from a Redis key, with a delay between each execution of polling.
 

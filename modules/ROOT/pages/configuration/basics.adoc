@@ -1,7 +1,6 @@
 = Basic configuration
 
 == Starting QALIPSIS in different modes
-image::Minions - Start.png[Minions - Start,150,float="right",align="center"]
 Two modes of QALIPSIS configuration are currently supported:
 
 * Interactive

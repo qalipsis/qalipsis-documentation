@@ -1,12 +1,9 @@
 = What's new
 
-QALIPSIS 0.6 is the initial product release.
+QALIPSIS is designed with the scalability and simplicity required to perform load, efficiency and end-to-end verification on both distributed and stand-alone systems
 
-QALIPSIS 0.6 is designed with the scalability and simplicity required to perform load, efficiency and end-to-end verification on both distributed and stand-alone systems
+With QALIPSIS:
 
-With QALIPSIS 0.6:
-
-image::Minions - Welcome.png[minions-welcome,200,100,float="right",align="center]
 * You can create scenarios with different branches and running with many minions.
 * You can use its many native steps and plugins to fire load on your system and feed QALIPSIS with data to verify load strength.
 
