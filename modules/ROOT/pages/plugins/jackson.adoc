@@ -1,7 +1,7 @@
 = Jackson plugin
 
 == Overview
-The Jackson plugin supports reading a (https://github.com/FasterXML/jackson[JSON, XML or CSV]) file, converting the data to an object, and pushing the object to the next step.
+The Jackson plugin supports reading a (https://github.com/FasterXML/jackson[JSON, XML or CSV]) file and converting the data to an object.
 
 Technologies addressed::
 https://github.com/FasterXML/jackson[Class JsonMapper]

@@ -93,7 +93,7 @@ Note: Before using a plugin, confirm that the related dependency has been added 
 |Connects QALIPSIS to https://www.influxdata.com/[InfluxDB].
 
 |xref:plugins/jackson.adoc[]
-|Supports reading a file https://github.com/FasterXML/jackson[(JSON, XML or CSV)], converting the data to an object, and pushing the object to the next step.
+|Supports reading a file https://github.com/FasterXML/jackson[(JSON, XML or CSV)] and converting the data to an object.
 
 |xref:plugins/jms.adoc[]
 |Connects QALIPSIS to a messaging platform that supports https://www.oracle.com/java/technologies/java-message-service.html[JMS] (for example, https://activemq.apache.org/[ActiveMQ]).
@@ -114,7 +114,7 @@ Note: Before using a plugin, confirm that the related dependency has been added 
 |Connects QALIPSIS to https://timescaledb.com/[TimescaleDB]
 
 |xref:plugins/r2dbc-jasync.adoc[]
-|Connects connects QALIPSIS to https://mariadb.org/[MariaDB], https://www.mysql.com[MySQL] and https://www.postgresql.org/[PostgreSQL].
+|Connects QALIPSIS to https://mariadb.org/[MariaDB], https://www.mysql.com[MySQL] and https://www.postgresql.org/[PostgreSQL].
 
 |xref:plugins/rabbitmq.adoc[]
 |Connects QALIPSIS to https://www.rabbitmq.com/[RabbitMQ].

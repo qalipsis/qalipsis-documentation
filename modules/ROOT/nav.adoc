@@ -4,6 +4,7 @@
 * xref:gradle-plugin.adoc[]
 
 * xref:tutorials/tutorials.adoc[Tutorials]
+** https://github.com/qalipsis/qalipsis-examples[Examples, window=_blank]
 ** xref:tutorials/quickstart-testing-rest-api.adoc[]
 
 * xref:specifications/specifications.adoc[Specifications]
@@ -19,7 +20,7 @@
 ** xref:installation/cluster.adoc[]
 ** xref:installation/amendable.adoc[]
 ** xref:installation/containers.adoc[]
-** https://cloud.qalipsis.io/[Cloud]
+// ** https://www.qalipsis.io/pricing[Cloud, window=_blank]
 
 * xref:configuration/configuration.adoc[Configuration]
 ** xref:configuration/basics.adoc[]

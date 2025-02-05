@@ -1,1 +1,9 @@
-= Specifications
+= Tutorials
+
+We strongly encourage the learning by doing. However, you need material to start!
+
+In this section, you will find examples to get familiar with QALIPSIS and its wide range of features and uses cases.
+
+Searching how QALIPSIS supports your technology of choice? Give a look at the https://github.com/qalipsis/qalipsis-examples[examples,window=_blank].
+
+For a step by step quickstart, you can discover how to xref:tutorials/quickstart-testing-rest-api.adoc[test a REST API using QALIPSIS].
