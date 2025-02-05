@@ -27,6 +27,11 @@
 ** xref:configuration/dependency-injection.adoc[]
 ** xref:configuration/monitoring-test-campaigns.adoc[]
 
+* xref:automation-ci-cd/automation-ci-cd.adoc[Automation, CI, CD]
+** xref:automation-ci-cd/scheduling.adoc[Scheduling]
+** xref:automation-ci-cd/ci-cd.adoc[CI & CD]
+** xref:automation-ci-cd/rest-api.adoc[REST API]
+
 * xref:plugins/plugins.adoc[Plugins]
 ** xref:plugins/cassandra.adoc[]
 ** xref:plugins/elasticsearch.adoc[]

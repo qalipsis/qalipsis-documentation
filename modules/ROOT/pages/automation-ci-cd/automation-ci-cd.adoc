@@ -1,0 +1,5 @@
+= Automation, continuous integration and continuous deployment
+
+QALIPSIS was designed with one major principle in mind: it has to simplify your daily tasks.
+
+Automating the execution of tests was never that simple.

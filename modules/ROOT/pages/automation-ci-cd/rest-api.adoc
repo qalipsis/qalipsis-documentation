@@ -1,0 +1,7 @@
+= QALIPSIS REST API
+
+== Authentication
+
+== Triggering a campaign to start
+
+== Scheduling a campaign (repeatable or not)
