@@ -1,5 +1,5 @@
 = Scheduling
 
-== CRON
+== Using CRON
 
 == Scheduled campaigns

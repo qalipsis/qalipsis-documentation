@@ -1,7 +1,9 @@
 * xref:what-is-qalipsis.adoc[]
 * xref:whats-new.adoc[]
 * xref:core-concepts.adoc[]
-* xref:gradle-plugin.adoc[]
+* xref:get-started/get-started.adoc[Get started]
+** xref:get-started/gradle-plugin.adoc[]
+** xref:tutorials/quickstart-testing-rest-api.adoc[Try to test a REST API]
 
 * xref:tutorials/tutorials.adoc[Tutorials]
 ** https://github.com/qalipsis/qalipsis-examples[Examples, window=_blank]
