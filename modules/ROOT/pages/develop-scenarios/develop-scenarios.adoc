@@ -4,7 +4,7 @@ As a QALIPSIS developer, you will describe the test scenarios using our Domain S
 
 This DSL allows you to integrate very complex operations in your tests, with a minimal effort.
 
-We made our best to make QALIPSIS DSL as easy as possible, but still, there are a couple of things you need to learn 
+We designed the DSL to be easy to learn for complex tests, but still, there are a couple of things you need to learn 
 in order to create advanced test scenarios and define different strategies of tests.
 
 This section will guide through the different statements and operators to define the workflow and the strategy of your test.

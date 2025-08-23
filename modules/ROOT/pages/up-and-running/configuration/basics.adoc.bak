@@ -47,14 +47,14 @@ Following is an example of the command to use to set the number of minions:
 campaign.minions-count-per-scenario (#ofMinions)
 ---
 +
-where `#ofMinions` is an integer and the default value is the `minionCount` set during configuration of the scenario.
+where `#ofMinions` is an integer and the default value is the `minionsCount` set during configuration of the scenario.
 
 . `Load Factor`.
 +
 The `load factor` command multiplies the number of minions set in the scenario specification by the provided value. It is not compliant with `campaign.minions-count-per-scenario`.
 +
-* If the value is set between 0 and 1, the `minionCount` is reduced.
-* If the value is set to greater than one (or `double`,`triple`, `quadruple`, etc.) the `minionCount` is increased.
+* If the value is set between 0 and 1, the `minionsCount` is reduced.
+* If the value is set to greater than one (or `double`,`triple`, `quadruple`, etc.) the `minionsCount` is increased.
 * The default value is always set to `1`.
 +
 Following is an example of the command to set the load factor:
@@ -76,7 +76,7 @@ QALIPSIS uses Micronaut’s runtime underneath. Hence, you can use its mechanism
 
 The configuration files contain all of the settings that are relevant for QALIPSIS to run. Included in the settings the parameters for logging and monitoring data exports, data sources for the Head node, executor sizes, etc.
 
-You can overwrite the default Qalipsis configuration and include your own properties by creating a file named qalipsis.{extension} or config/qalipsis.{extension} in the classpath or in the working directory or both. The {extension} can be either of the following:
+You can overwrite the default QALIPSIS configuration and include your own properties by creating a file named qalipsis.{extension} or config/qalipsis.{extension} in the classpath or in the working directory or both. The {extension} can be either of the following:
 
 * YAML documents (use the extension yaml or yml)
 * JSON documents (use the extension json)

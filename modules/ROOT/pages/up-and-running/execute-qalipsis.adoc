@@ -27,7 +27,7 @@ java -jar my-scenario-qalipsis.jar <command-line-arguments>
 
 == Start QALIPSIS from the Docker image [.badge.oss]## ##[.badge.commercial]## ##
 
-If you prefered to package your QALIPSIS project as a Docker image, you can start QALIPSIS using the following command, where <command-line-arguments> are the arguments you want to pass to QALIPSIS
+If you preferred to package your QALIPSIS project as a Docker image, you can start QALIPSIS using the following command, where <command-line-arguments> are the arguments you want to pass to QALIPSIS
 
 [source,shell]
 ----
@@ -50,7 +50,7 @@ When you run QALIPSIS, it can be started in two different modes: standalone or c
 
 When the QALIPSIS executable contains both the head and factory dependencies, it starts as standalone by default. Otherwise, it automatically detects the role of the node based on the components present in the executable.
 
-If you need to explicitely specify the role of each node in the cluster, this can be done using the `head` or `factory` options as command line when starting QALIPSIS.
+If you need to explicitly specify the role of each node in the cluster, this can be done using the `head` or `factory` options as command line when starting QALIPSIS.
 
 [example,shell]
 ----

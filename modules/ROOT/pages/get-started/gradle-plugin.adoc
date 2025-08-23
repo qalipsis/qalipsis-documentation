@@ -3,7 +3,7 @@
 The QALIPSIS Gradle plugin simplifies the creation of new QALIPSIS projects and the integration of QALIPSIS projects into CI pipelines.
 
 == Setup 
-The gradle plugin is built into the bootstrap project. If you choose not use the bootstrap project skeleton, you can still setup your project to take advantage of the gradle plugin.
+The Gradle plugin is built into the bootstrap project. If you choose not use the bootstrap project skeleton, you can still setup your project to take advantage of the Gradle plugin.
 
 You can check the latest version of the QALIPSIS Gradle plugin from the https://plugins.gradle.org/plugin/io.qalipsis.bootstrap[Gradle Plugin Portal, window=_blank].
 

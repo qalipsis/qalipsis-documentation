@@ -39,7 +39,7 @@ fun myScenario()
     }
 ----
 The default parameters include:
-* minionCount = 1
+* minionsCount = 1
 * retryPolicy = no retry
 ---
 

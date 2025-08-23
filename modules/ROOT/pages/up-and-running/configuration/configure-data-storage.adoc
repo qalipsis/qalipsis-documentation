@@ -99,7 +99,7 @@ You can even enable several plugins at the same time to store the data in differ
 QALIPSIS supports several time-series databases, including `elasticsearch`, `influxDB`, `timescaleDB`, and `graphite`. 
 Refer to the applicable plugin section for details.
 
-NOTE: Most of those databases comes with their own GUI, which will allow you to perform advanced data analysis and visualization.
+NOTE: Most of those databases come with their own GUI, which will allow you to perform advanced data analysis and visualization.
 
 === Rendering time-series data
 The rendering of data using the GUI or the REST API is performed by the head or QALIPSIS standalone and is for the moment only supported by the `timescaleDB` plugin which has to be activated in the QALIPSIS installation and properly configured.

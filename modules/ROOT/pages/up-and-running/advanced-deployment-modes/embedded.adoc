@@ -15,7 +15,7 @@ dependencies {
     
     runtimeOnly("io.qalipsis:head")
     runtimeOnly("io.qalipsis:factory")
-    implementation(test"io.qalipsis:runtime")
+    implementation("io.qalipsis:runtime")
     
     // Examples of plugins
     implementation("io.qalipsis.plugin:cassandra")
@@ -66,7 +66,7 @@ dependencies {
 
     runtimeOnly("io.qalipsis:head")
     runtimeOnly("io.qalipsis:factory")
-    implementation(test"io.qalipsis:runtime")
+    implementation("io.qalipsis:runtime")
     implementation(testFixtures("io.qalipsis:runtime")) // Here is the additional dependency.
     
     // Examples of plugins

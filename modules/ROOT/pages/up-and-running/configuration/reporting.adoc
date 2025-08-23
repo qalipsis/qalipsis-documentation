@@ -15,7 +15,7 @@ When the xref:up-and-running/configuration/configure-data-storage.adoc[data stor
 
 Note that those reports do not contain any analytics information and only reflect the overall state of the tests.
 
-You can access to those reports via the GUI or the REST API.
+You can access to those reports via the GUI or REST API.
 
 * `GET /campaigns?sort=creation:desc`: will return the list of campaigns ordered by their creation date descending.
 * `GET /campaigns/{campaign-key}`: will return the details of a specific campaign, including its test results and messages.

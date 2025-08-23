@@ -18,7 +18,7 @@ If you prefer to use Git, you can clone the bootstrap-project repository from Gi
 
 == Develop your scenario
 
-QALIPSIS uses a Gradle plugin to simplifiy the creation of new QALIPSIS projects. The Gradle plugin is integrated into the Bootstrap project.
+QALIPSIS uses a Gradle plugin to simplify the creation of new QALIPSIS projects. The Gradle plugin is integrated into the Bootstrap project.
 
 In order to develop with QALIPSIS, you need to have Java 11 or later installed on your system. Please refer to the documentation of your operating system to install the Java in the requested version.
 

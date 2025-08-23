@@ -143,7 +143,7 @@ Add an `http` step to the scenario that will send a POST request to the server.
 <2> Accesses the `netty` namespace.
 <3> Calls the the `http` operator
 <4> Gives the `http` step a name.
-<5> Configures the HTPP connection to the server.
+<5> Configures the HTTP connection to the server.
 <6> Configures the HTTP request (HTTP method, path and body) that will be sent to the server.
 <7> Enables reporting of errors for the `http` step.
 
@@ -221,7 +221,6 @@ The same minions that passed through  the first `http` step  will pass through  
                         it.response!!.asClue { response ->
                             response.status shouldBe HttpResponseStatus.OK // <3>
                             response.body shouldContainOnlyOnce "Hello World!" <4>
-                            response.body shouldContainOnlyOnce "PATCH" // <5>
                         }
                         it.meters.asClue { meters ->
                             meters.timeToFirstByte!! shouldBeLessThanOrEqualTo Duration.ofMillis(100)
@@ -239,7 +238,6 @@ The same minions that passed through  the first `http` step  will pass through  
 Note that there is no need to specify parameters for the`httpWith` connection since it reuses the parameters from the previous `http` connection.
 <3> Verifies that the HTTP status of the response is `OK`; the step uses `io.netty.handler.codec.http.HttpResponseStatus` for the verification.
 <4> Verifies that the body of the response contains the string  ("Hello World!") sent in the request.
-<5> Not sure I understand what this line of code does...
 
 === Execute the scenario
 Execute your updated scenario as a Gradle project.

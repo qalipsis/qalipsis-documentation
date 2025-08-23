@@ -13,3 +13,6 @@ In future QALIPSIS releases, you can expect an expansion of plugins, an increase
 
 Feedback on this release, including bugs and suggested enhancements, is welcome and may be sent to the QALIPSIS team at https://github.com/qalipsis[Github, window=\"_blank\"].
 
+== Version history
+
+v0.15.a — Aug 2025: Initial release of QALIPSIS with support for distributed load testing and enhanced performance metrics.
