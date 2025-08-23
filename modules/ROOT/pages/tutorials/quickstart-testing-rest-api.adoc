@@ -48,22 +48,14 @@ services:
 . Start the created docker environment with the command `docker compose up -d`.
 
 == Create a project
-QALIPSIS uses a Gradle plugin to simplifiy the creation of new QALIPSIS projects. The Gradle plugin is integrated into the Bootstrap project.
+Start by creating a new project using the xref:get-started/bootstrap.adoc[QALIPSIS bootstrap project].
 
-. Clone or download the bootstrap-project from GitHub: https://github.com/qalipsis/bootstrap-project.
-+
-This repository contains a preconfigured project with a skeleton to develop a scenario.
-
-.. From the `<> Code` dropdown, select `Download ZIP`.
-.. Extract the zipped files to your project directory on your computer.
-. Open the `build.gradle.kts` file.
-.. Add the required QALIPSIS plugins in the section `qalipsis { plugins {} }`.
-+
-For example:
+. Configure the project to use the plugins you need for your 
+scenario:
 +
 [source,kotlin,linenumbers]
 ----
-qualips {
+qalipsis {
     plugins {
         apacheKafka()
         netty()
@@ -73,9 +65,7 @@ qualips {
     }
 }
 ----
-.. Add the dependencies you need for your project.
-+
-For example:
+. Add the dependencies for the data assertions.
 +
 [source,kotlin,linenumbers]
 ----

@@ -1,7 +1,143 @@
-= Continuous integration and continuous deployment
+= Continuous integration and continuous deployment [.badge.oss]## ##[.badge.commercial]## ##[.badge.cloud]## ##
+
+== Overview
+
+Continuous Integration (CI) and Continuous Deployment (CD) are essential practices in modern software development. They enable teams to deliver code changes more frequently and reliably.
+
+QALIPSIS was designed with CI/CD in mind, providing seamless integration with popular CI/CD tools and platforms.
+
+While its REST API allows for easy integration with CI/CD pipelines, QALIPSIS also provides a xref:get-started/gradle-plugin.adoc[Gradle Plugin] for an even smoother integration.
+
+== Prerequisites
+
+Before integrating QALIPSIS with your CI/CD pipeline, ensure you have the following:
+
+1. A working Gradle project based upon our Bootstrap template with the necessary scenarios and pushed to a Git repository.
+2. A Gradle task configured xref:get-started/gradle-plugin.adoc#_executing_qalipsis[to run the required QALIPSIS scenarios] to execute those scenarios independently or concurrently.  +
+The following examples take into consideration that two tasks exist: `end2end` and `performance`.
+3. Access to your CI/CD platform (e.g., Jenkins, GitHub Actions)
 
 == Jenkins
 
+Official documentation: https://www.jenkins.io/doc/book/pipeline/ and https://github.com/jenkinsci/gradle-plugin.
+
+1. Install Jenkins Gradle Plugin
+Navigate to Manage Jenkins → Manage Plugins, search for “Gradle” and install.
+2. Define Gradle Tool
+Go to Global Tool Configuration, add a Gradle installation or use the Gradle Wrapper.
+3. Create a Job
+* Freestyle Pipeline
+* Source control: configure your Git repository
+* JDK: configure your JDK installation for Java 11 or later
+* Build step: “Invoke Gradle script” with tasks `clean`, `assemble`, `end2end` and `performance`
+
+.Resulting Pipeline (Jenkinsfile)
+```groovy
+pipeline {
+  agent any
+  tools { gradle 'Gradle' }
+  stages {
+    stage('Run QALIPSIS tests') {
+      steps {
+        withGradle {
+          sh './gradlew clean assemble end2end performance'
+        }
+      }
+    }
+  }
+}
+```
 == Github Actions
 
-== Others
+```yaml
+name: My-Pipeline
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '0 5 * * 7' # At 5:00 UTC every Sunday.
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
+      - name: Run QALIPSIS via Gradle
+        run: ./gradlew clean assemble end2end performance
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v4
+        if: always()
+        with:
+          report_paths: '**/build/test-results/**/*.xml'
+          fail_on_failure: true
+          include_passed: true
+          annotations_limit: 0
+          summary: true
+          detailed_summary: true
+```
+
+== GitLab CI/CD
+
+Official documentation: https://cookbook.gradle.org/ci/gitlab-ci
+
+.Example of gitlab-ci.yml
+```yaml
+image: eclipse-temurin:11-jdk
+
+stages:
+  - test
+
+variables:
+  GRADLE_USER_HOME: $CI_PROJECT_DIR/.gradle
+
+cache:
+  paths:
+    - .gradle/wrapper
+  key:
+    files:
+      - gradle/wrapper/gradle-wrapper.properties
+
+ql_run:
+  stage: test
+  script:
+    - ./gradlew clean assemble end2end performance
+  artifacts:
+    paths:
+      - build/reports/
+    expire_in: 1 week
+```
+
+== Travis CI
+
+Official documentation: https://docs.travis-ci.com/user/languages/java/#gradle-projects
+
+.Example of travis.yml
+```yaml
+language: java
+jdk:
+  - openjdk11
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+
+script:
+  - ./gradlew clean assemble end2end performance
+```

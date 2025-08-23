@@ -1,4 +1,4 @@
-= RabbitMQ  plugins
+= RabbitMQ plugins [.badge.oss]## ##[.badge.commercial]## ##[.badge.cloud]## ##
 
 == Overview
 The RabbitMQ  plugin connects QALIPSIS to the https://www.rabbitmq.com/[RabbitMQ] broker.

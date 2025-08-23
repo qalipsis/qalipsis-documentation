@@ -52,6 +52,7 @@ a|Settings that define the pace that minions are injected into the system. QALIP
 * More
 * Faster
 * Regular
+* Staged
 
 |Feedback
 |The factory response to a directive; the feedback provides the status of the directive's progression and/or the result of the expected action.

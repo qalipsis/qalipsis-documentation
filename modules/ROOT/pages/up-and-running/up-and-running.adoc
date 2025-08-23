@@ -1,7 +1,4 @@
-
-= Installing QALIPSIS
-
-== Overview
+= QALIPSIS up and running
 
 There are several ways to install, operate and use QALIPSIS, depending on your use case, load needs and IT-landscape complexity.
 

@@ -1,4 +1,4 @@
-= Jakarta EE Plugin
+= Jakarta EE Plugin [.badge.oss]## ##[.badge.commercial]## ##[.badge.cloud]## ##
 
 == Overview
 

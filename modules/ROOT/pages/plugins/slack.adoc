@@ -1,4 +1,4 @@
-= Slack plugin
+= Slack plugin [.badge.oss]## ##[.badge.commercial]## ##
 
 == Overview
 QALIPSIS supports Slack to notify users of the status of their campaign after it runs. The process of enabling slack to trigger notifications can be grouped in two stages:
@@ -41,10 +41,6 @@ Allowed values are any set of `ReportExecutionStatus` values: `ALL`, `FAILED`, `
 ** Selecting two or more status values triggers a notification when the campaign report status is the same as any of the selected status values. 
 +
 ** Selecting just one status value triggers a notification only when the campaign report status is the same as the selected status value.
-
-Reference Documentation::
-Refer to the https://docs.qalipsis.io/#_external-property-sources[QALIPSIS documentation] for information about 
-adding configuration properties that set or override the default parameters.
 
 == Creating and installing an app into the Slack workspace
 

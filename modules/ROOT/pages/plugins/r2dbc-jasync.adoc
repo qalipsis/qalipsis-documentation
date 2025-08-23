@@ -1,4 +1,4 @@
-= R2DBC-jasync plugin
+= R2DBC-jasync plugin [.badge.oss]## ##[.badge.commercial]## ##[.badge.cloud]## ##
 
 == Overview
 The R2DBC-jasync plugin connects QALIPSIS to https://mariadb.org/[MariaDB], https://www.mysql.com[MySQL] and https://www.postgresql.org/[PostgreSQL].

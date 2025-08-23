@@ -1,0 +1,157 @@
+= Cluster 
+
+== Overview
+Clusters provide a scalable and durable installation of QALIPSIS, allowing increased load needs, more scenarios and more users. 
+
+In a cluster, QALIPSIS is split into several components which collaborate using third-party systems to exchange data.
+
+Heads are the components that users use to interact with QALIPSIS. Factories, on the other hand, are hidden and inaccessible to users. They exclusively initiate outbound connections, enabling them to securely operate behind firewalls without limitations.
+
+Heads should remain active permanently to ensure the best user experience. 
+Factories can either remain active or be activated as needed, without affecting the analysis of campaign results.
+
+Clusters can be deployed in different environments, including https://kubernetes.io/docs/concepts/security/[Kubernetes], https://www.redhat.com/en/technologies/cloud-computing/openshift[OpenShift], or a hybrid system with some factories on physical machines and others on virtual machines.
+
+The following sections explain the installation process for various forms of QALIPSIS clusters that offer different levels of scalability and availability.
+
+
+To learn more about the different deployment modes, refer to the xref:up-and-running/choose-deployment-mode.adoc[Choose Deployment Mode] section.
+
+== Light cluster [.badge.oss]## ##[.badge.commercial]## ##
+
+A light cluster requires minimal effort for installation; however, it is limited in terms of load capability.
+
+The main advantage of a light cluster installation is to provide a secure geographical/network-based distribution of load and data consumption for private networks.
+
+A light cluster consists of:
+
+* One instance of a head.
+* Several instances of factories.
+* A PostgreSQL database.
+* A Redis instance (or a Redis cluster) to host shared data and exchange messages between the QALIPSIS head and factories.
+
+== High-load cluster [.badge.commercial]## ##
+
+A high-load cluster requires significant effort for installation and operation; however, it is extremely scalable.
+
+NOTE: A high-load cluster is only possible with QALIPSIS Commercial edition, which also includes the possibility to deploy ephemeral factories on-demand, when a test campaign starts. If you are interested in deploying a high-load cluster, https://qalipsis.io/#contact[contact] the QALIPSIS team to request a license for QALIPSIS Commercial edition.
+
+A high-load cluster consists of:
+
+* One or several instances of heads to avoid single points of failure.
+* Several instances of factories.
+* A PostgreSQL database.
+* One or more clusters of databases for the time-series data.
+* A Redis cluster to host temporary shared data.
+* A Kafka cluster to exchange messages between the QALIPSIS head and factories.
+
+== Setup
+
+The following section will guide you through the setup process for a light cluster.
+For high-load cluster, we recommend to come in touch with the QALIPSIS team for instructions and assistance.
+
+=== Installation
+
+Install Redis, either as a standalone instance or as a cluster, depending on your needs for load and availability.
+
+The Redis nodes should be accessible from the QALIPSIS head and factories, since they convey the messages from ones to others. Check with your system administrator to ensure proper network configuration.
+
+https://redis.io/docs/latest/operate/oss_and_stack/install/archive/install-redis/[Redis official documentation] will help you to achieve the desired setup.
+
+Once the Redis installation is complete, you need to configure the QALIPSIS head and factories to connect to the Redis instance(s).
+Configure the parameter `redis.uri` (or `redis.uris` when there are several Redis nodes) in the QALIPSIS head and factories to allow the access to the Redis nodes.
+
+.For a single unsecured Redis instance
+```yaml
+redis.uri: redis://redis:6379
+```
+
+.For a secured Redis cluster over TLS
+```yaml
+
+redis:
+    username: my-redis-username
+    password: my-redis-password
+    client-name: qalipsis-head # Use a unique identifier for each factory
+    timeout: 10s
+
+    uris:
+    - "rediss://${redis.username}:${redis.password}@162.19.1.2:6379?verifyPeer=none&clientName=${redis.client-name}&timeout=${redis.timeout}"
+    - "rediss://${redis.username}:${redis.password}@162.19.1.3:6379?verifyPeer=none&clientName=${redis.client-name}&timeout=${redis.timeout}"
+    - "rediss://${redis.username}:${redis.password}@162.19.1.4:6379?verifyPeer=none&clientName=${redis.client-name}&timeout=${redis.timeout}"
+    - "rediss://${redis.username}:${redis.password}@162.19.1.4:6379?verifyPeer=none&clientName=${redis.client-name}&timeout=${redis.timeout}"
+    - "rediss://${redis.username}:${redis.password}@162.19.1.5:6379?verifyPeer=none&clientName=${redis.client-name}&timeout=${redis.timeout}"
+    - "rediss://${redis.username}:${redis.password}@162.19.1.6:6379?verifyPeer=none&clientName=${redis.client-name}&timeout=${redis.timeout}"
+```
+
+For a higher throughput, you can consider using a pool of connection:
+```yaml
+redis:
+    # ...
+    pool:
+        enabled: true
+        min-idle: 2
+        max-idle: 5
+        max-total: 20
+```
+
+QALIPSIS uses the Redis Lettuce client to access to Redis. You can learn more about the different connection options https://redis.io/docs/latest/develop/clients/lettuce/[here] and https://github.com/redis/lettuce[here].
+
+[WARNING]
+====
+Do not forget to restart your QALIPSIS instances after making changes to the Redis configuration.
+====
+
+=== Geographical distribution
+
+In order to better simulate the behavior of users from different locations, you can deploy the factories in different zones, then configure them accordingly so that they can be eligible when a QALIPSIS scenario is executed.
+
+The zones available for new campaigns can be configured in the database of QALIPSIS, and should be 
+directly inserted using the following SQL statement:
+```sql
+INSERT INTO "zone" (
+    "id", 
+    "creation", 
+    "version", 
+    "key", 
+    "title", 
+    "description", 
+    "image_path", 
+    "enabled"
+    )
+VALUES (
+    (select nextval('qalipsis.zone_seq')), <1>
+    now(), <2>
+    now(), <3>
+    'eu-west-1', <4>
+    'West Europe', <5>
+    'General purpose West Europe data center', <6>
+    'https://my-company.com/zone-images/eu-west-1.png', <7>
+    true <8>
+);
+```
+<1> In order to guarantee the uniqueness of the zones definitions, you should always use the related sequence to create a new ID.
+<2> The creation date should be set to the current date and time.
+<3> The version should be set to the current date and time and be updated at each modification.
+<4> The key should be a unique identifier for the zone that will be configured in each attached factory. The key should be unique across all zones definitions.
+<5> The title should be a human-readable name for the zone.
+<6> The description should provide more details about the zone, but it is an optional field.
+<7> The image path should point to an image representing the zone in the GUI, but it is an optional field.
+<8> The enabled flag should indicate whether the zone is active.
+
+When a zone is decommissioned, we encourage you to keep the record in the DB, but mark it as disabled so that it can still be displayed in the GUI.
+
+This being done, you have to reference the new zone in the attached factories so that they can be eligible for execution when a QALIPSIS scenario is executed.
+
+.Example of zone configuration in a factory
+```yaml
+factory:
+  zone: eu-west-1
+```
+
+When the factory will start, it will register itself to the head as being part of this zone and will be eligible for execution when a QALIPSIS scenario is assigned (partially or totally) to that zone.
+
+=== Next steps
+
+The remaining operations (storage configuration, execution configuration, etc.) are documented in the xref:up-and-running/configuration/configure-data-storage.adoc[Configure Data Storage] and xref:up-and-running/execute-qalipsis.adoc[Execute QALIPSIS] sections.
+

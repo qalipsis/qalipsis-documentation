@@ -1,0 +1,58 @@
+= Logging [.badge.oss]## ##[.badge.commercial]## ##
+
+== Introduction
+
+Logging is a crucial aspect of any software system, as it provides insights into the application's behavior and helps identify issues. In QALIPSIS, logging is designed to be flexible and configurable, allowing users to tailor the logging behavior to their needs.
+
+However, logging can introduce overhead, so it's essential to strike a balance between the level of detail captured in the logs and the system's performance.
+
+Unless you are troubleshooting a specific issue, it is recommended to keep the default configuration or use a higher logging level (`WARN`, `ERROR`, `"OFF"`).
+
+== General configuration
+
+QALIPSIS provides a set of configuration options to control the logging behavior. These options can be set in the configuration file or through environment variables as described in the xref:up-and-running/configuration/provide-configuration.adoc[related section].
+
+The following are the key configuration options for logging:
+
+- `logging.level.root`: Sets the logging level (e.g., `trace`, `debug`, `info`, `warn`, `error`, `"off"`) for the classes that are not matching any further pattern.
+- `logging.level.*`: Sets the logging level for the classes having a fully qualified name matching the pattern.
+- `logging.file`: Specifies the file path for the log file and whether the write operation should be performed asynchronously or not.
+- `logging.events`: Specifies the file path for the events file and whether the write operation should be performed asynchronously or not. This is only relevant when the related event reporter is enabled (`events.export.slf4j.enabled: true`).
+
+[NOTE]
+====
+The logging level `off` should be wrapped into single or double quotes to avoid being interpreted as a boolean value and the logging level configuration is not case-sensitive.
+====
+
+.Example of logging configuration
+
+```yaml
+logging:
+  level:
+    root: WARN <1>
+    "io.qalipsis": INFO <2>
+    "io.qalipsis.core": DEBUG
+  file: <3>
+    path: qalipsis.log
+    async: false
+  events: <4>
+    path: qalipsis-events.log
+    async: true
+```
+
+<1> Sets the default logging level to WARN for all classes not matching any further pattern.
+<2> Sets the logging level to INFO for all classes in the `io.qalipsis` package and its sub-packages. The sub-package `io.qalipsis.core` and its sub-packages will instead use the level DEBUG.
+<3> Configures the logging file settings, including the file path related to the working directory and not writing asynchronously.
+<4> Configures the events file settings, including the file path and whether the write operation should be asynchronous.
+
+== Key functions execution logging
+
+Some functions in QALIPSIS are specially handle to generate logs with their inputs and outputs. This allows for better tracking and debugging of the system's behavior for troubleshooting purposes.
+
+These logs can be invaluable when trying to understand the flow of data and the interactions between different components of the system. By examining the logs, you can gain insights into potential issues and identify areas for improvement.
+
+However, considering the cost of logging, this optional feature is disabled by default and should be enabled only when necessary by configuration.
+
+```yaml
+logging.annotations.enabled: true
+```

@@ -1,4 +1,4 @@
-= Graphite plugin
+= Graphite plugin [.badge.oss]## ##[.badge.commercial]## ##[.badge.cloud]## ##
 
 == Overview
 

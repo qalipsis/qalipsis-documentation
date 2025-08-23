@@ -1,7 +1,7 @@
-= Embedded
-It is extremely simple to use QALIPSIS as an embedded service into your existing JVM applications.
+= Embedded [.badge.oss]## ##[.badge.commercial]## ##
+It is extremely simple to use QALIPSIS as an embedded service into your existing JVM applications using Gradle.
 
-Using QALIPSIS as an embedded service is convenient for execute campaigns in your tests (JUnit or others) or to create your own applications that can trigger campaigns.
+Before you start, make sure you have read the benefits and limitations of the embedded deployment mode in the xref:up-and-running/choose-deployment-mode.adoc[Choose Deployment Mode] section.
 
 It requires only three steps:
 

@@ -1,11 +1,32 @@
 :title: QALIPSIS User guide
 
 = QALIPSIS - User guide
+:title: QALIPSIS User guide
 
-NOTE:: This documentation as well as the QALIPSIS software is a work in progress and not yet officially released.
-+
-The current artifacts are available on the Maven repository https://oss.sonatype.org/content/repositories/snapshots.
-+
-If you are eager to start with QALIPSIS, you can find some examples in our dedicated https://github.com/qalipsis/qalipsis-examples[Github repository].
-+
-Thank you for your understanding.
+Welcome to QALIPSIS, your powerful ally in performance testing and system validation! This comprehensive guide will help you harness the full potential of QALIPSIS to ensure your applications perform reliably under real-world conditions.
+
+== What's Inside This Guide
+
+This documentation is structured to take you from your first steps with QALIPSIS to advanced usage scenarios:
+
+* *Get Started* - Jump right in with our quickstart guide and learn how to bootstrap your first QALIPSIS project
+* *Core Concepts* - Understand the fundamental building blocks like minions, scenarios, and assertions
+* *Up and Running* - Master different deployment modes, from simple setups to advanced distributed configurations
+* *Develop Scenarios* - Learn to create sophisticated test scenarios that truly reflect your users' behavior
+* *Plugins* - Extend QALIPSIS's capabilities with our rich ecosystem of plugins for Cassandra, Kafka, MongoDB, and more
+* *Automation & CI/CD* - Integrate QALIPSIS into your development pipeline for continuous performance validation
+
+== Ready to Start?
+
+If you're eager to see QALIPSIS in action, you can:
+
+* Follow our quickstart tutorial to test a REST API
+* Explore our examples in the https://github.com/qalipsis/qalipsis-examples[Github repository, window=_blank]
+* Learn about the core concepts to build a solid foundation
+
+Whether you're performing load tests, validating system behavior, or ensuring data consistency, QALIPSIS provides the tools and flexibility you need to confidently assess your system's performance.
+
+[TIP]
+====
+New to QALIPSIS? We recommend starting with the xref:tutorials/quickstart-testing-rest-api.adoc[REST API testing tutorial] to get hands-on experience quickly.
+====

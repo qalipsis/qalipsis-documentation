@@ -1,0 +1,84 @@
+= Reporting
+
+Reporting the test results is essential for understanding the performance and behavior of your tests. QALIPSIS provides several options for reporting and sharing.
+
+[NOTE]
+====
+To learn how to create and download reports in the GUI, refer to the related section in the GUI documentation.
+====
+
+== Default reporting [.badge.oss]## ##[.badge.commercial]## ##[.badge.cloud]## ##
+
+When the tests are executed, QALIPSIS generates a default report that includes the test results, execution time, and any errors encountered during the tests. It provides basic insights into the test execution.
+
+When the xref:up-and-running/configuration/configure-data-storage.adoc[data storage is enabled], the reports are persisted into the database and can be accessed later for analysis.
+
+Note that those reports do not contain any analytics information and only reflect the overall state of the tests.
+
+You can access to those reports via the GUI or the REST API.
+
+* `GET /campaigns?sort=creation:desc`: will return the list of campaigns ordered by their creation date descending.
+* `GET /campaigns/{campaign-key}`: will return the details of a specific campaign, including its test results and messages.
+
+You can learn more on the https://qalipsis.io/docs/api[REST API documentation].
+
+== Live reporting in standalone mode [.badge.oss]## ##[.badge.commercial]## ##
+
+When the tests are executed in standalone mode, QALIPSIS provides live reporting capabilities. This means that you can see the test results and progress in real-time as the tests are running. Live reporting is particularly useful for monitoring long-running tests and quickly identifying any issues that may arise during execution.
+
+This report is only available in standalone mode and enabled by default. You can disable it by setting the following configuration property: `report.export.console-live.enabled: false`.
+
+It is encouraged to disable the live report when running tests in a CI/CD pipeline because this might generate errors when executing in a headless environment.
+
+.Example of live report
+image::reporting_live.png[reporting_live,align="center"]
+
+In the example above, you can read the overall metrics of the campaign, then the detail by scenario of the 
+successful and failed operations, as well as the published metrics of each step, when enabled.
+
+The counts in green represent successful operations, while the counts in red represent failed operations.
+
+== Console final report in standalone mode [.badge.oss]## ##[.badge.commercial]## ##
+
+At the end of the test execution, QALIPSIS generates a final report in the console. This report summarizes the test results, including the number of passed and failed tests, execution time, and any errors encountered. The console final report provides a quick overview of the test execution and is useful for identifying any issues that need to be addressed.
+
+This report is only available in standalone mode and disabled by default. You can enable it by setting the following configuration property: `report.export.console.enabled: true`
+
+[WARNING]
+====
+The final report and the live reports are mutually exclusive and cannot be enabled at the same time.
+The live report will prevail.
+====
+
+.Example of final report
+```
+============================================================
+=====================  CAMPAIGN REPORT =====================
+============================================================   
+
+Campaign...........................cmeoa3wpz00036s62vs6mbuvd
+Start..............................2025-08-23T13:12:09.579742Z
+End................................2025-08-23T13:12:54.627953Z
+Duration...........................45 seconds 
+Started minions....................65
+Completed minions..................65
+Successful steps executions........3875620
+Failed steps executions............0
+Status.............................SUCCESSFUL
+   
+        
+
+=====================  SCENARIO REPORT =====================
+Scenario...........................a-stats-scenario
+Start..............................2025-08-23T13:12:09.579742Z
+End................................2025-08-23T13:12:54.627953Z
+Duration...........................45 seconds 
+Started minions....................65
+Completed minions..................65
+Successful steps executions........3875620
+Failed steps executions............0
+Status.............................SUCCESSFUL
+Messages:
+	None
+        
+```

@@ -1,0 +1,126 @@
+= Execute QALIPSIS
+
+== Bootstrap project
+
+We encourage you to use the xref::get-started/bootstrap.adoc[bootstrap project] in order to simplify the creation of executable QALIPSIS projects.
+
+== General considerations
+
+Starting QALIPSIS does not mean that a test campaign will immediately start. By default, QALIPSIS starts in an idle state, waiting for a test campaign to be started via the user interface or the REST API.
+
+If you want to start a test campaign immediately after starting QALIPSIS, you can use the `--autostart` option and optionally specify the scenarios to run combined with `--scenarios` or `-s` when not all the present scenarios should be executed. This option allows you to pass a comma-separated list of scenarios or patterns of scenarios to run.
+
+You can read more about it in a later section.
+
+== Start QALIPSIS from the Java Archive [.badge.oss]## ##[.badge.commercial]## ##
+
+By default when using the bootstrap project, QALIPSIS is assembled as a JAR file that can be executed using Java. You can find the JAR file in the `build/libs` directory of your project, with the name of your project and ending with `-qalipsis.jar`.
+
+In order to execute QALIPSIS, you need to have Java 11 or later installed on your system. Please refer to the documentation of your operating system to install the Java in the requested version.
+
+Once you installed Java, you can start QALIPSIS using the following command, where <command-line-arguments> are the arguments you want to pass to QALIPSIS, such as the configuration parameters, the execution mode, the scenarios to run, etc.:
+
+[source,shell]
+----
+java -jar my-scenario-qalipsis.jar <command-line-arguments>
+----
+
+== Start QALIPSIS from the Docker image [.badge.oss]## ##[.badge.commercial]## ##
+
+If you prefered to package your QALIPSIS project as a Docker image, you can start QALIPSIS using the following command, where <command-line-arguments> are the arguments you want to pass to QALIPSIS
+
+[source,shell]
+----
+docker run --rm -it -v $(pwd):/opt/qalipsis/config <your-image-name>:<your-image-tag> <command-line-arguments>
+----
+
+The `-v $(pwd):/opt/qalipsis` option mounts the current directory to the `/opt/qalipsis` directory in the container, allowing QALIPSIS to access the configuration file `qalipsis.yml` in the current directory.
+
+If you do not know the name of the image you built for your QALIPSIS project, you can list all images present on your local machine using the following command:
+[source,shell]
+----
+docker image ls
+----    
+
+The images are listed with the repository name and tag in the reverse order of addition to your local registry.
+
+== Run QALIPSIS in a cluster or standalone [.badge.oss]## ##[.badge.commercial]## ##
+
+When you run QALIPSIS, it can be started in two different modes: standalone or cluster. In the second case, you have to give the nodes a role as either a head or a factory.
+
+When the QALIPSIS executable contains both the head and factory dependencies, it starts as standalone by default. Otherwise, it automatically detects the role of the node based on the components present in the executable.
+
+If you need to explicitely specify the role of each node in the cluster, this can be done using the `head` or `factory` options as command line when starting QALIPSIS.
+
+[example,shell]
+----
+java -jar my-scenario-qalipsis.jar head <command-line-arguments>
+
+docker run --rm -it -v $(pwd):/opt/qalipsis/config my-scenario:1.0 head <command-line-arguments>
+----
+
+The default port to access the REST API is 8400, but can be changed via the configuration `server.port`.
+
+You can test the access using an HTTP client like `curl`:
+
+```
+curl -X GET http://localhost:8400/
+```
+
+[NOTE]
+====
+When the executable only contains the dependencies for QALIPSIS head or factory, the `head` or `factory` options are not required.
+====
+
+== Specific start modes [.badge.oss]## ##[.badge.commercial]## ##
+
+=== Interactive (Standalone only)
+
+. Execute QALIPSIS with the option `--prompt` or `-p`.
+as in the following example:
++
+[source,shell]
+----
+java -jar my-scenario-qalipsis.jar --prompt
+----
+. When prompted, enter the load factor (# of minions), speed factor, execution profile, etc.
+
+[WARNING]
+====
+Starting QALIPSIS in interactive mode enables the autostart mode.
+====
+
+=== Scenario selection (Standalone and factory only)
+
+Execute QALIPSIS with the `--scenarios` or `-s` as in the following example:
+[source,shell]
+----
+java -jar my-scenario-qalipsis.jar --scenarios "my-first-scenario, ?y-*-s*n?rio"
+----
+
+The value is a comma-separated list of an exact value of a scenario, a pattern of the scenario, or both. The pattern may contain wildcards (* or ?) as in the example above.
+
+Using this option will only make QALIPSIS use the specified scenarios, ignoring all other scenarios present in the executable.
+
+=== Autostart (Cluster and standalone)
+
+As stated above, QALIPSIS starts in an idle state by default. If you want to start a test campaign immediately after starting QALIPSIS, you can use the `--autostart` option.
+
+This mode aims at providing a seamless integration into a CI/CD pipeline by providing an eager way to start the test campaign and clean all the resources after execution.
+
+Whether you run QALIPSIS in standalone or cluster mode, the autostart mode will stop all the nodes after the campaign is completed.
+
+You can use the autostart mode in combination with the `--scenarios` or `-s` option to specify which scenarios to run.
+
+The autostart mode can be used as a standalone or for a cluster.
+
+When running a cluster, you first start the head with the `--autostart`` option, and then start the factories, optionally specifying the scenarios to execute with the `-s` option. 
+The head will wait for the required number of factories to connect before starting the test campaign.
+
+In autostart mode, you will probably want to specify some details that you can pass as configuration.
+
+- `campaign.id`: name to give to your test campaign, defaults to `campaign-<random-value>`
+- `campaign.required-factories` (cluster only): count of required factory instances to await before starting the campaign, defaults to `1`
+- `campaign.minions-count-per-scenario`: count of minions to use for each scenario  (cannot be used with `campaign.minions-factor`), defaults to the count defined in the scenario code
+- `campaign.minions-factor`: factor to multiply the count of minions defined in each scenario (cannot be used with `campaign.minions-count-per-scenario`), defaults to the count defined in the scenario code
+- `campaign.speed-factor`: factor to multiply the ramp-up speed defined in each scenario, defaults to the speed defined in the scenario code

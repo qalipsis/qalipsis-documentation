@@ -1,4 +1,4 @@
-= Specifications
+= Develop test scenarios
 
 As a QALIPSIS developer, you will describe the test scenarios using our Domain Specific Language (DSL).
 
@@ -10,6 +10,6 @@ in order to create advanced test scenarios and define different strategies of te
 This section will guide through the different statements and operators to define the workflow and the strategy of your test.
 
 
-While the part about xref:specifications/scenario.adoc[scenarios] will explain how to configure the strategy to make the load evolve and the different workflow operators, the xref:specifications/steps.adoc[steps] part will introduce you to operators that perform operations, transformations, temporization and other amazing features that QALIPSIS supports.
+While the part about xref:develop-scenarios/scenario.adoc[scenarios] will explain how to configure the strategy to make the load evolve and the different workflow operators, the xref:develop-scenarios/steps.adoc[steps] part will introduce you to operators that perform operations, transformations, temporization and other amazing features that QALIPSIS supports.
 
 If you are looking for plugin specific operators, please consult the xref:plugins/plugins.adoc[dedicated section].

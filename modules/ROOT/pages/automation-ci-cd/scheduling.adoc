@@ -1,5 +1,111 @@
 = Scheduling
 
-== Using CRON
+== Scheduled campaigns  [.badge.oss]## ##[.badge.commercial]## ##[.badge.cloud]## ##
 
-== Scheduled campaigns
+QALIPSIS allows to schedule the execution of tests on a regular basis.
+
+In that case, the campaign name will be suffixed by the instant when the campaign is executed, in order to better identify the specific execution instance.
+
+Campaigns can be scheduled within the GUI or via the REST API.
+
+To learn how to schedule a campaign via the GUI, refer to the xref:gui.adoc#_using_cron[GUI documentation].
+
+To learn how to schedule a campaign via a REST API, refer to the xref:automation-ci-cd/rest-api.adoc#_scheduling_a_campaign_repeatable_or_not[related section], which details the technical requirements and statements to follow.
+
+== Using CRON [.badge.oss]## ##[.badge.commercial]## ##
+
+In addition to running QALIPSIS manually or scheduling using the REST API or GUI, you can automate its execution at regular intervals using *CRON*, the standard job scheduler on Unix-like systems (Linux, macOS, BSD). This is useful for running recurring load tests, nightly benchmarks, or regression performance tests in constrained environments.
+
+=== Prerequisites
+
+* Read the section about xref:up-and-running/execute-qalipsis.adoc#_start_qalipsis_from_the_java_archive[QALIPSIS as standalone].
+* The `qalipsis` standalone Java archive is accessible and executable.
+* The configuration file `qalipsis.yml` is accessible and properly configured.
+* You have sufficient permissions to edit the CRON jobs (`crontab -e` for the current user, or `sudo crontab -e` for system-wide jobs).
+
+=== Basic CRON Syntax
+
+A CRON expression defines when a command should be executed. Its basic format is:
+
+[source]
+----
+* * * * * command-to-execute
+│ │ │ │ │
+│ │ │ │ └── Day of week (0–6, Sunday=0)
+│ │ │ └──── Month (1–12)
+│ │ └────── Day of month (1–31)
+│ └──────── Hour (0–23)
+└────────── Minute (0–59)
+----
+
+For example:
+
+* `0 2 * * *` → every day at 2:00 AM
+* `*/15 * * * *` → every 15 minutes
+* `30 1 * * 1` → every Monday at 1:30 AM
+
+=== Example: Running QALIPSIS Every Night
+
+To run a QALIPSIS test scenario every night at 2:00 AM:
+
+. Open the CRON editor:
++
+[source,bash]
+----
+crontab -e
+----
+
+. Add an entry like:
++
+[source,bash]
+----
+0 2 * * * cd /path/to/my-working-directory && java -jar /path/to/my-scenario-qalipsis.jar <command-line-arguments> >> /var/log/qalipsis/cron.log 2>&1
+----
+
+Here:
+
+* `/path/to/my-working-directory` → absolute path to the working directory where the configuration file is located (omit it when there is no configuration file)
+* `/path/to/my-scenario-qalipsis.jar` → absolute path to the QALIPSIS executable
+* `<command-line-arguments>` → command-line arguments to pass to the QALIPSIS executable, as documented in the "Execute QALIPSIS" section.
+* `>> /var/log/qalipsis/cron.log 2>&1` → logs both standard output and errors into a file for troubleshooting
+
+=== Example: Running Every 15 Minutes
+
+To execute QALIPSIS every 15 minutes (e.g., to monitor production system performance continuously):
+
+[source,bash]
+----
+*/15 * * * * cd /home/eric/qalipsis/my-working-directory && java -jar /home/eric/qalipsis/my-scenario-qalipsis.jar -s the-monitoring-scenario >> /var/log/qalipsis/monitoring.log 2>&1
+----
+
+=== Best Practices
+
+* *Use absolute paths*: CRON does not load your usual shell environment. Always specify the full path to QALIPSIS, configuration files, and logs.
+* *Redirect output*: Always log outputs and errors to files for debugging.
+* *Configuration*: Prefer sourcing the configuration in the configuration file instead of the command line. Example:
+* *Separate logs per job*: Avoid mixing logs of different scenarios; keep one log file per CRON job.
+* *Test your command manually first*: Run the exact command in your shell to verify it works before putting it in CRON.
+
+=== Verifying CRON Jobs
+
+* Check the list of scheduled jobs:
++
+[source,bash]
+----
+crontab -l
+----
+
+* Verify that the job is executed by checking the logs or using the system log (e.g., `/var/log/syslog` on Debian/Ubuntu).
+
+=== Troubleshooting
+
+* *Nothing runs?* → Make sure the CRON daemon is active:
++
+[source,bash]
+----
+systemctl status cron
+----
+
+* *Environment issues?* → Remember CRON runs in a minimal environment. Paths and environment variables must be set explicitly.
+* *Permissions errors?* → Ensure the user running the CRON job has access rights to the QALIPSIS executable, configuration files, and log directory.
+

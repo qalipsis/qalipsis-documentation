@@ -1,16 +1,20 @@
-= Using the Gradle plugin
+= QALIPSIS Gradle plugin  [.badge.oss]## ##[.badge.commercial]## ##[.badge.cloud]## ##
 
 The QALIPSIS Gradle plugin simplifies the creation of new QALIPSIS projects and the integration of QALIPSIS projects into CI pipelines.
 
 == Setup 
 The gradle plugin is built into the bootstrap project. If you choose not use the bootstrap project skeleton, you can still setup your project to take advantage of the gradle plugin.
 
+You can check the latest version of the QALIPSIS Gradle plugin from the https://plugins.gradle.org/plugin/io.qalipsis.bootstrap[Gradle Plugin Portal, window=_blank].
+
+image:https://img.shields.io/gradle-plugin-portal/v/io.qalipsis.bootstrap?style=for-the-badge&label=QALIPSIS%20bootstrap%20plugin&color=blue[Gradle Plugin Portal Version]
+
 === With Bootstrap
 Kotlin::
 [source,kotlin,linenumbers]
 ----
 plugins {
-    id("io.qalipsis.bootstrap") version "0.1.0"
+    id("io.qalipsis.bootstrap") version "..."
 }
 ----
 
@@ -18,7 +22,7 @@ Groovy::
 [source,kotlin,linenumbers]
 ----
 plugins {
-    id 'io.qalipsis.bootstrap' version '0.1.0'
+    id 'io.qalipsis.bootstrap' version '...'
 }
 ----
 
@@ -26,26 +30,26 @@ plugins {
 The Gradle plugin includes a default QALIPSIS version; you can specify a different version in the appropriate build file.
 
 Kotlin::
-In build.gradle.kts, to specify version 0.10.a:
+In build.gradle.kts, to specify version 0.15.a:
 [source,kotlin,linenumbers]
 ----
 qalipsis {
-    version("0.10.a")
+    version("0.15.a")
 }
 ----
 Groovy::
-In build.gradle, to specify version 0.10.a:
+In build.gradle, to specify version 0.15.a:
 [source,kotlin,linenumbers]
 ----
 qalipsis {
-    version = '0.10.a'
+    version = '0.15.a'
 }
 ----
 As a Gradle property::
-To specify version 0.10.a, add the version in the gradle.properties or Gradle execution options:
+To specify version 0.15.a, add the version in the gradle.properties or Gradle execution options:
 [source,kotlin,linenumbers]
 ----
-qalipsis.version=0.10.a
+qalipsis.version=0.15.a
 ----
 
 == Adding QALIPSIS plugins

@@ -1,68 +1,96 @@
-= Dependency injection
+= Configuration and dependency injection in a scenario [.badge.oss]## ##[.badge.commercial]## ##
 
 QALIPSIS relies on the https://docs.micronaut.io/latest/guide/index.html#ioc[Dependency injection framework] from Micronaut and supports the injection of dependencies in the constructors of the scenario declaring classes and methods annotated with `@Scenario`.
 
 WARNING: Ensure you have the following dependency in the project where your beans or factories are compiled: `kapt("io.qalipsis:qalipsis-api-processors:{revnumber}")`
 
 == Injecting a singleton bean
+
 You can declare a singleton bean using the annotation `@jakarta.inject.Singleton` on a type, or https://docs.micronaut.io/latest/guide/index.html#factories[use a Micronaut factory].
 
-=== Creation of beans
+This allows to create a single instance of the class that can be injected in the constructors or methods of scenario declaring classes and reused across all the scenarios or in other beans.
+
+This is a powerful feature that allows you to create reusable components, such as services or utilities, that can be shared across multiple scenarios without the need to instantiate them multiple times.
+
+You can even package them in separate libraries and share them across multiple QALIPSIS projects.
+
+=== Creation and injection of beans
+
 [source,kotlin,linenumbers]
 ----
 import jakarta.inject.Singleton
-@Singleton // The annotation `@jakarta.inject.Singleton` can be added to a class to automatically create a bean and declare it as singleton.
-class NoRetry : RetryPolicy {
-    suspend fun <I, O> execute(context: StepContext<I, O>, executable: suspend (StepContext<I, O>) -> Unit){
-        executable(context)
-    }
-}
-@Factory
-class ExecutorFactory {
-    @Singleton // The annotation `@jakarta.inject.Singleton` added to a method declares the returned bean as a singleton.
-    fun simpleExecutor(retryPolicy: RetryPolicy): Executor { // The retry policy is automatically injected into the factory method.
-        return SimpleExecutor(retryPolicy)
-    }
-}
-----
-Once beans are created, you can inject them in the constructor or the scenario method:
 
-=== Injection of beans
-[source,kotlin,linenumbers]
-----
-class EcommercePurchase(private val retryPolicy: RetryPolicy) {// The previously created bean of type `RetryPolicy` is injected in the constructor of the scenario declaring class.
-
-    @Scenario("login-select-and-checkout")
-    fun fromLoginToCheckout(executor: Executor) {// The previously created bean of type `Executor` is injected in the scenario declaring method.
-        scenario {
-            retryPolicy(retryPolicy)
-        }
+@Singleton // The annotation `@jakarta.inject.Singleton` can be added to a class to automatically create a bean.
+class CalculationService  {
+    fun calculateSomething(): Int {
         // ...
+        return 42
+    }
+}
+
+@Singleton
+class SurpriseService  {
+    fun surpriseSomething(): String {
+        // ...
+        return "Tada!"
+    }
+}
+
+// Once beans are created, you can inject them in the constructor or the scenario method:
+class MyScenario(
+    private val calculationService: CalculationService // The bean of type `CalculationService` is injected in the constructor of the scenario declaring class.
+) {
+
+    @Scenario("calculate-something")
+    fun doSomething(surpriseService: SurpriseService) {
+        scenario {
+            // ...
+        }.start()
+        .execute {
+            // Use the injected bean in the constructor
+            calculationService.calculateSomething()
+        }.execute {
+            // Use the injected bean as a parameter of the scenario method
+            surpriseService.surpriseSomething()
+        }
     }
 }
 ----
+
 == Qualifying the bean to inject
+
 When several beans exist for the same type, you might want to select the one to inject.
 QALIPSIS supports named injection as in the following example.
 [source,kotlin]
 ----
 import jakarta.inject.Named
 
-class EcommercePurchase(@param:Named("default") private val retryPolicy: RetryPolicy) { // When the constructor parameter is a property, precise the target of the annotation.
+class MyScenario(
+   @param:Named("default") private val calculationService: CalculationService // The bean of type `CalculationService` is injected in the constructor of the scenario declaring class.
+) {
 
-    @Scenario("login-select-and-checkout")
-    fun fromLoginToCheckout(@Named("simple") executor: Executor) { // The annotation `@Named` selects the bean of type `Executor` qualified by the name "simple" for the injection.
+    @Scenario("calculate-something")
+    fun doSomething(@Named("simple") surpriseService: SurpriseService) {
         scenario {
-            retryPolicy(retryPolicy)
+            // ...
+        }.start()
+        .execute {
+            // Use the injected bean in the constructor
+            calculationService.calculateSomething()
+        }.execute {
+            // Use the injected bean as a parameter of the scenario method
+            surpriseService.surpriseSomething()
         }
-        // ...
     }
 }
 ----
-QALIPSIS only supports name qualifiers; however, you can read more about other qualifiers in the https://docs.micronaut.io/latest/guide/index.html#qualifiers[Micronaut] documentation.
 
-== Injecting a property value
-Properties for the runtime property sources are also injectable in scenario declaring classes,  constructors, and methods.
+QALIPSIS only supports name qualifiers; but you can read more about other qualifiers in the https://docs.micronaut.io/latest/guide/index.html#qualifiers[Micronaut] documentation.
+
+== Injecting configuration
+
+Properties for the runtime property sources are also injectable in scenarios via parameters of constructors and methods.
+
 [source,kotlin, linenumbers]
 ----
 import io.qalipsis.api.annotations.Property
@@ -82,7 +110,9 @@ class EcommercePurchase {
 
 The default value set in `orElse` is optional.
 
-More information about property sources is available in the  https://docs.micronaut.io/latest/guide/index.html#propertySource[Micronaut] documentation.
+The value of `ecommerce-purchase.action-pace` can then be specified in the `qalipsis.yml` file or as a command line argument when starting QALIPSIS.
+
+More information about the configuration is available in the xref:up-and-running/configuration/provide-configuration.adoc[Configuration and execution] section.
 
 == Injecting iterable containers
 QALIPSIS supports the injection of a single instance of beans as shown above, as well as an `Iterable` or any of its subtypes `Collection`, `List`, `Set` and their derivatives and `Optional` for properties as in the example below.

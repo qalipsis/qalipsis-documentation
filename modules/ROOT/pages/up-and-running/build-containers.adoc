@@ -1,16 +1,16 @@
-= Containers
+= Build your containers
 
 Docker images from QALIPSIS work like prepared installations that you can amend with your own scenarios and configuration.
 
 Three images are available on the Docker hub free to all QALIPSIS users: 
 
-
-* `qalipsis-oss:<version|latest>` to start a container as a transient or standalone application.
+* `qalipsis-oss:<version|latest>` to start a container in standalone mode.
 
 * `qalipsis-oss-head:<version|latest>` contains only the components to execute a head in a cluster.
 
-* `qalipsis-oss-factory:<version|latest>` contains only the components to execute a factory in a cluster.
+* `qalipsis-oss-factory:<version|latest>` contains only the components to execute a factory in a cluster. But it requires to load the scenarios and dependencies into the container in order to function properly.
 
+* `qalipsis-oss-web:<version|latest>` contains the GUI.
 
 
 == Prepare the images
@@ -29,7 +29,4 @@ All of the images are tested to run as https://www.docker.com/[Docker], https://
 
 Refer to the official documentation for each platform to learn how to attach a configuration file and arguments to the execution of QALIPSIS.
 
-
- 
-
- 
+Note that the xref:get-started/bootstrap.adoc[bootstrap project] provides facilities to easily create your own Docker containers with your projects.

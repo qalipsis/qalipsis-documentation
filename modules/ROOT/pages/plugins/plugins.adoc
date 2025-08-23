@@ -74,57 +74,57 @@ Note: Before using a plugin, confirm that the related dependency has been added 
 +
 `implementation("io.qalipsis.plugin:qalipsis-plugin-XXX:{revnumber}")`
 
-[cols="1,3"]
+[cols="1,3", options="header"]
 |===
 
 |  *Name*
 |  *Description*
 
-|xref:plugins/cassandra.adoc[]
+|xref:plugins/cassandra.adoc[Cassandra plugin]
 |Connects QALIPSIS to https://cassandra.apache.org/index.html[APACHE Cassandra].
 
-|xref:plugins/elasticsearch.adoc[]
+|xref:plugins/elasticsearch.adoc[Elasticsearch plugin]
 |Connects QALIPSIS to https://www.elastic.co/[Elasticsearch].
 
-|xref:plugins/graphite.adoc[]
+|xref:plugins/graphite.adoc[Graphite plugin]
 |Connects QALIPSIS to https://github.com/graphite-project[Graphite] using the pickle or plaintext protocol.
 
-|xref:plugins/influxdb.adoc[]
+|xref:plugins/influxdb.adoc[InfluxDB plugin]
 |Connects QALIPSIS to https://www.influxdata.com/[InfluxDB].
 
-|xref:plugins/jackson.adoc[]
+|xref:plugins/jackson.adoc[Jackson plugin]
 |Supports reading a file https://github.com/FasterXML/jackson[(JSON, XML or CSV)] and converting the data to an object.
 
-|xref:plugins/jms.adoc[]
+|xref:plugins/jms.adoc[JMS plugin]
 |Connects QALIPSIS to a messaging platform that supports https://www.oracle.com/java/technologies/java-message-service.html[JMS] (for example, https://activemq.apache.org/[ActiveMQ]).
 
-|xref:plugins/jakarta-ee.adoc[]
+|xref:plugins/jakarta-ee.adoc[Jakarta EE plugin]
 |Connects QALIPSIS to a messaging platform that supports https://jakarta.ee/[Jakarta EE].
 
-|xref:plugins/kafka.adoc[]
+|xref:plugins/kafka.adoc[Apache Kafka plugin]
 |Connects QALIPSIS to an https://kafka.apache.org/[Apache Kafka] cluster.
 
-|xref:plugins/mongodb.adoc[]
+|xref:plugins/mongodb.adoc[MongoDB plugin]
 |Connects QALIPSIS to https://mongodb.com/[MongoDb].
 
-|xref:plugins/netty.adoc[]
+|xref:plugins/netty.adoc[Netty plugin]
 |Supports https://datatracker.ietf.org/doc/html/rfc793[TCP], https://datatracker.ietf.org/doc/html/rfc768[UDP], https://httpwg.org/[HTTP] and https://mqtt.org/[MQTT] clients
 
-|xref:plugins/timescaledb.adoc[]
+|xref:plugins/timescaledb.adoc[TimescaleDB plugin]
 |Connects QALIPSIS to https://timescaledb.com/[TimescaleDB]
 
-|xref:plugins/r2dbc-jasync.adoc[]
+|xref:plugins/r2dbc-jasync.adoc[R2DBC Jasync plugin]
 |Connects QALIPSIS to https://mariadb.org/[MariaDB], https://www.mysql.com[MySQL] and https://www.postgresql.org/[PostgreSQL].
 
-|xref:plugins/rabbitmq.adoc[]
+|xref:plugins/rabbitmq.adoc[RabbitMQ plugin]
 |Connects QALIPSIS to https://www.rabbitmq.com/[RabbitMQ].
 
-|xref:plugins/redis-lettuce.adoc[]
+|xref:plugins/redis-lettuce.adoc[Redis plugin]
 |Connects QALIPSIS to https://redis.io/[Redis].
 
-|xref:plugins/slack.adoc[]
+|xref:plugins/slack.adoc[Slack plugin]
 |Sends campaign notifications to a defined https://slack.com/[Slack] channel.
 
-|xref:plugins/mail.adoc[]
+|xref:plugins/mail.adoc[Mail plugin]
 |Sends campaign notifications to a defined email address.
 |===

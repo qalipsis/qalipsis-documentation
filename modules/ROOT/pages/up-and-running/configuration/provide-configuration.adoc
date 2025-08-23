@@ -1,0 +1,58 @@
+= Provide the configuration to QALIPSIS
+
+== Using the configuration file
+
+QALIPSIS is configured using a YAML file named `qalipsis.yml` directly located in the current working directory or a `config` subdirectory.
+
+This file contains all the configuration parameters for QALIPSIS, including the data storage, execution, dependency injection, and monitoring.
+While most of the parameters have default values, you can override them to better match your requirements.
+
+This file expects the values to be provided as YAML, which is a human-readable data serialization format. It is commonly used for configuration files.
+
+[NOTE]
+====
+Changes in the configuration file are only applied when the related QALIPSIS node is restarted.
+====
+
+Most of the settings are structured in a hierarchical manner, allowing for easy organization and readability. The YAML format uses indentation to represent the structure of the data, making it visually clear how different settings relate to each other.
+However, they can be provided in a single line, as shown in the examples below that are equivalent.
+
+[source,yaml,linenumbers]
+----
+datasource:
+  pool:
+    min: 4
+----
+[source,yaml,linenumbers]
+----
+datasource.pool.min: 4
+----
+
+[WARNING]
+====
+You cannot specify the same key multiple times in the same file. If you do, the last occurrence will override any previous ones or it might lead to a failure. Furthermore, when using a tree structure, the indentation is significant. Ensure that the indentation is consistent and correct to avoid parsing errors.
+====
+
+
+== Using environment variables
+
+Alternatively, you can provide the configuration parameters using environment variables when starting QALIPSIS.
+
+The environment variables should be formatted in a specific way, where the values are uppercase and underscores are used to separate words. For example, the `datasource.pool.min` parameter would be represented as `DATASOURCE_POOL_MIN`.
+
+When both a value is provided in the `qalipsis.yml` file and as an environment variable, the environment variable takes precedence.
+
+== Using the command line arguments
+
+Eventually, you can also provide the configuration parameters using command line arguments when starting QALIPSIS.
+
+The command line arguments should be formatted in a specific way, where the configuration key and value are paired with an equal and introduced by `--configuration` (shorthand `-c`). For example, the `datasource.pool.min` parameter with a value of `4` would be represented as `-c datasource-pool-min=4`.
+
+You can provide multiple command line arguments to set different configuration parameters, using any groups of `-c key=value` pairs as you need.
+
+[example,sh]
+----
+java -jar qalipsis.jar -c datasource-pool-min=4 -c datasource-pool-max=10
+---- 
+
+The command line arguments take precedence over both the `qalipsis.yml` file and environment variables.

@@ -1,4 +1,4 @@
-= TimescaleDB plugin
+= TimescaleDB plugin [.badge.oss]## ##[.badge.commercial]## ##
 
 == Overview
 The TimescaleDB plugin connects QALIPSIS to https://docs.timescale.com/timescaledb/latest[TimescaleDB].

@@ -1,7 +1,318 @@
 = QALIPSIS REST API
 
-== Authentication
+== Prerequisites
 
-== Triggering a campaign to start
+QALIPSIS is installed either as a standalone or cluster and the head accessible via HTTP(S).
+The REST API is exposed on the head node on the default port 8400, but can be changed via the configuration `server.port`.
 
-== Scheduling a campaign (repeatable or not)
+[NOTE]
+====
+The REST API is not compliant with the autostart mode, since this mode implies that all nodes are stopped at the end of the campaign.
+====
+
+== Authentication [.badge.commercial]## ##[.badge.cloud]## ##
+
+While the OSS version of QALIPSIS is not secured, the commercial version provides authentication mechanisms to the REST API endpoints.
+
+In order to access the API, you need to provide a valid API key as a Bearer token in the Authorization header.
+
+You can generate an API key in the QALIPSIS web interface under the "Settings / API keys" section. API keys are personal
+and can be restricted in terms of permissions and validity duration.
+
+[WARNING]
+====
+When you create a new API key, make sure to copy it immediately as it will not be shown again.
+====
+
+When authentication is enabled, the HTTP requests look like this:
+```
+POST /campaigns
+Authorization: Bearer <API_KEY>
+Content-Type: application/json
+
+{...}
+```
+
+== Triggering a campaign to start [.badge.oss]## ##[.badge.commercial]## ##[.badge.cloud]## ##
+
+=== HTTP request
+
+To trigger a campaign, you need to send a POST request to the `/campaigns` endpoint with the necessary parameters in the request body.
+
+.Example request
+```
+POST /campaigns
+Content-Type: application/json
+
+{
+    "name": "My HTTP Test", <1> 
+    "speedFactor": 1, <2>
+    "startOffsetMs": 1000, <3>
+    "hardTimeout": true, <4>
+    "scenarios": {
+        "http-ok": { <5>
+            "minionsCount": 200, <6>
+            "zones" : { <7>
+                "west-europe-1" : 45.0,
+                "east-asia-2" : 55.0
+            }
+            "executionProfile": { <8>
+                "profile": "STAGE",
+                "stages": [
+                    {
+                        "minionsCount": 80,
+                        "rampUpDurationMs": 5000,
+                        "totalDurationMs": 5000,
+                        "resolutionMs": 500
+                    },
+                    {
+                        "minionsCount": 80,
+                        "rampUpDurationMs": 5000,
+                        "totalDurationMs": 5000,
+                        "resolutionMs": 500
+                    }
+                ],
+                "completion": "GRACEFUL"
+            }
+        }
+    }
+}
+```
+
+<1> The name of the campaign to create.
+<2> The speed factor to apply to the campaign. 1 is normal speed, more than 1 is faster, and between 0 and 1 is slower.
+<3> Time to wait (in milliseconds) before the first minion is executed when everything is ready, it should take the latency of the factories into consideration for an optimal synchronization.
+<4> Whether to enable hard timeout for the campaign, which immediately stops all minions if the campaign exceeds the specified duration, then generates an error. A soft timeout would allow the campaign to finish gracefully.
+<5> The configuration of the scenario to execute (in this case, "http-ok"). There can be multiple scenarios defined within a campaign, each with its own configuration.
+<6> The number of minions to use for the scenario, which relevance depends on the specific execution profile (see below).
+<7> The zones distribution for the scenario (optional), using the zones keys referencing the percentage of load (within the scenario) to execute in it. The sum of all zone percentages must equal 100%. When no zone is configured, the default distribution will be applied and any factory embedding the scenario might be used.
+<8> The execution profile to use for the scenario.
+
+You can refer to the https://qalipsis.io/docs/api[REST API documentation,window=_blank] for more details about the payload.
+
+=== Execution profiles
+
+For an in-depth understanding of execution profiles, refer to the xref:develop-scenarios/scenario.adoc[related section].
+
+==== Default profile defined in the scenario
+```json
+{
+    "profile": "DEFAULT"
+}
+```
+
+==== Immediate
+```json
+{
+    "profile": "IMMEDIATE"
+}
+```
+
+==== Stages by percentages of total count of minion
+```json
+{
+    "profile": "PERCENTAGE_STAGE",
+    "stages": [
+        {
+            "minionsPercentage": 40.0,
+            "rampUpDurationMs": 5000,
+            "totalDurationMs": 15000,
+            "resolutionMs": 500
+        },
+        {
+            "minionsPercentage": 60.0,
+            "rampUpDurationMs": 10000,
+            "totalDurationMs": 25000,
+            "resolutionMs": 500
+        }
+    ],
+    "completion": "GRACEFUL"
+}
+```
+NOTE: The total of the percentages must equal 100%.
+
+==== Stages by absolute count of minion
+This profile is similar to the "Stages by percentages of total count of minion" profile, but instead of defining stages by percentages, you define them by absolute counts of minions. It will totally ignore the value provided
+in the `minionsCount` field of the scenario configuration.
+
+```json
+{
+    "profile": "STAGE",
+    "stages": [
+        {
+            "minionsCount": 20,
+            "rampUpDurationMs": 5000,
+            "totalDurationMs": 15000,
+            "resolutionMs": 500
+        },
+        {
+            "minionsCount": 40,
+            "rampUpDurationMs": 10000,
+            "totalDurationMs": 25000,
+            "resolutionMs": 500
+        }
+    ],
+    "completion": "GRACEFUL"
+}
+```
+
+==== More (Progressing Volume of minions)
+```json
+{
+    "profile": "PROGRESSING_VOLUME",
+    "periodMs": 1000,
+    "minionsCountProLaunchAtStart": 10,
+    "multiplier": 1.5,
+    "maxMinionsCountProLaunch": 200
+}
+```
+
+==== Faster (Accelerating launch batches)
+```json
+{
+    "profile": "ACCELERATING",
+    "startPeriodMs": 10000,
+    "minPeriodMs": 500,
+    "accelerator": 1.5,
+    "minionsCountProLaunch": 50
+}
+```
+
+==== Timeframe
+```json
+{
+    "profile": "TIME_FRAME",
+    "periodInMs": 500,
+    "timeFrameInMs": 40000
+}
+```
+
+== Recent campaigns and summary
+
+There are REST endpoints available to retrieve information about recent campaigns and their execution status, whether they are complete or not.
+
+=== Search campaigns
+The endpoint GET `/campaigns` allows you to search for campaigns based on various criteria.
+
+You can use the parameter `filter` to specify the campaign name, key or user to narrow down the search results.
+It is possible to sort the results using the `sort` parameter, specify the field and the order (ascending or descending).
+
+.Example
+This will return the list of campaigns ordered by their creation date descending.
+```
+GET /campaigns?filter=my-campaign&sort=creation:desc
+```
+
+=== Summary state of a campaign
+Once you know the campaign key you need from the previous search, you can use it to retrieve the summary state of the campaign.
+The endpoint GET `/campaigns/{key}` allows you to achieve it.
+
+Keys are generally random values generated by the system in order to uniquely identify each campaign.
+
+.Example
+This will return the summary state of the specified campaign.
+```
+GET /campaigns/wiugcwe34544
+```
+
+== Scheduling a campaign (repeatable or not) [.badge.oss]## ##[.badge.commercial]## ##[.badge.cloud]## ##
+
+=== HTTP request
+
+To trigger a campaign, you need to send a POST request to the `/campaigns/schedule` endpoint with the necessary parameters in the request body.
+
+The body is similar to the one used for creating a campaign, but should contain additional fields for scheduling.
+
+.Example request
+```
+POST /campaigns/schedule
+Content-Type: application/json
+
+{
+    "name": "My HTTP Test",
+    "speedFactor": 1,
+    "startOffsetMs": 1000,
+    "hardTimeout": true,,
+    "scheduledAt": "2025-12-01T05:00:00Z", <1>
+    "scheduling": { <2>
+        "scheduling": "DAILY",
+        "timeZone": "Europe/Berlin",
+        "restrictions": [1,4]
+    }
+    "scenarios": {
+        "http-ok": {
+            "minionsCount": 200,
+            "executionProfile": {
+                "profile": "STAGE",
+                "stages": [
+                    {
+                        "minionsCount": 80,
+                        "rampUpDurationMs": 5000,
+                        "totalDurationMs": 5000,
+                        "resolutionMs": 500
+                    },
+                    {
+                        "minionsCount": 80,
+                        "rampUpDurationMs": 5000,
+                        "totalDurationMs": 5000,
+                        "resolutionMs": 500
+                    }
+                ],
+                "completion": "GRACEFUL"
+            }
+        }
+    }
+
+}
+```
+
+<1> The date and time when the campaign is scheduled to start. The time zone can be specified either using the zone ID (e.g., "Europe/Vienna") or the UTC offset (e.g., "+01:00"). `Z` indicates UTC time.
+<2> The scheduling configuration, in order to repeat the campaign. This is optional.
+
+=== Scheduling configuration
+
+Schedules are defined using a combination of the following fields:
+
+* `scheduling`: The scheduling strategy to use (e.g., "HOURLY", "DAILY", "MONTHLY").
+* `timeZone`: The time zone in which the schedule should be interpreted.
+* `restrictions`: A set of restrictions that define when the campaign can be executed.
+
+==== Hourly
+```json
+{
+    "scheduling": "HOURLY",
+    "timeZone": "Europe/Berlin",
+    "restrictions": [5,20]
+}
+```
+Restrictions are the hours in local time, when the execution will occur. In the example, the campaign will be triggered every day at 5 AM and 8 PM, time of Berlin.
+When no restriction is set, the executions will occur every hour, at the minutes given by the "scheduledAt" field.
+
+==== Daily
+
+```json
+{
+    "scheduling": "DAILY",
+    "timeZone": "EDT",
+    "restrictions": [1,4]
+}
+```
+
+Restrictions are the week days, when the execution will occur, where 1 stands for Monday and 7 for Sunday. 
+In the example, the campaign will be triggered every week on Monday and Thursday at the Quebec local time given by the "scheduledAt" field.
+When no restriction is set, the executions will occur every day at the provided local time.
+
+==== Monthly
+
+```json
+{
+    "scheduling": "MONTHLY",
+    "timeZone": "WAT",
+    "restrictions": [-1,15]
+}
+```
+
+Restrictions are the month days, when the execution will occur. It is possible to specify negative values to count until the end of the month.
+For example, `-1` refers to the last day of the month, `-2` to the second last day, and so on.
+In the example, the campaign will be triggered every month on the 15th and the ultimate date of the month at the Lagos local time given by the "scheduledAt" field.
+When no restriction is set, the executions will occur every month at the month day and local time provided by the "scheduledAt" field.

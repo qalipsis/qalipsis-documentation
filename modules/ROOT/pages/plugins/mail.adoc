@@ -1,4 +1,4 @@
-= Mail plugin
+= Mail plugin [.badge.oss]## ##[.badge.commercial]## ##
 
 == Overview
 QALIPSIS supports email messaging, to notify users of the status of their campaigns after it runs. This is achieved by configuring and enabling the QALIPSIS publisher for mail.
@@ -62,7 +62,3 @@ Allowed values are any set of `ReportExecutionStatus` values: `ALL`, `FAILED`, `
 * `starttls` (required): boolean flag to enable/disable use of the STARTTLS command (if supported by the server); defaults to `false`.
 * `host` (required): the host name of the mail server to connect to; defaults to `localhost`.
 * `port` (required): the port number of the mail server to connect to; defaults to `25`.
-
-Reference Documentation::
-Refer to the https://docs.qalipsis.io/#_external-property-sources[QALIPSIS documentation] for information about 
-adding configuration properties that set or override the default parameters.

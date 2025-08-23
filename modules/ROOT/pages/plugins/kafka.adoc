@@ -1,4 +1,4 @@
-= Apache Kafka plugin
+= Apache Kafka plugin [.badge.oss]## ##[.badge.commercial]## ##[.badge.cloud]## ##
 
 == Overview
 The Apache Kafka plugin connects QALIPSIS to an https://kafka.apache.org/[Apache Kafka] cluster.

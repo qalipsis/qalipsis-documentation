@@ -1,4 +1,4 @@
-= Cassandra plugin
+= Cassandra plugin [.badge.oss]## ##[.badge.commercial]## ##[.badge.cloud]## ##
 
 == Overview
 The Cassandra plugin connects QALIPSIS to https://cassandra.apache.org/_/index.html[Apache Cassandra].

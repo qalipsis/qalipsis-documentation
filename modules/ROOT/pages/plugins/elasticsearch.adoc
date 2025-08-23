@@ -1,4 +1,4 @@
-= Elasticsearch plugin 
+= Elasticsearch plugin [.badge.oss]## ##[.badge.commercial]## ##[.badge.cloud]## ##
 
 == Overview
 The Elasticsearch plugin connects QALIPSIS to https://www.elastic.co/[Elasticsearch].

@@ -1,0 +1,36 @@
+= Factory executors [.badge.oss]## ##[.badge.commercial]## ##
+
+In order to guarantee optimal performance, resource utilization and stability, QALIPSIS provides a flexible executor model that allows you to configure and manage the execution of tasks using different isolated executors in the factories and standalone instances.
+
+Executors are pools of threads that can be used to execute tasks concurrently. Each executor can be configured with its own set of resources, such as CPU and memory limits, to ensure that tasks are executed efficiently and without interfering with each other.
+
+While the default values are suitable for many use cases, you may need to adjust them based on your specific requirements.
+
+There are 4 executors defined in QALIPSIS, each one with its own responsibility:
+
+* The **global** executor is used for most tasks that are not covered by other executors.
+* The **campaign** executor is designed for tasks that execute in the context of a specific campaign, allowing for better resource allocation and management.
+* The **background** executor is dedicated to management and reporting tasks that can be executed asynchronously without blocking the main workflow.
+* The **orchestration** executor is dedicated to coordinating and managing the execution of campaigns initialization and execution.
+
+Each executor is configured with a unique string that precisely defines the count of threads allocated to it.
+The syntax allows to define the count of threads using the following format:
+
+* 0 or a negative integer will use the very global scope context provided by Kotlin.
+* A positive integer will define the exact number of threads to be allocated to the executor, e.g. `4` with create 4 threads for the executor.
+* a positive integer followed by a `x` will create a new executor with the specified number of threads as a multiple of the available CPU cores. For example, `2x` will create an executor with 2 times the number of available CPU cores.
+* using the name of another executor will share the same thread pool, e.g. `campaign` will use the same thread pool as the campaign executor.
+
+Example of configuration:
+
+```yaml
+executors:
+  global: -1 # <1>
+  campaign: 2x # <2>
+  background: 3 # <3>
+  orchestration: global # <4>
+```
+<1> The global executor uses the very global scope context provided by Kotlin.
+<2> The campaign executor creates a new thread pool with 2 times the number of available CPU cores.
+<3> The background executor creates a new thread pool with 3 threads.
+<4> The orchestration executor shares the same thread pool as the global executor.

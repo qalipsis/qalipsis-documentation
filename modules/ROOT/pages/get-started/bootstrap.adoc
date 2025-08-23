@@ -1,0 +1,75 @@
+= Bootstrap project
+
+QALIPSIS proposes a bootstrap project to help you get started quickly with your first QALIPSIS project.
+The bootstrap project contains a preconfigured project with a skeleton to develop a scenario.
+
+== Initialize a project
+
+=== With Git
+
+If you prefer to use Git, you can clone the bootstrap-project repository from GitHub: https://github.com/qalipsis/bootstrap-project.
+
+`git clone https://github.com/qalipsis/bootstrap-project.git`
+
+=== Without Git
+
+. Download the bootstrap-project from GitHub: https://github.com/qalipsis/bootstrap-project/archive/refs/heads/main.zip.
+. Extract the zipped files to your project directory on your computer.
+
+== Develop your scenario
+
+QALIPSIS uses a Gradle plugin to simplifiy the creation of new QALIPSIS projects. The Gradle plugin is integrated into the Bootstrap project.
+
+In order to develop with QALIPSIS, you need to have Java 11 or later installed on your system. Please refer to the documentation of your operating system to install the Java in the requested version.
+
+In order to develop your scenario, we strongly recommend using an IDE such as IntelliJ IDEA or Visual Studio Code where you can install
+the extensions for https://marketplace.visualstudio.com/items?itemName=fwcd.kotlin[Kotlin], https://marketplace.visualstudio.com/items?itemName=redhat.java[Java] and https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle[Gradle].
+
+. Navigate to the project directory on your local machine.
+. Open the `settings.gradle.kts` file using a text editor or an IDE and update the name of the project : `rootProject.name = "name-of-your-project"`. It should not contain any spaces or special characters.
+. Open the `build.gradle.kts` file.
+. Update the `group` and `version` properties to match your project.
+. Add the required QALIPSIS plugins in the section `qalipsis { plugins {} }`. Each plugin comes with its own set of dependencies.
++ 
+For example, if you want to use the Apache Kafka and Elasticsarch plugins, you can add it as follows:
++
+[source,kotlin,linenumbers]
+----
+qalipsis {
+    plugins {
+        apacheKafka()
+        elasticsearch()
+    }
+}
+----
+. Add the required additional dependencies to third-party libraries in the section `dependencies {}` if you ever need any.
++
+For example, if you want to use the AssertK library for assertions in your scenarios, you can add it as follows:
++
+[source,kotlin,linenumbers]
+----
+dependencies{
+    implementation("com.willowtreeapps.assertk:assertk:0.+")
+}
+----
+. Rename the file `src/main/kotlin/my/bootstrap/MyBootstrapScenario.kt` to better represent your project and customize its content.
+. Rename the docker images in the `docker {}` area as appropriate for your project.
+
+== Execute your project
+
+See the documentation for the xref:get-started/gradle-plugin.adoc[Gradle plugin] for more details on how to configure and execute your project.
+
+== Assemble your project
+
+You can assemble your project using the Gradle task `assemble` to create a JAR file located in the `build/libs` directory of your project, with the name of your project and ending with `-qalipsis.jar`.
+
+Refer to the xref:up-and-running/execute-qalipsis.adoc[configuration section] for details on how to configure and execute QALIPSIS as a Java archive.
+
+== Build your container
+
+You can create a Docker container with your project using the Gradle task `dockerTask` then push it to its registry with the task `dockerPush`.
+
+The created container will be named according to your project name and tagged with the version specified in your `build.gradle.kts` file.
+
+
+Refer to the xref:up-and-running/execute-qalipsis.adoc[configuration section] for details on how to configure and execute QALIPSIS in a container.

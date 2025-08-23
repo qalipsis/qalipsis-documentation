@@ -1,4 +1,4 @@
-= MongoDB plugin
+= MongoDB plugin [.badge.oss]## ##[.badge.commercial]## ##[.badge.cloud]## ##
 
 == Overview
 The MongoDB plugin connects QALIPSIS to https://mongodb.com/[MongoDb].

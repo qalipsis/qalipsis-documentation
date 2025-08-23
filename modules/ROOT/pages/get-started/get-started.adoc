@@ -1,0 +1,7 @@
+= Get started
+
+QALIPSIS is a powerful tool to test your applications and APIs. 
+It is designed to be easy to use, but to address very complex use cases. Therefore it still requires some knowledge to get started.
+
+This section will help you to get started with QALIPSIS, with concrete examples xref:tutorials/quickstart-testing-rest-api.adoc[to test a REST API] and fundamental information to develop your own project using using the xref:get-started/bootstrap.adoc[bootstrap template] and xref:get-started/gradle-plugin.adoc[Gradle plugin for QALIPSIS].
+

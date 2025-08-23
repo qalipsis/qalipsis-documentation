@@ -1,0 +1,157 @@
+= Deployment topologies
+
+QALIPSIS offers several deployment modes, each with its own advantages and limitations. Carefully evaluate these options to determine the most suitable mode for your production environment.
+
+This section will guide you through the different questions to answer so that you can choose the best deployment mode for your needs.
+
+If you find yourself in a situation that requires professional support to assist in the preparation, installation and operation phases, do not hesitate to contact our team at https://qalipsis.io/#contact.
+
+== Persistent or Ephemeral?
+
+The choice between persistent and ephemeral deployments primarily affects how QALIPSIS handles test execution data and results.
+
+=== Persistent Deployment
+In a persistent deployment, all test execution data, metrics, and results are stored in databases for long-term retention. This mode offers several advantages:
+
+* Historical data analysis and trend identification across multiple test runs
+* Ability to compare performance metrics over time
+* Complete audit trail of all test executions
+* Support for detailed reporting and documentation requirements
+
+However, persistent deployments require:
+
+* Additional infrastructure for database management
+* Regular maintenance for data cleanup
+* More storage capacity
+* Proper backup strategies
+
+=== Ephemeral Deployment
+
+Ephemeral deployments operate on a "transient" basis, where data exists only during the test execution. This mode is ideal when:
+
+* Only immediate test results matter
+* Storage resources are limited
+* Quick deployment and teardown are required
+* Compliance requirements mandate minimal data retention
+
+Benefits include:
+
+* Minimal infrastructure requirements
+* Automatic cleanup of test data
+* Reduced maintenance overhead
+* Smaller storage footprint
+
+Choose persistent deployment if you need historical analysis and reporting capabilities. Opt for ephemeral deployment if you prioritize simplicity and resource efficiency over long-term data retention.
+
+== Standalone or Cluster?
+
+The choice between standalone and cluster deployments depends on your scalability, availability, and load requirements.
+
+=== Standalone Deployment
+
+A standalone deployment runs all QALIPSIS components on a single process. This setup is ideal for:
+
+* Development and testing environments
+* Small-scale performance testing
+* Proof-of-concept implementations
+* Individual developer usage
+
+Benefits:
+
+* Simple setup and maintenance
+* Minimal resource requirements
+* Easy troubleshooting
+* Lower operational overhead
+
+Limitations:
+
+* Limited scalability
+* Resource constraints of a single machine
+* Not suitable for large-scale distributed testing
+
+=== Cluster Deployment
+
+Cluster deployments distribute QALIPSIS components across multiple machines or containers, offering:
+
+* Horizontal scalability for large-scale testing
+* Better resource utilization
+* Support for geographically distributed testing
+
+Cluster deployments also come in ephemeral and persistent modes, allowing you to choose based on your data retention needs.
+
+Benefits:
+
+* Handles higher load volumes
+* Flexible resource allocation
+* Better suited for intensive testing
+
+Limitations:
+
+* More complex setup and maintenance
+* Higher infrastructure costs
+* Might require network configuration
+
+Choose standalone deployment for simplicity and small-scale testing. Opt for cluster deployment when scalability and high availability are crucial.
+
+== Container or not?
+
+The decision to use containers for QALIPSIS deployment depends on your operational requirements and infrastructure preferences.
+
+=== Container Deployment
+
+QALIPSIS can be deployed in Docker or Kubernetes, offering:
+
+* Consistent environment across development and production
+* Easy scaling and orchestration with Kubernetes or Docker Swarm
+* Isolated runtime environment
+* Simple version management and updates
+* Portable deployment across different platforms
+
+Limitations:
+
+* Container runtime overhead
+* Additional complexity in container orchestration
+* Learning curve for container technologies if you are not familiar with them
+* Potential network overhead in container communications
+
+=== Deployment on the Host
+
+Running QALIPSIS directly on the host system provides:
+
+* Maximum performance without containerization overhead
+* Direct access to system resources
+* Simpler debugging and monitoring
+* Lower operational complexity for small deployments
+
+Limitations:
+
+* Environment consistency challenges
+* More complex version updates
+* Platform-specific deployment procedures
+
+Choose container deployment when you need deployment flexibility and scalability. Opt for deployment on the host when maximum performance and simplicity are priorities.
+
+== Embed QALIPSIS in a Java Virtual Machine (JVM) project
+
+If you are developing a JVM-based application and want to integrate QALIPSIS directly into your codebase, you can embed QALIPSIS as a library
+and execute scenarios programmatically.
+
+Benefits:
+
+* Direct integration with your existing JVM application code
+* Access to QALIPSIS APIs without network overhead
+* Ability to programmatically control test execution
+* Seamless access to your application's business logic and data models
+* Integration with your application's existing logging and monitoring
+* Simplified dependency management through your build system
+* Easy integration with CI/CD pipelines
+
+Limitations:
+
+* Tied to JVM ecosystem and its resource management
+* Potential conflicts with application dependencies
+* Shared JVM resources between application and QALIPSIS
+* Only the standalone deployment mode is available
+
+Choose embedded deployment when you need tight integration with your JVM application and want to leverage existing application resources. Consider other deployment options if you need clear separation between your application and testing infrastructure or if you're working in a polyglot environment.
+

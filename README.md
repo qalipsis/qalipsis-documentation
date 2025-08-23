@@ -11,7 +11,7 @@ Just add a new ASCIIDOC file in the dedicated folder - or create a new one.
 References between files should always use the cross-reference syntax, based upon the ROOT folder, e.g.
 
 ```
-xref:specifications/steps.adoc[Steps specifications]
+xref:develop-scenarios/steps.adoc[Steps specifications]
 ```
 
 To add an entry into the menu, add the cross-reference to the file `nav.doc`. When no title is specified in the link,

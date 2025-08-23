@@ -1,4 +1,4 @@
-= Redis-lettuce plugin
+= Redis-lettuce plugin [.badge.oss]## ##[.badge.commercial]## ##[.badge.cloud]## ##
 
 The Redis-lettuce plugin connects QALIPSIS to https://redis.io/[Redis].
 

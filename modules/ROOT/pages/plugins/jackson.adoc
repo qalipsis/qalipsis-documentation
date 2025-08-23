@@ -1,4 +1,4 @@
-= Jackson plugin
+= Jackson plugin [.badge.oss]## ##[.badge.commercial]## ##[.badge.cloud]## ##
 
 == Overview
 The Jackson plugin supports reading a (https://github.com/FasterXML/jackson[JSON, XML or CSV]) file and converting the data to an object.

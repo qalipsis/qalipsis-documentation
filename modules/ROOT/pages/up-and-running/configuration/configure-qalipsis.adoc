@@ -1,0 +1,22 @@
+= Configuring QALIPSIS [.badge.oss]## ##[.badge.commercial]## ##
+
+QALIPSIS is extremely powerful and configurable.
+
+To make it easy and fast to use, it comes with a default set of configuration, that might not exactly meet your requirements.
+
+There are really many things you can configure, but do not be afraid.
+
+We will get through this section and discover how easy it is to customize the execution of QALIPSIS.
+
+By the way, have you already read the section about xref:up-and-running/up-and-running.adoc[Installing QALIPSIS]? Perhaps you should start up there...
+
+Here is a small overview of the different parts composing this section:
+
+- xref:up-and-running/configuration/provide-configuration.adoc[Provide configuration] explains how to specify the configuration to QALIPSIS.
+- xref:up-and-running/configuration/configure-data-storage.adoc[Configure data storage] explains how to configure QALIPSIS to store the data.
+- xref:up-and-running/configuration/monitoring-test-campaigns.adoc[Monitoring test campaigns] will guide you through the steps required to store and use  analytics data generated the tests.
+- xref:up-and-running/configuration/reporting.adoc[Reporting] details how to configure the reporting in QALIPSIS.
+- xref:up-and-running/configuration/logging.adoc[Logging] will guide you through the steps required to configure logging in QALIPSIS for more technical insights.
+- xref:up-and-running/advanced-configuration/configuration-and-dependency-injection.adoc[Configuration and dependency injection] is rather for advanced user, and explains how to use the principles of injection of configuration and dependency (aka IoC) in your scenarios.
+- xref:up-and-running/advanced-configuration/factory-executors.adoc[Factory executors] is another advanced topic that explains how to configure and use factory executors in your scenarios to optimize the performances for your test cases.
+
