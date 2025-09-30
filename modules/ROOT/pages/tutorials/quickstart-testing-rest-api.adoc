@@ -15,14 +15,14 @@ Before starting, you need:
 This guide will take you through the following steps for testing a simple HTTP service:
 
 . Start an HTTP server and a docker environment for the project.
-
 . Create a project.
 . Configure a scenario.
-. Add steps to the scenario.
-.. An `HTTP` step to send requests to the server.
-.. A `verify` step  that asserts that the server's response is  "OK" and to verify the server's responses.
-.. An `HTTP WITH` step that reuses the HTTP connection.
-.. A second `assertion` step to verify the server's responses.
+.. Configure the scenario basics  
+.. Add steps to the scenario.
+... An `HTTP` step to send requests to the server.
+... A `verify` step that asserts that the server's response is matches the expectations and to verify the server's responsiveness.
+... An `HTTP WITH` step that reuses the HTTP connection to send further requests.
+... A second `assertion` step to verify the server's responses and responsiveness.
 . Execute the scenario using https://docs.gradle.org/current/userguide/what_is_gradle.html[Gradle] and view the report.
 . Create a Java archive of your project so that you can transport it as needed and run it anywhere.
 . <<Enable event logging>> to allow you to view errors in the report.
@@ -310,11 +310,13 @@ This enables the logging of the events with severity WARN and higher to a file c
 The `qalipsis-events.log` contains a contains the details of the individual failed assertions.
 
 For example, the details of a failed assertion may be displayed as:
-
+```
 2022-03-31T06:33:55.937Z  WARN --- step.assertion.failure;io.qalipsis.plugins.netty.tcp.ConnectionAndRequestResult@1e869276
+```
 
 The pertinent parts of the above message are:
-* The exact instant when the failed assertion occurred:`2022-03-31T06:33:55`
-* The reason for the failure: `PT0.10696475S should be <= PT0.1S`:
+
+* The exact instant when the failed assertion occurred:`2022-03-31T06:33:55`.
+* The reason for the failure: `PT0.10696475S should be < PT0.1S` (the durations are displayed in the ISO-8601 format).
 * The campaign (`quickstart-campaign-4d39026fd7`), scenario (`quickstart-http`), and verification step (`verify-patch`) where the failed assertion occurred.
 

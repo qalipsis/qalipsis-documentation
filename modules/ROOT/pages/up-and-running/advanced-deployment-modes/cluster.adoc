@@ -95,7 +95,7 @@ redis:
         max-total: 20
 ```
 
-QALIPSIS uses the Redis Lettuce client to access to Redis. You can learn more about the different connection options https://redis.io/docs/latest/develop/clients/lettuce/[here] and https://github.com/redis/lettuce[here].
+QALIPSIS uses the Redis Lettuce client to access Redis. You can learn more about the different connection options https://redis.io/docs/latest/develop/clients/lettuce/[here] and https://github.com/redis/lettuce[here].
 
 [WARNING]
 ====
