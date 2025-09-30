@@ -9,13 +9,13 @@ The actions are performed by minions that inject load into a system and then run
 
 Prior to configuring QALIPSIS to run on your system, it is crucial to understand the core concepts of the tool:
 
-* Minions
-* Scenarios
-* Steps
-* Assertions
-* Nodes
-** Head
-** Factory
+* Minions - simulations of users/devices.
+* Scenarios - sequences of actions (steps) that can be executed by minions on the test system.
+* Steps - scripts within a scenario that define specific actions to be executed on the test system.
+* Assertions - steps that compare and validate data within a scenario.
+* Nodes - distributed instances within QALIPSIS clusters.
+** Head - responsible for orchestration and reporting.
+** Factory - host minions that execute load tests and assertions.
 
 == Minions
 Minions are simulations of website users, IoT devices, or other systems. They each perform a complete scenario.

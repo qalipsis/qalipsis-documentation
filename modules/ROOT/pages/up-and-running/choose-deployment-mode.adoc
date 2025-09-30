@@ -93,7 +93,8 @@ Limitations:
 
 Choose standalone deployment for simplicity and small-scale testing. Opt for cluster deployment when scalability and high availability are crucial.
 
-== Container or not?
+== Container or host? 
+// I think this makes it clearer
 
 The decision to use containers for QALIPSIS deployment depends on your operational requirements and infrastructure preferences.
 

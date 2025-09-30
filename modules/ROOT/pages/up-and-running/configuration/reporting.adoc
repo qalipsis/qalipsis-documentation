@@ -13,14 +13,14 @@ When the tests are executed, QALIPSIS generates a default report that includes t
 
 When the xref:up-and-running/configuration/configure-data-storage.adoc[data storage is enabled], the reports are persisted into the database and can be accessed later for analysis.
 
-Note that those reports do not contain any analytics information and only reflect the overall state of the tests.
+Note that the reports do not contain any analytics information and only reflect the overall state of the tests.
 
-You can access to those reports via the GUI or REST API.
+You can access the reports via the GUI or REST API.
 
 * `GET /campaigns?sort=creation:desc`: will return the list of campaigns ordered by their creation date descending.
 * `GET /campaigns/{campaign-key}`: will return the details of a specific campaign, including its test results and messages.
 
-You can learn more on the https://qalipsis.io/docs/api[REST API documentation].
+You can learn more from the https://qalipsis.io/docs/api[REST API documentation].
 
 == Live reporting in standalone mode [.badge.oss]## ##[.badge.commercial]## ##
 

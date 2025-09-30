@@ -60,9 +60,10 @@ monitoring { meters = true }
 +
 [source,kotlin,linenumbers]
 ----
-monitoring{ all() } 
+monitoring { all() } 
 ----
-Be precise when specifying the information to monitor. Recording too much information may overshadow the information that is most important and relevant to your system's behaviors and performance and generate an overhead on your infrastructure.
+Be precise when specifying the information to monitor. Recording too much information may generate overhead on your infrastructure and 
+overshadow the information most important and relevant to your system's behaviors and performance. 
 
 === Exporting monitored data [.badge.oss]## ##[.badge.commercial]## ##
 QALIPSIS supports different technologies to record events and meters, providing the flexibility of using different analytic solutions that best suit your preferences and requirements.

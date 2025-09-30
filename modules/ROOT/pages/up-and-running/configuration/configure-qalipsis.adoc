@@ -8,7 +8,10 @@ There are really many things you can configure, but do not be afraid.
 
 We will get through this section and discover how easy it is to customize the execution of QALIPSIS.
 
-By the way, have you already read the section about xref:up-and-running/up-and-running.adoc[Installing QALIPSIS]? Perhaps you should start up there...
+[NOTE]
+====
+Be sure you have read and understood xref:up-and-running/up-and-running.adoc[Installing QALIPSIS] before working through this section.
+====
 
 Here is a small overview of the different parts composing this section:
 

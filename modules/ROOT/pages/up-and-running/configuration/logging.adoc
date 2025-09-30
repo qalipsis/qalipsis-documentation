@@ -19,9 +19,10 @@ The following are the key configuration options for logging:
 - `logging.file`: Specifies the file path for the log file and whether the write operation should be performed asynchronously or not.
 - `logging.events`: Specifies the file path for the events file and whether the write operation should be performed asynchronously or not. This is only relevant when the related event reporter is enabled (`events.export.slf4j.enabled: true`).
 
-[NOTE]
+[NOTES]
 ====
-The logging level `off` should be wrapped into single or double quotes to avoid being interpreted as a boolean value and the logging level configuration is not case-sensitive.
+The logging level `off` should be wrapped into single or double quotes to avoid being interpreted as a boolean value.
+ The logging level configuration is not case-sensitive.
 ====
 
 .Example of logging configuration
@@ -47,11 +48,11 @@ logging:
 
 == Key functions execution logging
 
-Some functions in QALIPSIS are specially handle to generate logs with their inputs and outputs. This allows for better tracking and debugging of the system's behavior for troubleshooting purposes.
+Some functions in QALIPSIS are able to generate logs with their inputs and outputs. This allows for better tracking and debugging of the system's behavior for troubleshooting purposes.
 
 These logs can be invaluable when trying to understand the flow of data and the interactions between different components of the system. By examining the logs, you can gain insights into potential issues and identify areas for improvement.
 
-However, considering the cost of logging, this optional feature is disabled by default and should be enabled only when necessary by configuration.
+However, considering the cost of logging, this optional feature is disabled by default and should be enabled only when necessary (e.g. for troubleshooting purposes) by configuration.
 
 ```yaml
 logging.annotations.enabled: true
