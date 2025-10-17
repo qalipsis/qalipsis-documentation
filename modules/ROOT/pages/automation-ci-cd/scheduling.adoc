@@ -8,7 +8,7 @@ In that case, the campaign name will be suffixed by the instant when the campaig
 
 Campaigns can be scheduled within the GUI or via the REST API.
 
-To learn how to schedule a campaign via the GUI, refer to the xref:gui.adoc#_using_cron[GUI documentation].
+// To learn how to schedule a campaign via the GUI, refer to the xref:automation-ci-cd/gui.adoc#_using_cron[GUI documentation].
 
 To learn how to schedule a campaign via a REST API, refer to the xref:automation-ci-cd/rest-api.adoc#_scheduling_a_campaign_repeatable_or_not[related section], which details the technical requirements and statements to follow.
 
