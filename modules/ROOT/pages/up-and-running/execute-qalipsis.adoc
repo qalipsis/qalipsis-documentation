@@ -22,8 +22,33 @@ Once you installed Java, you can start QALIPSIS using the following command, whe
 
 [source,shell]
 ----
-java -jar my-scenario-qalipsis.jar <command-line-arguments>
+java -jar my-project-qalipsis.jar <command-line-arguments>
 ----
+
+== Start QALIPSIS from the Distribution Archive [.badge.oss]## ##[.badge.commercial]## ##
+
+It is also possible to package a project into a ZIP archive containing a distribution of QALIPSIS along with your scenarios and dependencies.
+
+[WARNING]
+====
+Having Java 11 or later installed on your system is still required to run QALIPSIS from a ZIP archive.
+====
+
+Once you copied the archive and uncompress it, you can start QALIPSIS from the folder where it
+was decompressed using the following command, where <command-line-arguments> are the arguments you want to pass to QALIPSIS, such as the configuration parameters, the execution mode, the scenarios to run, etc.:
+
+[source,shell]
+----
+bin/<my-project> <command-line-arguments>
+----
+
+.For Windows systems, use:
+[source,shell]
+----
+bin\<my-project> <command-line-arguments>
+----
+
+The archive contains default configuration files in the `config` folder that you can modify to suit your needs. You can also provide your own configuration as explained in the xref:up-and-running/configuration/configure-qalipsis.adoc[Configure QALIPSIS] section.
 
 == Start QALIPSIS from the Docker image [.badge.oss]## ##[.badge.commercial]## ##
 
@@ -54,9 +79,9 @@ If you need to explicitly specify the role of each node in the cluster, this can
 
 [example,shell]
 ----
-java -jar my-scenario-qalipsis.jar head <command-line-arguments>
+java -jar my-project-qalipsis.jar head <command-line-arguments>
 
-docker run --rm -it -v $(pwd):/opt/qalipsis/config my-scenario:1.0 head <command-line-arguments>
+docker run --rm -it -v $(pwd):/opt/qalipsis/config my-project:1.0 head <command-line-arguments>
 ----
 
 The default port to access the REST API is 8400, but can be changed via the configuration `server.port`.
@@ -74,14 +99,34 @@ When the executable only contains the dependencies for QALIPSIS head or factory,
 
 == Specific start modes [.badge.oss]## ##[.badge.commercial]## ##
 
+=== With the GUI - Graphical User Interface (Head and Standalone only)
+
+QALIPSIS provides a graphical user interface (GUI) to manage and monitor test campaigns when running in head or standalone mode.
+
+To start QALIPSIS with the GUI enabled, you need to pass the `--gui` or `-g` option when starting QALIPSIS, as in the following example:
+[source,shell]
+----
+java -jar my-project-qalipsis.jar --gui
+----
+
+[NOTE]
+====
+When executing QALIPSIS with the GUI, the endpoints fore the REST API are moved to the context path `/api`. For example, the root endpoint becomes `http://<my-host>:8400/api/campaigns` to the list the campaigns.
+====
+
 === Interactive (Standalone only)
+
+[WARNING]
+====
+This mode is not compatible with the GUI mode.
+====
 
 . Execute QALIPSIS with the option `--prompt` or `-p`.
 as in the following example:
 +
 [source,shell]
 ----
-java -jar my-scenario-qalipsis.jar --prompt
+java -jar my-project-qalipsis.jar --prompt
 ----
 . When prompted, enter the load factor (# of minions), speed factor, execution profile, etc.
 
@@ -95,7 +140,7 @@ Starting QALIPSIS in interactive mode enables the autostart mode.
 Execute QALIPSIS with the `--scenarios` or `-s` as in the following example:
 [source,shell]
 ----
-java -jar my-scenario-qalipsis.jar --scenarios "my-first-scenario, ?y-*-s*n?rio"
+java -jar my-project-qalipsis.jar --scenarios "my-first-scenario, ?y-*-s*n?rio"
 ----
 
 The value is a comma-separated list of an exact value of a scenario, a pattern of the scenario, or both. The pattern may contain wildcards (* or ?) as in the example above.

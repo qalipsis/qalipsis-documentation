@@ -30,26 +30,56 @@ plugins {
 The Gradle plugin includes a default QALIPSIS version; you can specify a different version in the appropriate build file.
 
 Kotlin::
-In build.gradle.kts, to specify version 0.15.a:
+In build.gradle.kts, to specify version 0.16.a:
 [source,kotlin,linenumbers]
 ----
 qalipsis {
-    version("0.15.a")
+    version("0.16.a")
 }
 ----
 Groovy::
-In build.gradle, to specify version 0.15.a:
+In build.gradle, to specify version 0.16.a:
 [source,kotlin,linenumbers]
 ----
 qalipsis {
-    version = '0.15.a'
+    version = '0.16.a'
 }
 ----
 As a Gradle property::
-To specify version 0.15.a, add the version in the gradle.properties or Gradle execution options:
+To specify version 0.16.a, add the version in the gradle.properties or Gradle execution options:
 [source,kotlin,linenumbers]
 ----
-qalipsis.version=0.15.a
+qalipsis.version=0.16.a
+----
+
+
+== Creating a QALIPSIS head/factory-only project
+
+By default, the bootstrap plugin creates a QALIPSIS project with all dependencies for running as head, factory or standalone.
+You can then select at runtime which deployment mode you want to use.
+
+However, if you want to create a QALIPSIS project with only the dependencies for running as a head (respectively as a factory), you can call the statement 
+`qalipsis { asHead() }` (respectively `qalipsis { asFactory() }`) in your `build.gradle.kts` or `build.gradle` file.
+
+By doing so, you will have a QALIPSIS project with only the dependencies for running as head (respectively factory) and do not have to select
+the deployment mode at runtime.
+
+=== In `build.gradle.kts` (Kotlin)
+
+[source,kotlin,linenumbers]
+----
+qalipsis {
+    asHead() // or asFactory()
+}
+----
+
+=== In `build.gradle` (Groovy)
+
+[source,kotlin,linenumbers]
+----
+qalipsis {
+    asHead() // or asFactory()
+}
 ----
 
 == Adding QALIPSIS plugins
@@ -61,7 +91,7 @@ Kotlin::
 qalipsis {
     plugins {
         apacheKafka()
-        jackson()
+        jackson("1.2.3") // You can override the version of the plugin.
     }
 }
 ----
@@ -72,7 +102,7 @@ Groovy::
 qalipsis {
     plugins {
         apacheKafka()
-        jackson()
+        jackson("1.2.3") // You can override the version of the plugin.
     }
 }
 ----

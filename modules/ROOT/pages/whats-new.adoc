@@ -15,4 +15,4 @@ Feedback on this release, including bugs and suggested enhancements, is welcome 
 
 == Version history
 
-v0.15.a — Aug 2025: Initial release of QALIPSIS with support for distributed load testing and enhanced performance metrics.
+v0.16.a — October 2025: Initial release of QALIPSIS with support for distributed load testing, enhanced performance metrics and graphical user interface.

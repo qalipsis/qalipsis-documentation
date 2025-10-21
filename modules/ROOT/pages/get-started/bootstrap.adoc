@@ -61,9 +61,15 @@ See the documentation for the xref:get-started/gradle-plugin.adoc[Gradle plugin]
 
 == Assemble your project
 
+=== Assemble as a Java Archive
 You can assemble your project using the Gradle task `assemble` to create a JAR file located in the `build/libs` directory of your project, with the name of your project and ending with `-qalipsis.jar`.
 
 Refer to the xref:up-and-running/execute-qalipsis.adoc[configuration section] for details on how to configure and execute QALIPSIS as a Java archive.
+
+=== Assemble as a ZIP Archive
+You can assemble your project using the Gradle task `distZip` to create a ZIP file located in the `build/distributions` directory of your project, with the name of your project and ending with `.zip`.
+
+Refer to the xref:up-and-running/execute-qalipsis.adoc[configuration section] for details on how to configure and execute QALIPSIS from a ZIP archive.
 
 == Build your container
 
