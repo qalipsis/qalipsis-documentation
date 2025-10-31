@@ -1,7 +1,11 @@
 = Cassandra plugin [.badge.oss]## ##[.badge.commercial]## ##[.badge.cloud]## ##
 
 == Overview
-The Cassandra plugin connects QALIPSIS to https://cassandra.apache.org/_/index.html[Apache Cassandra].
+The Cassandra plugin connects QALIPSIS to https://cassandra.apache.org/_/index.html[Apache Cassandra]. 
+
+It enables interactions with Apache Cassandra clusters for testing distributed data storage and retrieval.
+
+// confirm above information is appropriate
 
 Technologies addressed::
 * Cassandra: https://cassandra.apache.org/_/index.html[Apache Cassandra]
@@ -15,7 +19,7 @@ Namespace in scenario::
 `cassandra()`
 
 Client library::
-DataStax: refer to the https://docs.datastax.com/[DataStax].
+DataStax: refer to https://docs.datastax.com/[DataStax].
 +
 Datastax is a modern, feature-rich and highly tunable Java client library for Apache Cassandra using Cassandra’s binary protocol and Cassandra Query Language.
 
@@ -24,10 +28,102 @@ Supported steps::
 * <<Save step,`save`>>: saves records generated from the input and step context.
 * <<Search step,`search`>>: searches records and builds a query from the input and step context.
 
-Example scenarios using a combination of Cassandra supported steps are provided on https://github.com/qalipsis/qalipsis-examples/tree/master/cassandra[Github].
+
+Example scenarios are provided later in this <<Example scenarios,section>>.  
+
+== Configuration
+Apache Cassandra configuration settings are configured in a cassandra.yaml file. 
+Available parameters are described in the table below.
+
+
+[cols="2,2,1,1,2" options="header"]
+|===
+
+| *Parameter*
+| *Applicable Step(s)*
+| *O/R**
+| *Default Value*
+| *Description/ Example DSL Statement*
+
+| `connect`
+| Poll, Save, Search
+| R 
+| N/A
+| Configures the connection to https://cassandra.apache.org[Apache Cassandra]
+
+   connect { 
+   servers = listOf("localhost:9042")
+   keySpace = "iot"
+   datacenterName = "datacenter1"
+   } 
+
+| `servers`
+
+| Poll, Save, Search
+| R 
+| localhost:9042
+| List of servers available for the connection.
+
+  servers = listOf("localhost:9042")
+
+| `keyspace`
+| Poll, Save, Search
+| R 
+| N/A
+| The outermost object that determines how data replicates on nodes.
+
+  keySpace = "iot"
+
+| `datacenterName`
+| Poll, Save, Search
+| R 
+| N/A
+| The name of the datacenter where data is stored. 
+  datacenterName = "datacenter1"
+  
+| `query`
+| Poll, Search
+| R 
+| N/A
+| Defines the prepared statement to execute when polling.
+  query("SELECT deviceid, timestamp, batterylevel FROM batteryState WHERE company = ? ORDER BY timestamp")
  
-== Poll step
-The `poll` step within the Cassandra plugin polls the newest records from the database table.
+| `parameters`
+|  Poll, Search
+|  O
+|  N/A
+| binds values to the clauses of the prepared query.
+  parameters("ACME Inc.")
+
+| `tieBreaker`
+|  Poll, Search
+|  R
+|  N/A
+| Repeats the first column used for sorting and comparison (⇐ or >=, depending on the ascending or descending order).
+    tieBreaker {           
+        name = "timestamp"
+        type = GenericType.INSTANT
+    }
+
+| `pollDelay`
+| Poll
+| R
+| N/A
+| Specifies the delay between query executions.
+  pollDelay(Duration.ofSeconds(1))
+
+| `broadcast`
+|  Poll
+|  O
+|  N/A
+| Specifies the broadcast parameters for a step.
+|===
+* O = Optional; R= Required
+
+== Example scenarios
+
+=== Poll step
+The `poll` step within the *Cassandra* plugin polls the newest records from the database table.
 
 Ancestor::
 Scenario or Step
@@ -39,28 +135,25 @@ Example::
 [source,kotlin,linenumbers]
 ----
 cassandra().poll {
-    connect {
+    connect { <1>
         servers = listOf("localhost:9042")
-        keySpace = "iot"
+        keySpace = "iot" 
         datacenterName = "datacenter1"                           
     }
-    query("SELECT deviceid, timestamp, batterylevel FROM batteryState WHERE company = ? ORDER BY timestamp")
-    parameters("ACME Inc.")
-    tieBreaker {
+    query("SELECT deviceid, timestamp, batterylevel FROM batteryState WHERE company = ? ORDER BY timestamp") <2>
+    parameters("ACME Inc.") <3>
+    tieBreaker {           <4>
         name = "timestamp"
         type = GenericType.INSTANT
     }
-    pollDelay(Duration.ofSeconds(1))
+    pollDelay(Duration.ofSeconds(1)) <5>
 }
 ----
- Notable parameters::
-* `connect` (required): configures the connection to https://cassandra.apache.org[Apache Cassandra]
-* `keyspace` (required): the outermost object that determines how data replicates on nodes.
-* `query` (required): defines the prepared statement to execute when polling.
-* `parameters` (optional): binds values to the clauses of the prepared query.
-* `tieBreaker` (required): repeats the first column used for sorting and comparison (`<=` or `>=`, depending on the ascending or descending order).
-* `pollDelay` (required): specifies the delay between query executions.
-* `broadcast` (optional): specifies the broadcast parameters for the step.
+<1> Define the connection parameters to the *Cassandra* cluster.
+<2> Define the prepared statement to execute when polling.
+<3> Bind values to the clauses of the prepared query.
+<4> Repeat the first column used for sorting and comparison (`<=` or `>=`, depending on the ascending or descending order)
+<5> Specify the delay between query executions.
 
 Tips::
 * Use the `poll` step with a left join operator to verify the values saved by your tested system in the database.
@@ -70,8 +163,8 @@ Tips::
 Reference documentation::
 Refer to the https://cassandra.apache.org/doc/latest[Apache Cassandra] documentation for further parameter and configuration information.
 
-== Save step
-The `save` step within the Cassandra plugin persists records into a cassandra database using the save query with Cassandra Query Language (CQL).
+=== Save step
+The `save` step within the Cassandra plugin persists records into a cassandra database using the save query with https://cassandra.apache.org/doc/latest/cassandra/cql/index.html[Cassandra Query Language (CQL)].
 
 Ancestor::
  Step
@@ -80,21 +173,22 @@ Functionality::
  The `save` step's input and step context are used to generate documents to save into a database.
 
 Example::
+
 [source,kotlin,linenumbers]
 ----
 .cassandra() 
 .save {  
-    connect {   
+    connect {   <1> 
         servers = listOf("localhost:9042")
         keyspace = "iot"
         datacenterName = "datacenter1"
     }
 
-    table { _, _ ->   
+    table { _, _ ->   <2>   
         "batteryState"
     }
 
-    columns { _, _ ->  
+    columns { _, _ ->  <3>
         listOf(
             "company",
             "deviceid",
@@ -103,7 +197,7 @@ Example::
         )
     }
                
-    rows { _, input ->   
+    rows { _, input ->   <4>
         listOf(
             CassandraSaveRow(
                 "'ACME Inc.'",
@@ -115,10 +209,10 @@ Example::
     }
 }
 ----
-
-Notable parameters::
-* `connect` (required): configures the connection to https://cassandra.apache.org[Apache Cassandra].
-* `keyspace` (required): the outermost object that determines how data replicates on nodes.
+<1> Define the connection parameters to the `Cassandra` cluster.
+<2> Name the output table.
+<3> Define column names for the output table.
+<4> Define how `input` fields are extracted and formatted to the output table's.
 
 Tips::
 * Use the `save` step after a `collect` step to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.
@@ -127,44 +221,316 @@ Tips::
 Reference documentation::
 Refer to the https://cassandra.apache.org/doc/latest[Apache Cassandra] documentation for further parameter and configuration information.
 
-== Search step
+=== Search step
 The `search` step within the Cassandra plugin searches records in the database using a search query.
 
 Ancestor::
-step
+Step
 
 Functionality::
 The `search` step’s input and step context are used to complete the search; the list of results is then forwarded to the next step(s).
 
 Example::
+
 [source,kotlin,linenumbers]
 ----
 cassandra().search {
     name = "search"
 
-    connect {
+    connect {.          <1>
         servers = listOf("localhost:9042")
         keyspace = "iot"
         datacenterName = "datacenter1"
     }
-    query { _, _ ->
+    query { _, _ ->   <2>
         "SELECT * FROM batteryState WHERE company= ? AND deviceid = ? AND timestamp = ?"
     }
-    parameters { _, input ->
+    parameters { _, input ->.  <3>
         listOf("ACME Inc.", input.input.deviceId, input.input.timestamp)
     }
 }
 ----
-Notable parameters::
-* `connect` (required): configures the connection to  https://cassandra.apache.org[Apache Cassandra].
-* `keyspace`(required): the outermost object that determines how data replicates on nodes.
-* `query` (required): defines the prepared statement to execute when searching.
-* `parameters`: (optional): binds values to the clauses of the prepared query.
-
+<1> Define the connection parameters to the `Cassandra` cluster.
+<2> Define the query statement.
+<3> Define the query parameters.
 
 Tips::
-* Use the `search` step after a `collect()` step to reduce the number of queries executed onto the database and to reduce the load the scenario generates on the test system.
-* The `query` parameter may contain ordering clauses.
+ * Use the `search` step after a `collect()` step to reduce the number of queries executed onto the database and to reduce the load the scenario generates on the test system.
+ * The `query` parameter may contain ordering clauses.
 
 Reference documentation::
-* Refer to the https://cassandra.apache.org/doc/latest[Apache Cassandra] documentation for further parameter and configuration information.
+ * Refer to the https://cassandra.apache.org/doc/latest[Apache Cassandra] documentation for further parameter and configuration information.
+
+=== CassandraSaveandPoll scenario
+
+// I am unsure where to start the scenario example.  Should we keep package, import, and suppress statements? Should we keep class, fun, and @scenario statement? 
+[source,kotlin,linenumbers]
+----
+package io.qalipsis.examples.cassandra
+
+import com.datastax.oss.driver.api.core.CqlIdentifier
+import com.datastax.oss.driver.api.core.type.reflect.GenericType
+import io.kotest.matchers.ints.shouldBeExactly
+import io.qalipsis.api.annotations.Scenario
+import io.qalipsis.api.executionprofile.immediate
+import io.qalipsis.api.scenario.scenario
+import io.qalipsis.api.steps.filterNotNull
+import io.qalipsis.api.steps.innerJoin
+mport io.qalipsis.api.steps.map
+import io.qalipsis.api.steps.verify
+import io.qalipsis.plugins.cassandra.cassandra
+import io.qalipsis.plugins.cassandra.poll.poll
+import io.qalipsis.plugins.cassandra.save.CassandraSaveRow
+import io.qalipsis.plugins.cassandra.save.save
+import io.qalipsis.plugins.jackson.csv.csvToObject
+import io.qalipsis.plugins.jackson.jackson
+import java.time.Duration
+import java.time.Instant
+
+@Suppress("DuplicatedCode")
+
+class CassandraSaveAndPoll {  
+    @Scenario("cassandra-save-and-poll")
+    fun scenarioSaveAndPoll() {
+        scenario {  <1>
+            minionsCount = 20
+            profile {
+                immediate()
+            }
+        }
+            .start()
+            .jackson()      <2>
+            .csvToObject(mappingClass = BatteryState::class) {
+                classpath(path = "battery-levels.csv") 
+                header { <3>
+                    column(name = "deviceId")
+                    column(name = "timestamp")
+                    column(name = "batteryLevel").integer()
+                }     
+                unicast()
+            }
+            .map { it.value } <4> 
+            .cassandra() <5> 
+            .save {
+
+                connect {   <6>
+                    servers = listOf("localhost:9042")
+                    keyspace = "iot"
+                    datacenterName = "datacenter1"
+                }
+
+                table { _, _ -> <7> 
+                    "batteryState"
+                }
+
+                columns { _, _ -> <8> 
+                    listOf(
+                    "company",
+                    "deviceid",
+                    "timestamp",
+                    "batterylevel"
+                    )
+                }
+                rows { _, input ->  <9> 
+                    listOf(
+                        CassandraSaveRow(
+                            "'ACME Inc.'",
+                            "'${input.deviceId}'",
+                            "'${input.timestamp}'",
+                            input.batteryLevel
+                        )
+                    )
+                } 
+            }           
+            .map { it.input }   <10>
+            .innerJoin()
+            .using { correlationRecord -> correlationRecord.value.deviceId }
+            .on {
+                it.cassandra().poll {  <11>
+                    connect {   <12>
+                        servers = listOf("localhost:9042")
+                        keyspace = "iot"
+                        datacenterName = "datacenter1"
+                    }
+                    query(queryString = "SELECT deviceid, timestamp, batterylevel FROM batteryState WHERE company = ? ORDER BY timestamp")  <13>
+                    parameters("ACME Inc.") <14>
+                    tieBreaker {
+                        name = "timestamp"
+                        type = GenericType.INSTANT
+                    }
+                    pollDelay(duration = Duration.ofSeconds(1)) <15>
+                }
+                    .flatten() <16> 
+                    .map { record ->
+                        BatteryState(
+                            deviceId = record.value[CqlIdentifier.fromCql("deviceid")] as String,
+                            timestamp = record.value[CqlIdentifier.fromCql("timestamp")] as Instant,
+                            batteryLevel = (record.value[CqlIdentifier.fromCql("batterylevel")] as Number).toInt()
+                        )
+                    }
+            }
+            .having { correlationRecord ->  <17>
+                correlationRecord.value.deviceId
+            }
+            .configure {    <18>
+                timeout(duration = 5000L)
+                report {
+                    reportErrors = true
+                }
+            }
+            .filterNotNull()
+            .verify { result -> <19>
+                val savedBatteryState = result.first
+                val foundedBatteryState = result.second
+                foundedBatteryState.batteryLevel shouldBeExactly savedBatteryState.batteryLevel
+            }
+    }
+}
+----
+<1> Define the scenario, set the name, number of minions and rampUp
+<2> Start the jackson step to fetch data from the csv file using the csvToObject method to map csv entries to list of utils.BatteryState object.
+<3> Define the header of the csv file.
+<4> Transform the output of the CSV reader entries to utils.BatteryState.
+<5> Start the save step to save data to the database.
+<6> Setup the connection to the database.
+<7> Define the name of the database.
+<8> Define the column names of the database.
+<9> Create the list of rows to save to the database.
+<10> \\ Not sure what to describe here Mapping to what???.
+<11> Initate the poll step.
+<12> Define the connection to Cassandra \\ (again? - do we need to td thid for the save and the poll step?)
+<13> Define the query statement.
+<14> Define the query parameters.
+<15> Set the poll delay.
+<16> Defines the mapping for the incoming data stream. \\(Need help here)
+<17> //Not sure what is happening here..
+<18> Configure the timeout duration and error reporting.
+<19> Define the verification parameters. 
+
+=== CassandraSaveandSearch scenario
+[source,kotlin,linenumbers]
+----
+package io.qalipsis.examples.cassandra
+
+import com.datastax.oss.driver.api.core.CqlIdentifier
+import io.kotest.matchers.ints.shouldBeExactly
+import io.qalipsis.api.annotations.Scenario
+import io.qalipsis.api.executionprofile.immediate
+import io.qalipsis.api.scenario.scenario
+import io.qalipsis.api.steps.map
+import io.qalipsis.api.steps.verify
+import io.qalipsis.plugins.cassandra.cassandra
+import io.qalipsis.plugins.cassandra.save.CassandraSaveRow
+import io.qalipsis.plugins.cassandra.save.save
+import io.qalipsis.plugins.cassandra.search.search
+import io.qalipsis.plugins.jackson.csv.csvToObject
+import io.qalipsis.plugins.jackson.jackson
+import java.time.Instant
+
+class CassandraSaveAndSearch {
+
+    @Scenario("cassandra-save-and-search")
+    fun scenarioSaveAndSearch() {
+        scenario { <1>
+            minionsCount = 20
+            profile {
+                immediate()
+            }
+        }
+            .start()
+            .jackson()  <2>
+            .csvToObject(mappingClass = BatteryState::class) {
+
+                classpath(path = "battery-levels.csv")
+                header {    <3>
+                    column(name = "deviceId")
+                    column(name = "timestamp")
+                    column(name = "batteryLevel").integer()
+                }
+                unicast()
+            }
+            .map { it.value } <4>
+            .cassandra() <5>
+            .save {
+                name = "save"
+
+                connect {   <6>
+                    servers = listOf("localhost:9042")
+                    keyspace = "iot"
+                    datacenterName = "datacenter1"
+                }
+
+                table { _, _ ->     <7>
+                    "batteryState"
+                }
+
+                columns { _, _ ->   <8>
+                    listOf(
+                        "company",
+                        "deviceid",
+                        "timestamp",
+                        "batterylevel"
+                    )
+                }
+
+                rows { _, input ->  <9>
+                    listOf(
+                        CassandraSaveRow(
+                            "'ACME Inc.'",
+                            "'${input.deviceId}'",
+                            "'${input.timestamp}'",
+                            input.batteryLevel
+                        )
+                    )
+                }
+            }
+            .search {
+                name = "search" <10>
+
+                connect {   <11>
+                    servers = listOf("localhost:9042")
+                    keyspace = "iot"
+                    datacenterName = "datacenter1"
+                }
+                query { _, _ ->     <12>
+                    "SELECT * FROM batteryState WHERE company = ? AND deviceid = ? AND timestamp = ?"
+                }
+                parameters { _, input ->    <13>
+                    listOf("ACME Inc.", input.input.deviceId, input.input.timestamp)
+                }
+            }
+            .map {      <14>
+                it.input.input to it.records.first().let { cassandraRecord ->
+                    BatteryState(
+                        deviceId = cassandraRecord.value[CqlIdentifier.fromCql("deviceid")] as String,
+                        timestamp = cassandraRecord.value[CqlIdentifier.fromCql("timestamp")] as Instant,
+                        batteryLevel = (cassandraRecord.value[CqlIdentifier.fromCql("batterylevel")] as Number).toInt()
+                    )
+                }
+            }
+            .verify { result ->     <15>
+                val savedBatteryState = result.first
+                val foundedBatteryState = result.second
+                foundedBatteryState.batteryLevel shouldBeExactly savedBatteryState.batteryLevel
+            }
+    }
+
+}
+----
+<1> Define the scenario, set the name, number of minions and rampUp
+<2> Start the jackson step to fetch data from the csv file using the csvToObject method to map csv entries to list of utils.BatteryState object.
+<3> Define the header of the csv file.
+<4> Transform the output of the CSV reader entries to utils.BatteryState.
+<5> Start the save step to save data to the database.
+<6> Setup the connection to the database.
+<7> Define the name of the database.
+<8> Define the column names of the database.
+<9> Create the list of rows to save to the database.
+<10> Initiate the search step.
+<11> Define the connection to Cassandra \\ (again? - do we need to td thid for the save and the poll step?)
+<12> Define the query statement.
+<13> Define the query parameters.
+<14> Defines the mapping for the incoming data stream. \\(Need help here)
+<15> Define the verification parameters. 
+
+//== Troubleshooting
