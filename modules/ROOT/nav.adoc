@@ -32,6 +32,7 @@
 * xref:develop-scenarios/develop-scenarios.adoc[Develop scenarios]
 ** xref:develop-scenarios/scenario.adoc[]
 ** xref:develop-scenarios/steps.adoc[]
+** xref:develop-scenarios/statistic-steps.adoc[]
 
 * xref:automation-ci-cd/automation-ci-cd.adoc[Automation, CI, CD]
 ** xref:automation-ci-cd/scheduling.adoc[Scheduling]

@@ -81,6 +81,7 @@ They may define:
 When percentiles are declared, the console highlights the success or failure of each tracked percentile independently.
 
 A step is considered successful **only if every declared expectation is satisfied**.
+When no expectations are declared, the step always succeeds.
 
 === Comparison Operators
 
@@ -137,15 +138,13 @@ Fails the step if the evaluated value is inside the inclusive range [lowerBound,
 [source,kotlin]
 current.isNotBetween(lowerBound = 0.1, upperBound = 0.2)
 
-These operators can be freely combined within a single shouldSatisfy block. All declared assertions must pass for the step to be considered successful.
-
 === Meter Block and Expectations
 
 Each statistical step is composed of two required elements:
 
-The meter block, which extracts a numeric value from the step context and input
+* The meter block, which extracts a numeric value from the step context and input
 
-The expectations block, which declares the assertions evaluated after execution
+* The expectations block, which declares the assertions evaluated after execution
 
 [cols="1,3",options="header"]
 |===
@@ -155,7 +154,7 @@ The expectations block, which declares the assertions evaluated after execution
 
 `(StepContext<INPUT, INPUT>, INPUT) -> T`
 
-Where `T` depends on the meter type (Duration for timers, TrackedThresholdRatio for rates, Double for counters/gauges/throughput/distribution summaries).
+Where `T` depends on the meter type (Duration for timers, RateIncrement for rates, Double for counters/gauges/throughput/distribution summaries).
 
 |Expectations |A DSL block defining statistical assertions (min, max, mean, percentiles, etc.) that are evaluated during and after execution:
 
@@ -180,7 +179,9 @@ Counters are typically used to assert:
 
 [source,kotlin]
 ----
-stepSpecification.counter(name = "requests") { _, _ -> 1.0 }
+stepSpecification.counter(name = "requests") { ctx, input ->
+    input.requestCount.toDouble()
+ }
     .shouldSatisfy {
         // Examples of expectations (actual DSL options defined in CounterExpectationSpec)
         count.isLessThan(5.0)  // Fail if count >= 5.0.
@@ -225,35 +226,41 @@ The emphasis is on comparison and normalization, not on time.
 
 Unlike meters that record a single numeric value, the Rate meter operates exclusively on a structured value that captures both sides of the comparison.
 
-=== TrackedThresholdRatio
+==== RateIncrement
 
-The **TrackedThresholdRatio** is the mandatory value object used by the Rate meter to express a relationship between two quantities.
-
-It encapsulates the information required to compute, normalize, and consistently evaluate ratios across steps and campaigns.
+The *RateIncrement* is the mandatory value object used by the Rate meter to **incrementally update two related internal counters** during step execution.
+It describes how much each counter should change as a result of a single step execution. The Rate meter aggregates these increments over
+time and derives normalized values that are later evaluated using expectations.
 
 ==== Structure
 
-A TrackedThresholdRatio consists of the following properties:
+A **RateIncrement** consists of the following properties:
 
-benchmark:: The measured or observed value being evaluated.
+observedDelta::
+The amount by which the *observed* counter should be incremented.
++
+This represents the quantity of interest contributed by the current execution,
+such as the number of successes, errors, matched items, or any other measured
+outcome.
 
-This typically represents the quantity of interest, such as successes, errors, matches, or any value you want to assess relative to a reference.
+totalDelta::
+The amount by which the *total* counter should be incremented
++
+This represents the reference or contextual quantity contributed by the same
+execution, such as total attempts, processed items, or expected capacity.
 
-total:: The reference value against which the benchmark is compared.
-
-This typically represents the full set, expected count, or upper bound that gives the benchmark its context.
-
-Together, these values define a ratio that can be interpreted and evaluated consistently by the framework.
+Both values are treated as **deltas**, meaning they are added to the existing
+internal counters rather than replacing them.
 [source,kotlin]
 ----
-(StepContext<INPUT, INPUT>, INPUT) -> TrackedThresholdRatio
+(StepContext<INPUT, INPUT>, INPUT) -> RateIncrement
 ----
 === Example
 
 [source,kotlin]
 ----
 stepSpecification.rate(name = "event-rate") { ctx, input ->
-      TrackedThresholdRatio(benchmark = 12.0, total = 15.0)
+    RateIncrement(observedDelta = input.successCount.toDouble(), totalDelta = input.attemptCount.toDouble())
 }.shouldSatisfy {
      current.isLessThan(1000.0) // Fail if the current rate >= 1000.0.
      current.isNotBetween(1000.0, 2000.0) // Fail if the current rate is within [1000, 2000].
@@ -262,7 +269,7 @@ stepSpecification.rate(name = "event-rate") { ctx, input ->
 
 === Throughput Meter
 
-The Throughput meter measures processed data volume per unit of time.
+The Throughput meter measures processed data volume per unit of time, in this case per second.
 
 It focuses on quantity over time (for example, bytes per second) and is commonly used to validate bandwidth or processing capacity under load.
 
@@ -296,7 +303,7 @@ Unlike meters that operate on numeric values, the Timer meter works entirely in 
 [source,kotlin]
 ----
 stepSpecification.timer(name = "http-latency") { ctx, input ->
-    java.time.Duration.ofMillis(input)
+    input.responseTime
 }.shouldSatisfy {
     mean.isLessThanOrEqual(java.time.Duration.ofMillis(150)) // Fail if mean latency > 150ms.
     max.isGreaterThan(java.time.Duration.ofMillis(500))  // Fail if max <= 500ms.
@@ -317,7 +324,7 @@ In addition to percentiles, it typically exposes count, total, mean, and max val
 [source,kotlin]
 ----
 stepSpecification.distributionSummary(name = "payload-size") { ctx, input ->
-    input.sizeBytes.toDouble()
+    input.bytesSize.toDouble()
 }.shouldSatisfy {
     mean.isLessThanOrEqualTo(512_000.0) // Fail if mean > 512KB.
     max.isBetween(1_024_000.0, 2_048_000.0) // Fail if max not in [1MB, 2MB].
