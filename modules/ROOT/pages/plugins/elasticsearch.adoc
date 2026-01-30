@@ -3,9 +3,9 @@
 == Overview
 The Elasticsearch plugin connects QALIPSIS to https://www.elastic.co/[Elasticsearch] using the elasticsearch REST client.
 
-*Elasticsearch* allows QALIPSIS to poll, save, and analyze data from your system.
-
-This page explains configuration, core concepts, secure connection options, runnable examples and best practices.
+*Elasticsearch:*
+* Allows QALIPSIS to poll, search, save, and analyze data from your tested system. 
+* Can be used to store analytics data from your test campaigns.
 
 Technology addressed::
 Elasticsearch: https://www.elastic.co/[]
@@ -27,54 +27,77 @@ Supported steps::
 
 Example scenarios are provided later in this <<Example scenarios,section>>.
 
-==Configuration reference
-// should we include the ENV Variable and CLI Override confidurations?
-[cols="2,2,1,1,1,2,2" options="header"]
+== Configuration
+`Elasticsearch` configuration settings are configured in an elasticsearch.yaml file. 
+
+=== Sample configuration file
+
+Ealsticsearch configuration settings are configured in a cassandra.yaml file. 
+
+[source,kotlin,linenumbers]
+----
+campaign:
+  name: elasticsearch-${random.shortuuid}
+  configuration:
+    validation:
+      max-execution-duration: PT40S
+
+logging:
+  console: true
+  root: INFO
+
+events:
+  root: WARN
+
+report:
+  export:
+    console-live:
+      enabled: false
+----
+
+=== Configuration parameters
+
+Available parameters are described in the table below.
+
+[cols="2,2,1,1,8" options="header"]
 |===
 
 | *Parameter*
 | *Applicable Step(s)*
-| *O/R* *
-| *Data type*
+| *Optional/*
+   *Required* 
 | *Default Value*
-| *Description *
-| *Example*
+| *Description/Example Usage*
 
 | `index`
 | Poll, Search
-| R
-| Poll: `vararg String`
+| Required
+| `all`
+| Sets the elasticsearch indices to use for the queries.
 
-Search: Lambda that receives the step context and input to return `List<String>`
-| `_all`
-| Sets the `elasticsearch` indices to use for the queries;
-| Poll: index("battery-state")
-
-Search: index { _, _ -> listOf("battery-state") }
+    index("battery-state")
 
 | `client`
 | Poll, Save, Search
-| R
-| Lambda that returns an instance of RestClient
+| Required 
 | N/A
 | Configures the REST client to connect to https://www.elastic.co/[Elasticsearch]
-| client { RestClient.builder(HttpHost.create("http://localhost:9200")).build() }
 
+  client { RestClient.builder(HttpHost.create("http://localhost:9200")).build() }
+ 
 | `query`
 | Poll, Search
-| R
-| Poll: Lambda that returns a String.
-
-Search: Lambda that receives the step context and input to return a String
+| Required 
 | N/A
 | Configures the builder for the JSON query to perform the first poll/search.
-|  Poll: query {
+
+  query { 
         """{
             "query":{
                 "match_all":{}
             },
                 "sort" : ["_score"]
-            }""".trimIndent()
+            }"""
     }
 
 Search: query { _, input ->
@@ -92,138 +115,36 @@ Search: query { _, input ->
 
 | `queryParameters`
 |  Poll, Search
-|  O
-|  Poll: vararg Pair<String, String>
-
-Search: Lambda that receives the step context and input to return `Map<String, String>`
+|  Optional
 |  N/A
-|  Specifies additional query parameters for the poll/search requests.
-|  Poll: queryParameters(
-        "scroll" to "1m",
-        "size" to "100"
-    )
+|  Adds parameters to the query. +
+// neeed Example code here
+  
 
-Search: queryParameters { _, _ ->
-        mapOf(
-            "scroll" to "1m",
-            "size" to "100"
-        )
-    }
-
-|  `pollDelay`
-|  Poll
-|  R
-|  Duration
-|  null
-|  Specifies the delay between query executions.
-|  pollDelay(Duration.ofSeconds(1))
-
-
-| `singletonConfiguration`
+| `pollDelay`
 | Poll
-| O
-| function
-| unicast(bufferSize, idleTimeout)
-| Configures how polled results are delivered to scenario minions. Specify one of the strategies directly (not wrapped in a lambda).
-Each strategy requires `bufferSize` (Int) and `idleTimeout` (Duration);
-
-see `singletonConfiguration.bufferSize` and `singletonConfiguration.idleTimeout` definitions below.
-
-| `broadcast(bufferSize, idleTimeout)` - deliver each polled record to all minions
-
-`unicast(bufferSize, idleTimeout)` - deliver each polled record to a single minion
-
-`loop(bufferSize, idleTimeout)` - rotate delivery among minions (round\-robin)
-
-`sequential()` - deliver records in order, waiting for processing before sending the next
-
-| `singletonConfiguration.bufferSize`
-| Poll
-| O
-| Int
-| -1
-| Size of the buffer used to store polled records before delivery to minions.
-| `bufferSize = 3`
-
-| `singletonConfiguration.idleTimeout`
-| Poll
-| O
-| java.time.Duration
-| Duration.ZERO
-| Maximum time to wait before delivering polled records to minions, even if the buffer is not full.
-| `idleTimeout = Duration.ofMinutes(1)`
-
-| `broadcast`
-|  Poll
-|  O
-|  function
-|  N/A
-| Specifies the broadcast parameters for a step.
-|  `broadcast(3, Duration.ofMinutes(1))`
-
-| `unicast`
-|  Poll
-|  O
-|  function
-|  N/A
-| Specifies the unicast parameters for a step.
-|  `unicast(1, Duration.ofMinutes(3))`
-
-| `loop`
-|  Poll
-|  O
-|  function
-|  N/A
-| Specifies the loop parameters for a step.
-|  `loop(5, Duration.ofMinutes(2))`
-
-| `sequential`
-|  Poll
-|  O
-|  function
-|  N/A
-| Specifies the sequential parameters for a step.
-|  `sequential()`
-
-|  `monitoring`
-| Poll, Save, Search
-| O
-| Lambda within which the monitoring options are set
+| Required
 | N/A
-| Configures the monitoring of the step.
-| `monitoring {
-     meters = true
-     events = true
-  }`
+| Specifies the delay between query executions.
 
-| `monitoring.meters`
-| Poll, Save, Search
-| O
-| Boolean
-| false
-| Enables or disables the monitoring by meters for the step.
-| `meters = true`
+  pollDelay(Duration.ofSeconds(1)) +
+ +
+| `broadcast` +
+  `unicast` +
+  `loop` 
 
-| `monitoring.events`
-| Poll, Save, Search
-| O
-| Boolean
-| false
-| Enables or disables the monitoring by events for the step.
-| `events = true`
-
-| `monitoring.all`
-| Poll, Save, Search
-| O
-| function
+| Poll
+| Optional
 | N/A
-| Enables all monitoring options for the step.
-| `all()`
+| Specifies the data transfer method. +
+ +
+  unicast() +
+  broadcast() +
+  loop()
 
 | `documents`
 |  Save
-|  R
-|  Lambda that receives the step context and input to return `List<Document>`
+|  Required
 |  N/A
 | Defines the strategy to create documents to save from the input and step context.
 |  documents { _, input ->
@@ -235,6 +156,72 @@ see `singletonConfiguration.bufferSize` and `singletonConfiguration.idleTimeout`
             )
         )
     }
+| `broadcast`
+|  Poll
+|  Optional
+|  N/A
+| Specifies the broadcast parameters for a step. +
+   +
+  broadcast(3, Duration.ofMinutes(1))
+
+| `unicast`
+|  Poll
+|  Optional
+|  N/A
+| Specifies the unicast parameters for a step. +
+   +
+   unicast(1, Duration.ofMinutes(3))
+
+| `loop`
+|  Poll
+|  Optional
+|  N/A
+| Specifies the loop parameters for a step. +
+|  +
+   loop(5, Duration.ofMinutes(2))
+
+| `sequential`
+|  Poll
+|  Optional
+|  N/A
+| Specifies the sequential parameters for a step. +
+  +
+  sequential()
+
+| `monitoring`
+| Poll, Save, Search
+| Optional
+| N/A
+| Configures the monitoring of the step. +
+
+  monitoring {
+    meters = true
+    events = true
+   }
+
+| `monitoring.meters`
+| Poll, Save, Search
+| Optional
+| false
+| Enables or disables the monitoring by meters for the step. +
+  +
+| meters = true
+
+| `monitoring.events`
+| Poll, Save, Search
+| Optional
+| false
+| Enables or disables the monitoring by events for the step. +
+  +
+  events = true
+
+| `monitoring.all`
+| Poll, Save, Search
+| Optional
+| N/A
+| Enables all monitoring options for the step. +
+  +
+  all()
 
 | `keepResponse`
 | Save
@@ -263,14 +250,13 @@ see `singletonConfiguration.bufferSize` and `singletonConfiguration.idleTimeout`
     }
 
 |===
-* O = Optional; R= Required
 
-== Example usage
+
+== Examples of Usage
 
 ===Poll step
 
-The `poll` step within the Elasticsearch plugin reads batches of documents periodically from Elasticsearch.
-The output is a list of `ElasticsearchDocument` containing JSON data or deserialized to objects.
+The `poll` step in the Elasticsearch plugin periodically retrieves data from Elasticsearch. It returns a list of `ElasticsearchDocument` objects, which can contain raw JSON or be deserialized into specific data models. 
 
 Ancestor::
 Scenario
@@ -326,7 +312,7 @@ The `save` step's input and step context are used to generate a list of document
 Example::
 [source,kotlin,linenumbers]
 ----
-// `previousStep` is a placeholder for any preceding step (e.g. `collect()` etc.)
+
 previousStep.elasticsearch().save {   <1>
     name = "my-save-step"
     client {    <2>
@@ -347,8 +333,7 @@ previousStep.elasticsearch().save {   <1>
 
 <1> Start the `save` step.
 <2> Configure the REST client connection.
-<3> Define the strategy to create documents to save from the input and step context.
-
+<3> Define the strategy to create documents to save from the step context and input.
 
 Reference Documentation::
 Refer to the https://www.elastic.co/guide[Elasticsearch] documentation for further parameter information.
@@ -365,7 +350,6 @@ The `search` step’s input and step context are used to generate a query; the b
 Example::
 [source,kotlin,linenumbers]
 ----
-// `previousStep` is a placeholder for any preceding step (e.g. `collect()` etc.)
 previousStep.elasticsearch().search {   <1>
     name = "my-search-step"
     client {    <2>
@@ -388,8 +372,8 @@ previousStep.elasticsearch().search {   <1>
 ----
 <1> Start the `search` step.
 <2> Configure the REST client connection.
-<3> Set the `elasticsearch` indices to use for the queries.
-<4> Configure the builder for the JSON query to perform a search.
+<3> Set the `elasticsearch` indices to use for the queries, resolved from the step context and input.
+<4> Configure the builder for the JSON query to perform a search, resolved from the step context and input.
 
 Reference Documentation::
 * Refer to the https://www.elastic.co/guide[Elasticsearch] documentation for further parameter and configuration information.
@@ -397,172 +381,362 @@ Reference Documentation::
 * For specifics on `search` parameters, refer to
  https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html[Elasticsearch Search Parameters].
 
+== ElasticsearchSaveAndSearch scenario
+[source,kotlin,linenumbers]
+----
+@Scenario("elasticsearch-save-and-search")
+fun scenarioSaveAndSearch() {
+    scenario { <1>
+        minionsCount = 10
+        profile {
+            immediate()
+        }
+    }
+        .start()
+        .jackson() <2>  
+        .csvToObject(mappingClass = BatteryState::class) { <3> 
+            classpath(path = "battery-levels.csv") 
+            header {     <4> 
+                column(name = "deviceId")
+                column(name = "timestamp")
+                column(name = "batteryLevel").integer()
+                }
+            unicast()  <5>
+        }
+        .map { it.value } <6> 
+        .elasticsearch()
+        .save {
+            name = "save"
+            client {  <7>
+                RestClient.builder(HttpHost.create("http://localhost:9200"))
+                    .build() 
+            }
+            documents { _, input ->
+                listOf(
+                    Document(
+                        index = "battery-state",
+                        id = input.deviceId,
+                        source = objectMapper.writeValueAsString(input) <8>
+                    )
+                )
+            }
+        }
+        .delay(Duration.ofSeconds(2)) <9>
+        .elasticsearch()
+        .search {
+            name = "search"
+            client {
+                RestClient.builder(HttpHost.create("http://localhost:9200"))
+                    .build()
+            }
+            index { _, _ -> listOf("battery-state*") } <10> 
+            query { _, input ->   <11> 
+                """{
+                    "query": {
+                        "bool": {
+                            "must": [
+                                { "match": { "deviceId": "${input.input.deviceId}" }},
+                                { "term": { "timestamp": ${input.input.timestamp.epochSecond} }}
+                            ]
+                        }
+                    }
+                }"""
+            } 
+        }
+        .deserialize(targetClass = BatteryState::class) <12> 
+        .verify { result ->  <13>
+            val savedBatteryState = result.first.input
+            result.second.asClue {
+                assertSoftly {
+                    it.results shouldHaveSize 1
+                    it.results.first().value.batteryLevel shouldBe savedBatteryState.batteryLevel
+                }
+            }
+        }
+    }
+----
+<1> Define the scenario, set the name, number of minions and rampUp.
+<2> Start the jackson step to fetch data from the csv file. 
+<3> Use the csvToObject method to map csv entries to list of utils.BatteryState object.
+<4> Define the header of the csv file.
+<5> Set the data transfer method to `unicast`.  
+<6> Transform the output of the CSV reader entries to utils.BatteryState.
+<7> Create the rest client to submit requests to elasticsearch.
+<8> Parse the object to save to json.
+<9> Add a 2-second delay to ensures the newly indexed data is fully refreshed and searchable before proceeding. 
+<10> Specify the table to search for data to fetch.
+<11> Create a query to get the `batterystate` for a specific id and specific timestamp.
+<12> Define the method to transform the elastic search result to a specific object.
+<13> Define the verification parameters.
+
+== ElasticsearchSaveAndPoll scenario
+[source,kotlin,linenumbers]
+----
+@Scenario("elasticsearch-save-and-poll")
+fun scenarioSaveAndPoll() {
+    scenario {  <1>
+        minionsCount = 10
+        profile {
+            immediate()
+        }
+    }
+        .start()
+        .jackson() <2>
+        .csvToObject(mappingClass = BatteryState::class) { <3>
+            classpath(path = "battery-levels.csv")
+            header {  <4>
+                column(name = "deviceId")
+                column(name = "timestamp")
+                column(name = "batteryLevel").integer()
+            }
+            unicast()
+        }
+        .map { it.value } <5> 
+        .elasticsearch()
+        .save {
+            name = "save"
+            client { 
+                RestClient.builder(HttpHost.create("http://localhost:9200"))
+                    .build() <6> 
+            }
+            documents { _, input ->
+                listOf(
+                    Document(
+                        index = "battery-state",
+                        id = input.deviceId,
+                        source = objectMapper.writeValueAsString(input) <7> 
+                    )
+                )
+            }
+        }
+        .map { it.input }
+        .delay(duration = Duration.ofSeconds(2)) <8>
+        .innerJoin()
+        .using { correlationRecord -> correlationRecord.value.deviceId }
+        .on {
+            it.elasticsearch().poll {
+                name = "poll"
+                client +
+                    { RestClient.builder(HttpHost.create("http://localhost:9200")).build() }
+                query {
+                    """{
+                        "query":{
+                            "match_all":{}
+                        },
+                        "sort" : ["_score"]
+                        }""".trimIndent()
+                }
+                index("battery-state*") <9> 
+                pollDelay(delay = Duration.ofSeconds(1)) <10> 
+            }
+                .deserialize(targetClass = BatteryState::class) <11> 
+                .flatten() <12>
+                .map { record ->
+                    record.value
+                }
+        }
+        .having { correlationRecord -> correlationRecord.value.deviceId }. <13>
+        .filterNotNull()
+        .verify { result ->  <14>
+            result.asClue {
+                assertSoftly {
+                    it.first.batteryLevel shouldBeExactly it.second.batteryLevel
+                }
+            }
+        }
+}
+----
+<1> Define the scenario, set the name, number of minions and rampUp.
+<2> Start the jackson step to fetch data from the csv file. 
+<3> Use the csvToObject method to map csv entries to list of utils.BatteryState object
+<4> Define the header of the csv file.
+<5> Transform the output of the CSV reader entries to utils.BatteryState.
+<6> Create the rest client to submit requests to elasticsearch.
+<7> Parse the object to save to json.
+<8> Add a 2-second delay to ensures the newly indexed data is fully refreshed before proceeding. 
+<9> Specify the table to poll for data to fetch.
+<10> Set the poll delay to 2 seconds to avoid saturating the server with requests.
+<11> Define the method to transform the elastic search result to a specific object.
+<12> Define the mapping for the incoming data stream. 
+<13> Get the device id for the records.  
+<14> Define the verification parameters. 
+
 == Configuration of publication of events and meters to Elasticsearch
-`Elasticsearch` configuration settings are configured in an elasticsearch.yaml file.
+
+NOTE::
+Configure `event` and `meter` publication settings in the factory configuration, separate from the scenario DSL.
+
+Refer to xref:up-and-running/configuration/provide-configuration.adoc[Provide configuration] for information about specifying the configuration to QALIPSIS.
 
 Events::
 `events.export.elasticsearch`
+
 Meters::
 `meters.export.elasticsearch`
 
+
 === Event and meter parameters
 
-[cols="2,2,1,1,2" options="header"]
+[cols="2,2,1,1,6" options="header"]
 |===
 
 | *Parameter*
 | *Applicable Step(s)*
-| *O/R* *
+| *Optional/*
+   *Required* 
 | *Default Value*
 | *Description/Example DSL Statement*
 
 |`enabled`
 | Events, Meters
-| R
+| Required
 |`false`
-| Boolean flag that activates/deactivates event/meter publishing to Elasticsearch; *must* be set to `true`.
-    `enabled: true`
+| Boolean flag to activate/deactivate event/meter publishing to elasticsearch; *must* be set to `true`to enable publishing,
+
+    enabled: true
 
 |`min-level`
 | Events
-| R
+| Required 
 | `INFO`
-| Minimal accepted level of events to publish; allowable values are `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `OFF`.
-
-`TRACE` = most verbose, shows internal and fine‑grained details for deep troubleshooting;
-
-`DEBUG` = diagnostic information useful to investigate issues;
-
-`INFO` = routine operational messages and high‑level progress;
-
-`WARN` = indications of potential problems that do not stop processing;
-
-`ERROR` = confirmed problems that need attention;
-
-`OFF` = disable event publishing.
+| Minimal event security level to be published; events below this level are ignored.
 
     min-level: INFO
+ 
+| `urls` / `host`
+| Events / Meters
+| Required 
+| http://localhost:9200
+| List of URLs/host to the Elasticsearch instances.
 
-|`urls` / `host`
-|Events / Meters
-|R
-|http://localhost:9200
-|List of URLs/host to the Elasticsearch instances.
-    urls: http://localhost:9200
+    urls: http://localhost:9200 +
     host: ${meters.export.elasticsearch.urls}
 
-| `index-prefix` / `index`
-|  Events/Meters
-|  R
-|  qalipsis-events
-|  String prefix to use for the created indices containing the events.
+| `step`
+| Meters
+| Optional
+| PT10S
+| The step size (reporting frequency). +
+  +
+   step: PT10S
 
-Events: index-prefix: qalipsis-events
-Meters: index: qalipsis-meters
+| `index-prefix` / `index`
+| Events/Meters
+| Required
+| qalipsis-events
+| String prefix for the created indices containing the elasticearch events/meters.
+
+    index-prefix: qalipsis-events  +
+    index: qalipsis-meters
 
 | `path-prefix` for `urls`
-| Events/Meters
-| O
-| "/"
+| Events
+| Optional
+| /
 | String prefix used to demarcate url paths.
 
-    `path-prefix`: /
+    path-prefix: http://
 
 |`index-date-pattern`
 | Events/Meters
-| R
+| Required
 | yyyy-MM-dd
-| String format of the date portion of the index.
+| Date pattern appended to the index name to generate time-partitioned indices.
 
+   For events: +
    index-date-pattern: yyyy-MM-dd
+   
+   For meters: +
+   index-date-format: yyyy-MM-dd
 
 |`auto-create-index`
 |Meters
-|R
+|Required
 |true
-|Boolean flag to enable/disable auto creation of the index.
+|Boolean flag to enable/disable auto creation of the index.+
 
-auto-create-index: true
+   auto-create-index: true
 
-|`duration-as-nano`
+|`duration-as-nano` 
 | Events
-| O
+| Optional
 | false
-| Boolean flag that identifies whether or not event durations are stored as nanoseconds; set to true for yes and false for no.
+| Boolean flag to identifiy whether durations are serialized/output as an integer (true) or as a floating point decimal (false).
 
-duration-as-nano: false
+   duration-as-nano: true
 
-| `refresh-interval`
-|  Events/Meters
-|  O
-|  10s
-|  Interval between index refreshes; positive String duration.
+| `refresh-interval` 
+| Meters
+| Required
+| 10s
+| String delay to refresh the indices in Elasticsearch.
 
-`refresh-interval`: 10s
+   refresh-interval: 15s
 
 | `store-source`
-| Events/Meters
-| O
+| Events
+| Optional
 | false
-| Boolean flag identifies whether or not the source of documents is stored with the values; set to true for yes and false for no.
+| Boolean flag to indicate whether the source of documents is stored with the values; set to true for yes and false for no.
 
-`store-source`: false
+    `store-source`: true
 
 | `linger-period`
 | Events
-| R
+| Required
 | 10s
-| Maximum period between publication of events to Elasticsearch; positive duration.
+| Maximum time to buffer events before forcing a flush, even if the batch size is not reached; positive duration.
 
     linger-period: 10s
 
-|`batch-size`
-|Events
-|R
-|40000
-|Maximum number of events buffered between two publications of events to Elasticsearch; positive integer.
+| `batch-size`
+| Events
+| Required
+| 2000
+| Maximum number of events buffered between two publications of events to elasticsearch; positive integer.
+
     batch-size: 2000
 
-|`publishers`
-|Events/Meters
-|R
-|1 (no concurrency)
-|number of concurrent publication of events/meters that can run; positive integeer.
+| `publishers`
+| Events, Meters
+| Required
+| 1 (no concurrency)
+| Number of concurrent publication of events that can send batches to elasticsearch; positive integeer.
+
     publishers: 1
 
 |`shards`
-|Events/Meters
-|R
+|Events
+|Required
 |1
-|Number of shards to apply on the created indices for the events/meters; positive integer.
+|Number of shards to apply on the created indices for events; positive integer.
 
-shards: 1
+    shards: 1
 
 |`replicas`
-|Events/Meters
-|R
+|Events, Meters
+|Required
 |0
-|number of replicas to apply on the created indices for events/meters. It is recommended that the appropriate proxy configuration be identified (rather than letting it default to null) in order to enable support for various authentication mechanisms in Elasticsearch.
-    replicas: 2
+|Number of replicas to apply on the created indices for events and meters. 
+
+    replicas: 0
 
 |`username`
-|Events/Meters
-|O
-|null
+|Events, Meters
+|Optional
+|N/A
 |Name of the user for basic authentication when connecting to Elasticsearch.
- By default, Elasticsearch does not require a `username` for authentication. However; it is recommended that the information be provided to ensure secure access to the Elasticsearch data.
-    username: johndoe
-
+ 
+    username: JohnS
 
 |`password`
-|Events/Meters
-|O
-|null
-|Password of the user for basic authentication when connecting to Elasticsearch.
-    password: my-secret-password
-
+|Events
+|Optional
+|N/a
+|Password of the user for basic authentication when connecting to Elasticsearch. 
+    password: QALIPSIS 
+    
 |===
-* O = Optional; R= Required
 
 === Example configuration file snippet (YAML)
 Below are example configuration excerpts for event and meter publishing. Replace placeholders before use.
@@ -600,211 +774,17 @@ meters: <3>
             shards: 1
             replicas: 0
 ---- 
-<1> Start the event configuration.
-<2> Configure event publishing to Elasticsearch.
-<3> Start the meter configuration.
-<4> Configure meter publishing to Elasticsearch.
+<1> Start the event configuration scenario.
+<2> Configure event publishing to elasticsearch. 
+<3> Start the meter configuration scenario.
+<4> Configure meter publishing to elasticsearch.
+
 
 Tips::
 * By default, Elasticsearch does not require a `username` or `password` for authentication; however, it is recommended that the information be provided to ensure secure access to the Elasticsearch data.
 
-Reference documentation::
-* Refer to the https://cassandra.apache.org/doc/latest[Apache Cassandra] documentation for further parameter and configuration information.
 
-=== ElasticSearchSaveAndPoll scenario
-This example shows a scenario that saves data into Elasticsearch and then polls the table to verify the saved values. It includes a short explanation for each step.
+Reference Documentation:: 
+Refer to <</user-documentation/up-and-running/configuration/monitoring-test-campaigns,Monitoring test campaigns>> for a further explanation of the event and meter parameter values. 
 
-[source,kotlin,linenumbers]
-----
-@Scenario("elasticsearch-save-and-poll")
-fun elasticSearchSaveAndPoll() {
-
-        scenario { <1>
-            minionsCount = 10
-            profile {
-                immediate()
-            }
-        }
-            .start()
-            .jackson() <2>
-            .csvToObject(mappingClass = BatteryState::class) {
-
-                classpath(path = "battery-levels.csv")
-                // we define the header of the csv file
-                header { <3>
-                    column(name = "deviceId")
-                    column(name = "timestamp")
-                    column(name = "batteryLevel").integer()
-                }
-                unicast()
-            }
-            .map { it.value } <4>
-            .elasticsearch() <5>
-            .save { <6>
-                name = "save"
-                client { <7>
-                    RestClient.builder(HttpHost.create("http://localhost:9200"))
-                        .build() // we create the rest client that will help to submit request to elastic search
-                }
-
-                documents { _, input -> <8>
-                    listOf(
-                        Document(
-                            index = "battery-state",
-                            id = input.deviceId,
-                            source = objectMapper.writeValueAsString(input) // we parse to json the object we want to save
-                        )
-                    )
-                }
-            }
-            .map { it.input } <9>
-            .delay(duration = Duration.ofSeconds(2)) // a small delay of 2 seconds before proceed, because on elastic search persistence of data is not immediate
-            .innerJoin()
-            .using { correlationRecord -> correlationRecord.value.deviceId } <10>
-            .on {
-                it.elasticsearch().poll { <11>
-                    name = "poll"
-                    client { RestClient.builder(HttpHost.create("http://localhost:9200")).build() } <12>
-                    query { <13>
-                        """{
-                                "query":{
-                                    "match_all":{}
-                                },
-                                "sort" : ["_score"]
-                            }""".trimIndent()
-                    }
-                    index("battery-state*") <14>
-                    pollDelay(delay = Duration.ofSeconds(1)) <15>
-                }
-                    .deserialize(targetClass = BatteryState::class) <16>
-                    .flatten()
-                    .map { record -> <17>
-                        record.value
-                    }
-            }
-            .having { correlationRecord -> correlationRecord.value.deviceId } <18>
-            .filterNotNull()
-            .verify { result -> <19>
-                result.asClue {
-                    assertSoftly {
-                        it.first.batteryLevel shouldBeExactly it.second.batteryLevel
-                    }
-                }
-            }
-
-    }
-----
-<1> Define the scenario, set the name, number of minions and rampUp.
-<2> Start the Jackson step to read data from a CSV file using the csvToObject method to map csv entries to list of utils.BatteryState object.
-<3> Define the CSV file header.
-<4> Transform the CSV entries to `BatteryState` objects.
-<5> Call the Elasticsearch step to save data.
-<6> Call the `save` step to persist data into Elasticsearch.
-<7> Configure the REST client connection to Elasticsearch.
-<8> Define the documents to save in Elasticsearch.
-<9> Extract the input for the next step from the save step output.
-<10> Start an inner join between the saved data and the polled data using the deviceId as correlation key.
-<11> Call the `poll` step to read data from Elasticsearch.
-<12> Configure the REST client connection to Elasticsearch.
-<13> Define the query to fetch data from Elasticsearch.
-<14> Specify the Elasticsearch index to poll data from.
-<15> Define the delay between each poll execution.
-<16> Deserialize the polled data to `BatteryState` objects.
-<17> Extract the `BatteryState` object from the polled record.
-<18> Define the correlation key for the join using the deviceId.
-<19> Verify that the battery levels from the saved and polled data are identical.
-
-=== ElasticSearchSaveAndSearch scenario
-This example shows a scenario that saves data into Elasticsearch and then searches the table to verify the saved values. It includes a short explanation for each step.
-
-[source,kotlin,linenumbers]
-----
- @Scenario("elasticsearch-save-and-search")
-    fun scenarioSaveAndSearch() {
-        scenario { <1>
-            minionsCount = 10
-            profile {
-                immediate()
-            }
-        }
-            .start()
-            .jackson() <2> // we start the jackson step to fetch data from the csv file. we will use the csvToObject method to map csv entries to list of utils.BatteryState object
-            .csvToObject(mappingClass = BatteryState::class) {
-
-                classpath(path = "battery-levels.csv")
-                // we define the header of the csv file
-                header { <3>
-                    column(name = "deviceId")
-                    column(name = "timestamp")
-                    column(name = "batteryLevel").integer()
-                }
-                unicast() <4>
-            }
-            .map { it.value } <5> // we transform the output of the CSV reader entries to utils.BatteryState
-            .elasticsearch() <6>
-            .save { <7>
-                name = "save"
-                client {  <8>
-                    RestClient.builder(HttpHost.create("http://localhost:9200"))
-                        .build() // we create the rest client that will help to submit request to elastic search
-                }
-                documents { _, input -> <9>
-                    listOf(
-                        Document(
-                            index = "battery-state",
-                            id = input.deviceId,
-                            source = objectMapper.writeValueAsString(input) // we parse to json the object we want to save
-                        )
-                    )
-                }
-            }
-            .delay(Duration.ofSeconds(2)) // a small delay of 2 seconds before proceed, because on elastic search persistence of data is not immediate
-            .elasticsearch() <10>
-            .search { <11>
-                name = "search"
-                client { <12>
-                    RestClient.builder(HttpHost.create("http://localhost:9200")).build()
-                }
-                index { _, _ -> listOf("battery-state*") }  <13>// we specify the table where we want to fetch data
-                query { _, input -> <14>
-                    """{
-                        "query": {
-                            "bool": {
-                                "must": [
-                                    { "match": { "deviceId": "${input.input.deviceId}" }},
-                                    { "term": { "timestamp": ${input.input.timestamp.epochSecond} }}
-                                ]
-                            }
-                        }
-                   }"""
-                } // we create the query that will help us get battery state of a specific id and specific timestamp
-            }
-            .deserialize(targetClass = BatteryState::class) <15>// use this method to transform your elastic search result to a specific object of your class
-            .verify { result -> <16>
-                val savedBatteryState = result.first.input
-                result.second.asClue {
-                    assertSoftly {
-                        it.results shouldHaveSize 1
-                        it.results.first().value.batteryLevel shouldBe savedBatteryState.batteryLevel
-                    }
-                }
-            }
-
-    }
-----
-<1> Define the scenario, set the name, number of minions and rampUp.
-<2> Start the Jackson step to read data from a CSV file using the csvToObject method to map csv entries to list of utils.BatteryState object.
-<3> Define the CSV file header.
-<4> Specify unicast delivery mode for the CSV reader.
-<5> Transform the CSV entries to `BatteryState` objects.
-<6> Call the Elasticsearch step to enable usage of the save step.
-<7> Call the `save` step to persist data into Elasticsearch.
-<8> Configure the REST client connection to Elasticsearch.
-<9> Define the documents to save in Elasticsearch.
-<10> Call the Elasticsearch step to enable usage of the search method.
-<11> Call the `search` step to read data from Elasticsearch.
-<12> Configure the REST client connection to Elasticsearch.
-<13> Specify the Elasticsearch index to search data from.
-<14> Define the query to fetch battery state of a specific id and specific timestamp from Elasticsearch.
-<15> Deserialize the searched data to `BatteryState` objects.
-<16> Verify that the battery levels from the saved and searched data are identical.
+// need to fix above link
