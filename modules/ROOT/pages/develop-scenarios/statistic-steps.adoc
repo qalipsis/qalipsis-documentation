@@ -1,0 +1,347 @@
+= Statistical Steps and Assertions
+
+== Overview
+
+*Statistical steps* also referred to as *meter steps*, are specialized steps that record numeric metrics during execution and evaluate them using statistical assertions.
+They collect measured data and assess success or failure based on aggregated statistical properties such as counts, means, maximums, and percentiles.
+
+This feature allows you to attach statistical assertions to step executions across all factories in a campaign, significantly improving the expressiveness and reliability of campaign validation.
+
+Each meter step records values derived from the step context and input.
+These values are aggregated over time and reported continuously to the console.
+When percentile thresholds or other expectations are provided:
+
+* A reported value is marked as successful when it satisfies its configured expectation.
+
+* A value is marked as an error when it violates the expectation.
+
+By relying on distributions rather than single-point checks, statistical steps provide a far more accurate signal for determining overall campaign success or failure.
+
+Instead of asking “did this step run?”, statistical steps allow campaigns to answer questions such as:
+
+* Did latency remain within acceptable bounds for most executions?
+
+* Did throughput meet minimum expectations under sustained load?
+
+* Were counters, rates, or sizes within expected operational ranges?
+
+=== High-Level Behavior
+
+* Each statistical step records numeric values into one or more *meters* during execution.
+* Recorded values are continuously reported to the console, including derived statistics such as mean, max, and percentiles.
+* When assertions are defined:
+** Each assertion is evaluated against the aggregated statistics.
+** A statistic is marked as successful when it satisfies its assertion, and as an error when it violates it.
+* At the end of the campaign:
+** A step is considered *successful* **only if all declared assertions are satisfied**.
+** Any violated assertion causes the step to fail, contributing to campaign failure.
+
+This page documents the specification and usage of the following meter types:
+
+- Counter
+- Gauge
+- Distribution Summary
+- Timer
+- Throughput
+- Rate
+
+All statistic/meter steps share a common pattern:
+
+- They are created fluently on any `StepSpecification<*, INPUT, *>`.
+- They accept a name that uniquely identifies the meter.
+- They accept a block mapping (stepContext, input) to a numeric value to record.
+- They support shouldSatisfy { ... } to declare expectations used for success/failure evaluation.
+
+=== Statistics Step Specification
+
+The step specification is the DSL entry point for defining a statistical step.
+It determines:
+
+* What values are recorded (via the meter block)
+* Which meter type is used (counter, gauge, timer, etc.)
+* Which statistical expectations are applied
+
+The specification itself is declarative; actual evaluation happens during execution and is finalized at campaign end.
+
+=== Expectations
+
+Expectations define the statistical constraints that determine whether a step succeeds or fails.
+
+All expectations are declared using the shouldSatisfy { ... } DSL.
+They may define:
+
+* Bounds (min / max)
+
+* Exact values
+
+* Percentile thresholds
+
+* Aggregate properties such as mean or current value
+
+When percentiles are declared, the console highlights the success or failure of each tracked percentile independently.
+
+A step is considered successful **only if every declared expectation is satisfied**.
+When no expectations are declared, the step always succeeds.
+
+=== Comparison Operators
+
+The expectations DSL provides a common set of comparison operators that can be applied to supported statistical properties (such as count, value, current, mean, max, or percentiles).
+
+These operators are declarative and describe failure conditions in a readable and intention-revealing way.
+
+==== isGreaterThan
+
+Fails the step if the evaluated value is less than or equal to the specified threshold.
+
+[source,kotlin]
+count.isGreaterThan(threshold = 10.0)
+
+==== isGreaterThanOrEqual
+
+Fails the step if the evaluated value is less than the specified threshold.
+
+[source,kotlin]
+mean.isGreaterThanOrEqual(threshold = 100.0)
+
+==== isLessThan
+
+Fails the step if the evaluated value is greater than or equal to the specified threshold.
+
+[source,kotlin]
+max.isLessThan(threshold = 500.0)
+
+==== isLessThanOrEqual
+
+Fails the step if the evaluated value is greater than the specified threshold.
+
+[source,kotlin]
+value.isLessThanOrEqual(threshold = 20.0)
+
+==== isEqual
+
+Fails the step if the evaluated value is not exactly equal to the specified value.
+
+[source,kotlin]
+count.isEqual(threshold = 42.0)
+
+==== isBetween
+
+Fails the step if the evaluated value is outside the inclusive range [lowerBound, upperBound].
+
+[source,kotlin]
+current.isBetween(lowerBound = 0.8, upperBound = 0.95)
+
+==== isNotBetween
+
+Fails the step if the evaluated value is inside the inclusive range [lowerBound, upperBound].
+
+[source,kotlin]
+current.isNotBetween(lowerBound = 0.1, upperBound = 0.2)
+
+=== Meter Block and Expectations
+
+Each statistical step is composed of two required elements:
+
+* The meter block, which extracts a numeric value from the step context and input
+
+* The expectations block, which declares the assertions evaluated after execution
+
+[cols="1,3",options="header"]
+|===
+|Element | Description
+
+|Meter block |A lambda that accepts the step context and input and returns a numeric value to record per input:
+
+`(StepContext<INPUT, INPUT>, INPUT) -> T`
+
+Where `T` depends on the meter type (Duration for timers, RateIncrement for rates, Double for counters/gauges/throughput/distribution summaries).
+
+|Expectations |A DSL block defining statistical assertions (min, max, mean, percentiles, etc.) that are evaluated during and after execution:
+
+`shouldSatisfy { ... }`
+|===
+
+=== Counter Meter
+
+The Counter meter counts numeric events derived from each input element processed by a step.
+
+It usually records a Double value per input (commonly 1.0, but any increment is allowed) and aggregates the total count over execution.
+
+Counters are typically used to assert:
+
+* Minimum or maximum number of events
+
+* Exact counts
+
+* Count ranges
+
+=== Example
+
+[source,kotlin]
+----
+stepSpecification.counter(name = "requests") { ctx, input ->
+    input.requestCount.toDouble()
+ }
+    .shouldSatisfy {
+        // Examples of expectations (actual DSL options defined in CounterExpectationSpec)
+        count.isLessThan(5.0)  // Fail if count >= 5.0.
+        count.isGreaterThanOrEqual(7.0)  // Fail if count < 7.0.
+        count.isBetween(5.0, 8.0)  // Fail if count is outside [5.0, 8.0].
+    }
+----
+
+=== Gauge Meter
+
+Unlike counters or timers, a gauge represents a point-in-time state rather than an accumulated value.
+Typical use cases include queue depth, memory usage, or connection counts.
+
+Assertions are evaluated against the most recently recorded value, as well as any derived aggregates supported by the implementation.
+
+=== Example
+
+[source,kotlin]
+----
+stepSpecification.gauge(name = "queue-depth") { ctx, input ->
+    input.currentDepth.toDouble()
+}.shouldSatisfy {
+    value.isEqual(13.0) // Fail if the latest value != 13.0.
+    value.isLessThanOrEqual(20.0) // Fail if the latest value > 20.0.
+}
+----
+
+=== Rate Meter
+The Rate meter compares two related quantities and evaluates their relationship as a ratio.
+
+In this system, a rate does not primarily represent time-based frequency (such as events per second). Instead, it models how one measured quantity relates to another reference quantity. This makes the Rate meter suitable for expressing proportions, ratios, and relative thresholds such as:
+
+* successful operations vs total operations
+
+* failed items vs processed items
+
+* matched records vs expected records
+
+* any benchmark value compared against a known total
+
+The emphasis is on comparison and normalization, not on time.
+
+Unlike meters that record a single numeric value, the Rate meter operates exclusively on a structured value that captures both sides of the comparison.
+
+==== RateIncrement
+
+The *RateIncrement* is the mandatory value object used by the Rate meter to **incrementally update two related internal counters** during step execution.
+It describes how much each counter should change as a result of a single step execution. The Rate meter aggregates these increments over
+time and derives normalized values that are later evaluated using expectations.
+
+==== Structure
+
+A **RateIncrement** consists of the following properties:
+
+observedDelta::
+The amount by which the *observed* counter should be incremented.
++
+This represents the quantity of interest contributed by the current execution,
+such as the number of successes, errors, matched items, or any other measured
+outcome.
+
+totalDelta::
+The amount by which the *total* counter should be incremented
++
+This represents the reference or contextual quantity contributed by the same
+execution, such as total attempts, processed items, or expected capacity.
+
+Both values are treated as **deltas**, meaning they are added to the existing
+internal counters rather than replacing them.
+[source,kotlin]
+----
+(StepContext<INPUT, INPUT>, INPUT) -> RateIncrement
+----
+=== Example
+
+[source,kotlin]
+----
+stepSpecification.rate(name = "event-rate") { ctx, input ->
+    RateIncrement(observedDelta = input.successCount.toDouble(), totalDelta = input.attemptCount.toDouble())
+}.shouldSatisfy {
+     current.isLessThan(1000.0) // Fail if the current rate >= 1000.0.
+     current.isNotBetween(1000.0, 2000.0) // Fail if the current rate is within [1000, 2000].
+}
+----
+
+=== Throughput Meter
+
+The Throughput meter measures processed data volume per unit of time, in this case per second.
+
+It focuses on quantity over time (for example, bytes per second) and is commonly used to validate bandwidth or processing capacity under load.
+
+=== Example
+
+[source,kotlin]
+----
+stepSpecification.throughput(name = "payload-throughput") { ctx, input ->
+    input.bytes.toDouble()
+}.shouldSatisfy {
+    mean.isGreaterThanOrEqual(300_000.0) // Fail if mean < 300KB/s.
+    current.isLessThan(1_000_000.0) // Fail if current > 1MB/s.
+    percentile(90).isGreaterThan(500_000.0) // Fail if p90 <= 500KB/s.
+}
+----
+
+== Timer Meter
+
+The Timer meter measures the *duration of operations*.
+
+It is used to evaluate latency, performance characteristics, and time-based thresholds such as service-level objectives (SLOs).
+
+Unlike meters that operate on numeric values, the Timer meter works entirely in a *time domain*. The meter block returns a `Duration`, not a `Double`, ensuring that time measurements are explicit, type-safe, and consistent.
+[source,kotlin]
+----
+(StepContext<INPUT, INPUT>, INPUT) -> Duration
+----
+
+=== Example
+
+[source,kotlin]
+----
+stepSpecification.timer(name = "http-latency") { ctx, input ->
+    input.responseTime
+}.shouldSatisfy {
+    mean.isLessThanOrEqual(java.time.Duration.ofMillis(150)) // Fail if mean latency > 150ms.
+    max.isGreaterThan(java.time.Duration.ofMillis(500))  // Fail if max <= 500ms.
+    percentile(95).isLessThanOrEqual(java.time.Duration.ofMillis(250)) // Fail if p95 > 250ms.
+}
+----
+
+== Distribution Summary Meter
+
+The Distribution Summary meter captures statistical distributions for arbitrary numeric values.
+
+It is useful when values do not represent time or rates, such as payload sizes, weights, or costs.
+
+In addition to percentiles, it typically exposes count, total, mean, and max values.
+
+=== Example
+
+[source,kotlin]
+----
+stepSpecification.distributionSummary(name = "payload-size") { ctx, input ->
+    input.bytesSize.toDouble()
+}.shouldSatisfy {
+    mean.isLessThanOrEqualTo(512_000.0) // Fail if mean > 512KB.
+    max.isBetween(1_024_000.0, 2_048_000.0) // Fail if max not in [1MB, 2MB].
+    percentile(90).isLessThanOrEqual(1_048_576.0) // Fail if p90 > 1 MB.
+}
+----
+
+== Usage Guidelines
+
+* Choose the meter that best matches your measurement intent:
+** Counter – counting events
+** Gauge – instantaneous state
+** Rate – normalized frequency
+** Throughput – volume over time
+** Timer – durations and latency
+** Distribution summary – general value distributions
+* Always return numeric values from the meter block
+* Keep thresholds realistic and aligned with service-level objectives (SLOs)
+* Prefer percentile-based assertions to reduce sensitivity to outliers
+* Use multiple assertions per meter to express both steady-state and edge-case expectations
