@@ -18,9 +18,132 @@ JsonMapper: refer to http://fasterxml.github.io/jackson-databind/javadoc/2.11/co
 Supported steps::
 * <<csvToMap and csvToObject, csvToMap and csvToObject>>: reads a csv file, and converts the data to a Map (or an Object).
 * <<jsonToMap and jsonToObject, jsonToMap and jsonToObject>>: reads a json file and converts the data to a Map (or Object).
-* <<xmlToObject,`xmlToObject`>>: reads an xml file and converts the data to an object.
+* <<xmlToObject, xmlToObject>>: reads an xml file and converts the data to an object.
 
-== csvToMap and csvToObject
+Example of usage are provided later in this <<Example of usage,section>>.
+
+== Configuration Parameters
+Available parameters are described in the table below.
+[cols="1,4" options="header"]
+|===
+| *Parameter* 
+| *Description*
+
+|`classpath(file)` 
+a| Reads the data from a specified class path resource; `file` is the path to the resource with the leading slash ignored. +
+ *Applicable Steps:* csvToMap and csvToObject, jsonToMap and jsonToObject, jsonToMap and jsonToObject, xmlToObject +
+ *Optional/Required:* Optional +
+ *Data Type:* String +
+ *Default Value:* N/A +
+
+.Example
+[source,kotlin,linenumbers]
+----
+classpath("battery-levels.csv")
+----
+
+|`file (path)` 
+a|Reads the data from a specified plain file in the file system; `path` is the path to the file, either absolute or relative to the current working directory.
+ *Applicable Steps:* csvToMap and csvToObject, jsonToMap and jsonToObject, jsonToMap and jsonToObject, xmlToObject + 
+ *Optional/Required:* Optional +
+ *Data Type:* String +
+ *Default Value:* N/A +
+
+.Example
+[source,kotlin,linenumbers]
+----
+file ("/battery-levels.csv")
+----
+
+|`url(url)`  
+a| Reads the data from a specified remote web resource. +
+ *Applicable Steps:* csvToMap and csvToObject, jsonToMap and jsonToObject, jsonToMap and jsonToObject, xmlToObject +
+ *Optional/Required:* Optional +
+ *Data Type:* url +
+ *Default Value:* N/A +
+
+.Example
+[source,kotlin,linenumbers]
+----
+url("https://raw.githubusercontent.com/iot-data/sensors/main/battery-levels.csv")
+----
+
+|`mapper`  
+a|configures the JSON Mapper to deserialize the records. +
+ *Applicable Steps:* csvToMap and csvToObject  +
+ *Optional/Required:* Optional +
+ *Data Type:* lambda
+ *Default Value:* N/A +
+
+.Example
+[source,kotlin,linenumbers]
+----
+.map { _, input -> 
+   BatteryState(
+      deviceId = input["id"].toString().uppercase(), 
+      batteryLevel = input["level"] as Int,
+      timestamp = System.currentTimeMillis() 
+    )
+}
+----
+
+
+|`header`  
+a|Defines the columns for the output table.  +
+ *Applicable Steps:* csvToMap and csvToObject  +
+ *Optional/Required:* Optional +
+ *Data Type:* lambda
+ *Default Value:* N/A +
+
+.Example
+[source,kotlin,linenumbers]
+----
+header {
+   escapeChar('E')
+   quoteChar('"')
+   columnSeparator(';')
+   withHeader()
+   allowComments()
+
+   column("1st value").double()
+   column("2th value").string().array(",")
+   column("3rd value").string(true)
+   column("4th value").string(true)
+}
+----
+
+|`unicast ()`  
+a|Defines the distribution as 1-1 mapping.  +
+ *Applicable Steps:* csvToMap and csvToObject  +
+ *Optional/Required:* Optional +
+ *Data Type:* lambda
+ *Default Value:* N/A +
+
+.Example
+[source,kotlin,linenumbers]
+----
+unicast ()
+----
+
+|`Broadcast ()`  
+a|Defines the distribution as 1-all mapping.  +
+ *Applicable Steps:* csvToMap and csvToObject  +
+ *Optional/Required:* Optional +
+ *Data Type:* lambda
+ *Default Value:* N/A +
+
+.Example
+[source,kotlin,linenumbers]
+----
+broadcast ()
+----
+
+|===
+
+== Examples of usage
+
+mapper: configures the JSON Mapper to deserialize the records.
+=== csvToMap and csvToObject
 The `csvToMap` and `csvToObject` steps within the Jackson plugin read a CSV resource (file, classpath resource, URL) and returns each item as an instance of an Object or Map.
  
 Ancestor::
@@ -60,11 +183,6 @@ jackson().csvToMap {
    unicast()
 }
 ----
-Notable parameters::
-* `classpath(file)`: reads the data from a specified class path resource; `file` is the path to the resource with the leading slash ignored.
-* `file(path)`: reads the data from a specified plain file in the file system; `path` is the path to the file, either absolute or relative to the current working directory.
-* `url(url)`: specifies and links to the `url` of the data resource.
-* `mapper`: configures the JSON Mapper to deserialize the records.
 
 Tip::
 Only one path (`classpath(file)`, `file(path)`, or `url(url)`) to the resource is allowed for each `csvToObject` or `csvToMap` step.
@@ -72,7 +190,7 @@ Only one path (`classpath(file)`, `file(path)`, or `url(url)`) to the resource i
 Reference documentation::
 Refer to the https://github.com/FasterXML/jackson[jackson] documentation for further configuration and parameter information.
 
-== xmlToObject
+=== xmlToObject
 The `xmlToObject` step within the Jackson plugin reads an XML resource (classpath, file, or url) and returns each item as an instance of an object of the specified class.
 
 Ancestor::
@@ -90,10 +208,7 @@ jackson().xmlToObject(PojoForTest::class) {
    classpath(file)
 }
 ----
-Notable parameters::
-* `classpath(file)`: reads the data from a specified class path resource; `file` is the path to the resource with the leading slash ignored.
-* `file(path)`: reads the data from a specified plain file in the file system; `path` is the path to the file, either absolute or relative to the current working directory.
-* `url(url)`: specifies and links to the `url` of the data resource.
+
 
 Tip::
 Only one path (`classpath(file)`, `file(path)`, or `url(url)`) to the resource is allowed for each `xmlToObject` step.
@@ -101,7 +216,7 @@ Only one path (`classpath(file)`, `file(path)`, or `url(url)`) to the resource i
 Reference documentation::
 Refer to the https://github.com/FasterXML/jackson[jackson] documentation for further configuration and parameter information.
 
-== jsonToMap and jsonToObject
+=== jsonToMap and jsonToObject
 The `jsonToMap` and `jsonToObject` steps within the Jackson plugin read a JSON resource (file, classpath resource, URL) and returns each item as an instance of `map` or `object`).
  
 Ancestor::
@@ -121,10 +236,6 @@ jackson().jsonToObject(PojoForTest::class) {
    classpath(file)
 }
 ----
-Notable parameters::
-* `classpath(file)`: reads the data from a specified `path` resource; `file` is the path to the resource with the leading slash ignored.
-* `file(path)`: reads the data from a specified plain file in the file system; `path` is the path to the file, either absolute or relative to the current working directory.
-* `url(url)`: specifies and links to the `url` of the data resource.
 
 Tip::
 Only one path (`classpath(file)`, `file(path)`, or `url(url)`) to the resource is allowed for each `jsnToObject` or `jsnToMap` step.
