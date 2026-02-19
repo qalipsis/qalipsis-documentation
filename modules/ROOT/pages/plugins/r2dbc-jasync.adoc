@@ -26,9 +26,231 @@ Supported steps::
 * <<Save step,`save`>>: saves a batch of records generated from the input and step context.
 * <<Search step,`search`>>: searches records and builds a query from the input and step context.
 
-Example scenarios using a combination of R2DBC-jasync supported steps are provided https://github.com/qalipsis/qalipsis-examples/tree/master/r2dbc-jasync[GitHub].
+Example of usage are provided later in this <<Examples of Usage,section>>.
 
-== Poll step 
+== Configuration
+
+=== Sample configuration file
+
+R2DBC-jasync configuration settings are configured in an r2dbc-jasync.yaml file. 
+
+[source,kotlin,linenumbers]
+----
+campaign:
+  name: r2dbc-jasync-${random.shortuuid}
+  configuration:
+    validation:
+      max-execution-duration: PT40S
+
+report:
+  export:
+    console-live:
+      enabled: false
+----
+
+=== Configuration parameters
+
+Available parameters are described in the table below.
+
+[cols="1,4" options="header"]
+|===
+| *Parameter* 
+| *Description*
+
+| `protocol`
+a| Specifies the protocol of the target database.+
+ Available choices are: MariaDB, MySQL, * PostgreSQL +
+ *Applicable Steps:* Poll, Search, Save + 
+ *Optional/Required:* Required +
+ *Data Type:* Protocol.ENUM +
+ *Default Value:* N/A + 
+
+.Example 
+[source,kotlin]
+----
+protocol(Protocol.POSTGRESQL)
+----
+
+
+| `connection`
+a| Specifies the connection parameters for the target database. +
+ *Applicable Steps:* Poll, Search, Save + 
+ *Optional/Required:* Required +
+ *Data Type:* Lambda +
+ *Default Value:* N/A + 
+   
+.Example 
+[source,kotlin]
+----
+connection {
+    database = "iot"
+    port = 5432
+    username = "DavidW"
+    password = "Awesome_1978"
+}
+----
+
+| `query`
+a| Specifies a query respecting the requirements of the target database (https://mariadb.org/[MariaDB],  https://www.mysql.com[MySQL], https://www.postgresql.org/[PostgreSQL]).
+. +
+ *Applicable Steps:* Poll, Search + 
+ *Optional/Required:* Required +
+ *Data Type:* Lambda +
+ *Default Value:* N/A + 
+   
+.Example (Poll)
+[source,kotlin]
+----
+query("select * from battery_state order by \"timestamp\"")
+----
+
+.Example (Search)
+[source,kotlin]
+----
+query { _, _ ->
+    val request = "SELECT DISTINCT * from battery_state where timestamp = ? AND device_id = ?"
+    request
+}
+----
+
+| `parameters`
+a|Binds values to the clauses of the prepared query. +
+ *Applicable Steps:* Poll, Search +  
+ *Optional/Required:* Optional +
+ *Data Type:* Lambda that returns a string.+ 
+ *Default Value:* N/A + 
+ 
+.Example (Search) 
+[source,kotlin]
+----
+parameters { _, input ->
+    listOf(input.timestamp.epochSecond, input.deviceId)
+}
+----
+
+
+| `pollDelay`
+a| Specifies the delay between query executions. +
+ *Applicable Steps:* Poll +
+ *Optional/Required:* Optional  +
+ *Data Type:* java.time.Duration
+ *Default Value:* N/A + 
+
+.Example
+[source,kotlin]
+----
+pollDelay(Duration.ofSeconds(1)) +
+----
+
+| `singletonConfiguration`
+a| Configures how polled results are delivered to scenario minions. +
+  Specify one of the strategies directly (not wrapped in a lambda). +
+  Available strategies: `sequential`, `broadcast`, `unicast`, `loop`. +
+
+ * `broadcast`: sends every polled record to all minions. Records are delivered in order, with the oldest buffered record sent first. In this mode, the singleton behaves like a Pub/Sub broadcaster. 
+
+ * `unicast`: sends each polled record to exactly one minion. The singleton acts as a FIFO distributor: Records are stored in a buffer until a minion consumes them. The buffer has a fixed size; when it becomes full, the oldest records are dropped to make space for new ones. 
+
+ * `loop`: sends each polled record to all minions, but once the end of the buffer is reached, it loops back to the beginning. This creates a continuous cyclic stream of the buffered records. 
+
+ * `sequential`: disables singleton execution and runs this step within the parent’s workflow. Data distribution is controlled entirely by the parent step. This mode is typically used when you want to process each record from a source from start to finish once, and then stop publishing until new data is available.
+   
+ Note::
+ Each strategy EXCEPT `sequential` requires `bufferSize` (Int) and `idleTimeout` (Duration); see `singletonConfiguration.bufferSize` and `singletonConfiguration.idleTimeout` definitions below. +
+
+*Applicable Step:* Poll +
+*Optional/Required:* Optional +
+*Data Type:* Function +
+*Default Value:* unicast(bufferSize, idleTimeout)
+
+.Example
+[source,kotlin] 
+----
+broadcast(bufferSize = 4, idleTimeout = Duration.ofMinutes(1))
+----
+
+| `singletonConfiguration.bufferSize`
+a| Size of the buffer used to store polled records before delivery to minions.+ +
+ *Applicable Step:* Poll +
+ *Optional/Required:* Optional +
+ *Data Type:* Integer +
+ *Default Value:* -1 +
+
+.Example
+[source,kotlin] 
+----
+broadcast(bufferSize = 4, idleTimeout = Duration.ofMinutes(1))
+----
+
+| `singletonConfiguration.idleTimeout`
+a| Maximum time to wait before delivering polled records to minions, even if the buffer is not full. +
+ *Applicable Step:* Poll +
+ *Optional/Required:* Optional +
+ *Data Type:* java.time.Duration +
+ *Default Value:* Duration.ZERO +
+
+.Example
+[source,kotlin] 
+---- 
+broadcast(bufferSize = 4, idleTimeout = Duration.ofMinutes(1))
+----
+
+| `broadcast`
+a| Specifies the broadcast parameters for a step. +
+ *Applicable Step:* Poll
+ *Optional/Required:* Optional +
+ *Data Type:* Function +
+ *Default Value:* N/A +
+
+.Example
+[source,kotlin] 
+----
+broadcast(3, Duration.ofMinutes(1))
+----
+
+| `unicast`
+a| Specifies the unicast parameters for a step. +
+ *Applicable Step:* Poll +
+ *Optional/Required:* Optional +
+ *Data Type:* Function +
+ *Default Value:* N/A +
+
+.Example
+[source,kotlin] 
+----
+unicast(1, Duration.ofMinutes(3))
+----
+
+| `loop`
+a| Specifies the loop parameters for a step. +
+ *Applicable Step:* Poll +
+ *Optional/Required:* Optional +
+ *Data Type:* Function +
+ *Default Value:* N/A +
+
+.Example
+[source,kotlin] 
+----
+loop(5, Duration.ofMinutes(2))
+----
+
+| `sequential`
+a| Specifies the sequential parameters for a step. +
+ *Applicable Step:* Poll +
+ *Optional/Required:* Optional +
+ *Data Type:* Function +
+ *Default Value:* N/A +
+
+.Example
+[source,kotlin] 
+----
+sequential()
+----
+|===
+
+== Examples of Usage
+
+=== Poll step 
 The `poll` step within the R2DBC-jasync plugin polls the newest records from the database, respecting a delay between each execution of a select query.
 
 Ancestor::
@@ -42,23 +264,21 @@ Example::
 [source,kotlin,linenumbers]
 ----
 r2dbcJasync().poll {
-    protocol(Protocol.POSTGRESQL)
-    connection {
+    protocol(Protocol.POSTGRESQL) <1>
+    connection { <2>
         database = "iot"
         port = 5432
         username = "DavidW"
         password = "Awesome_1978"
     }
-    query("select * from battery_state order by \"timestamp\"")
-    pollDelay(Duration.ofSeconds(1))
+    query("select * from battery_state order by \"timestamp\"") <3>
+    pollDelay(Duration.ofSeconds(1)) <4>
 }
 ----
-
-Notable parameters::
-* `connection` (required): specifies the connection parameters. 
-* `query` (required): specifies a query respecting the requirements of the target database (https://mariadb.org/[MariaDB],  https://www.mysql.com[MySQL], https://www.postgresql.org/[PostgreSQL],).
-* `pollDelay` (required): specifies the delay between query executions.
-* `broadcast` (optional): specifies the broadcast parameters for the step.
+<1> Specify the protocol of the target database.
+<2> Define the connection paraneters.
+<3> Specify the query parameters.
+<4> Set the poll delay.
 
 Tips::
 * Use the `poll` step with a join operator when you need to verify the values saved by your tested system in the database.
@@ -67,7 +287,7 @@ Tips::
 Reference documentation::
 Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for further parameter and configuration information.
 
-== Save step 
+=== Save step 
 The `save` step within the R2DBC-jasync plugin persists a batch of records into an SQL table using a prepared statement.
 
 Ancestor::
@@ -82,24 +302,24 @@ Example::
 ----
 .r2dbcJasync()   
 .save {
-    protocol(Protocol.POSTGRESQL)
-    connection {
+    protocol(Protocol.POSTGRESQL) <1>
+    connection { <2>
         database = "iot"
         port = 5432
         username = "DavidW"
         password = "Awesome_1978"
     }
-    tableName { _, _ ->
+    tableName { _, _ -> <3>
         "battery_state"
     }
-    columns { _, _ ->
+    columns { _, _ -> <4>
         listOf(
             "device_id",
             "timestamp",
             "battery_level"
         )
     }
-    values { _, input ->
+    values { _, input -> <5>
         listOf(
             JasyncSaveRecord(
                 input.deviceId,
@@ -110,9 +330,11 @@ Example::
     }
 }
 ----
-
-Notable parameter::
-* `connection` (required): specifies the connection parameters. 
+<1> Specify the protocol of the target database.
+<2> Define the connection paraneters.
+<3> Define the table name where values are saved.
+<4> Define column names for the table.
+<5> Specify the values to save to the table.
 
 Tips::
 * Use the `save` step after a `collect()` step in order to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.
@@ -121,7 +343,7 @@ Tips::
 Reference documentation::
 Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for further parameter and configuration information.
 
-== Search step 
+=== Search step 
 The `search` step within the R2DBC-jasync plugin searches records in the database using a search query.
 
 Ancestor::
@@ -131,7 +353,6 @@ Functionality::
 The `search` step’s input and step context are used to generate a prepared statement and the values to complete it; the batch of results is then forwarded to the next step(s).
 
 Example::
-+
 [source,kotlin,linenumbers]
 ----
 .r2dbcJasync()
@@ -152,11 +373,10 @@ Example::
     }
 }
 ----
-
-Notable parameters::
-* `connection` (required): specifies the connection parameters.
-* `query`: generates a prepared statement from the step's context and input.
-* `parameters` (optional): binds values to the clauses of the prepared query.
+<1> Specify the protocol of the target database.
+<2> Define the connection paraneters.
+<3> Specify a query respecting the requirements of the target database.
+<4> Specify the query parameters.
 
 Tip::
 Use the `search` step after a `collect` step in order to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.
@@ -164,3 +384,230 @@ Use the `search` step after a `collect` step in order to reduce the number of qu
 Reference documentation::
 Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for further parameter and configuration information.
 
+=== R2dbcJayncSaveAndPoll scenario
+[source,kotlin,linenumbers]
+----
+scenario { <1>
+    minionsCount = 20
+    profile {
+        immediate()
+    }
+}
+    .start()
+    .jackson() <2>
+    .csvToObject(mappingClass = BatteryState::class) { <3>
+
+        classpath(path = "battery-levels.csv")
+            header { <4> 
+                column(name = "device_id")
+                column(name = "timestamp")
+                column(name = "battery_level").integer()
+            }
+            unicast()
+    }
+        .map { it.value }
+        .r2dbcJasync() 
+        .save { <5> 
+
+            protocol(Protocol.POSTGRESQL)
+
+            connection {
+                database = "postgres"
+                port = 15432
+                username = "postgres"
+                password = "root"
+            }
+
+            tableName { _, _ ->
+                "battery_state"
+            }
+
+            columns { _, _ ->
+                listOf(
+                    "id",
+                    "device_id",
+                    "timestamp",
+                    "battery_level"
+                )
+            }
+
+            values { _, input ->
+                listOf(
+                    JasyncSaveRecord(
+                        input.deviceId,
+                        input.deviceId,
+                        input.timestamp.epochSecond,
+                        input.batteryLevel
+                    )
+                )
+            }
+
+            monitoring {
+                events = false
+                meters = true
+            }
+
+        }
+        .map {
+            it.input
+        }
+        .innerJoin()
+        .using { correlationRecord ->
+            correlationRecord.value.deviceId
+        }
+        .on {
+            it.r2dbcJasync().poll {
+
+                protocol(Protocol.POSTGRESQL)
+
+                connection {
+                    database = "postgres"
+                    port = 15432
+                    username = "postgres"
+                    password = "root"
+                }
+
+                query("select * from battery_state order by \"timestamp\"")
+
+                pollDelay(Duration.ofSeconds(1))
+            }
+                .flatten()
+                .map { record ->
+                    val batteryState = record.value
+                    BatteryState(
+                        deviceId = batteryState.getValue("device_id") as String,
+                        batteryLevel = batteryState.getValue("battery_level") as Int,
+                        timestamp = Instant.ofEpochSecond((batteryState.getValue("timestamp") as Int).toLong())
+                    )
+                }
+        }
+        .having { correlationRecord ->
+            correlationRecord.value.deviceId
+        }
+        .filterNotNull()
+        .verify { result ->
+            result.asClue {
+                assertSoftly {
+                    it.first.batteryLevel shouldBeExactly it.second.batteryLevel
+                }
+            }
+        }
+----
+<1> Define the scenario, set the number of minions and rampUp.
+<2> Start the jackson step to fetch data from the csv file. 
+<3> Use the csvToObject method to map csv entries to list of utils.BatteryState object
+<4> Define the header of the csv file.
+<5> Start the save step.
+
+=== R2dbcJayncSaveAndSearch scenario
+[source,kotlin,linenumbers]
+----
+scenario { <1>
+    minionsCount = 20
+    profile {
+        immediate()
+    }
+}
+    .start() 
+    .jackson() <2> 
+    .csvToObject(mappingClass = BatteryState::class) { <3>
+
+        classpath(path = "battery-levels.csv")
+        header { <4>
+            column(name = "device_id")
+            column(name = "timestamp")
+            column(name = "battery_level").integer()
+        }
+        unicast()
+    }
+    .map { it.value }
+    .r2dbcJasync() 
+    .save { <6>
+
+        protocol(Protocol.MARIADB)
+
+        connection {
+            database = "iot"
+            port = 13306
+            username = "root"
+            password = "root"
+        }
+
+        tableName { _, _ ->
+            "battery_state"
+        }
+
+        columns { _, _ ->
+            listOf(
+                "id",
+                "device_id",
+                "timestamp",
+                "battery_level"
+            )
+        }
+
+        values { _, input ->
+            listOf(
+                JasyncSaveRecord(
+                    input.deviceId,
+                    input.deviceId,
+                    input.timestamp.epochSecond,
+                    input.batteryLevel
+                )
+            )
+        }
+
+        monitoring {
+            events = false
+            meters = true
+        }
+
+    }
+    .map { it.input }
+    .r2dbcJasync()
+    .search { <7>
+        protocol(Protocol.MARIADB)
+
+        connection {
+            database = "iot"
+            port = 13306
+            username = "root"
+            password = "root"
+        }
+
+        query { _, _ ->
+            val request = "SELECT DISTINCT * from battery_state where timestamp = ? AND device_id = ?"
+            request
+        }
+        parameters { _, input ->
+            listOf(input.timestamp.epochSecond, input.deviceId)
+        }
+    }
+    .map {
+        it.input to it.records.map { record ->
+            val batteryState = record.value
+            BatteryState(
+                    deviceId = batteryState.getValue("device_id") as String,
+                    batteryLevel = batteryState.getValue("battery_level") as Int,
+                    timestamp = Instant.ofEpochSecond((batteryState.getValue("timestamp") as Int).toLong())
+            )
+        }
+    }
+    .verify { result -> <8> 
+        result.asClue {
+            assertSoftly {
+                    result.second.size shouldBeExactly 1
+                    result.first.batteryLevel shouldBeExactly result.second.first().batteryLevel
+            }
+        }
+    }
+
+----
+<1> Define the scenario, set the number of minions and rampUp.
+<2> Start the jackson step to fetch data from the csv file. 
+<3> Use the csvToObject method to map csv entries to list of utils.BatteryState object
+<4> Define the header of the csv file.
+<5> Transform the output of the CSV reader entries to utils.BatteryState.
+<6> Start the save step.
+<7> Start the search step.
+<8> Define the verification parameters.
