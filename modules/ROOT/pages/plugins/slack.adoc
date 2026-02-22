@@ -12,6 +12,71 @@ To activate the QALIPSIS publisher for Slack, create a configuration file in you
 Configuration namespace::
  `report.export.slack`
 
+Configuration parameters::
+
+[cols="1,4" options="header"]
+|===
+| *Parameter* 
+| *Description*
+
+|`enabled`
+a|Activates/deactivates campaign report publishing to Slack; must be set to true to enable publishing to Slack.
+ *Optional/Required:* Required +
+ *Data Type:* Boolean flag + 
+ *Default Value:* false + 
+
+.Example
+[source,kotlin] 
+----
+enabled: `true`
+----
+
+|`token`
+a|The bot token of the app in charge of posting messages to the specified workspace channel, usually beginning with `xoxb`. .
+ *Optional/Required:* Required +
+ *Data Type:* String + 
+ *Default Value:* N/A + 
+
+.Example
+[source,kotlin] 
+----
+token: xoxb-my-awesome-bot-token
+----
+
+|`channel`
+a|A valid Slack channel name within a workspace indicating where notifications messages should be pushed to. +
+ *Optional/Required:* Required +
+ *Data Type:* String + 
+ *Default Value:* false + 
+
+.Example
+[source,kotlin] 
+----
+channel: my-qalipsis-campaign-report-channel\presentation\d\1wUY3AXkwyhOjw-5R6CuvVQF176RTH_iTs57awFDN1Kc\edit
+----
+
+|`status`
+a|Specifies which campaign report statuses should trigger a notification. +
+Allowed values are any set of ReportExecutionStatus values: `ALL`, `FAILED`, `SUCCESSFUL`, `WARNING`, `ABORTED`. +
+
+* Selecting `ALL` triggers a notification for any campaign report status. +
+* Selecting two or more status values triggers a notification when the campaign report status is the same as any of the selected status values. +
+* Selecting just one status value triggers a notification only when the campaign report status is the same as the selected status value. +
+
+ *Optional/Required:* Required +
+ *Data Type:* ENUM + 
+ *Default Value:* All + 
+
+.Example
+[source,kotlin] 
+----
+status: 
+  - SUCCESS
+  - FAILED
+  - WARNING
+----
+
+
 Example configuration file::
 +
 [source,kotlin,linenumbers]
@@ -27,20 +92,7 @@ report:
         - FAILED
         - WARNING
 ----
-Parameters::
-
-* `enabled` (required): boolean flag that activates/deactivates campaign report publishing to Slack; defaults to `false`; *must* be set to `true`.
-* `token` (required): the bot token of the app in charge of posting messages to the specified workspace channel, usually beginning with `xoxb`. 
-* `channel` (required): a valid Slack channel name within a workspace indicating where notifications messages should be pushed to.
-* `status` (required): specifies which campaign report statuses should trigger a notification.
-+
-Allowed values are any set of `ReportExecutionStatus` values: `ALL`, `FAILED`, `SUCCESSFUL`, `WARNING`, `ABORTED`; defaults to `ALL`.
-+
- ** Selecting `ALL` triggers a notification for any campaign report status.
-+
-** Selecting two or more status values triggers a notification when the campaign report status is the same as any of the selected status values. 
-+
-** Selecting just one status value triggers a notification only when the campaign report status is the same as the selected status value.
+|===
 
 == Creating and installing an app into the Slack workspace
 
@@ -95,7 +147,7 @@ json object::
     "token_rotation_enabled": false
   }
 }
-----     
+----
 
 === Installing the app into your workspace
 
