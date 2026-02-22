@@ -3,13 +3,188 @@
 == Overview
 QALIPSIS supports email messaging, to notify users of the status of their campaigns after it runs. This is achieved by configuring and enabling the QALIPSIS publisher for mail.
 
-== Configuring and activating the QALIPSIS publisher for mail
-To activate the QALIPSIS publisher for mail, create a configuration file in your QALIPSIS project.
-
 Configuration namespace:: 
 `report.export.mail`
 
-Example configuration file::
+== Congifuration parameters
+[cols="1,4" options="header"]
+|===
+| *Parameter* 
+| *Description*
+
+|`enabled`
+a|Activates/deactivates campaign report publishing to mail; must be set to true to enable notifications.
+ *Optional/Required:* Required +
+ *Data Type:* Boolean flag + 
+ *Default Value:* false + 
+
+.Example
+[source,kotlin] 
+----
+enabled: `true`
+----
+
+|`username`
+a|Username to be used in authenticating network connection requests when password authentication is required (i,e, when the AuthenticationMode is set to USERNAME_PASSWORD). +
+ *Optional/Required:* Required +
+ *Data Type:* String + 
+ *Default Value:* N/A + 
+
+.Example
+[source,kotlin] 
+----
+username: qalipsis-user
+----
+
+|`password`
+a|Password to be used in authenticating network connection requests when password authentication is required (i. e., when the AuthenticationMode is set to USERNAME_PASSWORD). +
+ *Optional/Required:* Required +
+ *Data Type:* Boolean + 
+ *Default Value:* false + 
+
+.Example
+[source,kotlin] 
+----
+password: passpass
+----
+
+|`status`
+a|Specifies which campaign report status(es) should trigger a notification. +
+Allowed values are any set of `ReportExecutionStatus` values: `ALL`, `FAILED`, `SUCCESSFUL`, `WARNING`, `ABORTED`.
++
+* Specifying `ALL` triggers a notification for any campaign report status.
++
+* Specifying two or more status values triggers a notification when the campaign report status is the same as any of the selected status values.
++
+* Specifying just one status value triggers a notification only when the campaign report status is the same as the selected status value.
+
+ *Optional/Required:* Required +
+ *Data Type:* ENUM + 
+ *Default Value:* ALL + 
+
+.Example
+[source,kotlin] 
+----
+status: 
+  - SUCCESSFUL
+  - FAILED
+  - WARNING
+----
+
+|`authenticationMode`
+a|* `Sets authentication options for SMTP server; allowed values: `USERNAME_PASSWORD`, `PLAIN`. + 
+ *Optional/Required:* Required +
+ *Data Type:* ENUM + 
+ *Default Value:* PlAIN + 
+
+.Example
+[source,kotlin] 
+----
+authenticationMode: USERNAME_PASSWORD `
+----
+
+|`from`
+a|Email to indicate sender address. + 
+ *Optional/Required:* Required +
+ *Data Type:* email + 
+ *Default Value:* no-reply@@qalipsis.io + 
+
+.Example
+[source,kotlin] 
+----
+from: foo@bar.com
+----
+
+|`to`
+a|List of valid email addresses that are recipients of the email. + 
+ *Optional/Required:* Required +
+ *Data Type:* email + 
+ *Default Value:* N/A + 
+
+.Example
+[source,kotlin] 
+----
+to: 
+  - fooadmin1@bar.com
+  - fooadmin2@bar.com
+----
+
+|`cc`
+a|List of valid email addresses to be copied in the email. + 
+ *Optional/Required:* Optional +
+ *Data Type:* email + 
+ *Default Value:* empty list + 
+
+.Example
+[source,kotlin] 
+----
+cc: 
+  - foosupport@bar.com
+----
+
+|`junit`
+a|Activates/deactivates inclusion of a Junit report as a zipped attachment, if a report exists. +
+ *Optional/Required:* Required +
+ *Data Type:* boolean flag + 
+ *Default Value:* false + 
+
+.Example
+[source,kotlin] 
+----
+junit: false
+----
+
+|`ssl`
+a|Enables/disables the use of SSL to connect. +
+ *Optional/Required:* Required +
+ *Data Type:* boolean flag + 
+ *Default Value:* false + 
+
+.Example
+[source,kotlin] 
+----
+ssl: true
+----
+
+|`starttls`
+a|Enables/disables the use of the STARTTLS command (if supported by the server). +
+ *Optional/Required:* Required +
+ *Data Type:* boolean flag + 
+ *Default Value:* false + 
+
+.Example
+[source,kotlin] 
+----
+ starttls: true
+----
+
+|`host`
+a|The host name of the mail server to connect to. +
+ *Optional/Required:* Required +
+ *Data Type:* String + 
+ *Default Value:* localhost + 
+
+.Example
+[source,kotlin] 
+----
+ host: smtp.gmail.com
+----
+
+|`port`
+a|The ho port number of the mail server to connect to. +
+ *Optional/Required:* Required +
+ *Data Type:* Integer + 
+ *Default Value:* 25 + 
+
+.Example
+[source,kotlin] 
+----
+ port: 587
+----
+
+|===
+
+== Example configuration file
 
 [source,kotlin,linenumbers]
 ----
@@ -37,28 +212,3 @@ report:
 <1> Mail notifications are triggered only when the status of a campaign report is `FAILED`, `SUCCESSFUL`, or `WARNING`. All other campaign statuses are ignored.
 <2> Allows authentication requests for a network connection.
 <3> Junit report attachments would not be included in the email.
-
-//-
-Parameters::
-* `enabled` (required): boolean flag that activates/deactivates campaign report publishing to mail; defaults to false; must be set to `true` to enable notifications.
-* `username` (required): username to be used in authenticating network connection requests when password authentication is required (when the AuthenticationMode is set to USERNAME_PASSWORD).
-* `password` (required): password to be used in authenticating network connection requests when password authentication is required (when the AuthenticationMode is set to USERNAME_PASSWORD).
-* `status` (required): specifies which campaign report status(es) should trigger a notification.
-+
-Allowed values are any set of `ReportExecutionStatus` values: `ALL`, `FAILED`, `SUCCESSFUL`, `WARNING`, `ABORTED`; defaults to `ALL`.
-+
-** Selecting `ALL` triggers a notification for any campaign report status.
-+
-** Selecting two or more status values triggers a notification when the campaign report status is the same as any of the selected status values. 
-+
-** Selecting just one status value triggers a notification only when the campaign report status is the same as the selected status value.
-
-* `authenticationMode` (required): authentication options for SMTP server; allowed values are any set of `AuthenticationMode` values: `USERNAME_PASSWORD`, `PLAIN`; defaults to `PLAIN`.
-* `from` (required): email to indicate sender address; defaults to `no-reply@@qalipsis.io`.
-* `to` (required): list of valid email addresses that are recipients of the email.
-* `cc` (optional): list of valid email addresses to be copied in the email; defaults to an empty list.
-* `junit` (required): boolean flag that activates/deactivates inclusion of a Junit report as a zipped attachment, if a report exists; defaults to `false`.
-* `ssl` (required): boolean flag that enables/disables the use of SSL to connect; defaults to `false`.
-* `starttls` (required): boolean flag to enable/disable use of the STARTTLS command (if supported by the server); defaults to `false`.
-* `host` (required): the host name of the mail server to connect to; defaults to `localhost`.
-* `port` (required): the port number of the mail server to connect to; defaults to `25`.
