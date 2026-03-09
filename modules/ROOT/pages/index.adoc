@@ -1,7 +1,7 @@
-:title: QALIPSIS User guide
+:title: QALIPSIS User Guide
 
-= QALIPSIS - User guide
-:title: QALIPSIS User guide
+= QALIPSIS - User Guide
+:title: QALIPSIS User Guide
 
 Welcome to QALIPSIS, your powerful ally in performance testing and system validation! This comprehensive guide will help you harness the full potential of QALIPSIS to ensure your applications perform reliably under real-world conditions.
 

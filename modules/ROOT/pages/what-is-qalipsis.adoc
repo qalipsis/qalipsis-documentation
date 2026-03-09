@@ -94,3 +94,44 @@ QALIPSIS provides IT Operations teams solutions to:
 * Seamlessly integrate verifications into their standard DevOps workflow, enabling implementation and alignment with best practices.
 
 
+== What QALIPSIS does not do
+
+QALIPSIS is a protocol-level load and end-to-end testing tool for distributed systems. Understanding its boundaries is as important as understanding its capabilities.
+
+=== It does not render browsers or simulate mobile devices
+
+Every web or mobile application involves two execution domains. **Server-side execution** covers everything your infrastructure controls: API routing, business logic, database queries, message brokering, cache lookups, and inter-service communication. **Client-side execution** covers everything the end-user's device handles after it receives a response: on the web, that means HTML parsing, DOM construction, CSS layout, JavaScript compilation and rendering; on mobile, it means native UI rendering, view hierarchy layout, animation frame rates, and on-device business logic.
+
+Protocol-level tools - QALIPSIS, but also JMeter, Gatling, k6, and similar tools - operate in the server-side domain. They issue requests directly over the wire (HTTP, TCP, UDP, MQTT, or messaging protocols) and measure what the infrastructure does: how fast it responds, whether the data is correct, whether the system stays consistent under concurrency. They never instantiate a browser engine or a mobile runtime, so they have no DOM, no JavaScript execution, no native view rendering, and no concept of "the screen is visually complete."
+
+This is a deliberate architectural choice, not a gap. The two domains answer fundamentally different questions. Server-side load testing asks: *"Can the infrastructure process 50,000 concurrent workflows without degrading throughput, correctness, or availability?"* Client-side performance testing asks: *"Once the device receives this response, how quickly does the screen become visually complete and interactive for this user, on this hardware, on this network?"* The former is a function of your backend architecture; the latter is a function of front-end asset optimization, JavaScript or native-code complexity, rendering paths, and the end-user's device capabilities. Conflating them produces misleading results in both directions.
+
+There is also a practical reason: browser engines and mobile emulators serialize work through a single rendering thread, making each virtual user orders of magnitude more expensive to simulate. A typical load-injection node can sustain hundreds of protocol-level virtual users but only a handful of real browser or emulator sessions. Protocol-level operation is what allows QALIPSIS to scale minions from thousands to millions on a modestly sized cluster.
+
+If you need to measure Largest Contentful Paint, Time to Interactive, or layout shift on the web, you need browser-level tools (Lighthouse, Playwright, WebPageTest). If you need to profile mobile rendering performance - frame drops, cold-start time, or memory pressure on-device - you need platform-specific tooling (Android Profiler, Xcode Instruments) or real-device cloud services. These are complementary to QALIPSIS, not competitors.
+
+=== It does not replace application observability
+
+QALIPSIS integrates with monitoring stacks - it can export events and meters to Elasticsearch, InfluxDB, TimescaleDB, and Graphite - but it is not an APM. It does not instrument your application code, trace internal function calls, or build service dependency maps.
+
+The relationship works in both directions, however. QALIPSIS can also *consume* data from your observability and monitoring infrastructure during a test. Its plugins include poll and search steps for databases and time-series stores, which means a scenario can ingest infrastructure metrics - CPU utilization, memory pressure, queue depths, error rates - published by your APM or monitoring stack and cross-verify them against the load being injected. For example, you can assert that resource consumption stays within expected bounds at a given concurrency level, or that a spike in database response time correlates with a specific load profile. QALIPSIS produces load-test evidence that your observability tools can correlate with application-level telemetry, and it consumes observability data to enrich its own assertions - but it does not replace the instrumentation itself.
+
+=== It is not a single-endpoint micro-benchmark tool
+
+If your goal is to saturate a single URL and measure its raw request-per-second ceiling or p99 latency in isolation, dedicated HTTP micro-benchmarking tools are purpose-built for that: `wrk`, `hey`, and `vegeta` can all hammer one endpoint with minimal setup and overhead. QALIPSIS can do that too, but it is not its primary design intent. QALIPSIS is designed for workflow validation across components: chaining HTTP calls with database assertions, message broker verification, and cross-layer data consistency checks within a single scenario. Its value emerges when the question is not *"how fast is this endpoint?"* but *"does the entire chain - from API request to message broker to database to downstream service - stay correct and responsive under realistic, concurrent load?"*
+
+=== It is not a contract-testing framework
+
+Contract testing verifies that two services agree on the shape and semantics of their interface - request format, response structure, status codes, field names - typically by running lightweight, isolated checks against a mock or recorded contract. Tools like Pact, Spring Cloud Contract, or Specmatic are designed for this: they generate and verify contracts between consumer and provider independently, often as part of a CI pipeline, without deploying the full system.
+
+QALIPSIS operates in a different part of the testing spectrum. It does not generate or verify interface contracts between services. Instead, it deploys load against your *actual* running infrastructure and validates that the system behaves correctly end-to-end under concurrency: that data flows through the right services, lands correctly in databases and message brokers, and that timing and consistency hold at scale. Contract testing answers *"do these two services still agree on the API shape?"* - QALIPSIS answers *"when 10,000 users exercise the real workflow simultaneously, does the whole system still produce the right outcomes?"* The two are complementary: contract testing catches interface drift early and cheaply in the development cycle; QALIPSIS catches the runtime, concurrency, and data-integrity problems that only surface under load on a deployed system.
+
+=== It is not a penetration-testing tool
+
+QALIPSIS generates load to measure performance, correctness, and system behavior under concurrency. It does not probe for security vulnerabilities, test for injection flaws, scan for misconfigurations, or simulate adversarial attack patterns. High request volume is not the same as a security assessment: QALIPSIS sends the requests *you define* in your scenario; it does not crawl your application looking for exploitable surfaces.
+
+If you need to identify vulnerabilities such as SQL injection, cross-site scripting, broken authentication, or OWASP Top 10 weaknesses, use dedicated security testing tools: OWASP ZAP (open-source, CI/CD-friendly), Burp Suite (the industry standard for manual and automated web application penetration testing), or Nikto (lightweight web server vulnerability scanner). These tools intercept, analyze, and manipulate traffic to discover security flaws - a fundamentally different objective from what QALIPSIS is designed to do.
+
+=== It does not guarantee performance improvements
+
+QALIPSIS produces evidence - metrics, traces, assertion outcomes, and campaign reports - that inform engineering decisions. It reveals where your system degrades, at what concurrency thresholds, and with what data-consistency consequences. Acting on those findings is an engineering responsibility, not a tool capability. QALIPSIS surfaces the problem; your team owns the fix.
