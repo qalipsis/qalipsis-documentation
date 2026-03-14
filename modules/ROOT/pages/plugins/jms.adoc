@@ -20,11 +20,11 @@ Supported steps::
 * <<Consume step,`consume`>>: consumes data from a messaging platform supporting JMS.
 * <<Produce step,`produce`>>: pushes data to a messaging platform supporting JMS.
 
-Examples of usage are provided <<Examples of usage,here>>.
+Examples of usage are provided later in this <<Examples of usage,section>>.
 
 == Configuration
 
-=== Sample configuration file
+=== Example configuration file
 [source,kotlin,linenumbers]
 ----
 campaign:
@@ -53,12 +53,12 @@ Available parameters are described in the table below.
 | *Parameter* 
 | *Description*
 
-| `connect`  +
+| `connect`  
 a| Specifies the connection type for the `JmsProducerRecord`(s) +
- *Applicable Steps:* Produce +
- *Optional/Required:* Required +
- *Data Type:* Lambda within which connection parameters are defined. +
- *Default Value:* N/A +
+*Applicable Steps:* Produce +
+*Optional/Required:* Required +
+*Data Type:* Lambda within which connection parameters are defined. +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin]
@@ -68,12 +68,12 @@ connect {
 }
 ----
 
-| `consume`  +
+| `consume`  
 a| Configures the the https://activemq.apache.org/[ActiveMQ] connection. +
- *Applicable Steps:* Consume +
- *Optional/Required:* Required +
- *Data Type:* Lambda within which connection parameters are defined. +
- *Default Value:* N/A +
+*Applicable Steps:* Consume +
+*Optional/Required:* Required +
+*Data Type:* Lambda within which connection parameters are defined. +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin]
@@ -87,9 +87,9 @@ jms().consume {
 | `queues`
 a| Specifies the queue(s) for the connection. +
 *Applicable Steps:* Consume +
- *Optional/Required:* Required +
- *Data Type:* Lambda within which connection parameters are defined. +
- *Default Value:* N/A +
+*Optional/Required:* Required +
+*Data Type:* Lambda within which connection parameters are defined. +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin]
@@ -100,9 +100,9 @@ queues("battery_state")
 | `QueueConnection`
 a| Provides the java ActiveMQ connection for the specified queues. +
 *Applicable Steps:* Consume +
- *Optional/Required:* Optional +
- *Data Type:* Lambda within which connection parameters are defined. +
- *Default Value:* N/A +
+*Optional/Required:* Optional +
+*Data Type:* Lambda within which connection parameters are defined. +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin]
@@ -119,9 +119,9 @@ queueConnection {
 | `topics`
 a| Specifies the topic(s) to consume. +
 *Applicable Steps:* Consume +
- *Optional/Required:* Optional +
- *Data Type:* String. +
- *Default Value:* N/A +
+*Optional/Required:* Optional +
+*Data Type:* String. +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin]
@@ -132,9 +132,9 @@ topics ("battery_state")
 | `topicConnection`
 a| Provides the connection to attach to the topic consumer, which is generally specific to the underlying product. +
 *Applicable Steps:* Consume +
- *Optional/Required:* Optional +
- *Data Type:* Lambda within which connection parameters are defined. +
- *Default Value:* N/A +
+*Optional/Required:* Optional +
+*Data Type:* Lambda within which connection parameters are defined. +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin]
@@ -151,9 +151,9 @@ topicConnection {
 | `records`
 a| Generates a list of records to send the messaging platform. +
 *Applicable Steps:* Produce +
- *Optional/Required:* Required +
- *Data Type:* Lambda  +
- *Default Value:* N/A +
+*Optional/Required:* Required +
+*Data Type:* Lambda  +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin]
@@ -168,12 +168,13 @@ records { _, input ->
   )
 }
 ----
+
 | `destination`
 a| Defines the destination for each `JMSProducerRecord` as either queues (`QueueConnection`) or topics (`TopicConnection`). +
 *Applicable Steps:* Produce +
- *Optional/Required:* Required +
- *Data Type:* Function +
- *Default Value:* N/A +
+*Optional/Required:* Required +
+*Data Type:* Function +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin]
@@ -184,9 +185,9 @@ destination = Topic(name = "battery_state")
 | `messageType`
 a| Indicates the `JMSMessageType` as: `TEXT`, `AUTO`, `BYTES`, or `OBJECT`. +
 *Applicable Steps:* Produce +
- *Optional/Required:* Required +
- *Data Type:* ENUM +
- *Default Value:* N/A +
+*Optional/Required:* Required +
+*Data Type:* ENUM +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin]
@@ -197,9 +198,9 @@ messageType = JMSMessageType.BYTES
 |`value`
 a| Defines the message to be displayed at the `destination`. +
 *Applicable Steps:* Produce +
- *Optional/Required:* Required +
- *Data Type:* Function +
- *Default Value:* N/A +
+*Optional/Required:* Required +
+*Data Type:* Function +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin]
@@ -211,9 +212,9 @@ value = objectMapper.writeValueAsBytes(input)
 | `deserialize`
 a| Specifies the class to use to deserialize the body of the response. +
 *Applicable Steps:* Consume +
- *Optional/Required:* Required +
- *Data Type:* Function +
- *Default Value:* N/A +
+*Optional/Required:* Required +
+*Data Type:* Function +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin]
@@ -222,114 +223,13 @@ a| Specifies the class to use to deserialize the body of the response. +
 ----
 
 | `singletonConfiguration`
-a| Configures how consumed results are delivered to scenario minions. +
-  Specify one of the strategies directly (not wrapped in a lambda). +
-  Available strategies: `sequential`, `broadcast`, `unicast`, `loop`. +
-
- * `broadcast`: sends every consumed record to all minions. Records are delivered in order, with the oldest buffered record sent first. In this mode, the singleton behaves like a Pub/Sub broadcaster. 
-
- * `unicast`: sends each consumed record to exactly one minion. The singleton acts as a FIFO distributor: Records are stored in a buffer until a minion consumes them. The buffer has a fixed size; when it becomes full, the oldest records are dropped to make space for new ones. 
-
- * `loop`: sends each consumed record to all minions, but once the end of the buffer is reached, it loops back to the beginning. This creates a continuous cyclic stream of the buffered records. 
-
- * `sequential`: disables singleton execution and runs this step within the parent’s workflow. Data distribution is controlled entirely by the parent step. This mode is typically used when you want to process each record from a source from start to finish once, and then stop publishing until new data is available.
-   
- Note::
- Each strategy EXCEPT `sequential` requires `bufferSize` (Int) and `idleTimeout` (Duration); see `singletonConfiguration.bufferSize` and `singletonConfiguration.idleTimeout` definitions below. +
-
-*Applicable Step:* Consume +
-*Optional/Required:* Optional +
-*Data Type:* Function +
-*Default Value:* N/A
-
-.Example
-[source,kotlin] 
-----
-broadcast(bufferSize = 4, idleTimeout = Duration.ofMinutes(1))
-----
-
-| `singletonConfiguration.bufferSize`
-a| Size of the buffer used to store consumed records before delivery to minions.+ +
- *Applicable Step:* Consume +
- *Optional/Required:* Optional +
- *Data Type:* Integer +
- *Default Value:* -1 +
-
-.Example
-[source,kotlin] 
-----
-broadcast(bufferSize = 4, idleTimeout = Duration.ofMinutes(1))
-----
-
-| `singletonConfiguration.idleTimeout`
-a| Maximum time to wait before delivering consumed records to minions, even if the buffer is not full. +
- *Applicable Step:* Consume +
- *Optional/Required:* Optional +
- *Data Type:* java.time.Duration +
- *Default Value:* Duration.ZERO +
-
-.Example
-[source,kotlin] 
----- 
-broadcast(bufferSize = 4, idleTimeout = Duration.ofMinutes(1))
-----
-
-| `broadcast`
-a| Specifies the broadcast parameters for a step. +
- *Applicable Step:* Consume +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-broadcast(3, Duration.ofMinutes(1))
-----
-
-| `unicast`
-a| Specifies the unicast parameters for a step. +
- *Applicable Step:* Consume +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-unicast(1, Duration.ofMinutes(3))
-----
-
-| `loop`
-a| Specifies the loop parameters for a step. +
- *Applicable Step:* Consume +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-loop(5, Duration.ofMinutes(2))
-----
-
-| `sequential`
-a| Specifies the sequential parameters for a step. +
- *Applicable Step:* Consume +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-sequential()
-----
+a|Configures how consumed results are delivered to scenario minions. +
+ Refer to xref:plugins/plugins.adoc#singletonconfiguration-parameters[SingletonConfiguration parameters] for details on strategies and examples of usage.
 
 |===
 
 
-== Examples of Uage
+== Examples of usage
 
 === Consume step 
 The `consume` step within the JMS plugin consumes records from https://activemq.apache.org/[ActiveMQ].
@@ -359,6 +259,7 @@ jms().consume { <1>
 <4> Specify the class to use to deserialize the body of the response.
 <5> Define how the result of the consume step is sent to the next step in a scenario.
 
+//-
 Tip::
 The https://activemq.apache.org/[ActiveMQ] connection can be configured for either `queues` (`QeueConnection`) or `topics` (`TopicConnection`), but not both.
 
@@ -398,6 +299,7 @@ Example::
 <2> Provide the connection for the `JakartaProducerRecord`(s).
 <3> Generate a list of records to send the messaging platform.
 
+//-
 Tip::
 If you are not sure about the `JmsMessageType`, use `AUTO` to allow the system to infer the type and display the result. 
 

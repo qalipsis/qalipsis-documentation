@@ -9,14 +9,14 @@ Configuration namespace::
 == Congifuration parameters
 [cols="1,4" options="header"]
 |===
-| *Parameter* 
-| *Description*
+|*Parameter* 
+|*Description*
 
 |`enabled`
-a|Activates/deactivates campaign report publishing to mail; must be set to true to enable notifications.
- *Optional/Required:* Required +
- *Data Type:* Boolean flag + 
- *Default Value:* false + 
+a|Activates/deactivates campaign report publishing to mail; must be set to true to enable notifications. +
+*Optional/Required:* Required +
+*Data Type:* Boolean flag + 
+*Default Value:* false + 
 
 .Example
 [source,kotlin] 
@@ -26,9 +26,9 @@ enabled: `true`
 
 |`username`
 a|Username to be used in authenticating network connection requests when password authentication is required (i,e, when the AuthenticationMode is set to USERNAME_PASSWORD). +
- *Optional/Required:* Required +
- *Data Type:* String + 
- *Default Value:* N/A + 
+*Optional/Required:* Required +
+*Data Type:* String + 
+*Default Value:* N/A + 
 
 .Example
 [source,kotlin] 
@@ -38,9 +38,9 @@ username: qalipsis-user
 
 |`password`
 a|Password to be used in authenticating network connection requests when password authentication is required (i. e., when the AuthenticationMode is set to USERNAME_PASSWORD). +
- *Optional/Required:* Required +
- *Data Type:* Boolean + 
- *Default Value:* false + 
+*Optional/Required:* Required +
+*Data Type:* Boolean + 
+*Default Value:* false + 
 
 .Example
 [source,kotlin] 
@@ -50,17 +50,14 @@ password: passpass
 
 |`status`
 a|Specifies which campaign report status(es) should trigger a notification. +
-Allowed values are any set of `ReportExecutionStatus` values: `ALL`, `FAILED`, `SUCCESSFUL`, `WARNING`, `ABORTED`.
-+
-* Specifying `ALL` triggers a notification for any campaign report status.
-+
-* Specifying two or more status values triggers a notification when the campaign report status is the same as any of the selected status values.
-+
-* Specifying just one status value triggers a notification only when the campaign report status is the same as the selected status value.
+Allowed values are any set of `ReportExecutionStatus` values: `ALL`, `FAILED`, `SUCCESSFUL`, `WARNING`, `ABORTED`. +
+* Specifying `ALL` triggers a notification for any campaign report status. +
+* Specifying two or more status values triggers a notification when the campaign report status is the same as any of the selected status values. +
+* Specifying just one status value triggers a notification only when the campaign report status is the same as the selected status value. +
 
- *Optional/Required:* Required +
- *Data Type:* ENUM + 
- *Default Value:* ALL + 
+*Optional/Required:* Required +
+*Data Type:* ENUM + 
+*Default Value:* ALL + 
 
 .Example
 [source,kotlin] 
@@ -72,10 +69,10 @@ status:
 ----
 
 |`authenticationMode`
-a|* `Sets authentication options for SMTP server; allowed values: `USERNAME_PASSWORD`, `PLAIN`. + 
- *Optional/Required:* Required +
- *Data Type:* ENUM + 
- *Default Value:* PlAIN + 
+a|Sets authentication options for SMTP server; allowed values: `USERNAME_PASSWORD`, `PLAIN`. + 
+*Optional/Required:* Required +
+*Data Type:* ENUM + 
+*Default Value:* PlAIN + 
 
 .Example
 [source,kotlin] 
@@ -85,9 +82,9 @@ authenticationMode: USERNAME_PASSWORD `
 
 |`from`
 a|Email to indicate sender address. + 
- *Optional/Required:* Required +
- *Data Type:* email + 
- *Default Value:* no-reply@@qalipsis.io + 
+*Optional/Required:* Required +
+*Data Type:* email + 
+*Default Value:* no-reply@@qalipsis.io + 
 
 .Example
 [source,kotlin] 
@@ -97,9 +94,9 @@ from: foo@bar.com
 
 |`to`
 a|List of valid email addresses that are recipients of the email. + 
- *Optional/Required:* Required +
- *Data Type:* email + 
- *Default Value:* N/A + 
+*Optional/Required:* Required +
+*Data Type:* email + 
+*Default Value:* N/A + 
 
 .Example
 [source,kotlin] 
@@ -111,9 +108,9 @@ to:
 
 |`cc`
 a|List of valid email addresses to be copied in the email. + 
- *Optional/Required:* Optional +
- *Data Type:* email + 
- *Default Value:* empty list + 
+*Optional/Required:* Optional +
+*Data Type:* email + 
+*Default Value:* empty list + 
 
 .Example
 [source,kotlin] 
@@ -124,9 +121,9 @@ cc:
 
 |`junit`
 a|Activates/deactivates inclusion of a Junit report as a zipped attachment, if a report exists. +
- *Optional/Required:* Required +
- *Data Type:* boolean flag + 
- *Default Value:* false + 
+*Optional/Required:* Required +
+*Data Type:* boolean flag + 
+*Default Value:* false + 
 
 .Example
 [source,kotlin] 
@@ -136,9 +133,9 @@ junit: false
 
 |`ssl`
 a|Enables/disables the use of SSL to connect. +
- *Optional/Required:* Required +
- *Data Type:* boolean flag + 
- *Default Value:* false + 
+*Optional/Required:* Required +
+*Data Type:* boolean flag + 
+*Default Value:* false + 
 
 .Example
 [source,kotlin] 
@@ -148,9 +145,9 @@ ssl: true
 
 |`starttls`
 a|Enables/disables the use of the STARTTLS command (if supported by the server). +
- *Optional/Required:* Required +
- *Data Type:* boolean flag + 
- *Default Value:* false + 
+*Optional/Required:* Required +
+*Data Type:* boolean flag + 
+*Default Value:* false + 
 
 .Example
 [source,kotlin] 
@@ -172,9 +169,9 @@ a|The host name of the mail server to connect to. +
 
 |`port`
 a|The ho port number of the mail server to connect to. +
- *Optional/Required:* Required +
- *Data Type:* Integer + 
- *Default Value:* 25 + 
+*Optional/Required:* Required +
+*Data Type:* Integer + 
+*Default Value:* 25 + 
 
 .Example
 [source,kotlin] 

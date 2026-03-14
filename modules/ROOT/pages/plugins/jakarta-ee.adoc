@@ -24,7 +24,7 @@ Example of usage are provided later in this <<Example of usage,section>>.
 
 == Configuration
 
-=== Sample configuration file
+=== Example configuration file
 
 Jakarta EE configuration settings are configured in a jakarta.yaml file. 
 [source,kotlin,linenumbers]
@@ -59,10 +59,10 @@ Available parameters are described in the table below.
 
 | `connect`  +
 a| Defines the connection parameters for the `JakartaProducerRecord`(s). +
- *Applicable Steps:* Produce +
- *Optional/Required:* Required +
- *Data Type:* Lambda within which connection parameters are defined. +
- *Default Value:* N/A +
+*Applicable Steps:* Produce +
+*Optional/Required:* Required +
+*Data Type:* Lambda within which connection parameters are defined. +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin]
@@ -79,9 +79,9 @@ connect {
 | `queues`
 a| Specifies the queue(s) to consume. +
 *Applicable Steps:* Consume +
- *Optional/Required:* Required +
- *Data Type:* Lambda within which connection parameters are defined. +
- *Default Value:* N/A +
+*Optional/Required:* Required +
+*Data Type:* Lambda within which connection parameters are defined. +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin]
@@ -92,9 +92,9 @@ queues("battery_state")
 | `QueueConnection`
 a| Provides the connection to attach to the queue consumer, which is generally specific to the underlying product. +
 *Applicable Steps:* Consume +
- *Optional/Required:* Optional +
- *Data Type:* Lambda within which connection parameters are defined. +
- *Default Value:* N/A +
+*Optional/Required:* Optional +
+*Data Type:* Lambda within which connection parameters are defined. +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin]
@@ -111,9 +111,9 @@ queueConnection {
 | `topics`
 a| Specifies the topic(s) to consume. +
 *Applicable Steps:* Consume +
- *Optional/Required:* Optional +
- *Data Type:* String. +
- *Default Value:* N/A +
+*Optional/Required:* Optional +
+*Data Type:* String. +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin]
@@ -125,9 +125,9 @@ topics ("battery_state")
 | `topicConnection`
 a| provides the connection to attach to the topic consumer, which is generally specific to the underlying product. +
 *Applicable Steps:* Consume +
- *Optional/Required:* Optional +
- *Data Type:* Lambda within which connection parameters are defined. +
- *Default Value:* N/A +
+*Optional/Required:* Optional +
+*Data Type:* Lambda within which connection parameters are defined. +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin]
@@ -144,9 +144,9 @@ topicConnection {
 | `records`
 a| Generates a list of records to send the messaging platform. +
 *Applicable Steps:* Produce +
- *Optional/Required:* Required +
- *Data Type:* Lambda  +
- *Default Value:* N/A +
+*Optional/Required:* Required +
+*Data Type:* Lambda  +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin]
@@ -165,9 +165,9 @@ records { _, input ->
 | `destination`
 a| Defines the destination for each `JakartaProducerRecord` as either queues (`QueueConnection`) or topics (`TopicConnection`). +
 *Applicable Steps:* Produce +
- *Optional/Required:* Required +
- *Data Type:* Function +
- *Default Value:* N/A +
+*Optional/Required:* Required +
+*Data Type:* Function +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin]
@@ -178,9 +178,9 @@ destination = Topic(name = "battery_state")
 | `messageType`
 a| Indicates the `JakartaMessageType` as: `TEXT`, `AUTO`, `BYTES`, or `OBJECT`. +
 *Applicable Steps:* Produce +
- *Optional/Required:* Required +
- *Data Type:* ENUM +
- *Default Value:* N/A +
+*Optional/Required:* Required +
+*Data Type:* ENUM +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin]
@@ -191,9 +191,9 @@ messageType = JakartaMessageType.BYTES
 |`value`
 a| Defines the message to be displayed at the `destination`. +
 *Applicable Steps:* Produce +
- *Optional/Required:* Required +
- *Data Type:* Function +
- *Default Value:* N/A +
+*Optional/Required:* Required +
+*Data Type:* Function +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin]
@@ -203,10 +203,10 @@ value = objectMapper.writeValueAsBytes(input)
 
 |`session`
 a| Configures the session to attach to the message producer. +
- *Applicable Steps:* Produce +
- *Optional/Required:* Optional +
- *Data Type:* Lambda within which session parameters are defined. +
- *Default Value:* N/A +
+*Applicable Steps:* Produce +
+*Optional/Required:* Optional +
+*Data Type:* Lambda within which session parameters are defined. +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin]
@@ -216,13 +216,12 @@ session {
 }
 ----
 
-
 |`producers`
 a| The number of producers to use, in order to scale the data production upwards. +
 *Applicable Steps:* Produce +
- *Optional/Required:* Optional +
- *Data Type:* Integer +
- *Default Value:* 1 +
+*Optional/Required:* Optional +
+*Data Type:* Integer +
+*Default Value:* 1 +
 
 .Example
 [source,kotlin]
@@ -230,13 +229,12 @@ a| The number of producers to use, in order to scale the data production upwards
 producers = 1
 ----
 
-
 | `deserialize`
 a| Specifies the class to use to deserialize the body of the response. +
 *Applicable Steps:* Consume +
- *Optional/Required:* Required +
- *Data Type:* function +
- *Default Value:* N/A +
+*Optional/Required:* Required +
+*Data Type:* function +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin]
@@ -244,117 +242,14 @@ a| Specifies the class to use to deserialize the body of the response. +
  .deserialize(JakartaJsonDeserializer(targetClass = BatteryState::class))
 ----
 
-
-
 | `singletonConfiguration`
-a| Configures how consumed results are delivered to scenario minions. +
-  Specify one of the strategies directly (not wrapped in a lambda). +
-  Available strategies: `sequential`, `broadcast`, `unicast`, `loop`. +
-
- * `broadcast`: sends every consumed record to all minions. Records are delivered in order, with the oldest buffered record sent first. In this mode, the singleton behaves like a Pub/Sub broadcaster. 
-
- * `unicast`: sends each consumed record to exactly one minion. The singleton acts as a FIFO distributor: Records are stored in a buffer until a minion consumes them. The buffer has a fixed size; when it becomes full, the oldest records are dropped to make space for new ones. 
-
- * `loop`: sends each consumed record to all minions, but once the end of the buffer is reached, it loops back to the beginning. This creates a continuous cyclic stream of the buffered records. 
-
- * `sequential`: disables singleton execution and runs this step within the parent’s workflow. Data distribution is controlled entirely by the parent step. This mode is typically used when you want to process each record from a source from start to finish once, and then stop publishing until new data is available.
-   
- Note::
- Each strategy EXCEPT `sequential` requires `bufferSize` (Int) and `idleTimeout` (Duration); see `singletonConfiguration.bufferSize` and `singletonConfiguration.idleTimeout` definitions below. +
-
-*Applicable Step:* Consume +
-*Optional/Required:* Optional +
-*Data Type:* Function +
-*Default Value:* N/A
-
-.Example
-[source,kotlin] 
-----
-broadcast(bufferSize = 4, idleTimeout = Duration.ofMinutes(1))
-----
-
-| `singletonConfiguration.bufferSize`
-a| Size of the buffer used to store consumed records before delivery to minions.+ +
- *Applicable Step:* Consume +
- *Optional/Required:* Optional +
- *Data Type:* Integer +
- *Default Value:* -1 +
-
-.Example
-[source,kotlin] 
-----
-broadcast(bufferSize = 4, idleTimeout = Duration.ofMinutes(1))
-----
-
-| `singletonConfiguration.idleTimeout`
-a| Maximum time to wait before delivering consumed records to minions, even if the buffer is not full. +
- *Applicable Step:* Consume +
- *Optional/Required:* Optional +
- *Data Type:* java.time.Duration +
- *Default Value:* Duration.ZERO +
-
-.Example
-[source,kotlin] 
----- 
-broadcast(bufferSize = 4, idleTimeout = Duration.ofMinutes(1))
-----
-
-| `broadcast`
-a| Specifies the broadcast parameters for a step. +
- *Applicable Step:* Consume +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-broadcast(3, Duration.ofMinutes(1))
-----
-
-| `unicast`
-a| Specifies the unicast parameters for a step. +
- *Applicable Step:* Consume +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-unicast(1, Duration.ofMinutes(3))
-----
-
-| `loop`
-a| Specifies the loop parameters for a step. +
- *Applicable Step:* Consume +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-loop(5, Duration.ofMinutes(2))
-----
-
-| `sequential`
-a| Specifies the sequential parameters for a step. +
- *Applicable Step:* Consume +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-sequential()
-----
+a| Configures how polled results are delivered to scenario minions. +
+ Refer to xref:plugins/plugins.adoc#singletonconfiguration-parameters[SingletonConfiguration parameters] for details on strategies and examples of usage.
 
 |===
 == Example of usage
 
-== Consume step
+=== Consume step
 The `consume` step within the Jakarta EE plugin consumes records from a Jakarta-EE-Messaging-compatible product.
 
 Ancestor::
@@ -388,13 +283,14 @@ it.jakarta().consume {. <1>
 <4> Specify the class to use to deserialize the body of the response.
 <5> Define how the result of the consume step is sent to the next step in a scenario.
 
+//-
 Tip::
 The connection can be configured to consume either `queues` (`queueConnection`) or `topics` (`topicConnection`), but not both.
 
 Reference documentation::
 Refer to the  https://jakarta.ee/resources/#documentation[Jakarta EE] documentation for further parameter and configuration information.
 
-== Produce step
+=== Produce step
 The `produce` step within the Jakarta EE plugin produces records in a Jakarta-EE-Messaging-compatible product.
 
 Ancestor::
@@ -433,12 +329,12 @@ Example::
   }
 }
 ----
-Notable parameters::
 <1> Start the `produce` step.
 <2> Provide the connection for the `JakartaProducerRecord`(s).
 <3> Configure the session to attach to the message producer. 
 <4> Generate a list of records to send the messaging platform.
 
+//-
 Tip::
 If you are not sure about the `JakartaMessageType`, use `AUTO` to allow the system to infer the type and display the result. 
 
@@ -446,7 +342,7 @@ Reference documentation::
 Refer to the  https://jakarta.ee/resources/#documentation[Jakarta EE] documentation for further parameter and configuration information.
 
 
-=== JakartaProduceAndConsumeFromQueue
+=== JakartaProduceAndConsumeFromQueue scenario
 [source,kotlin,linenumbers]
 ----
 scenario { <1>
@@ -533,7 +429,7 @@ scenario { <1>
 <4> Define the header of the csv file.
 <5> Transform the output of the CSV reader entries to utils.BatteryState.
 
-=== JakartaProduceAndConsumeFromTopic
+=== JakartaProduceAndConsumeFromTopic scenario
 [source,kotlin,linenumbers]
 ----
 scenario { <1> 

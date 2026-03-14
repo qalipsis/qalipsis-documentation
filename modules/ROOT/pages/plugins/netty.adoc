@@ -35,7 +35,7 @@ Examples of usage are provided later in this <<Examples of usage,section>>.
 
 == Configuration
 
-=== Sample configuration file
+=== Example configuration file
 Netty configuration settings are configured in a netty.yaml file. 
 
 [source,kotlin,linenumbers]
@@ -69,10 +69,10 @@ Available parameters are described in the table below.
 
 | `connect`
 a| Configures the connection to the remote endpoint +
- *Applicable Steps:* HTTP, MQTT Publish, MQTT Subscribe, TCP, UDP + 
- *Optional/Required:* Required +
- *Data Type:* Lambda +
- *Default Value:* `all`
+*Applicable Steps:* HTTP, MQTT Publish, MQTT Subscribe, TCP, UDP + 
+*Optional/Required:* Required +
+*Data Type:* Lambda +
+*Default Value:* `all` +
 
 .Example 
 [source,kotlin]
@@ -99,14 +99,13 @@ connect {
 
 | `version`
 a| Identifies the version of the HTTP protocol to use: `HTTP_1_1` or `HTTP_2_0`. +
- *Applicable Steps:* HTTP 
- *Optional/Required:* Optional +
- *Data Type:* ENUM +
- *Default Value:* `HTTP_1_1`
+*Applicable Steps:* HTTP +
+*Optional/Required:* Optional +
+*Data Type:* ENUM +
+*Default Value:* `HTTP_1_1` +
 
 .Example 
 [source,kotlin]
-
 ----
 connect {
     version: HTTP_1_1
@@ -115,10 +114,10 @@ connect {
 
 | `url`
 a| The root URL; the path of the request is appended to it. + 
- *Applicable Steps:* HTTP + 
- *Optional/Required:* Required +
- *Data Type:* String +
- *Default Value:* N/A
+*Applicable Steps:* HTTP + 
+*Optional/Required:* Required +
+*Data Type:* String +
+*Default Value:* N/A +
 
 .Example 
 [source,kotlin]
@@ -131,14 +130,13 @@ connect {
 
 | `connectTimeout`
 a| Limit duration to fully establish the connection.   + 
- *Applicable Steps:* HTTP, TCP, UDP + 
- *Optional/Required:* Optional +
- *Data Type:* Duration of time +
- *Default Value:* 10seconds
+*Applicable Steps:* HTTP, TCP, UDP + 
+*Optional/Required:* Optional +
+*Data Type:* Duration of time +
+*Default Value:* 10seconds +
 
 .Example 
 [source,kotlin]
-
 ----
 connect {
     connectTimeout = Duration.ofSeconds(5)
@@ -147,16 +145,14 @@ connect {
 
 | `readTimeout`
 a| Limit duration to receive a response and read it totally after a request. + 
- *Applicable Steps:* HTTP, TCP, UDP + 
- *Optional/Required:* Optional +
- *Data Type:* Duration of time +
- *Default Value:* 10 seconds
+*Applicable Steps:* HTTP, TCP, UDP + 
+*Optional/Required:* Optional +
+*Data Type:* Duration of time +
+*Default Value:* 10 seconds +
 
 .Example 
 [source,kotlin]
-
 ----
-
 connect {
     readTimeout = Duration.ofSeconds(5)
   }
@@ -164,14 +160,13 @@ connect {
 
 | `shutdownTimeout`
 a| Limit duration to close a connection. + 
- *Applicable Steps:* HTTP, TCP, UDP + 
- *Optional/Required:* Optional +
- *Data Type:* Duration of time +
- *Default Value:* 10 seconds
+*Applicable Steps:* HTTP, TCP, UDP + 
+*Optional/Required:* Optional +
+*Data Type:* Duration of time +
+*Default Value:* 10 seconds +
 
 .Example 
 [source,kotlin]
-
 ----
 connect {
     shutdownTimeout = Duration.ofSeconds(5)
@@ -180,10 +175,10 @@ connect {
 
 | `sendBufferSize`
 a| The size of the buffer used to prepare the data to send. + 
- *Applicable Steps:* HTTP, TCP, UDP + 
- *Optional/Required:* Optional +
- *Data Type:* Integer +
- *Default Value:* 1024 bytes
+*Applicable Steps:* HTTP, TCP, UDP + 
+*Optional/Required:* Optional +
+*Data Type:* Integer +
+*Default Value:* 1024 bytes +
 
 .Example 
 [source,kotlin]
@@ -195,10 +190,10 @@ connect {
 
 | `receiveBufferSize`
 a| The size of the buffer used to prepare the data to send. + 
- *Applicable Steps:* HTTP, TCP, UDP + 
- *Optional/Required:* Optional +
- *Data Type:* Integer +
- *Default Value:* 1024 bytes
+*Applicable Steps:* HTTP, TCP, UDP + 
+*Optional/Required:* Optional +
+*Data Type:* Integer +
+*Default Value:* 1024 bytes
 
 .Example 
 [source,kotlin]
@@ -210,10 +205,10 @@ connect {
 
 | `nettyChannelOptions`
 a|Overwrites the options of the Netty channel. + 
- *Applicable Steps:* HTTP, TCP, UDP +
- *Optional/Required:* Optional +
- *Data Type:* Map<ChannelOption<*>, Any> + +
- *Default Value:* emptyMap() ;uses Netty/OS defaults.
+*Applicable Steps:* HTTP, TCP, UDP +
+*Optional/Required:* Optional +
+*Data Type:* Map<ChannelOption<*>, Any> + 
+*Default Value:* emptyMap() ;uses Netty/OS defaults. +
 
 .Example +
 [source,kotlin]
@@ -230,10 +225,10 @@ netty {
 
 | `noDelay`
 a| Disables the Nagle Algorithm. + 
- *Applicable Steps:* HTTP, TCP + 
- *Optional/Required:* Optional +
- *Data Type:* Lambda +
- *Default Value:* true
+*Applicable Steps:* HTTP, TCP + 
+*Optional/Required:* Optional +
+*Data Type:* Lambda +
+*Default Value:* true
 
 .Example +
 [source,kotlin]
@@ -245,10 +240,10 @@ connect {
 
 | `keepConnectionAlive`
 a| When set to true, the HTTP header connection is set to `Keep-Alive` and the client connection is kept open until `CLOSEHTTP`() is called. + 
- *Applicable Steps:* HTTP + 
- *Optional/Required:* Required +
- *Data Type:* Lambda +
- *Default Value:* false
+*Applicable Steps:* HTTP + 
+*Optional/Required:* Required +
+*Data Type:* Lambda +
+*Default Value:* false +
 
 .Example 
 [source,kotlin]
@@ -260,10 +255,10 @@ connect {
 
 | `tls`
 a| Configuration for SSL/TLS   + 
- *Applicable Steps:* HTTP, TCP + 
- *Optional/Required:* Optional +
- *Data Type:* Block +
- *Default Value:* N/A
+*Applicable Steps:* HTTP, TCP + 
+*Optional/Required:* Optional +
+*Data Type:* Block +
+*Default Value:* N/A +
 
 .Example +
 [source,kotlin]
@@ -281,13 +276,12 @@ connect {
 }
 ----
 
-
 | `disableCertificationVerification`
 a| Enables (false) or disables (true) verification of the certificate on the server; for example, set to `true` for a self-signed certificate. + 
- *Applicable Steps:* HTTP, TCP + 
- *Optional/Required:* Optional +
- *Data Type:* Boolean +
- *Default Value:* false
+*Applicable Steps:* HTTP, TCP + 
+*Optional/Required:* Optional +
+*Data Type:* Boolean +
+*Default Value:* false +
 
 .Example 
 [source,kotlin]
@@ -316,14 +310,12 @@ connect {
 }
 ----
 
-
 | `ciphers`
-|a Defines the list ofsupported cipher algorithms. defaults to the Netty default for the related HTTP version.
-+ 
- *Applicable Steps:* HTTP, TCP + 
- *Optional/Required:* Optional +
- *Data Type:* ENUM +
- *Default Value:* null
+|a Defines the list ofsupported cipher algorithms. defaults to the Netty default for the related HTTP version. +
+*Applicable Steps:* HTTP, TCP + 
+*Optional/Required:* Optional +
+*Data Type:* ENUM +
+*Default Value:* null +
 
 .Example +
 [source,kotlin]
@@ -341,10 +333,10 @@ connect {
 
 |`proxy`
 a|Configuration to exchange HTTP data via a proxy.   + 
- *Applicable Steps:* HTTP, TCP + 
- *Optional/Required:* Optional +
- *Data Type:* Block +
- *Default Value:* null
+*Applicable Steps:* HTTP, TCP + 
+*Optional/Required:* Optional +
+*Data Type:* Block +
+*Default Value:* null +
 
 .Example 
 [source,kotlin]
@@ -359,10 +351,10 @@ connect {
 
 | `address`
 a| The host and port of the proxy + 
- *Applicable Steps:* HTTP, TCP, UDP +   
- *Optional/Required:* Optional +
- *Data Type:* String (Host) and Int (Port) +
- *Default Value:* None
+*Applicable Steps:* HTTP, TCP, UDP +   
+*Optional/Required:* Optional +
+*Data Type:* String (Host) and Int (Port) +
+*Default Value:* None +
 
 .Example +
 [source,kotlin]
@@ -372,11 +364,11 @@ address("my-proxy", 9876)
 
 | `type`
 a| Defines the type of the proxy to use. +
-  Available choices: HTTP:  `HTTP`, `SOCKS5` ; TCP: `SOCKS4`, `SOCKS5` +
- *Applicable Steps:* HTTP, MQTT Publish, MQTT Subscribe, UDP + 
- *Optional/Required:* Optional +
- *Data Type:* HttpProxyType (ENUM) +
- *Default Value:* None
+Available choices: HTTP:  `HTTP`, `SOCKS5` ; TCP: `SOCKS4`, `SOCKS5` +
+*Applicable Steps:* HTTP, MQTT Publish, MQTT Subscribe, UDP + 
+*Optional/Required:* Optional +
+*Data Type:* HttpProxyType (ENUM) +
+*Default Value:* None +
 
 .Example +
 [source,kotlin]
@@ -386,10 +378,10 @@ type = HttpProxyType.SOCKS5
 
 |`authenticate`
 a| Credentials (username and optional password) to authenticate to the proxy, if the proxy supports and requires it   + 
- *Applicable Steps:* HTTP, MQTT Publish, MQTT Subscribe, UDP + 
- *Optional/Required:* Optional +
- *Data Type:* Lambda +
- *Default Value:* N/A
+*Applicable Steps:* HTTP, MQTT Publish, MQTT Subscribe, UDP + 
+*Optional/Required:* Optional +
+*Data Type:* Lambda +
+*Default Value:* N/A +
 
 .Example (HTTP proxy type) +
 [source,kotlin]
@@ -409,13 +401,12 @@ credentials {
 }
 ----
 
-
 | `charset`
- Character encoding of the HTTP requests. +
-a|*Applicable Steps:* HTTP + 
- *Optional/Required:* Optional +
- *Data Type:* java.nio.charset.Charset +
- *Default Value:* StandardCharsets.UTF_8
+a| Character encoding of the HTTP requests. +
+*Applicable Steps:* HTTP + 
+*Optional/Required:* Optional +
+*Data Type:* java.nio.charset.Charset +
+*Default Value:* StandardCharsets.UTF_8 +
 
 .Example +
 [source,kotlin]
@@ -425,7 +416,7 @@ charset(Charsets.ISO_8859_1)
 
 |`maxContentLength`
 a| Sets the maximum allowed size (in bytes) for the HTTP response body. If the response exceeds this limit, the connection is closed to prevent memory exhaustion. +
- *Applicable Steps:* HTTP +
+*Applicable Steps:* HTTP +
 *Optional/Required:*  Optional +
 *Data Type:* Int +
 *Default Value:* 1048576
@@ -438,10 +429,10 @@ maxContentLength(10 * 1024 * 1024)
 
 | `followRedirections`
 a| Defines the maximum number of HTTP redirects (status codes 3xx) the client will automatically follow before giving up. This prevents infinite redirection loops +
- *Applicable Steps:* HTTP +
- *Optional/Required:* Optional+
- *Data Type:* Int+
-*Default Value:* 0 (Redirects are not followed.)
+*Applicable Steps:* HTTP +
+*Optional/Required:* Optional+
+*Data Type:* Int +
+*Default Value:* 0 (Redirects are not followed.) +
 
 .Example +
 [source,kotlin]
@@ -449,13 +440,12 @@ a| Defines the maximum number of HTTP redirects (status codes 3xx) the client wi
 followRedirections(5)
 ----
 
-
 | `pool`
 a| Configures the connection pooling strategy. Pooling reuses existing connections for multiple requests to avoid the overhead of repeated TCP handshakes and TLS negotiations. +
- *Applicable Steps:*  HTTP, TCP +
+*Applicable Steps:*  HTTP, TCP +
 *Optional/Required:* Optional +
 *Data Type:* Configuration Block +
-*Default Value:* N/A
+*Default Value:* N/A +
 
 .Example +
 [source,kotlin]
@@ -465,12 +455,13 @@ pool {
     checkHealthBeforeUse = true
 }
 ----
+
 | `pool.size`
 a| Maximum nuber of concurrent connections. Pooling reuses existing connections for multiple requests to avoid the overhead of repeated TCP handshakes and TLS negotiations. +
- *Applicable Steps:*  HTTP, TCP +
+*Applicable Steps:*  HTTP, TCP +
 *Optional/Required:* Optional +
 *Data Type:* Block +
-*Default Value:* Enabled with default settings (Size: 20 connections).
+*Default Value:* Enabled with default settings (Size: 20 connections). +
 
 .Example +
 [source,kotlin]
@@ -482,10 +473,10 @@ pool {
 
 | `pool.checkHealthBeforeUse`
 a| Verifies that the socket is still on before sending data open (true) before sending data. +
- *Applicable Steps:* HTTP, TCP + 
+*Applicable Steps:* HTTP, TCP + 
 *Optional/Required:* Optional +
 *Data Type:*  Boolean +
-*Default Value:* true
+*Default Value:* true +
 
 .Example +
 [source,kotlin]
@@ -497,11 +488,10 @@ pool {
 
 | `inflate`
 a| Enables or disables the automatic decompression of the HTTP response body. +
- *Applicable Steps:* HTTP +
- *Optional/Required:* Optional +
- *Data Type:* Boolean +
- *Default Value:* true +
-
+*Applicable Steps:* HTTP +
+*Optional/Required:* Optional +
+*Data Type:* Boolean +
+*Default Value:* true +
 
 .Example +
 [source,kotlin]
@@ -511,12 +501,11 @@ inflate(true)
 
 | `request`
 a| A factory to create the request to exchange, using the step context and the input as arguments. +
- The following types of reqiests can be created: `simple`, `form`, or `multipart`. +
- *Applicable Steps:* HTTP, HTTP WITH, TCP, TCP WITH, UDP +
- *Optional/Required:* Required +
- *Data Type:* Lambda Block +
- *Default Value:* None +
-
+The following types of reqiests can be created: `simple`, `form`, or `multipart`. +
+*Applicable Steps:* HTTP, HTTP WITH, TCP, TCP WITH, UDP +
+*Optional/Required:* Required +
+*Data Type:* Lambda Block +
+*Default Value:* None +
 
 .Example  (`simple`) + 
 [source,kotlin]
@@ -528,6 +517,7 @@ request { context, input ->
     }
 }
 ----
+
 .Example  (`form`) + 
 [source,kotlin]
 ----
@@ -539,7 +529,6 @@ request { context, input ->
     } 
 }
 ----
-
 
 .Example  (`multipart`) + 
 [source,kotlin]
@@ -554,10 +543,10 @@ request { context, input ->
 
 | `deserialize`
 a| Specifies the transformation logic used to convert the raw HTTP response bytes into a high-level object. +
- *Applicable Steps:* HTTP, HTTP WITH, TCP  +
- *Optional/Required:* Optional +
- *Data Type:* Block +
- *Default Value:* ByteBuf +
+*Applicable Steps:* HTTP, HTTP WITH, TCP  +
+*Optional/Required:* Optional +
+*Data Type:* Block +
+*Default Value:* ByteBuf +
 
 .Example +
 [source,kotlin]
@@ -569,24 +558,23 @@ connect {
 
 | `closeHttp`
 a| Specifies the  name of an `HTTP` step owning the `HTTP` connection to close. +
- *Applicable Steps:* CLOSE HTTP  +
- *Optional/Required:* Optional +
- *Data Type:* String +
- *Default Value:* N/A +
+*Applicable Steps:* CLOSE HTTP  +
+*Optional/Required:* Optional +
+*Data Type:* String +
+*Default Value:* N/A +
 
 .Example +
 [source,kotlin]
 ----
 netty().closeHttp("name-of-a-previous-HTTP-step")
 ----
-|===
 
 | `clientName`
 a| Identifies the client onto the MQTT server. +
- *Applicable Steps:* MQTT Publish, MQTT Subscribe  +
- *Optional/Required:* Required +
- *Data Type:* String +
- *Default Value:* N/A +
+*Applicable Steps:* MQTT Publish, MQTT Subscribe  +
+*Optional/Required:* Required +
+*Data Type:* String +
+*Default Value:* N/A +
 
 .Example +
 [source,kotlin]
@@ -596,10 +584,10 @@ clientName("mqtt-client-1")
 
 | `topicName`
 a| Identifies the client onto the MQTT server where data is sent. +
- *Applicable Steps:* MQTT Publish +
- *Optional/Required:* Required  +
- *Data Type:* String +
- *Default Value:* N/A +
+*Applicable Steps:* MQTT Publish +
+*Optional/Required:* Required  +
+*Data Type:* String +
+*Default Value:* N/A +
 
 .Example +
 [source,kotlin]
@@ -607,13 +595,12 @@ a| Identifies the client onto the MQTT server where data is sent. +
 topicName("factory/floor1/machine5/telemetry")
 ----
 
-
 | `topicFilter`
 a| MQTT topics or patterns to consume. +
- *Applicable Steps:* MQTT Subscribe  +
- *Optional/Required:* Required  +
- *Data Type:* String +
- *Default Value:* N/A +
+*Applicable Steps:* MQTT Subscribe  +
+*Optional/Required:* Required  +
+*Data Type:* String +
+*Default Value:* N/A +
 
 .Example +
 [source,kotlin]
@@ -624,7 +611,7 @@ topicName("factory/floor1/machine5/telemetry")
 
 == Examples of usage
 
-== HTTP step
+=== HTTP step
 The `HTTP` step within the Netty plugin executes an HTTP request using https://datatracker.ietf.org/doc/rfc2616[`HTTP 1.1`] or https://datatracker.ietf.org/doc/rfc7540[`HTTP 2.0`].
 
 Ancestor::
@@ -673,7 +660,7 @@ netty().http {
 Reference Documentation::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
-== HTTP WITH step
+=== HTTP WITH step
 The `HTTP WITH` step within the Netty plugin executes an HTTP request reusing the HTTP connection created by a precedent step.
 
 Ancestor::
@@ -717,7 +704,7 @@ netty().closeHttp("name-of-a-previous-HTTP-step")
 Reference Documentation::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
-== MQTT Publish step 
+=== MQTT Publish step 
 The `MQTT Publish` step within the Netty plugin sends data to an MQTT server.
 
 Ancestor::
@@ -750,7 +737,7 @@ Example::
 Reference Documentation::
 Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
   
-== MQTT Subscribe step 
+=== MQTT Subscribe step 
 The `MQTT Subscribe` step within the Netty plugin consumes data from an MQTT server.
 
 Ancestor::
@@ -773,7 +760,7 @@ it.netty().mqttSubscribe {
 ----
 
 
-== TCP step
+=== TCP step
 The `TCP` step within the Netty plugin is a client for `TCP`.
  
 Ancestor::
@@ -819,7 +806,7 @@ netty().tcp {
 Reference Documentation::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
-== TCP WITH step 
+=== TCP WITH step 
 The `TCP WITH` step within the Netty plugin sends a TCP payload, reusing the connection created by a precedent step.
 
 Ancestor::
@@ -841,7 +828,7 @@ netty().tcpWith("name-of-a-previous-HTTP-step") {
 Reference Documentation::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
-== CLOSE TCP step 
+=== CLOSE TCP step 
 The `CLOSE TCP` step within the Netty plugin closes the TCP connection, attached to a minion and created by a direct or indirect ancestor step, when the tail of the minion workflow is received. 
 
 It is best practice to use a `CLOSE TCP` step when reusing a `TCP` connection across several steps without a pool of connections.
@@ -862,7 +849,7 @@ netty().closeHttp("name-of-a-previous-HTTP-step")
 Reference Documentation::
 * Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
 
-== UDP step 
+=== UDP step 
 The `UDP` step within the Netty plugin is a client for UDP.
 
 It is best practice to use the  `UDP` step when reusing a `TCP` connection across several steps without a pool of connections.

@@ -18,18 +18,18 @@ Namespace in scenario::
 
 Client library::
 JAVA API:  refer to
-https://www.elastic.co/guide/en/elasticsearch/client/java-api-client/8.1/connecting.html[Elasticsearch JAVA Client].
+https://www.elastic.co/docs/reference/elasticsearch/clients/java/setup/connecting[Elasticsearch JAVA Client].
 
 Supported steps::
 * <<poll step,`poll`>>: polls the newest data periodically.
 * <<save step,`save`>>: saves a batch records generated from the input and step context.
 * <<search step,`search`>>: searches records and builds a query from the input and step context.
 
-Example scenarios are provided later in this <<Example scenarios,section>>.
+Examples of usage are provided later in this <<Examples of usage,section>>.
 
 == Configuration
 
-=== Sample configuration file
+=== Example configuration file
 
 Elasticsearch` configuration settings are configured in an elasticsearch.yaml file. 
 
@@ -65,12 +65,12 @@ Available parameters are described in the table below.
 
 | `index`
 a| Sets the elasticsearch indices to use for the queries. +
- *Applicable Steps:* Poll, Search + 
- *Optional/Required:* Required +
- *Data Type:* +
+*Applicable Steps:* Poll, Search + 
+*Optional/Required:* Optional +
+*Data Type:* +
    Poll: `vararg String` +
    Search: Lambda that receives the step context and input to return `List<String>`
- *Default Value:* `all`
+*Default Value:* `_all`
 
 .Example (Poll)
 [source,kotlin]
@@ -81,15 +81,15 @@ index("battery-state")
 .Example (Search)
 [source,kotlin]
 ----
-index { _, _ -> listOf("battery-state") } 
+index { stepContext, input -> listOf("${input.batteryState}") } 
 ----
 
 | `client`
 a| Configures the REST client to connect to https://www.elastic.co/[Elasticsearch] +
- *Applicable Steps:* Poll, Search, Save + 
- *Optional/Required:* Required +
- *Data Type:* Lambda that returns an instance of RestClient
- *Default Value:* N/A +
+*Applicable Steps:* Poll, Search, Save + 
+*Optional/Required:* Optional +
+*Data Type:* Lambda that returns an instance of RestClient
+*Default Value:* http://localhost:9200 +
 
 .Example
 [source,kotlin]
@@ -97,16 +97,20 @@ a| Configures the REST client to connect to https://www.elastic.co/[Elasticsearc
 client { 
     RestClient.builder(HttpHost.create("http://localhost:9200")).build()
 }
+OR
+client {
+  RestClient.builder(HttpHost(hostname = "localhost", port = 9200,  scheme = "http")).build() 
+}
 ----
 
 | `query`
-a| Configures the builder for the JSON query to perform the first poll/search. +
- *Applicable Steps:* Poll, Search + 
- *Optional/Required:* Required +
- *Data Type:* +
+a| Configures the builder for the JSON query to perform the poll/search. +
+*Applicable Steps:* Poll, Search + 
+*Optional/Required:* Required +
+*Data Type:* +
  Poll: Lambda that returns a String. +
  Search: Lambda that receives the step context and input to return a String. +
- *Default Value:* N/A +
+*Default Value:* N/A +
 
 .Example (Poll)
 [source,kotlin]
@@ -124,13 +128,13 @@ query {
 .Example (Search)
 [source,kotlin]
 ----
-query { _, input ->
+query { stepContext, input ->
         """{
             "query": {
                 "bool": {
                     "must": [
-                        { "match": { "deviceId": "${input.input.deviceId}" }},
-                        { "term": { "timestamp": ${input.input.timestamp.epochSecond} }}
+                        { "match": { "deviceId": "${input.deviceId}" }},
+                        { "term": { "timestamp": ${input.timestamp.epochSecond} }}
                     ]
                 }
             }
@@ -138,158 +142,55 @@ query { _, input ->
     }
 ----
 
-| `parameters`
+| `queryParameters`
 a|Adds parameters to the query. +
- *Applicable Steps:* Poll, Search +  
- *Optional/Required:* Optional +
- *Data Type:* + 
- Poll: Lambda that returns a string. +
- Search: Lambda that receives the step context and input to return a string. +
- *Default Value:* N/A + 
- 
-// neeed Example code for the Poll and Search steps
+*Applicable Steps:* Poll, Search +  
+*Optional/Required:* Optional +
+*Data Type:* + 
+ Poll: vararg Pair<String, String>  +
+ Search: Lambda that receives the step context and input to return `Map<String, String>` +
+*Default Value:* N/A + 
 
 .Example (Poll)
 [source,kotlin]
 ----
-
+queryParameters("deviceId" to "deviceId1", "param-2" to "val-2")
 ----
 
 .Example (Search) 
 [source,kotlin]
 ----
-
+queryParameters { stepContext, input → mapOf("deviceId" to "${input.deviceId}") }
 ----
 
 | `pollDelay`
-a| Specifies the delay between query executions. +
- *Applicable Steps:* Poll +
- *Optional/Required:* Optional  +
- *Data Type:* java.time.Duration
- *Default Value:* N/A + 
+a| Specifies the delay between two successive polls.  +
+*Applicable Steps:* Poll +
+*Optional/Required:* Optional  +
+*Data Type:* java.time.Duration
+*Default Value:* null + 
 
 .Example
 [source,kotlin]
 ----
-  pollDelay(Duration.ofSeconds(1)) +
+pollDelay(Duration.ofSeconds(1)) +
 ----
 
 | `singletonConfiguration`
-a| Configures how polled results are delivered to scenario minions. +
-  Specify one of the strategies directly (not wrapped in a lambda). +
-  Available strategies: `sequential`, `broadcast`, `unicast`, `loop`. +
-
- * `broadcast`: sends every polled record to all minions. Records are delivered in order, with the oldest buffered record sent first. In this mode, the singleton behaves like a Pub/Sub broadcaster. 
-
- * `unicast`: sends each polled record to exactly one minion. The singleton acts as a FIFO distributor: Records are stored in a buffer until a minion consumes them. The buffer has a fixed size; when it becomes full, the oldest records are dropped to make space for new ones. 
-
- * `loop`: sends each polled record to all minions, but once the end of the buffer is reached, it loops back to the beginning. This creates a continuous cyclic stream of the buffered records. 
-
- * `sequential`: disables singleton execution and runs this step within the parent’s workflow. Data distribution is controlled entirely by the parent step. This mode is typically used when you want to process each record from a source from start to finish once, and then stop publishing until new data is available.
-   
- Note::
- Each strategy EXCEPT `sequential` requires `bufferSize` (Int) and `idleTimeout` (Duration); see `singletonConfiguration.bufferSize` and `singletonConfiguration.idleTimeout` definitions below. +
-
-*Applicable Step:* Poll +
-*Optional/Required:* Optional +
-*Data Type:* Function +
-*Default Value:* unicast(bufferSize, idleTimeout)
-
-.Example
-[source,kotlin] 
-----
-broadcast(bufferSize = 4, idleTimeout = Duration.ofMinutes(1))
-----
-
-| `singletonConfiguration.bufferSize`
-a| Size of the buffer used to store polled records before delivery to minions.+ +
- *Applicable Step:* Poll +
- *Optional/Required:* Optional +
- *Data Type:* Integer +
- *Default Value:* -1 +
-
-.Example
-[source,kotlin] 
-----
-broadcast(bufferSize = 4, idleTimeout = Duration.ofMinutes(1))
-----
-
-| `singletonConfiguration.idleTimeout`
-a| Maximum time to wait before delivering polled records to minions, even if the buffer is not full. +
- *Applicable Step:* Poll +
- *Optional/Required:* Optional +
- *Data Type:* java.time.Duration +
- *Default Value:* Duration.ZERO +
-
-.Example
-[source,kotlin] 
----- 
-broadcast(bufferSize = 4, idleTimeout = Duration.ofMinutes(1))
-----
-
-| `broadcast`
-a| Specifies the broadcast parameters for a step. +
- *Applicable Step:* Poll
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-broadcast(3, Duration.ofMinutes(1))
-----
-
-| `unicast`
-a| Specifies the unicast parameters for a step. +
- *Applicable Step:* Poll +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-unicast(1, Duration.ofMinutes(3))
-----
-
-| `loop`
-a| Specifies the loop parameters for a step. +
- *Applicable Step:* Poll +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-loop(5, Duration.ofMinutes(2))
-----
-
-| `sequential`
-a| Specifies the sequential parameters for a step. +
- *Applicable Step:* Poll +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-sequential()
-----
-
+a|Configures how polled results are delivered to scenario minions. +
+  Refer to xref:plugins/plugins.adoc#singletonconfiguration-parameters[SingletonConfiguration parameters] for details on strategies and examples of usage.
+  
 | `documents`
-a| Defines the strategy to create documents to save from the input and step context. +
- *Applicable Step:* Save
- *Optional/Required:* Required
- *Data Type:*  Lambda that receives the step context and input to return `List<Document>`
- *Default Value:* N/A +
+a| Builds the list of documents to save using the Elasticsearch Bulk API. +
+*Applicable Step:* Save +
+*Optional/Required:* Required +
+*Data Type:*  Lambda that receives the step context and input to return `List<Document>` +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin] 
 ----
-documents { _, input ->
+documents { stepContext, input ->
     listOf(
         Document(
             index = "battery-state",
@@ -301,85 +202,28 @@ documents { _, input ->
 ----
 
 | `monitoring`
-a| Configures the monitoring of the step. +
- *Applicable Steps:* Poll, Save, Search +
- *Optional/Required:* Optional +
- *Data Type:* Lambda within which monitoring parameters are defined. +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-monitoring {
-    meters = true
-    events = true
-}
-----
-
-| `monitoring.meters`
-a| Enables or disables the monitoring by meters for the step.
-*Applicable Steps:* Poll, Save, Search +
- *Optional/Required:* Optional +
- *Data Type:* Boolean +
- *Default Value:* false +
-
-.Example
-[source,kotlin] 
-----
-monitoring {
-    meters = true
-}
-----
-
-| `monitoring.events`
-a| Enables or disables the monitoring by events for the step.
- *Applicable Steps:* Poll, Save, Search +
- *Optional/Required:* Optional +
- *Data Type:* Boolean +
- *Default Value:* false +
-
-.Example
-[source,kotlin] 
-----
-monitoring {
-    events = true
-}
-----
-
-| `monitoring.all`
-a| Enables all monitoring options for the step.
- *Applicable Steps:* Poll, Save, Search +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/ +
-
-.Example
-[source,kotlin] 
-----
-monitoring {
-    all()
-}
-----
+a| Configures QALIPSIS monitoring (meters/events) for the step. +
+Refer to xref:plugins/plugins.adoc#monitoring-parameters[Monitoring parameters] for configuration details and examples of usage.
 
 | `keepResponse`
-a| When called, keeps the response from Elasticsearch after saving documents and forwards it to the next step.
- *Applicable Step:* Save
- *Optional/Required:* Optional +
- *Data Type:* Function + 
- *Default Value:* N/A +
+a| When called, keeps the response from Elasticsearch after saving documents and forwards it to the next step. +
+*Applicable Step:* Save +
+*Optional/Required:* Optional +
+*Data Type:* Function + 
+*Default Value:* N/A +
 
 .Example
 [source,kotlin] 
 ----
- keepResponse()
+keepResponse()
 ----
 
 | `fetchAll`
 a| Fetches all results from Elasticsearch, even if over the result-sized window. +
- *Applicable Step:* Search
- *Optional/Required:* Optional +
- *Data Type:* Function + 
- *Default Value:* N/A + 
+*Applicable Step:* Search +
+*Optional/Required:* Optional +
+*Data Type:* Function + 
+*Default Value:* N/A + 
 
 .Example
 [source,kotlin] 
@@ -389,10 +233,10 @@ a| Fetches all results from Elasticsearch, even if over the result-sized window.
 
 | `mapper`
 a|Configures the JSON mapper to use for deserializing JSON documents from Elasticsearch into objects. +
- *Applicable Step:* Search, Poll
- *Optional/Required:* Optional +
- *Data Type:* Lambda that receives a JsonMapper to configure + 
- *Default Value:* N/A + 
+*Applicable Step:* Search, Poll +
+*Optional/Required:* Optional +
+*Data Type:* Lambda that receives a JsonMapper to use in deserializing JSON records. + 
+*Default Value:* N/A + 
  
 .Example
 [source,kotlin] 
@@ -403,9 +247,9 @@ mapper { jsonMapper ->
 ----
 |===
 
-== Examples of Usage
+== Examples of usage
 
-===Poll step
+=== Poll step
 
 The `poll` step within the Elasticsearch plugin reads batches of documents periodically from Elasticsearch.
 The output is a list of `ElasticsearchDocument` containing JSON data or deserialized to objects.
@@ -414,9 +258,9 @@ Ancestor::
 Scenario
 
 Functionality::
-The `poll` step is created only once in a scenario; it is then used throughout the scenario as called.
-The `poll` step within the Elasticsearch plugin uses a strategy of “delivered exactly once”.
-The output of the `poll` step is an `ElasticsearchDocument` that contains maps of column to values.
+* The `poll` step is created only once in a scenario; it is then used throughout the scenario as called. +
+* The `poll` step within the Elasticsearch plugin uses a strategy of “delivered exactly once”. +
+* The output of the `poll` step is an `ElasticsearchDocument` that contains maps of column to values.
 
 Example::
 [source,kotlin,linenumbers]
@@ -439,14 +283,16 @@ elasticsearch().poll {  <1>
  <1> Start the `poll` step.
  <2> Configure the REST client connection.
  <3> Configure the query.
- <4> Set the `elasticsearch` indices to use for the queries.
- <5> Specifies the delay between query executions.
+ <4> Set the `elasticsearch` index to use for the queries.
+ <5> Specify the delay between query executions.
 
+//-
 Tips::
 * The `poll` step is generally used in conjunction with a `join` to assert data or inject data into a workflow.
 * The `query` parameter requires at least one sorting field to filter the newest results and not fetch the same records repeatedly.
 * The output of the `poll` step is an `ElasticsearchDocument` that contains maps of column names to values. If `flatten` is called, the records are provided one by one to the next step; otherwise each poll batch remains complete.
 
+//-
 Reference Documentation::
 * Refer to
 https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-query-params[Elasticsearch Query Parameters] for more information on query parameters.
@@ -471,7 +317,7 @@ previousStep.elasticsearch().save {   <1>
         RestClient.builder(HttpHost.create("http://localhost:9200"))
             .build() 
     }
-    documents { _, input ->  <4>
+    documents { stepContext, input ->  <4>
         listOf(
             Document(
                 index = "battery-state",
@@ -486,9 +332,10 @@ previousStep.elasticsearch().save {   <1>
 <1> Start the `save` step. 
     Note: `previousStep` is a placeholder for any preceding step (e.g. `collect()` etc.)
 <2> Give a name to the step.
-<2> Configure the REST client connection.
-<2> Define the strategy to create documents to save using the step context and input.
+<3> Configure the REST client connection.
+<4> Define the strategy to create documents to save using the step context and input.
 
+//-
 Reference Documentation::
 Refer to the https://www.elastic.co/guide[Elasticsearch] documentation for further parameter information.
 
@@ -509,8 +356,8 @@ previousStep.elasticsearch().search {   <1>
     client {    <2>
         RestClient.builder(HttpHost.create("http://localhost:9200")).build()
     }
-    index { _, _ -> listOf("battery-state") }   <3>
-    query { _, input ->     <4>
+    index {  stepContext, input -> listOf("battery-state") }   <3>
+    query { stepContext, input ->     <4>
         """{
             "query": {
                 "bool": {
@@ -530,9 +377,10 @@ previousStep.elasticsearch().search {   <1>
 <3> Set the `elasticsearch` indices to use for the queries, resolved from the step context and input.
 <4> Configure the builder for the JSON query to perform a search, resolved from the step context and input.
 
+//-
 Reference Documentation::
 * Refer to the https://www.elastic.co/guide[Elasticsearch] documentation for further parameter and configuration information.
-* For specifics on `queryParameters` refer to https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-query-paramsElastic[Elasticsearch Query Parameters].
+* For specifics on `queryParameters` refer to https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-search#operation-search-query[Elasticsearch Query Parameters].
 * For specifics on `search` parameters, refer to
  https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html[Elasticsearch Search Parameters].
 
@@ -616,12 +464,12 @@ fun scenarioSaveAndSearch() {
 <4> Define the header of the csv file.
 <5> Set the data transfer method to `unicast`.  
 <6> Transform the output of the CSV reader entries to utils.BatteryState.
-<7> Create the rest client to submit requests to elasticsearch.
+<7> Configure the rest client to submit requests to elasticsearch.
 <8> Parse the object to save to json.
-<9> Add a 2-second delay to ensures the newly indexed data is fully refreshed and searchable before proceeding. 
-<10> Specify the table to search for data to fetch.
-<11> Create a query to get the `batterystate` for a specific id and specific timestamp.
-<12> Define the method to transform the elastic search result to a specific object.
+<9> Add a 2-second delay to ensure that the newly indexed data is fully refreshed and searchable before proceeding. 
+<10> Specify the Elasticsearch index pattern to search.
+<11> Build the query to retrieve the `battery-state` document for a specific device id and timestamp.
+<12> Define the method to transform the Elasticsearch result to a specific object.
 <13> Define the verification parameters.
 
 == ElasticsearchSaveAndPoll scenario
@@ -706,22 +554,22 @@ fun scenarioSaveAndPoll() {
 <3> Use the csvToObject method to map csv entries to list of utils.BatteryState object
 <4> Define the header of the csv file.
 <5> Transform the output of the CSV reader entries to utils.BatteryState.
-<6> Create the rest client to submit requests to elasticsearch.
+<6> Configure the rest client to submit requests to elasticsearch.
 <7> Parse the object to save to json.
-<8> Add a 2-second delay to ensures the newly indexed data is fully refreshed before proceeding. 
-<9> Specify the table to poll for data to fetch.
+<8> Add a 2-second delay to ensure that the newly indexed data is fully refreshed before proceeding. 
+<9> Specify the Elasticsearch index pattern to poll for data.
 <10> Set the poll delay to 2 seconds to avoid saturating the server with requests.
-<11> Define the method to transform the elastic search result to a specific object.
+<11> Flatten the incoming polled batches so documents are forwarded one by one.
 <12> Define the mapping for the incoming data stream. 
-<13> Get the device id for the records.  
-<14> Define the verification parameters. 
+<13> Correlate on `deviceId` for joining the saved record with the polled record. 
+<14> Verify that the saved and polled battery levels match.
 
 == Configuration of publication of events and meters to Elasticsearch
 
 NOTE::
 Configure `event` and `meter` publication settings in the factory configuration, separate from the scenario DSL.
 
-Refer to xref:up-and-running/configuration/provide-configuration.adoc[Provide configuration] for information about specifying the configuration to QALIPSIS.
+Refer to xref:up-and-running/configuration/provide-configuration.adoc[Provide the configuration to QALIPSIS] for information about specifying the configuration to QALIPSIS.
 
 Events::
 `events.export.elasticsearch`
@@ -737,7 +585,8 @@ Meters::
 | *Parameter* 
 | *Description*
 
-|`enabled`
+|`enabled` +
+Boolean flag to activate/deactivate event/meter publishing to elasticsearch; *must* be set to `true`to enable publishing.
 a| *Applicable Steps:* Events, Meters +
  *Optional/Required:* Required +
  *Data Type:* Boolean + 
@@ -746,7 +595,7 @@ a| *Applicable Steps:* Events, Meters +
 .Example
 [source,kotlin] 
 ----
-    enabled: true
+enabled: true
 ----
 
 |`min-level`
@@ -758,9 +607,9 @@ a|Minimal accepted level of events to publish; allowable values are `TRACE`, `DE
 * `ERROR` = confirmed problems that need attention. +
 * `OFF` = disable event publishing.+
 
- *Applicable Steps* Events +
+ *Applicable Step* Events +
  *Optional/Required:* Required +
- *Data Type:* enum + 
+ *Data Type:* ENUM + 
  *Default Value:* `INFO` + 
 
 .Example
@@ -771,10 +620,10 @@ min-level: INFO
 
 | `urls` 
 a| List of URLs for the Elasticsearch instances. +
- *Applicable Steps* Events +
- *Optional/Required:* Required +
- *Data Type:* url(s) + 
- *Default Value:* http://localhost:9200 + 
+*Applicable Step* Events +
+*Optional/Required:* Required +
+*Data Type:* url(s) + 
+*Default Value:* http://localhost:9200 + 
 
 .Example
 [source,kotlin] 
@@ -782,25 +631,12 @@ a| List of URLs for the Elasticsearch instances. +
 urls: http://localhost:9200 +
 ----
 
-| `host`
-a| Host for the Elasticsearch instances. +
- *Applicable Step* Meters +
- *Optional/Required:* Required +
- *Data Type:* host string +
- *Default Value:* N/A + 
-
-.Example
-[source,kotlin] 
-----
-host: ${meters.export.elasticsearch.urls}
-----
-
 | `step`
-a| The step size (reporting frequency) to us for monitoring meters.
- *Applicable Step* Meters +
- *Optional/Required:* Required +
- *Data Type:*  Duration +
- *Default Value:* PT10S + 
+a| The step size (reporting frequency) to use for QALIPSIS monitoring of meters. +
+*Applicable Step* Meters +
+*Optional/Required:* Required +
+*Data Type:*  Duration +
+*Default Value:* PT10S + 
 
 .Example
 [source,kotlin] 
@@ -809,37 +645,32 @@ step: PT10S
 ----
 
 | `index-prefix`
-a| Prefix for the created indices containing the elasticearch events. +
- *Applicable Step* Events +
- *Optional/Required:* Required +
- *Data Type:*  String +
- *Default Value:* qalipsis-events
+a| Prefix for the created indices containing the elasticearch events or meters. +
+*Applicable Step* Events, Meters +
+*Optional/Required:* Required +
+*Data Type:*  String +
+*Default Value:* +
+* Events: qalipsis-events +
+* Meters: qalipsis-meters +
 
-.Example
+.Example (Events)
 [source,kotlin] 
 ----
 index-prefix: qalipsis-events  
 ----
 
-| `index`
-a|Prefix for the created indices containing the elasticearch meters. +
- *Applicable Step* Meters +
- *Optional/Required:* Required +
- *Data Type:*  String +
- *Default Value:* qalipsis-meters +
-
-.Example
+.Example (Meters)
 [source,kotlin] 
 ----
-index: qalipsis-meters
+index-prefix: qalipsis-meters  
 ----
 
 | `path-prefix` for `urls`
 a| Prefix used to demarcate url paths. +
 *Applicable Step* Events +
- *Optional/Required:* Optional +
- *Data Type:*  String +
- *Default Value:* / +
+*Optional/Required:* Optional +
+*Data Type:*  String +
+*Default Value:* / +
  
 .Example
 [source,kotlin] 
@@ -849,10 +680,10 @@ path-prefix: /
 
 |`index-date-pattern`
 a| Date pattern appended to the index name to generate time-partitioned indices. +
- *Applicable Steps:*  Events, Meters +
- *Optional/Required:*  Required +
- *Data Type:*  Date +
- *Default Value:* yyyy-MM-dd +
+*Applicable Steps:*  Events, Meters +
+*Optional/Required:*  Required +
+*Data Type:*  Date +
+*Default Value:* yyyy-MM-dd +
 
 .Example
 [source,kotlin] 
@@ -862,10 +693,10 @@ index-date-pattern: yyyy-MM-dd
    
 |`auto-create-index`
 a| Enable/disable auto creation of the index. +
- *Applicable Step:* Meters +
- *Optional/Required:* Required +
- *Data Type:* Boolean flag +
- *Default Value:* true +
+*Applicable Step:* Meters +
+*Optional/Required:* Required +
+*Data Type:* Boolean flag +
+*Default Value:* true +
 
 .Example
 [source,kotlin] 
@@ -874,11 +705,11 @@ auto-create-index: true
 ----
 
 |`duration-as-nano` 
-a| Identifies whether durations are serialized/output as an integer (true) or as a floating point decimal (false). +
- *Applicable Step:* Events +
- *Optional/Required:* Optional +
- *Data Type:* Boolean flag +
- *Default Value:*  false
+a| Identifies whether durations are exported as nanoseconds(true); `false` converts to milliseconds. +
+*Applicable Step:* Events +
+*Optional/Required:* Optional +
+*Data Type:* Boolean flag +
+*Default Value:*  false +
 
 .Example
 [source,kotlin] 
@@ -887,11 +718,11 @@ duration-as-nano: true
 ----
 
 | `refresh-interval` 
-a| Delay to refresh the indices in Elasticsearch
- *Applicable Step:* Meters +
- *Optional/Required:* Required +
- *Data Type:* enum
- *Default Value:* 10s
+a| Delay to refresh the indices in Elasticsearch +
+*Applicable Step:* Meters +
+*Optional/Required:* Required +
+*Data Type:* String +
+*Default Value:* 10s +
 
 .Example
 [source,kotlin] 
@@ -900,11 +731,11 @@ refresh-interval: 15s
 ----
 
 | `store-source` +
-a| Indicates whether the source of documents is stored with the values; set to true for yes and false for no. +
- *Applicable Step:* Events +
- *Optional/Required:* Optional +
- *Data Type:* Boolean flag + 
- *Default Value:*  false +
+a| Indicates whether the `_source` field of documents is stored with the values; set to `true` for yes and `false` for no. +
+*Applicable Step:* Events +
+*Optional/Required:* Optional +
+*Data Type:* Boolean flag + 
+*Default Value:*  false +
 
 .Example
 [source,kotlin] 
@@ -913,11 +744,11 @@ store-source: true
 ----
 
 | `linger-period` 
-a| Maximum time to buffer events before forcing a flush, even if the batch size is not reached; positive duration.
- *Applicable Step:* Events +
- *Optional/Required:* Required +
- *Data Type:* Positive duration +
- *Default Value:* 10s +
+a| Maximum time to buffer events before forcing a flush, even if the batch size is not reached. +
+*Applicable Step:* Events +
+*Optional/Required:* Required +
+*Data Type:* Positive duration string +
+*Default Value:* 10s +
 
 .Example
 [source,kotlin] 
@@ -926,11 +757,11 @@ linger-period: 10s
 ----
 
 | `batch-size`
-a| Maximum number of events buffered between two publications of events to elasticsearch. +
- *Applicable Step:* Events + 
- *Optional/Required:* Required +
- *Data Type:* Positive integer +
- *Default Value:* 4000
+a| Maximum number of events buffered between two publications of events to Elasticsearch before flushing a bulk request. +  
+*Applicable Step:* Events + 
+*Optional/Required:* Required +
+*Data Type:* Positive integer +
+*Default Value:* 40000 +
 
 .Example
 [source,kotlin] 
@@ -940,10 +771,10 @@ batch-size: 2000
 
 | `publishers`
 a| Number of concurrent publication of events that can send batches to elasticsearch. +
- *Applicable Step:* Events
- *Optional/Required:* Required +
- *Data Type:* Positive integer +
- *Default Value:* 1 (no concurrency) +
+*Applicable Step:* Events +
+*Optional/Required:* Required +
+*Data Type:* Positive integer +
+*Default Value:* 1 (no concurrency) +
 
 .Example
 [source,kotlin] 
@@ -952,11 +783,11 @@ publishers: 1
 ----
 
 |`shards`
-a| Number of shards to apply on the created indices for events and meters.
- *Applicable Steps*:* Events, Meters +
- *Optional/Required:* Required +
- *Data Type:* Positive integer +
- *Default Value:* 1 +
+a| Number of shards to apply to the created indices. +
+*Applicable Steps*:* Events, Meters +
+*Optional/Required:* Required +
+*Data Type:* Positive integer +
+*Default Value:* 1 +
 
 .Example
 [source,kotlin] 
@@ -965,26 +796,25 @@ shards: 1
 ----
 
 |`replicas` 
-a| Number of replicas to apply on the created indices for events and meters. +
-   It is recommended that the appropriate proxy configuration be identified (rather than letting it default to null) in order to enable support for various authentication mechanisms in Elasticsearch.
- *Applicable Steps*:* Events, Meters +   
- *Optional/Required:* Required +
- *Data Type:* Positive integer +
- *Default Value:* 0 +
+a| Number of replicas to apply to the created indices. +
+*Applicable Steps*:* Events, Meters +   
+*Optional/Required:* Required +
+*Data Type:* Positive integer +
+*Default Value:* 0 +
 
 .Example
 [source,kotlin] 
 ----
-replicas: 0
+replicas: 3
 ----
 
 |`username` 
 a| Name of the user for basic authentication when connecting to Elasticsearch. +
-   By default, Elasticsearch does not require a `username` for authentication. However; it is recommended that the information be provided to ensure secure access to the Elasticsearch data.
- *Applicable Steps*:* Events, Meters + 
- *Optional/Required:* Optional +
- *Data Type:* String +
- *Default Value:* null +
+   By default, Elasticsearch does not require a `username` for authentication. However; it is recommended that the information be provided to ensure secure access to the Elasticsearch data. +
+*Applicable Steps*:* Events, Meters + 
+*Optional/Required:* Optional +
+*Data Type:* String +
+*Default Value:* null +
 
 .Example
 [source,kotlin] 
@@ -993,11 +823,11 @@ username: JohnS
 ----
 
 |`password` 
-a|Password of the user for basic authentication when connecting to Elasticsearch. 
+a|Password of the user for basic authentication when connecting to Elasticsearch. +
 *Applicable Steps*:* Events, Meters + 
- *Optional/Required:* Optional +
- *Data Type:* String +
- *Default Value:* null 
+*Optional/Required:* Optional +
+*Data Type:* String +
+*Default Value:* null +
 
 .Example
 [source,kotlin] 
@@ -1043,17 +873,11 @@ meters: <3>
             shards: 1
             replicas: 0
 ---- 
-<1> Start the event configuration scenario.
-<2> Configure event publishing to elasticsearch. 
-<3> Start the meter configuration scenario.
-<4> Configure meter publishing to elasticsearch.
+<1> Start event configuration.
+<2> Configure event publishing to Elasticsearch. 
+<3> Start meter configuration.
+<4> Configure meter publishing to Elasticsearch.
 
-
-Tips::
-* By default, Elasticsearch does not require a `username` or `password` for authentication; however, it is recommended that the information be provided to ensure secure access to the Elasticsearch data.
-
-
+//-
 Reference Documentation:: 
-Refer to <</user-documentation/up-and-running/configuration/monitoring-test-campaigns,Monitoring test campaigns>> for a further explanation of the event and meter parameter values. 
-
-// need to fix above link
+Refer to xref:up-and-running/configuration/monitoring-test-campaigns.adoc[Monitoring test campaigns] for a further explanation of the event and meter parameter values. 

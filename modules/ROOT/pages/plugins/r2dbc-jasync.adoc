@@ -30,7 +30,7 @@ Example of usage are provided later in this <<Examples of Usage,section>>.
 
 == Configuration
 
-=== Sample configuration file
+=== Example configuration file
 
 R2DBC-jasync configuration settings are configured in an r2dbc-jasync.yaml file. 
 
@@ -59,11 +59,11 @@ Available parameters are described in the table below.
 
 | `protocol`
 a| Specifies the protocol of the target database.+
- Available choices are: MariaDB, MySQL, * PostgreSQL +
- *Applicable Steps:* Poll, Search, Save + 
- *Optional/Required:* Required +
- *Data Type:* Protocol.ENUM +
- *Default Value:* N/A + 
+Available choices are: MariaDB, MySQL, * PostgreSQL +
+*Applicable Steps:* Poll, Search, Save + 
+*Optional/Required:* Required +
+*Data Type:* Protocol.ENUM +
+*Default Value:* N/A + 
 
 .Example 
 [source,kotlin]
@@ -71,13 +71,12 @@ a| Specifies the protocol of the target database.+
 protocol(Protocol.POSTGRESQL)
 ----
 
-
 | `connection`
 a| Specifies the connection parameters for the target database. +
- *Applicable Steps:* Poll, Search, Save + 
- *Optional/Required:* Required +
- *Data Type:* Lambda +
- *Default Value:* N/A + 
+*Applicable Steps:* Poll, Search, Save + 
+*Optional/Required:* Required +
+*Data Type:* Lambda +
+*Default Value:* N/A + 
    
 .Example 
 [source,kotlin]
@@ -93,10 +92,12 @@ connection {
 | `query`
 a| Specifies a query respecting the requirements of the target database (https://mariadb.org/[MariaDB],  https://www.mysql.com[MySQL], https://www.postgresql.org/[PostgreSQL]).
 . +
- *Applicable Steps:* Poll, Search + 
- *Optional/Required:* Required +
- *Data Type:* Lambda +
- *Default Value:* N/A + 
+*Applicable Steps:* Poll, Search + 
+*Optional/Required:* Required +
+*Data Type:*
+* Poll: String that defines the prepared statement or query to execute. +
+* Search: Lambda that takes step context and input to return a string. +
+*Default Value:* N/A + 
    
 .Example (Poll)
 [source,kotlin]
@@ -107,18 +108,21 @@ query("select * from battery_state order by \"timestamp\"")
 .Example (Search)
 [source,kotlin]
 ----
-query { _, _ ->
+query { stepContext, input ->
     val request = "SELECT DISTINCT * from battery_state where timestamp = ? AND device_id = ?"
     request
 }
 ----
 
 | `parameters`
-a|Binds values to the clauses of the prepared query. +
- *Applicable Steps:* Poll, Search +  
- *Optional/Required:* Optional +
- *Data Type:* Lambda that returns a string.+ 
- *Default Value:* N/A + 
+a| Poll: Binds values to the clauses of the prepared query. +
+Search: Computes the list of values bound to the prepared query using the step context and input. +
+*Applicable Steps:* Poll, Search + 
+*Optional/Required:* Optional +
+*Data Type:* +
+* Poll: `List<Any>` / `vararg Any` +
+* Search: Lambda that takes step context and input and returns `List<Any>`. +
+*Default Value:* `emptyList()` +
  
 .Example (Search) 
 [source,kotlin]
@@ -128,13 +132,12 @@ parameters { _, input ->
 }
 ----
 
-
 | `pollDelay`
 a| Specifies the delay between query executions. +
- *Applicable Steps:* Poll +
- *Optional/Required:* Optional  +
- *Data Type:* java.time.Duration
- *Default Value:* N/A + 
+*Applicable Steps:* Poll +
+*Optional/Required:* Optional  +
+*Data Type:* java.time.Duration +
+*Default Value:* N/A + 
 
 .Example
 [source,kotlin]
@@ -144,108 +147,7 @@ pollDelay(Duration.ofSeconds(1)) +
 
 | `singletonConfiguration`
 a| Configures how polled results are delivered to scenario minions. +
-  Specify one of the strategies directly (not wrapped in a lambda). +
-  Available strategies: `sequential`, `broadcast`, `unicast`, `loop`. +
-
- * `broadcast`: sends every polled record to all minions. Records are delivered in order, with the oldest buffered record sent first. In this mode, the singleton behaves like a Pub/Sub broadcaster. 
-
- * `unicast`: sends each polled record to exactly one minion. The singleton acts as a FIFO distributor: Records are stored in a buffer until a minion consumes them. The buffer has a fixed size; when it becomes full, the oldest records are dropped to make space for new ones. 
-
- * `loop`: sends each polled record to all minions, but once the end of the buffer is reached, it loops back to the beginning. This creates a continuous cyclic stream of the buffered records. 
-
- * `sequential`: disables singleton execution and runs this step within the parent’s workflow. Data distribution is controlled entirely by the parent step. This mode is typically used when you want to process each record from a source from start to finish once, and then stop publishing until new data is available.
-   
- Note::
- Each strategy EXCEPT `sequential` requires `bufferSize` (Int) and `idleTimeout` (Duration); see `singletonConfiguration.bufferSize` and `singletonConfiguration.idleTimeout` definitions below. +
-
-*Applicable Step:* Poll +
-*Optional/Required:* Optional +
-*Data Type:* Function +
-*Default Value:* unicast(bufferSize, idleTimeout)
-
-.Example
-[source,kotlin] 
-----
-broadcast(bufferSize = 4, idleTimeout = Duration.ofMinutes(1))
-----
-
-| `singletonConfiguration.bufferSize`
-a| Size of the buffer used to store polled records before delivery to minions.+ +
- *Applicable Step:* Poll +
- *Optional/Required:* Optional +
- *Data Type:* Integer +
- *Default Value:* -1 +
-
-.Example
-[source,kotlin] 
-----
-broadcast(bufferSize = 4, idleTimeout = Duration.ofMinutes(1))
-----
-
-| `singletonConfiguration.idleTimeout`
-a| Maximum time to wait before delivering polled records to minions, even if the buffer is not full. +
- *Applicable Step:* Poll +
- *Optional/Required:* Optional +
- *Data Type:* java.time.Duration +
- *Default Value:* Duration.ZERO +
-
-.Example
-[source,kotlin] 
----- 
-broadcast(bufferSize = 4, idleTimeout = Duration.ofMinutes(1))
-----
-
-| `broadcast`
-a| Specifies the broadcast parameters for a step. +
- *Applicable Step:* Poll
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-broadcast(3, Duration.ofMinutes(1))
-----
-
-| `unicast`
-a| Specifies the unicast parameters for a step. +
- *Applicable Step:* Poll +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-unicast(1, Duration.ofMinutes(3))
-----
-
-| `loop`
-a| Specifies the loop parameters for a step. +
- *Applicable Step:* Poll +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-loop(5, Duration.ofMinutes(2))
-----
-
-| `sequential`
-a| Specifies the sequential parameters for a step. +
- *Applicable Step:* Poll +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-sequential()
-----
+   Refer to xref:plugins/plugins.adoc#singletonconfiguration-parameters[SingletonConfiguration parameters] for details on strategies and examples of usage.
 |===
 
 == Examples of Usage
@@ -280,10 +182,12 @@ r2dbcJasync().poll {
 <3> Specify the query parameters.
 <4> Set the poll delay.
 
+//-
 Tips::
 * Use the `poll` step with a join operator when you need to verify the values saved by your tested system in the database.
 * `query` requires at least one sorting field to filter the newest results and not fetch the same records repeatedly.
 
+//-
 Reference documentation::
 Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for further parameter and configuration information.
 
@@ -309,17 +213,17 @@ Example::
         username = "DavidW"
         password = "Awesome_1978"
     }
-    tableName { _, _ -> <3>
+    tableName { StepContext, input -> <3>
         "battery_state"
     }
-    columns { _, _ -> <4>
+    columns { StepContext, input -> <4>
         listOf(
             "device_id",
             "timestamp",
             "battery_level"
         )
     }
-    values { _, input -> <5>
+    values { StepContext, input -> <5>
         listOf(
             JasyncSaveRecord(
                 input.deviceId,
@@ -336,10 +240,12 @@ Example::
 <4> Define column names for the table.
 <5> Specify the values to save to the table.
 
+//-
 Tips::
 * Use the `save` step after a `collect()` step in order to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.
 * The `save` step is extremely flexible; table, columns and values might depend on the context and input value received from the previous step.
 
+//-
 Reference documentation::
 Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for further parameter and configuration information.
 
@@ -357,18 +263,18 @@ Example::
 ----
 .r2dbcJasync()
 .search {
-    protocol(Protocol.MARIADB)
-    connection {
+    protocol(Protocol.MARIADB) <1>
+    connection { <2>
         database = "iot"
         port = 3306
         username = "DavidW"
         password = "Awesome_1978"
     }
-    query { _, _ ->
+    query { _, _ -> <3>
         val request = "SELECT DISTINCT * from battery_state where timestamp = ? AND device_id = ?"
         request
     }
-    parameters { _, input ->
+    parameters { _, input ->. <4>
         listOf(input.timestamp.epochSecond, input.deviceId)
     }
 }
@@ -378,9 +284,11 @@ Example::
 <3> Specify a query respecting the requirements of the target database.
 <4> Specify the query parameters.
 
+//-
 Tip::
 Use the `search` step after a `collect` step in order to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.
 
+//-
 Reference documentation::
 Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for further parameter and configuration information.
 
@@ -583,7 +491,7 @@ scenario { <1>
             listOf(input.timestamp.epochSecond, input.deviceId)
         }
     }
-    .map {
+    .map { <5>
         it.input to it.records.map { record ->
             val batteryState = record.value
             BatteryState(

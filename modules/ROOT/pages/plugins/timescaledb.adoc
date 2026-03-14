@@ -21,8 +21,7 @@ https://docs.timescale.com/keywords/Toolkit/
 NOTE::
 Configure `event` and `meter` publication settings in the factory configuration, separate from the scenario DSL.
 
-Refer to xref:up-and-running/configuration/provide-configuration.adoc[Provide configuration] for information about specifying the configuration to QALIPSIS.
-
+Refer to xref:up-and-running/configuration/provide-configuration.adoc[Provide the configuration to QALIPSIS] for information about specifying the configuration to QALIPSIS.
 
 Events::
 `events.export.timescaledb`
@@ -38,11 +37,11 @@ Meters::
 | *Description*
 
 |`enabled`
-a|Activates/deactivates event publishing to Graphite.
- *Applicable Steps:* Events, Meters +
- *Optional/Required:* Required +
- *Data Type:* Boolean + 
- *Default Value:* false + 
+a|Activates/deactivates event publishing to Graphite. +
+*Applicable Steps:* Events, Meters +
+*Optional/Required:* Required +
+*Data Type:* Boolean + 
+*Default Value:* false + 
 
 .Example
 [source,kotlin] 
@@ -57,12 +56,12 @@ a|Minimal accepted level of events to publish; allowable values are `TRACE`, `DE
 * `INFO` = routine operational messages and high‑level progress. +
 * `WARN` = indications of potential problems that do not stop processing. +
 * `ERROR` = confirmed problems that need attention. +
-* `OFF` = disable event publishing.+
-
- *Applicable Steps* Events +
- *Optional/Required:* Required +
- *Data Type:* enum + 
- *Default Value:* `INFO` + 
+* `OFF` = disable event publishing. +
+// 
+*Applicable Step* Events +
+*Optional/Required:* Required +
+*Data Type:* ENUM + 
+*Default Value:* `INFO` + 
 
 .Example
 [source,kotlin] 
@@ -72,10 +71,10 @@ min-level: INFO
 
 | `host`
 a| Host for the Graphite instances; cannt be blank. +
- *Applicable Steps:* Events, Meters +
- *Optional/Required:* Required +
- *Data Type:* String +
- *Default Value:* localhost; cannot be blank + 
+*Applicable Steps:* Events, Meters +
+*Optional/Required:* Required +
+*Data Type:* String +
+*Default Value:* localhost; cannot be blank + 
 
 .Example
 [source,kotlin] 
@@ -85,10 +84,10 @@ host: localhost
 
 | `port`
 a| Host for the Graphite instances. +
- *Applicable Steps:* Events, Meters +
- *Optional/Required:* Required +
- *Data Type:* Positive integer  +
- *Default Value:* `5432` + 
+*Applicable Steps:* Events, Meters +
+*Optional/Required:* Required +
+*Data Type:* Positive integer  +
+*Default Value:* `5432` + 
 
 .Example
 [source,kotlin] 
@@ -98,10 +97,10 @@ port: `5432`
 
 | `database`
 a| Name of the database; cannt be blank. +
- *Applicable Steps:* Events, Meters +
- *Optional/Required:* Required +
- *Data Type:* String  +
- *Default Value:* `qualipsis` + 
+*Applicable Steps:* Events, Meters +
+*Optional/Required:* Required +
+*Data Type:* String  +
+*Default Value:* `qualipsis` + 
 
 .Example
 [source,kotlin] 
@@ -111,10 +110,10 @@ database: qalipsis
 
 | `schema`
 a| Name of the schema; cannt be blank. +
- *Applicable Steps:* Events, Meters +
- *Optional/Required:* Required +
- *Data Type:* String  +
- *Default Value:* `events` + 
+*Applicable Steps:* Events, Meters +
+*Optional/Required:* Required +
+*Data Type:* String  +
+*Default Value:* `events` + 
 
 .Example
 [source,kotlin] 
@@ -123,11 +122,11 @@ schema: events
 ----
 
 | `step`
-a| The step size (reporting frequency) to us for monitoring meters. +
- *Applicable Step* Meters +
- *Optional/Required:* Required +
- *Data Type:*  Duration of time +
- *Default Value:* PT10S + 
+a| The step size (reporting frequency) to use for monitoring meters. +
+*Applicable Step* Meters +
+*Optional/Required:* Required +
+*Data Type:*  Duration of time +
+*Default Value:* PT10S + 
 
 .Example
 [source,kotlin] 
@@ -136,11 +135,11 @@ step: PT10S
 ----
 
 | `linger-period`
-a| Maximum period between two publications of events to TimescaleDB. +
- *Applicable Step* Meters +
- *Optional/Required:* Required +
- *Data Type:*  Positive duration +
- *Default Value:* 10S + 
+a| Maximum time to buffer events before forcing a flush, even if the batch size is not reached. +
+*Applicable Step* Meters +
+*Optional/Required:* Required +
+*Data Type:*  Positive duration string +
+*Default Value:* 10S + 
 
 .Example
 [source,kotlin] 
@@ -151,10 +150,10 @@ linger-period: 10s
 
 | `batch-size`
 a| Maximum number of events buffered between two publications of events to TimescaleDB. +
- *Applicable Step:* Events + 
- *Optional/Required:* Required +
- *Data Type:* Positive integer +
- *Default Value:* `2000`
+*Applicable Step:* Events + 
+*Optional/Required:* Required +
+*Data Type:* Positive integer +
+*Default Value:* `2000` +
 
 .Example
 [source,kotlin] 
@@ -164,10 +163,10 @@ batch-size: 20000
 
 | `publishers`
 a| Number of concurrent publication of events that can run. +
- *Applicable Step:* Events
- *Optional/Required:* Required +
- *Data Type:* Positive integer +
- *Default Value:* `1` (no concurrency) +
+*Applicable Step:* Events +
+*Optional/Required:* Required +
+*Data Type:* Positive integer +
+*Default Value:* `1` (no concurrency) +
 
 .Example
 [source,kotlin] 
@@ -175,13 +174,12 @@ a| Number of concurrent publication of events that can run. +
 publishers: 1
 ----
 
-
 | `username`
 a| Name of the user for basic authentication when connecting to TimescaleDB. +
- *Applicable Step:* Events, Meters
- *Optional/Required:* Optional +
- *Data Type:* String +
- *Default Value:* `qalipsis_user` 
+*Applicable Step:* Events, Meters
+*Optional/Required:* Optional +
+*Data Type:* String +
+*Default Value:* `qalipsis_user` +
 
 .Example
 [source,kotlin] 
@@ -191,10 +189,10 @@ username: qalipsis_user
 
 | `password`
 a| Password of the user for basic authentication when connecting to TimescaleDB. +
- *Applicable Step:* Events, Meters
- *Optional/Required:* Optional +
- *Data Type:* String +
- *Default Value:* `qalipsis_pwd` 
+*Applicable Step:* Events, Meters +
+*Optional/Required:* Optional +
+*Data Type:* String +
+*Default Value:* `qalipsis_pwd` +
 
 .Example
 [source,kotlin] 
@@ -235,12 +233,16 @@ meters: <3>
       step: PT10S
 ----
 
-<1> Start the event configuration scenario.
+<1> Start event configuration.
 <2> Configure event publishing to Timescaledb.
-<3> Start the meter configuration scenario.
+<3> Start meter configuration.
 <4> Configure meter publishing to Timescaledb.
 
-// 
+//-
 Tip::
 By default, TimescaleDB does not require a username and password for authentication. However, it is recommended that the information be provided to ensure secure access to the TimescaleDB data.
+
+Reference Documentation::
+Refer to xref:up-and-running/configuration/monitoring-test-campaigns.adoc[Monitoring test campaigns] for a further explanation of the event and meter parameter values.
+
 

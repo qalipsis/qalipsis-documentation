@@ -10,7 +10,7 @@ This page explains configuration, important concepts, and provides examples of u
 
 Technologies addressed::
 * Cassandra: https://cassandra.apache.org/_/index.html[Apache Cassandra]
-* Cassandra Query Language: https://cassandra.apache.org/doc/latest/cassandra/cql/index.html[The Cassandra Query Language (CQL)]
+* Cassandra Query Language: https://cassandra.apache.org/doc/latest/cassandra/developing/cql/index.html[The Cassandra Query Language (CQL)]
 * DataStax Driver: https://docs.datastax.com/[DataStax].
 
 Dependency::
@@ -29,16 +29,16 @@ Supported steps::
 * <<Save step,`save`>>: saves records generated from the input and step context.
 * <<Search step,`search`>>: searches records and builds a query from the input and step context.
 
-Example scenarios are provided later in this <<Example scenarios,section>>.  
+Examples of usage are provided later in this <<Examples of usage,section>>.
 
 == Configuration
 
-=== Sample configuration file
+=== Example configuration file
 
 Apache Cassandra configuration settings are configured in a cassandra.yaml file. 
 
 [source,kotlin,linenumbers]
- ----
+----
 campaign:
   my-sample-cassandra-campaign
   configuration:
@@ -49,7 +49,7 @@ report:
   export:
     console-live:
       enabled: false
- ----
+----
 
 === Configuration parameters
 Available parameters are described in the table below.
@@ -58,15 +58,15 @@ Refer to the https://cassandra.apache.org/doc/latest[Apache Cassandra] documenta
 
 [cols="1,4" options="header"]
 |===
-| *Parameter* 
-| *Description*
+|*Parameter* 
+|*Description*
 
-| `connect`  +
-a| Defines the connection parameters to https://cassandra.apache.org[Apache Cassandra]. +
- *Applicable Steps:* Poll, Search, Save +
- *Optional/Required:* Required +
- *Data Type:* Lambda within which connection parameters are defined. +
- *Default Value:* N/A +
+|`connect`  +
+a|Defines the connection parameters to https://cassandra.apache.org[Apache Cassandra]. +
+*Applicable Steps:* Poll, Search, Save +
+*Optional/Required:* Required +
+*Data Type:* Lambda within which connection parameters are defined. +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin]
@@ -81,10 +81,10 @@ connect {
 
 | `connect.servers`
 a| List of servers available for the connection. +
- *Applicable Steps:* Poll, Search, Save +
- *Optional/Required:* Required +
- *Data Type:* List<String> +
- *Default Value:* localhost:9042 +
+*Applicable Steps:* Poll, Search, Save +
+*Optional/Required:* Required +
+*Data Type:* List<String> +
+*Default Value:* localhost:9042 +
  
 .Example
 [source,kotlin] 
@@ -96,10 +96,10 @@ connect {
 
 | `connect.keyspace`
 a| Name of the keyspace to use. A keyspace defines how data is replicated across the cluster (replication strategy and replication factor).  +
- *Applicable Steps:* Poll, Search, Save +
- *Optional/Required:* Required +
- *Data Type:* String +
- *Default Value:* ""  +
+*Applicable Steps:* Poll, Search, Save +
+*Optional/Required:* Required +
+*Data Type:* String +
+*Default Value:* ""  +
 
 .Example
 [source,kotlin] 
@@ -109,13 +109,12 @@ connect {
 }
 ----
 
-
 | `connect.datacenterName`
-a| Name of the datacenter where data is stored. +
- *Applicable Steps:* Poll, Search, Save +
- *Optional/Required:* Required +
- *Data Type:* String  +
- *Default Value:* "" +
+a|Name of the datacenter where data is stored. +
+*Applicable Steps:* Poll, Search, Save +
+*Optional/Required:* Required +
+*Data Type:* String  +
+*Default Value:* "" +
 
 .Example
 [source,kotlin] 
@@ -125,16 +124,17 @@ connect {
 }
 ----
 
-| `connect.datacenterProfile`
-a|  Determines how the DataStax driver selects the Cassandra datacenter to be used for routing requests. +
-   Available settings: +
-    LOCAL: Use the value of `connect.datacenterName` as the local datacenter. +
-    PEER: Application must set datacenter to the peer datacenter you want to target.+
-    DEFAULT: Use the driver's default selection policy (i.e don't override the profile's local datacenter selection).+
- *Applicable Steps:* Poll, Search +
- *Optional/Required:* Optional +
- *Data Type:* DriverProfile (enum: LOCAL, PEER, DEFAULT)  +
- *Default Value:* DriverProfile.DEFAULT +
+|`connect.datacenterProfile`
+a|Determines how the DataStax driver selects the Cassandra datacenter to be used for routing requests. +
+Available settings: +
+* LOCAL: Use the value of `connect.datacenterName` as the local datacenter. +
+* PEER: Application must set datacenter to the peer datacenter you want to target. +
+* DEFAULT: Use the driver's default selection policy (i.e don't override the profile's local datacenter selection). +
+
+*Applicable Steps:* Poll, Search +
+*Optional/Required:* Optional +
+*Data Type:* DriverProfile (enum: LOCAL, PEER, DEFAULT)  +
+*Default Value:* DriverProfile.DEFAULT +
 
 .Example
 [source,kotlin] 
@@ -146,12 +146,12 @@ connect {
 
 | `query`
 a| Defines the prepared statement to query or execute. +
- *Applicable Steps:* Poll, Search +
- *Optional/Required:* Required +
- *Data Type:* +
-    Poll: String that defines the prepared statement or query to execute. +
-    Search: Lambda that takes step context and input to return a string. +
- *Default Value:* N/A +
+*Applicable Steps:* Poll, Search +
+*Optional/Required:* Required +
+*Data Type:* +
+* Poll: String that defines the prepared statement or query to execute. +
+* Search: Lambda that takes step context and input to return a string. +
+*Default Value:* N/A +
 
 .Example (Poll)
 [source,kotlin] 
@@ -167,18 +167,19 @@ query { stepContext, input -> 'SELECT * FROM battery_state WHERE company = ? AND
 | `parameters`
 a| Poll: Binds values to the clauses of the prepared query. +
  Search: Computes the list of values bound to the prepared query using the step context and input. +
- *Applicable Steps:* Poll, Search + 
- *Optional/Required:* Optional +
- *Data Type:* +
-    Poll: `List<Any>` / `vararg Any` +
-    Search: Lambda that takes step context and input and returns `List<Any>`. +
- *Default Value:* `emptyList()` +
+*Applicable Steps:* Poll, Search + 
+*Optional/Required:* Optional +
+*Data Type:* +
+* Poll: `List<Any>` / `vararg Any` +
+* Search: Lambda that takes step context and input and returns `List<Any>`. +
+*Default Value:* `emptyList()` +
     
 .Example (Poll)
 [source,kotlin] 
 ----
 parameters(listOf(1, "abc")) or parameters(1, "abc") 
 ----
+
 .Example (Search)
 [source,kotlin] 
 ----
@@ -189,10 +190,10 @@ parameters {
 
 | `tieBreaker`
 a| Configures the tiebreaker column used to track the "last seen" value for polling. +
-  *Applicable Step:* Poll +
-  *Optional/Required:* Required +
-  *Data Type:* Lambda within which tiebreaker parameters are defined. + 
-  *Default Value:* N/A +
+*Applicable Step:* Poll +
+*Optional/Required:* Required +
+*Data Type:* Lambda within which tiebreaker parameters are defined. + 
+*Default Value:* N/A +
 
 .Example
 [source,kotlin] 
@@ -205,54 +206,53 @@ tieBreaker {
 
 | `tieBreaker.type`
 a|Data type to help the datastax driver interpret a value. +
- *Applicable Step:* Poll +
- *Optional/Required:* Required +
- *Data Type:* GenericType (enum) +
- *Default Value:* null +
+*Applicable Step:* Poll +
+*Optional/Required:* Required +
+*Data Type:* GenericType (enum) +
+*Default Value:* null +
 
 .Example
 [source,kotlin] 
 ----
-    tieBreaker {
-        type = GenericType.INSTANT
-    }
+tieBreaker {
+    type = GenericType.INSTANT
+}
 ----
-
 
 | `tieBreaker.name`
 a|Name of the column used as a tiebreaker. +
- *Applicable Step:* Poll +
- *Optional/Required:* Required +
- *Data Type:* String  +
- *Default Value:* "" +
+*Applicable Step:* Poll +
+*Optional/Required:* Required +
+*Data Type:* String  +
+*Default Value:* "" +
 
 .Example
 [source,kotlin] 
 ----
-    tieBreaker {
-        name = "timestamp"
-    }
+tieBreaker {
+    name = "timestamp"
+}
 ----
 
 | `pollDelay`
 a| Delay between two polling executions. +
- *Applicable Step:* Poll +
- *Optional/Required:* Optional +
- *Data Type:* java.time.Duration 
- *Default Value:* Duration.ofSeconds(10) 
+*Applicable Step:* Poll +
+*Optional/Required:* Optional +
+*Data Type:* java.time.Duration 
+*Default Value:* Duration.ofSeconds(10) 
 
 .Example
 [source,kotlin] 
 ----
- pollDelay(Duration.ofSeconds(1)) 
+pollDelay(Duration.ofSeconds(1)) 
 ----
 
 | `table`
 a|Computes the output table name using the step context and input. +
- *Applicable Step:* Save +
- *Optional/Required:* Required +
- *Data Type:* Lambda that takes step context and input and returns String. +
- *Default Value:* N/A +
+*Applicable Step:* Save +
+*Optional/Required:* Required +
+*Data Type:* Lambda that takes step context and input and returns String. +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin] 
@@ -262,10 +262,10 @@ table { stepContext, input -> "batteryState" }
 
 | `columns`
 a| Computes the list of column names for the output table using the step context and input. + 
- *Applicable Step:* Save +
- *Optional/Required:* Required +
- *Data Type:* Lambda that takes step context and input and returns List<String>.  + 
- *Default Value:* N/A +
+*Applicable Step:* Save +
+*Optional/Required:* Required +
+*Data Type:* Lambda that takes step context and input and returns List<String>.  + 
+*Default Value:* N/A +
 
 .Example
 [source,kotlin] 
@@ -274,17 +274,19 @@ columns { stepContext, input -> listOf("company", "deviceid", "timestamp", "batt
 ----
 
 | `rows`
-a| Computes the list of `CassandraSaveRow` to save into the output table using the step context and input. 
- *Applicable Step:* Save +
- *Optional/Required:* Required +
- *Data Type:* Lambda that takes step context and input and returns List<CassandraSaveRow>. + 
- *Default Value:* N/A +
+a| Computes the list of `CassandraSaveRow` to save into the output table using the step context and input. +
+*Applicable Step:* Save +
+*Optional/Required:* Required +
+*Data Type:* Lambda that takes step context and input and returns List<CassandraSaveRow>. + 
+*Default Value:* N/A +
 
-.Examples
+.Example (Single row table)
 [source,kotlin] 
 ----
-CassandraSaveRow (vararg args: Any?) //represent a single row to save into the table. 
+CassandraSaveRow (vararg args: Any?)
 ----
+
+.Example (Multi-row table)
 [source,kotlin] 
 ----
 rows { 
@@ -294,175 +296,15 @@ rows {
 
 | `singletonConfiguration`
 a| Configures how polled results are delivered to scenario minions. +
-  Specify one of the strategies directly (not wrapped in a lambda). +
-  Available strategies: `sequential`, `broadcast`, `unicast`, `loop`. +
-
-`broadcast(bufferSize, idleTimeout)`:
- sends every polled record to all minions. Records are delivered in order, with the oldest buffered record sent first. In this mode, the singleton behaves like a Pub/Sub broadcaster. 
-
- `unicast(bufferSize, idleTimeout)`: 
-  sends each polled record to exactly one minion. The singleton acts as a FIFO distributor: Records are stored in a buffer until a minion consumes them. The buffer has a fixed size; when it becomes full, the oldest records are dropped to make space for new ones. 
-
- `loop(bufferSize, idleTimeout)`:
-  sends each polled record to all minions, but once the end of the buffer is reached, it loops back to the beginning. This creates a continuous cyclic stream of the buffered records. 
-
- `sequential()`: 
-  disables singleton execution and runs this step within the parent’s workflow. Data distribution is controlled entirely by the parent step. This mode is typically used when you want to process each record from a source from start to finish once, and then stop publishing until new data is available.
-   
- Each strategy EXCEPT `sequential` requires `bufferSize` (Int) and `idleTimeout` (Duration); see `singletonConfiguration.bufferSize` and `singletonConfiguration.idleTimeout` definitions below. +
-
- *Applicable Step:* Poll +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* unicast(bufferSize, idleTimeout)
-
-.Example
-[source,kotlin] 
-----
-broadcast(bufferSize = 4, idleTimeout = Duration.ofMinutes(1))
-----
-
-| `singletonConfiguration.bufferSize`
-a| Size of the buffer used to store polled records before delivery to minions.+ +
- *Applicable Step:* Poll +
- *Optional/Required:* Optional +
- *Data Type:* Integer +
- *Default Value:* -1 +
-
-.Example
-[source,kotlin] 
-----
-broadcast(bufferSize = 4, idleTimeout = Duration.ofMinutes(1))
-----
-
-| `singletonConfiguration.idleTimeout`
-a| Maximum time to wait before delivering polled records to minions, even if the buffer is not full. +
- *Applicable Step:* Poll +
- *Optional/Required:* Optional +
- *Data Type:* java.time.Duration +
- *Default Value:* Duration.ZERO +
-
-.Example
-[source,kotlin] 
----- 
-broadcast(bufferSize = 4, idleTimeout = Duration.ofMinutes(1))
-----
-
-| `broadcast`
-a| Specifies the broadcast parameters for a step. +
- *Applicable Step:* Poll
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-broadcast(3, Duration.ofMinutes(1))
-----
-
-| `unicast`
-a| Specifies the unicast parameters for a step. +
- *Applicable Step:* Poll +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-unicast(1, Duration.ofMinutes(3))
-----
-
-| `loop`
-a| Specifies the loop parameters for a step. +
- *Applicable Step:* Poll +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-loop(5, Duration.ofMinutes(2))
-----
-
-| `sequential`
-a| Specifies the sequential parameters for a step. +
- *Applicable Step:* Poll +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-sequential()
-----
+Refer to xref:plugins/plugins.adoc#singletonconfiguration-parameters[SingletonConfiguration parameters] for details on strategies and examples of usage.
 
 | `monitoring`
-a| Configures the monitoring of the step. +
- *Applicable Steps:* Poll, Save, Search +
- *Optional/Required:* Optional +
- *Data Type:* Lambda within which monitoring parameters are defined. +
- *Default Value:* N/A +
+a| Configures QALIPSIS monitoring (meters/events) for the step. +
+Refer to xref:plugins/plugins.adoc#monitoring-parameters[Monitoring parameters] for configuration details and examples of usage.
 
-.Example
-[source,kotlin] 
-----
-monitoring {
-    meters = true
-    events = true
-}
-----
-
-| `monitoring.meters`
-a| Enables or disables the monitoring by meters for the step.
-*Applicable Steps:* Poll, Save, Search +
- *Optional/Required:* Optional +
- *Data Type:* Boolean +
- *Default Value:* false +
-
-.Example
-[source,kotlin] 
-----
-monitoring {
-    meters = true
-}
-----
-
-| `monitoring.events`
-a| Enables or disables the monitoring by events for the step.
- *Applicable Steps:* Poll, Save, Search +
- *Optional/Required:* Optional +
- *Data Type:* Boolean +
- *Default Value:* false +
-
-.Example
-[source,kotlin] 
-----
-monitoring {
-    events = true
-}
-----
-
-| `monitoring.all`
-a| Enables all monitoring options for the step.
- *Applicable Steps:* Poll, Save, Search +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A
-
-.Example
-[source,kotlin] 
-----
-monitoring {
-    all()
-}
-----
 |===
 
-== Examples of Usage
+== Examples of usage
 
 === Poll step
 The `poll` step within the *Cassandra* plugin polls the newest records from the database table.
@@ -504,6 +346,7 @@ cassandra().poll {
     (`<=` or `>=`, depending on the ascending or descending order)
 <5> Specify the delay between query executions.
 
+//-
 Tips::
 * Use the `poll` step with a left join operator to verify the values saved by your tested system in the database.
 * `query` requires at least one sorting field (`tiebreaker` in the example) to filter the newest results and not fetch the same records repeatedly.
@@ -514,7 +357,7 @@ Reference documentation::
 Refer to the https://cassandra.apache.org/doc/latest[Apache Cassandra] documentation for further parameter and configuration information.
 
 === Save step
-The `save` step within the Cassandra plugin persists records into a cassandra database using the save query with https://cassandra.apache.org/doc/latest/cassandra/cql/index.html[Cassandra Query Language (CQL)].
+The `save` step within the Cassandra plugin persists records into a cassandra database using the save query with https://cassandra.apache.org/doc/latest/cassandra/developing/cql/index.html[The Cassandra Query Language (CQL)].
 
 Ancestor::
  Step
@@ -535,11 +378,11 @@ previousStep.cassandra().save { <1>
         datacenterName = "datacenter1"
     }
 
-    table { _, _ ->   <3>   
+    table { stepContext, input ->   <3>   
         "batteryState"
     }
 
-    columns { _, _ ->  <4>
+    columns { stepContext, input ->  <4>
         listOf(
             "company",
             "deviceid",
@@ -548,7 +391,7 @@ previousStep.cassandra().save { <1>
         )
     }
                
-    rows { _, input ->   <5>
+    rows { stepContext, input ->   <5>
         listOf(
             CassandraSaveRow(
                 "'ACME Inc.'",
@@ -563,9 +406,10 @@ previousStep.cassandra().save { <1>
 <1> Set a placeholder for any preceding step (e.g. `execute()`, `verify()`, `map()`, etc.)
 <2> Define the connection parameters to the cassandra cluster.
 <3> Name the output table, that can be resolved from the context and input.
-<5> Define column names for the output table, that can be resolved from the context and input.
+<4> Define column names for the output table, that can be resolved from the context and input.
 <5> Define how input fields are extracted and formatted to the output tables, using the step context and input.
 
+//-
 Tips::
 * Use the `save` step after a `collect` step to reduce the number of queries executed onto the database and reduce the load your scenario generates on it.
 * The `save` step is extremely flexible; table, rows, and columns depend on the context and input value received from the previous step.
@@ -594,11 +438,11 @@ previousStep.cassandra().search {
         keyspace = "iot"
         datacenterName = "datacenter1"
     }
-    query { _, _ ->   <2>
+    query { stepContext, input ->   <2>
         "SELECT * FROM batteryState WHERE company= ?  
            AND deviceid = ? AND timestamp = ?"
     }
-    parameters { _, input ->            <3>
+    parameters { stepContext, input ->            <3>
         listOf("ACME Inc.", input.input.deviceId, input.input.timestamp)
     }
 }
@@ -607,6 +451,7 @@ previousStep.cassandra().search {
 <2> Define the query statement, that can be resolved from the context and input.
 <3> Define the query parameters, using the step context and input.
 
+//-
 Tips::
  * Use the `search` step after a `collect()` step to reduce the number of queries executed onto the database and to reduce the load the scenario generates on the test system.
  * The `query` parameter may contain ordering clauses.
@@ -630,30 +475,30 @@ fun scenarioSaveAndPoll() {
     }
         .start()
         .jackson()      <2>
-        .csvToObject(mappingClass = BatteryState::class) {
+        .csvToObject(mappingClass = BatteryState::class) { <3>
             classpath(path = "battery-levels.csv") 
-            header { <3>
+            header { <4>
                 column(name = "deviceId")
                 column(name = "timestamp")
                 column(name = "batteryLevel").integer()
             }     
             unicast()
         }
-        .map { it.value } <4> 
-        .cassandra() <5> 
+        .map { it.value } <5> 
+        .cassandra() <6> 
         .save {
 
-            connect {   <6>
+            connect {   <7>
                 servers = listOf("localhost:9042")
                 keyspace = "iot"
                 datacenterName = "datacenter1"
             }
 
-            table { _, _ -> <7>
+            table { _, _ -> <8>
                 "batteryState"
             }
 
-            columns { _, _ -> <8> 
+            columns { _, _ -> <9> 
                 listOf(
                     "company",
                     "deviceid",
@@ -661,7 +506,7 @@ fun scenarioSaveAndPoll() {
                     "batterylevel"
                 )
             }
-            rows { _, input ->  <9> 
+            rows { , input ->  <10> 
                 listOf(
                     CassandraSaveRow(
                         "'ACME Inc.'",
@@ -672,26 +517,26 @@ fun scenarioSaveAndPoll() {
                     )
                 } 
         }           
-        .map { it.input }   <10>
+        .map { it.input }   <11>
         .innerJoin()
         .using { correlationRecord -> correlationRecord.value.deviceId }
         .on {
-            it.cassandra().poll {  <11>
-                connect {   <12>
+            it.cassandra().poll {  <12>
+                connect {   <13>
                     servers = listOf("localhost:9042")
                     keyspace = "iot"
                     datacenterName = "datacenter1"
                 }
                 query(queryString = "SELECT deviceid, timestamp, batterylevel 
-                  FROM batteryState WHERE company = ? ORDER BY timestamp")  <13>
-                parameters("ACME Inc.") <14>
+                  FROM batteryState WHERE company = ? ORDER BY timestamp")  <14>
+                parameters("ACME Inc.") <15>
                 tieBreaker {
                     name = "timestamp"
                     type = GenericType.INSTANT
                 }
-                    pollDelay(duration = Duration.ofSeconds(1)) <15>
+                    pollDelay(duration = Duration.ofSeconds(1)) <16>
             }
-                .flatten() <16> 
+                .flatten() <17> 
                 .map { record ->
                     BatteryState(
                         deviceId = record.value[CqlIdentifier.fromCql("deviceid")] 
@@ -703,17 +548,17 @@ fun scenarioSaveAndPoll() {
                     )
                 }
         }
-        .having { correlationRecord ->  <17>
+        .having { correlationRecord ->  <18>
             correlationRecord.value.deviceId
         }
-        .configure {    <18>
+        .configure {    <19>
             timeout(duration = 5000L)
             report {
                 reportErrors = true
             }
         }
         .filterNotNull()
-        .verify { result -> <19>
+        .verify { result -> <20>
             val savedBatteryState = result.first
             val foundedBatteryState = result.second
             foundedBatteryState.batteryLevel shouldBeExactly 
@@ -722,25 +567,25 @@ fun scenarioSaveAndPoll() {
 }
 ----
 <1> Define the scenario, set the name, number of minions and rampUp.
-<2> Start the jackson step to fetch data from the csv file using the +
-     csvToObject method to map csv entries to list of utils.BatteryState object.
-<3> Define the header of the csv file.
-<4> Transform the output of the CSV reader entries to utils.BatteryState.
-<5> Start the save step to save data to the database.
-<6> Setup the connection to the database.
-<7> Define the name of the database.
-<8> Define the column names of the database.
-<9> Create the list of rows to save to the database.
-<10> Transform the output of the save step to get it's input value only.
-<11> Initate the poll step.
-<12> Define the connection to Cassandra.
-<13> Define the query statement.
-<14> Define the query parameters.
-<15> Set the poll delay.
-<16> Define the mapping for the incoming data stream. 
-<17> Get the device id for the records.  
-<18> Configure the timeout duration and error reporting.
-<19> Define the verification parameters. 
+<2> Start the jackson step to fetch data from the csv file.
+<3> Use the csvToObject method to map csv entries to list of utils.BatteryState object.
+<4> Define the header of the csv file.
+<5> Transform the output of the CSV reader entries to utils.BatteryState.
+<6> Start the save step to save data to the database.
+<7> Setup the connection to the database.
+<8> Define the name of the database.
+<9> Define the column names of the database.
+<10> Create the list of rows to save to the database.
+<11> Transform the output of the save step to get it's input value only.
+<12> Initate the poll step.
+<13> Define the connection to Cassandra.
+<14> Define the query statement.
+<15> Define the query parameters.
+<16> Set the poll delay.
+<17> Define the mapping for the incoming data stream. 
+<18> Get the device id for the records.  
+<19> Configure the timeout duration and error reporting.
+<20> Define the verification parameters. 
 
 === CassandraSaveandSearch scenario
 This example saves a row, performs a search to find it, and verifies values.
@@ -756,28 +601,28 @@ fun scenarioSaveAndSearch() {
         }
         .start()
         .jackson()  <2>
-        .csvToObject(mappingClass = BatteryState::class) {
+        .csvToObject(mappingClass = BatteryState::class) { <3>
             classpath(path = "battery-levels.csv")
-            header {    <3>
+            header {    <4>
                 column(name = "deviceId")
                 column(name = "timestamp")
                 column(name = "batteryLevel").integer()
             }
             unicast()
         }
-        .map { it.value } <4>
-        .cassandra() <5>
+        .map { it.value } <5>
+        .cassandra() <6>
         .save {
             name = "save"
-            connect {   <6>
+            connect {   <7>
                 servers = listOf("localhost:9042")
                 keyspace = "iot"
                 datacenterName = "datacenter1"
             }
-            table { _, _ ->     <7>
+            table { _, _ ->     <8>
                 "batteryState"
             }
-            columns { _, _ ->   <8>
+            columns { _, _ ->   <9>
                 listOf(
                     "company",
                     "deviceid",
@@ -785,7 +630,7 @@ fun scenarioSaveAndSearch() {
                     "batterylevel"
                 )
             }
-            rows { _, input ->  <9>
+            rows { _, input ->  <10>
                 listOf(
                     CassandraSaveRow(
                         "'ACME Inc.'",
@@ -797,21 +642,21 @@ fun scenarioSaveAndSearch() {
             }
         }
         .search {
-            name = "search" <10>
-            connect {   <11>
+            name = "search" <11>
+            connect {   <12>
                 servers = listOf("localhost:9042")
                 keyspace = "iot"
                 datacenterName = "datacenter1"
             }
-            query { _, _ ->     <12>
+            query { _, _ ->     <13>
                 "SELECT * FROM batteryState WHERE company = ? 
                    AND deviceid = ? AND timestamp = ?"
             }
-            parameters { _, input ->    <13>
+            parameters { _, input ->    <14>
                 listOf("ACME Inc.", input.input.deviceId, input.input.timestamp)
             }
         }
-        .map {      <14>
+        .map {      <15>
             it.input.input to it.records.first().let { cassandraRecord ->
                 BatteryState(
                     deviceId = cassandraRecord.value[CqlIdentifier.fromCql
@@ -823,7 +668,7 @@ fun scenarioSaveAndSearch() {
                 )
             }
         }
-        .verify { result ->     <15>
+        .verify { result ->     <16>
             val savedBatteryState = result.first
             val foundedBatteryState = result.second
             foundedBatteryState.batteryLevel shouldBeExactly 
@@ -832,20 +677,20 @@ fun scenarioSaveAndSearch() {
 }
 ----
 <1> Define the scenario, set the name, number of minions and rampUp.
-<2> Start the jackson step to fetch data from the csv file using the csvToObject method +
-    to map csv entries to list of utils.BatteryState object.
-<3> Define the header of the csv file.
-<4> Transform the output of the CSV reader entries to utils.BatteryState.
-<5> Start the save step to save data to the database.
-<6> Setup the connection to the database.
-<7> Define the name of the database.
-<8> Define the column names of the database.
-<9> Create the list of rows to save to the database.
-<10> Initiate the search step.
-<11> Define the connection to Cassandra. 
-<12> Define the query statement.
-<13> Define the query parameters.
-<14> Define the mapping for the incoming data stream. 
-<15> Define the verification parameters. 
+<2> Start the jackson step to fetch data from the csv file.
+<3> Use the csvToObject method to map csv entries to list of utils.BatteryState object.
+<4> Define the header of the csv file.
+<5> Transform the output of the CSV reader entries to utils.BatteryState.
+<6> Start the save step to save data to the database.
+<7> Setup the connection to the database.
+<8> Define the name of the database.
+<9> Define the column names of the database.
+<10> Create the list of rows to save to the database.
+<11> Initiate the search step.
+<12> Define the connection to Cassandra. 
+<13> Define the query statement.
+<14> Define the query parameters.
+<15> Define the mapping for the incoming data stream. 
+<16> Define the verification parameters. 
 
 //== Troubleshooting

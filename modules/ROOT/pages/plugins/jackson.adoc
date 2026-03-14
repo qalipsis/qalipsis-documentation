@@ -20,9 +20,9 @@ Supported steps::
 * <<jsonToMap and jsonToObject, jsonToMap and jsonToObject>>: reads a json file and converts the data to a Map (or Object).
 * <<xmlToObject, xmlToObject>>: reads an xml file and converts the data to an object.
 
-Example of usage are provided later in this <<Example of usage,section>>.
+Example of usage are provided later in this <<Examples of usage,section>>.
 
-== Configuration Parameters
+== Configuration parameters
 Available parameters are described in the table below.
 [cols="1,4" options="header"]
 |===
@@ -31,10 +31,10 @@ Available parameters are described in the table below.
 
 |`classpath(file)` 
 a| Reads the data from a specified class path resource; `file` is the path to the resource with the leading slash ignored. +
- *Applicable Steps:* csvToMap and csvToObject, jsonToMap and jsonToObject, jsonToMap and jsonToObject, xmlToObject +
- *Optional/Required:* Optional +
- *Data Type:* String +
- *Default Value:* N/A +
+*Applicable Steps:* csvToMap and csvToObject, jsonToMap and jsonToObject, jsonToMap and jsonToObject, xmlToObject +
+*Optional/Required:* Optional +
+*Data Type:* String +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin,linenumbers]
@@ -43,7 +43,7 @@ classpath("battery-levels.csv")
 ----
 
 |`file (path)` 
-a|Reads the data from a specified plain file in the file system; `path` is the path to the file, either absolute or relative to the current working directory.
+a|Reads the data from a specified plain file in the file system; `path` is the path to the file, either absolute or relative to the current working directory. +
  *Applicable Steps:* csvToMap and csvToObject, jsonToMap and jsonToObject, jsonToMap and jsonToObject, xmlToObject + 
  *Optional/Required:* Optional +
  *Data Type:* String +
@@ -57,10 +57,10 @@ file ("/battery-levels.csv")
 
 |`url(url)`  
 a| Reads the data from a specified remote web resource. +
- *Applicable Steps:* csvToMap and csvToObject, jsonToMap and jsonToObject, jsonToMap and jsonToObject, xmlToObject +
- *Optional/Required:* Optional +
- *Data Type:* url +
- *Default Value:* N/A +
+*Applicable Steps:* csvToMap and csvToObject, jsonToMap and jsonToObject, jsonToMap and jsonToObject, xmlToObject +
+*Optional/Required:* Optional +
+*Data Type:* url +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin,linenumbers]
@@ -70,10 +70,10 @@ url("https://raw.githubusercontent.com/iot-data/sensors/main/battery-levels.csv"
 
 |`mapper`  
 a|configures the JSON Mapper to deserialize the records. +
- *Applicable Steps:* csvToMap and csvToObject  +
- *Optional/Required:* Optional +
- *Data Type:* lambda
- *Default Value:* N/A +
+*Applicable Steps:* csvToMap and csvToObject  +
+*Optional/Required:* Optional +
+*Data Type:* Lambda +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin,linenumbers]
@@ -87,13 +87,12 @@ a|configures the JSON Mapper to deserialize the records. +
 }
 ----
 
-
 |`header`  
 a|Defines the columns for the output table.  +
- *Applicable Steps:* csvToMap and csvToObject  +
- *Optional/Required:* Optional +
- *Data Type:* lambda
- *Default Value:* N/A +
+*Applicable Steps:* csvToMap and csvToObject  +
+*Optional/Required:* Optional +
+*Data Type:* Lambda +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin,linenumbers]
@@ -114,10 +113,10 @@ header {
 
 |`unicast ()`  
 a|Defines the distribution as 1-1 mapping.  +
- *Applicable Steps:* csvToMap and csvToObject  +
- *Optional/Required:* Optional +
- *Data Type:* lambda
- *Default Value:* N/A +
+*Applicable Steps:* csvToMap and csvToObject  +
+*Optional/Required:* Optional +
+*Data Type:* Lambda +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin,linenumbers]
@@ -127,10 +126,10 @@ unicast ()
 
 |`Broadcast ()`  
 a|Defines the distribution as 1-all mapping.  +
- *Applicable Steps:* csvToMap and csvToObject  +
- *Optional/Required:* Optional +
- *Data Type:* lambda
- *Default Value:* N/A +
+*Applicable Steps:* csvToMap and csvToObject  +
+*Optional/Required:* Optional +
+*Data Type:* Lambda +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin,linenumbers]
@@ -142,7 +141,6 @@ broadcast ()
 
 == Examples of usage
 
-mapper: configures the JSON Mapper to deserialize the records.
 === csvToMap and csvToObject
 The `csvToMap` and `csvToObject` steps within the Jackson plugin read a CSV resource (file, classpath resource, URL) and returns each item as an instance of an Object or Map.
  
@@ -208,7 +206,6 @@ jackson().xmlToObject(PojoForTest::class) {
    classpath(file)
 }
 ----
-
 
 Tip::
 Only one path (`classpath(file)`, `file(path)`, or `url(url)`) to the resource is allowed for each `xmlToObject` step.

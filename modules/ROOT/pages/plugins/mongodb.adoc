@@ -20,11 +20,11 @@ Supported steps::
 * <<Save step,`save`>>: saves a batch of documents generated from the input and step context.
 * <<Search step,`search`>>: searches documents and builds a query from the input and step context.
 
-Example scenarios are provided later in this <<Examples of Usage,section>>.  
+Example of usage are provided later in this <<Examples of usage,section>>.  
 
 == Configuration
 
-=== Sample configuration file
+=== Example configuration file
 
 MongoDB configuration settings are configured in a mongodb.yaml file. 
 [source,kotlin,linenumbers]
@@ -70,10 +70,10 @@ connect {
 
 | `query`
 a| Specifies a document respecting the requirements of the target database.  +
- *Applicable Steps:* Poll, Save + 
- *Optional/Required:* Required +
- *Data Type:*  Lambda +
- *Default Value:*   N/A +
+*Applicable Steps:* Poll, Save + 
+*Optional/Required:* Required +
+*Data Type:*  Lambda  +
+*Default Value:*   N/A +
 
 .Example 
 [source,kotlin]
@@ -93,10 +93,10 @@ query {
 
 | `search`
 a| Defines the search parameters including,`database`, `collection` `query` and `sort`.  +
- *Applicable Steps:* Search, Poll + 
- *Optional/Required:* Required +
- *Data Type:*  Lambda +
- *Default Value:*   N/A +
+*Applicable Steps:* Search, Poll + 
+*Optional/Required:* Required +
+*Data Type:*  Lambda +
+*Default Value:*   N/A +
 
 .Example (Poll)
 [source,kotlin]
@@ -128,10 +128,10 @@ search {
 
 | `tieBreaker`
 a| Configures the tiebreaker column used to track the "last seen" value for polling. +
- *Applicable Steps:* Poll, Search + 
- *Optional/Required:* Optional +
- *Data Type:* Lambda within which tiebreaker parameters are defined. +
- *Default Value:*  N/A +
+*Applicable Steps:* Poll, Search + 
+*Optional/Required:* Optional +
+*Data Type:* Lambda within which tiebreaker parameters are defined. +
+*Default Value:*  N/A +
 
 .Example 
 [source,kotlin]
@@ -144,10 +144,10 @@ tieBreaker {
 
 | `tieBreaker.type`
 a|Data type to help the datastax driver interpret a value. +
- *Applicable Step:* Poll +
- *Optional/Required:* Required +
- *Data Type:* GenericType (enum) +
- *Default Value:* null +
+*Applicable Step:* Poll +
+*Optional/Required:* Required +
+*Data Type:* GenericType (ENUM) +
+*Default Value:* null +
 
 .Example
 [source,kotlin] 
@@ -157,13 +157,12 @@ tieBreaker {
 }
 ----
 
-
 | `tieBreaker.name`
 a|Name of the column used as a tiebreaker. +
- *Applicable Step:* Poll +
- *Optional/Required:* Required +
- *Data Type:* String  +
- *Default Value:* "" +
+*Applicable Step:* Poll +
+*Optional/Required:* Required +
+*Data Type:* String  +
+*Default Value:* "" +
 
 .Example
 [source,kotlin] 
@@ -172,15 +171,16 @@ tieBreaker {
     name = "timestamp"
 }
 ----
+
 | `parameters`
 a| Poll: Binds values to the clauses of the prepared query. +
  Search: Computes the list of values bound to the prepared query using the step context and input. +
- *Applicable Steps:* Poll, Search + 
- *Optional/Required:* Optional +
- *Data Type:* +
+*Applicable Steps:* Poll, Search + 
+*Optional/Required:* Optional +
+*Data Type:* +
     Poll: `List<Any>` / `vararg Any` +
     Search: Lambda that takes step context and input and returns `List<Any>`. +
- *Default Value:* `emptyList()` +
+*Default Value:* `emptyList()` +
     
 .Example (Poll)
 [source,kotlin] 
@@ -197,10 +197,10 @@ parameters {
 
 | `pollDelay`
 a| Delay between two polling executions. +
- *Applicable Step:* Poll +
- *Optional/Required:* Optional +
- *Data Type:* java.time.Duration 
- *Default Value:* Duration.ofSeconds(10) 
+*Applicable Step:* Poll +
+*Optional/Required:* Optional +
+*Data Type:* java.time.Duration +
+*Default Value:* Duration.ofSeconds(10)  +
 
 .Example
 [source,kotlin] 
@@ -208,117 +208,13 @@ a| Delay between two polling executions. +
  pollDelay(Duration.ofSeconds(1)) 
 ----
 
-
 | `singletonConfiguration`
 a| Configures how polled results are delivered to scenario minions. +
-  Specify one of the strategies directly (not wrapped in a lambda). +
-  Available strategies: `sequential`, `broadcast`, `unicast`, `loop`. +
+   Refer to xref:plugins/plugins.adoc#singletonconfiguration-parameters[SingletonConfiguration parameters] for details on strategies and examples of usage.
 
-`broadcast(bufferSize, idleTimeout)`:
- sends every polled record to all minions. Records are delivered in order, with the oldest buffered record sent first. In this mode, the singleton behaves like a Pub/Sub broadcaster. 
-
- `unicast(bufferSize, idleTimeout)`: 
-  sends each polled record to exactly one minion. The singleton acts as a FIFO distributor: Records are stored in a buffer until a minion consumes them. The buffer has a fixed size; when it becomes full, the oldest records are dropped to make space for new ones. 
-
- `loop(bufferSize, idleTimeout)`:
-  sends each polled record to all minions, but once the end of the buffer is reached, it loops back to the beginning. This creates a continuous cyclic stream of the buffered records. 
-
- `sequential()`: 
-  disables singleton execution and runs this step within the parent’s workflow. Data distribution is controlled entirely by the parent step. This mode is typically used when you want to process each record from a source from start to finish once, and then stop publishing until new data is available.
-   
- Each strategy EXCEPT `sequential` requires `bufferSize` (Int) and `idleTimeout` (Duration); see `singletonConfiguration.bufferSize` and `singletonConfiguration.idleTimeout` definitions below. +
-
- *Applicable Step:* Poll +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* unicast(bufferSize, idleTimeout)
-
-.Example
-[source,kotlin] 
-----
-broadcast(bufferSize = 4, idleTimeout = Duration.ofMinutes(1))
-----
-
-| `singletonConfiguration.bufferSize`
-a| Size of the buffer used to store polled records before delivery to minions.+ +
- *Applicable Step:* Poll +
- *Optional/Required:* Optional +
- *Data Type:* Integer +
- *Default Value:* -1 +
-
-.Example
-[source,kotlin] 
-----
-broadcast(bufferSize = 4, idleTimeout = Duration.ofMinutes(1))
-----
-
-| `singletonConfiguration.idleTimeout`
-a| Maximum time to wait before delivering polled records to minions, even if the buffer is not full. +
- *Applicable Step:* Poll +
- *Optional/Required:* Optional +
- *Data Type:* java.time.Duration +
- *Default Value:* Duration.ZERO +
-
-.Example
-[source,kotlin] 
----- 
-broadcast(bufferSize = 4, idleTimeout = Duration.ofMinutes(1))
-----
-
-| `broadcast`
-a| Specifies the broadcast parameters for a step. +
- *Applicable Step:* Poll
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-broadcast(3, Duration.ofMinutes(1))
-----
-
-| `unicast`
-a| Specifies the unicast parameters for a step. +
- *Applicable Step:* Poll +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-unicast(1, Duration.ofMinutes(3))
-----
-
-| `loop`
-a| Specifies the loop parameters for a step. +
- *Applicable Step:* Poll +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-loop(5, Duration.ofMinutes(2))
-----
-
-| `sequential`
-a| Specifies the sequential parameters for a step. +
- *Applicable Step:* Poll +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-sequential()
-----
 |===
 
-== Examples of Usage
+== Examples of usage
 
 === Poll step
 The `poll` step within the MongoDB plugin polls the newest records from a database table, with a delay between each execution.
@@ -348,15 +244,17 @@ mongodb().poll {
     pollDelay(Duration.ofSeconds(1)) <3>
 }
 ----
- <1> Configure the connection to https://mongodb.com/[MongoDb].
- <2> Define the search parameters.
- <3> Specify the delay between search executions.
+<1> Configure the connection to https://mongodb.com/[MongoDb]. 
+<2> Define the search parameters.
+<3> Specify the delay between search executions.
 
+//-
 Tips::
 * Use the `poll` step with a join operator if you need to verify the values saved by your tested system in the database.
 * The `search` parameter requires at least one sorting field (`tiebreaker` in the example) to filter the newest results and not fetch the same records repeatedly.
 * The latest known value for `tiebreaker` is used to filter out the values already received from the database.
 
+//-
 Reference Documentation::
 Refer to the https://www.mongodb.com/docs/[Mongodb] documentation for further parameter and configuration information.
 
@@ -379,13 +277,13 @@ Example::
         MongoClients.create("mongodb://James23:SantaFe1987@localhost:27017")
     }
     query { <2>
-        database { _, _ ->
+        database { StepContext, input ->
             "iot"
         }
-        collection { _, _ ->
+        collection { StepContext, input ->
             "batteryState"
         }
-        documents { _, input ->
+        documents { StepContext, input ->
             listOf(Document.parse(objectMapper.writeValueAsString(input)))
         }
     }
@@ -394,11 +292,12 @@ Example::
 <1> Configure the connection to https://mongodb.com/[MongoDb].
 <2> Specifies query parameters respecting the requirements of the target database.
 
-
+//-
 Tips::
 * Use the `save` step after a `collect` step in order to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.
 * The `save` step is extremely flexible; database, collection and documents may depend on the context and input value received from the previous step.
 
+//-
 Reference Documentation::
 Refer to the  https://www.mongodb.com/docs/[Mongodb] documentation for further parameter and configuration information.
 
@@ -421,9 +320,9 @@ Example::
         MongoClients.create("mongodb://James23:SantaFe1987@localhost:27017")
     }
     search { <2>
-        database { _, _ -> "iot" }
-        collection { _, _ -> "batteryState" }
-        query { _, input ->
+        database { StepContext, input -> "iot" }
+        collection { StepContext, input -> "batteryState" }
+        query {StepContext, input ->
             Document(
                 mapOf(
                     "deviceId" to input.deviceId,
@@ -434,7 +333,7 @@ Example::
     }
 }
 ----
-<1> Configures the connection to https://mongodb.com/[MongoDb].
+<1> Configure the connection to https://mongodb.com/[MongoDb].
 <2> Define the search parameters including `database`, `collection` and `query`. 
 
 Tip::
@@ -539,7 +438,7 @@ scenario { <1>
         immediate()
     }
 }.start()
-    .jackson() 
+    .jackson() <2>
     .csvToObject(mappingClass = BatteryState::class) { <3>
         name = "csv to json"
 

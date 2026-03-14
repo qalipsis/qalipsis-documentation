@@ -20,9 +20,10 @@ Supported steps::
 * <<Produce step,`produce`>>: pushes data to topics of the Apache Kafka cluster.
 
 Examples of usage are provided later in this <<Examples of usage,section>>.
+
 == Configuration
 
-=== Sample configuration file
+=== Example configuration file
 
 Configuration settings are configured in a .yaml file. 
 
@@ -56,10 +57,10 @@ Available parameters are described in the table below.
 
 | `bootstrap`  
 a| Configures the bootstrap hosts of the `Kafka` cluster. +
- *Applicable Steps:* Consume, Produce +
- *Optional/Required:* Required +
- *Data Type:* String +
- *Default Value:* ("localhost:9092") +
+*Applicable Steps:* Consume, Produce +
+*Optional/Required:* Required +
+*Data Type:* String +
+*Default Value:* ("localhost:9092") +
 
 .Example
 [source,kotlin]
@@ -69,10 +70,10 @@ a| Configures the bootstrap hosts of the `Kafka` cluster. +
 
 | `groupId`  
 a| Defines the consumer group. +
- *Applicable Steps:* Consume +
- *Optional/Required:* Required +
- *Data Type:*  +
- *Default Value:* +
+*Applicable Steps:* Consume +
+*Optional/Required:* Required +
+*Data Type:*  +
+*Default Value:* +
 
 .Example
 [source,kotlin]
@@ -81,14 +82,14 @@ groupId("kafka-example")
 ----
 
 | `offsetReset`  
-a| defines the strategy to apply when the consumer starts consuming messages from the queue. +
-  Valid `offsetReset` strategies are:
-  * `OffsetResetStrategy.EARLIEST`: starts consuming messages from the beginning of the queue.
-  * `OffsetResetStrategy.LATEST`: starts consuming messages when the  consumer starts, ignoring all previous messages in the queue.
- *Applicable Steps:* Consume +
- *Optional/Required:* Required +
- *Data Type:*  ENUM
- *Default Value:* OffsetResetStrategy.LATEST` +
+a| Defines the strategy to apply when the consumer starts consuming messages from the queue. +
+  Valid `offsetReset` strategies are: +
+  * `OffsetResetStrategy.EARLIEST`: starts consuming messages from the beginning of the queue. +
+  * `OffsetResetStrategy.LATEST`: starts consuming messages when the  consumer starts, ignoring all previous messages in the queue. +
+*Applicable Steps:* Consume +
+*Optional/Required:* Required +
+*Data Type:*  ENUM +
+*Default Value:* OffsetResetStrategy.LATEST` +
 
 .Example
 [source,kotlin]
@@ -98,10 +99,10 @@ a| defines the strategy to apply when the consumer starts consuming messages fro
 
 | `pollTimeout`  
 a|Defines the consumer poll timeout to wait for records. +
- *Applicable Steps:* Consume +
- *Optional/Required:* Required +
- *Data Type:*  Duration +
- *Default Value:* 1s +
+*Applicable Steps:* Consume +
+*Optional/Required:* Required +
+*Data Type:*  Duration +
+*Default Value:* 1s +
 
 .Example
 [source,kotlin]
@@ -111,10 +112,10 @@ pollTimeout(Duration.ofSeconds(1))
 
 | `maxPollRecords`  
 a| Defines the maximum number of records returned in a unique poll batch. +
- *Applicable Steps:* Consume +
- *Optional/Required:* Optional +
- *Data Type:* Integer +
- *Default Value:* 500
+*Applicable Steps:* Consume +
+*Optional/Required:* Optional +
+*Data Type:* Integer +
+*Default Value:* 500 +
 
 .Example
 [source,kotlin]
@@ -124,116 +125,14 @@ a| Defines the maximum number of records returned in a unique poll batch. +
 
 | `singletonConfiguration`
 a| Configures how consumed results are delivered to scenario minions. +
-  Specify one of the strategies directly (not wrapped in a lambda). +
-  Available strategies: `sequential`, `broadcast`, `unicast`, `loop`. +
-
- * `broadcast`: sends every consumed record to all minions. Records are delivered in order, with the oldest buffered record sent first. In this mode, the singleton behaves like a Pub/Sub broadcaster. 
-
- * `unicast`: sends each consumed record to exactly one minion. The singleton acts as a FIFO distributor: Records are stored in a buffer until a minion consumes them. The buffer has a fixed size; when it becomes full, the oldest records are dropped to make space for new ones. 
-
- * `loop`: sends each consumed record to all minions, but once the end of the buffer is reached, it loops back to the beginning. This creates a continuous cyclic stream of the buffered records. 
-
- * `sequential`: disables singleton execution and runs this step within the parent’s workflow. Data distribution is controlled entirely by the parent step. This mode is typically used when you want to process each record from a source from start to finish once, and then stop publishing until new data is available.
-   
- Note::
- Each strategy EXCEPT `sequential` requires `bufferSize` (Int) and `idleTimeout` (Duration); see `singletonConfiguration.bufferSize` and `singletonConfiguration.idleTimeout` definitions below. +
-
-*Applicable Step:* Consume +
-*Optional/Required:* Optional +
-*Data Type:* Function +
-*Default Value:* N/A
-
-.Example
-[source,kotlin] 
-----
-broadcast(bufferSize = 4, idleTimeout = Duration.ofMinutes(1))
-----
-
-| `singletonConfiguration.bufferSize`
-a| Size of the buffer used to store consumed records before delivery to minions.+ +
- *Applicable Step:* Consume +
- *Optional/Required:* Optional +
- *Data Type:* Integer +
- *Default Value:* -1 +
-
-.Example
-[source,kotlin] 
-----
-broadcast(bufferSize = 4, idleTimeout = Duration.ofMinutes(1))
-----
-
-| `singletonConfiguration.idleTimeout`
-a| Maximum time to wait before delivering consumed records to minions, even if the buffer is not full. +
- *Applicable Step:* Consume +
- *Optional/Required:* Optional +
- *Data Type:* java.time.Duration +
- *Default Value:* Duration.ZERO +
-
-.Example
-[source,kotlin] 
----- 
-broadcast(bufferSize = 4, idleTimeout = Duration.ofMinutes(1))
-----
-
-| `broadcast`
-a| Specifies the broadcast parameters for a step. +
- *Applicable Step:* Consume +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-broadcast(3, Duration.ofMinutes(1))
-----
-
-| `unicast`
-a| Specifies the unicast parameters for a step. +
- *Applicable Step:* Consume +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-unicast(1, Duration.ofMinutes(3))
-----
-
-| `loop`
-a| Specifies the loop parameters for a step. +
- *Applicable Step:* Consume +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-loop(5, Duration.ofMinutes(2))
-----
-
-| `sequential`
-a| Specifies the sequential parameters for a step. +
- *Applicable Step:* Consume +
- *Optional/Required:* Optional +
- *Data Type:* Function +
- *Default Value:* N/A +
-
-.Example
-[source,kotlin] 
-----
-sequential()
-----
-
+Refer to xref:plugins/plugins.adoc#singletonconfiguration-parameters[SingletonConfiguration parameters] for details on strategies and examples of usage.
 
 | `keySerializer`  
 a| Describes how to serialize the record keys to send  to `kafka`. +
- *Applicable Steps:* Produce +
- *Optional/Required:* Required +
- *Data Type:*  UTF-8 String +
- *Default Value:* N/A  +
+*Applicable Steps:* Produce +
+*Optional/Required:* Required +
+*Data Type:*  UTF-8 String +
+*Default Value:* N/A  +
 
 .Example
 [source,kotlin]
@@ -241,14 +140,12 @@ a| Describes how to serialize the record keys to send  to `kafka`. +
 keySerializer = Serdes.String().serializer(),
 ----
 
-
 | `valueSerializer`  
-a| Describes how to serialize the record values to send to `kafka`.
- +
- *Applicable Steps:* Produce +
- *Optional/Required:* Required +
- *Data Type:*  UTF-8 String +
- *Default Value:*  N/A +
+a| Describes how to serialize the record values to send to `kafka`. +
+*Applicable Steps:* Produce +
+*Optional/Required:* Required +
+*Data Type:*  UTF-8 String +
+*Default Value:*  N/A +
 
 .Example
 [source,kotlin]
@@ -256,13 +153,12 @@ a| Describes how to serialize the record values to send to `kafka`.
 valueSerializer = Serdes.String().serializer()
 ----
 
-
 | `clientName`  
 a| Defines the name of the `kafka` client. +
- *Applicable Steps:* Produce +
- *Optional/Required:* Required +
- *Data Type:*  String +
- *Default Value:* N/A +
+*Applicable Steps:* Produce +
+*Optional/Required:* Required +
+*Data Type:*  String +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin]
@@ -272,10 +168,10 @@ clientName("producer")
 
 | `records`  
 a|Generates and configures a list of produced records. +
- *Applicable Steps:* Produce +
- *Optional/Required:* Required +
- *Data Type:*  Lambda function +
- *Default Value:* N/A +
+*Applicable Steps:* Produce +
+*Optional/Required:* Required +
+*Data Type:*  Lambda function +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin]
@@ -293,7 +189,6 @@ records { _, input ->
 |===
 
 == Examples of usage
-
 
 === Consume step
 The `consume` step within the Apache Kafka plugin polls data from topics of an Apache Kafka cluster and forwards the data to the next step, either in batches or individually. 
@@ -347,7 +242,7 @@ Example::
 ) {
   bootstrap("localhost:9092")
   clientName("producer")
-  records { _, input ->
+  records { StepContext, input ->
     listOf(
       KafkaProducerRecord(
         topic = "battery_state",
@@ -437,7 +332,7 @@ scenario { <1>
 NOTE::
 Configure `event` and `meter` publication settings in the factory configuration, separate from the scenario DSL.
 
-Refer to xref:up-and-running/configuration/provide-configuration.adoc[Provide configuration] for information about specifying the configuration to QALIPSIS.
+Refer to xref:up-and-running/configuration/provide-configuration.adoc[Provide the configuration to QALIPSIS] for information about specifying the configuration to QALIPSIS.
 
 Events:: 
 `events.export.kafka`
@@ -452,15 +347,16 @@ Meters::
 | *Description*
 
 |`enabled`
-a| *Applicable Steps:* Events, Meters +
- *Optional/Required:* Required +
- *Data Type:* Boolean  + 
- *Default Value:* false + 
+a|Boolean flag to activate/deactivate event/meter publishing to Apache Kafka; *must* be set to `true`to enable publishing.
+*Applicable Steps:* Events, Meters +
+*Optional/Required:* Required +
+*Data Type:* Boolean  + 
+*Default Value:* false + 
 
 .Example
 [source,kotlin] 
 ----
-    enabled: true
+enabled: true
 ----
 
 |`min-level`
@@ -471,11 +367,11 @@ a|Minimal accepted level of events to publish; allowable values are `TRACE`, `DE
 * `WARN` = indications of potential problems that do not stop processing. +
 * `ERROR` = confirmed problems that need attention. +
 * `OFF` = disable event publishing.+
-
- *Applicable Steps* Events +
- *Optional/Required:* Required +
- *Data Type:* enum + 
- *Default Value:* `INFO` + 
++
+*Applicable Steps* Events +
+*Optional/Required:* Required +
+*Data Type:* enum + 
+*Default Value:* `INFO` + 
 
 .Example
 [source,kotlin] 
@@ -485,10 +381,10 @@ min-level: INFO
 
 | `bootstrap` 
 a| Host and port pair of the Kafka broker  +
-  *Applicable Steps* Events +
- *Optional/Required:* Required +
- *Data Type:* String + 
- *Default Value:* localhost:9092 + 
+*Applicable Steps* Events +
+*Optional/Required:* Required +
+*Data Type:* String + 
+*Default Value:* localhost:9092 + 
 
 .Example
 [source,kotlin] 
@@ -498,10 +394,10 @@ a| Host and port pair of the Kafka broker  +
 
 | `bootstrap.servers` 
 a| Host and port pair of the Kafka broker +
-  *Applicable Steps* Meters +
- *Optional/Required:* Required +
- *Data Type:* String + 
- *Default Value:* localhost:9092 + 
+*Applicable Steps* Meters +
+*Optional/Required:* Required +
+*Data Type:* String + 
+*Default Value:* localhost:9092 + 
 
 .Example
 [source,kotlin] 
@@ -511,10 +407,10 @@ bootstrap.servers: localhost:9092
 
 | `step`
 a| The step size (reporting frequency) to use for monitoring meters. +
- *Applicable Step* Meters +
- *Optional/Required:* Required +
- *Data Type:*  Duration +
- *Default Value:* PT10S + 
+*Applicable Step* Meters +
+*Optional/Required:* Required +
+*Data Type:*  Duration +
+*Default Value:* PT10S + 
 
 .Example
 [source,kotlin] 
@@ -524,12 +420,12 @@ step: PT10S
 
 | `topic`
 a| Name of the topic to write the meters and events to. +
- *Applicable Step* Meters, Events +
- *Optional/Required:* Required +
- *Data Type:*  String +
- *Default Value:*  +
-  * Events: qalipsis-events + 
-  * Meters: qalipsis-meters +
+*Applicable Step* Meters, Events +
+*Optional/Required:* Required +
+*Data Type:*  String +
+*Default Value:*  +
+* Events: qalipsis-events + 
+* Meters: qalipsis-meters +
 
 .Example (Events)
 [source,kotlin] 
@@ -543,13 +439,12 @@ topic: qalipsis-events
 topic: qalipsis-meters
 ----
 
-
 |`duration-as-nano` 
-a| Activates/deactivates converting the duration to nanoseconds (`true`); `false` converts to milliseconds +
- *Applicable Step:* Events +
- *Optional/Required:* Required +
- *Data Type:* Boolean flag +
- *Default Value:*  false
+a| Activates/deactivates converting the duration to nanoseconds (`true`); `false` converts to milliseconds. +
+*Applicable Step:* Events +
+*Optional/Required:* Required +
+*Data Type:* Boolean flag +
+*Default Value:*  false
 
 .Example
 [source,kotlin] 
@@ -557,13 +452,12 @@ a| Activates/deactivates converting the duration to nanoseconds (`true`); `false
 duration-as-nano: true
 ----
 
-
 | `linger-period` 
-a| Maximum maximum period between two publications of events to Kafka.
- *Applicable Step:* Events +
- *Optional/Required:* Required +
- *Data Type:* Positive duration +
- *Default Value:* 10s +
+a| Maximum time to buffer events before forcing a flush, even if the batch size is not reached. +
+*Applicable Step:* Events +
+*Optional/Required:* Required +
+*Data Type:* Positive duration string +
+*Default Value:* 10s +
 
 .Example
 [source,kotlin] 
@@ -572,11 +466,11 @@ linger-period: 10s
 ----
 
 | `linger.ms` 
-a| Maximum maximum period between two batches of events to Kafka.
- *Applicable Step:* Events +
- *Optional/Required:* Required +
- *Data Type:* Positive duration +
- *Default Value:* 5000 +
+a| Maximum maximum period between two batches of events to Kafka. +
+*Applicable Step:* Events +
+*Optional/Required:* Required +
+*Data Type:* Positive duration +
+*Default Value:* 5000 +
 
 .Example
 [source,kotlin] 
@@ -586,10 +480,10 @@ linger.ms: 5000
 
 | `batch-size`
 a|Maximum number of events buffered between two publications of meters or events to Kafka +
- *Applicable Step:* Events, Meters+ 
- *Optional/Required:* Required +
- *Data Type:* Positive integer +
- *Default Value:* 2
+*Applicable Step:* Events, Meters+ 
+*Optional/Required:* Required +
+*Data Type:* Positive integer +
+*Default Value:* 2
 
 .Example
 [source,kotlin] 
@@ -598,24 +492,11 @@ batch-size: 2
 ----
 
 |`format` 
-a|Format of the exported data.
- *Applicable Steps*:* Events, Meters +  
- *Optional/Required:* Optional +
- *Data Type:* string +
- *Default Value:* JSON 
-
-.Example
-[source,kotlin] 
-----
-format: JSON 
-----
-
-|`format` 
-a|Format of the exported data.
- *Applicable Steps*:* Events, Meters +  
- *Optional/Required:* Optional +
- *Data Type:* string +
- *Default Value:* JSON 
+a|Format of the exported data. +
+*Applicable Steps*:* Events, Meters +  
+*Optional/Required:* Optional +
+*Data Type:* string +
+*Default Value:* JSON 
 
 .Example
 [source,kotlin] 
@@ -624,12 +505,11 @@ format: JSON
 ----
 
 |`configuration` 
-a|Key, value configuration parameters of type Properties, for the Kafka producer.
-
- *Applicable Steps*:* Events, Meters +  
- *Optional/Required:* Optional +
- *Data Type:* key,value string pair +
- *Default Value:* N/A 
+a|Key, value configuration parameters of type Properties, for the Kafka producer. +
+*Applicable Steps*:* Events, Meters +  
+*Optional/Required:* Optional +
+*Data Type:* key,value string pair +
+*Default Value:* N/A 
 
 .Example
 [source,kotlin] 
@@ -638,6 +518,7 @@ configuration:
   delivery.timeout.ms: 10000 
 ----
 |===
+
 === Example configuration file
 [source,kotlin,linenumbers]
 ----
@@ -666,8 +547,10 @@ meters: <3>
         delivery.timeout.ms: 10000
 ----  
 
-<1> Start the event configuration scenario.
+<1> Start event configuration.
 <2> Configure event publishing to Kafka.
-<3> Start the meter configuration scenario.
-<4>  meter publishing to Kafka.
+<3> Start meter configuration.
+<4> Configure meter publishing to Kafka.
 
+Reference Documentation::
+Refer to xref:up-and-running/configuration/monitoring-test-campaigns.adoc[Monitoring test campaigns] for a further explanation of the event and meter parameter values.

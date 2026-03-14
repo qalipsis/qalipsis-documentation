@@ -3,16 +3,16 @@
 == Overview
 QALIPSIS supports Slack to notify users of the status of their campaign after it runs. The process of enabling slack to trigger notifications can be grouped in two stages:
 
-- Configuring and activating the QALIPSIS publisher for Slack.
-- Creating and installing an app into a Slack workspace.
+* Configuring and activating the QALIPSIS publisher for Slack.
+* Creating and installing an app into a Slack workspace.
 
 == Configuring and activating the QALIPSIS publisher for Slack
 To activate the QALIPSIS publisher for Slack, create a configuration file in your QALIPSIS project. 
 
 Configuration namespace::
- `report.export.slack`
+`report.export.slack`
 
-Configuration parameters::
+=== Configuration parameters
 
 [cols="1,4" options="header"]
 |===
@@ -20,10 +20,10 @@ Configuration parameters::
 | *Description*
 
 |`enabled`
-a|Activates/deactivates campaign report publishing to Slack; must be set to true to enable publishing to Slack.
- *Optional/Required:* Required +
- *Data Type:* Boolean flag + 
- *Default Value:* false + 
+a|Activates/deactivates campaign report publishing to Slack; must be set to true to enable publishing to Slack. +
+*Optional/Required:* Required +
+*Data Type:* Boolean flag + 
+*Default Value:* false + 
 
 .Example
 [source,kotlin] 
@@ -32,10 +32,10 @@ enabled: `true`
 ----
 
 |`token`
-a|The bot token of the app in charge of posting messages to the specified workspace channel, usually beginning with `xoxb`. .
- *Optional/Required:* Required +
- *Data Type:* String + 
- *Default Value:* N/A + 
+a|The bot token of the app in charge of posting messages to the specified workspace channel, usually beginning with `xoxb`. +
+*Optional/Required:* Required +
+*Data Type:* String + 
+*Default Value:* N/A + 
 
 .Example
 [source,kotlin] 
@@ -45,9 +45,9 @@ token: xoxb-my-awesome-bot-token
 
 |`channel`
 a|A valid Slack channel name within a workspace indicating where notifications messages should be pushed to. +
- *Optional/Required:* Required +
- *Data Type:* String + 
- *Default Value:* false + 
+*Optional/Required:* Required +
+*Data Type:* String + 
+*Default Value:* false + 
 
 .Example
 [source,kotlin] 
@@ -61,11 +61,11 @@ Allowed values are any set of ReportExecutionStatus values: `ALL`, `FAILED`, `SU
 
 * Selecting `ALL` triggers a notification for any campaign report status. +
 * Selecting two or more status values triggers a notification when the campaign report status is the same as any of the selected status values. +
-* Selecting just one status value triggers a notification only when the campaign report status is the same as the selected status value. +
+* Selecting just one status value triggers a notification only when the campaign report status is the same as the selected status value. + 
 
- *Optional/Required:* Required +
- *Data Type:* ENUM + 
- *Default Value:* All + 
+*Optional/Required:* Required +
+*Data Type:* ENUM + 
+*Default Value:* ALL + 
 
 .Example
 [source,kotlin] 
@@ -75,10 +75,10 @@ status:
   - FAILED
   - WARNING
 ----
+|===
 
+=== Example configuration file
 
-Example configuration file::
-+
 [source,kotlin,linenumbers]
 ----
 report:
@@ -92,7 +92,7 @@ report:
         - FAILED
         - WARNING
 ----
-|===
+
 
 == Creating and installing an app into the Slack workspace
 
@@ -162,7 +162,7 @@ json object::
 Reference Documentation::
 For further information, refer to the https://api.slack.com/authentication/basics#start[official slack documentation].
 
-=== Viewing/Updating the app configuration
+=== Viewing/updating the app configuration
 
 To view/update the app configuration, right click on the **QALIPSIS** bot token (displayed under **Apps** in the left sidebar of your Slack workspace) and select _View App Details_.
 
