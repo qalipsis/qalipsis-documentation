@@ -1,30 +1,30 @@
 = RabbitMQ plugin [.badge.oss]## ##[.badge.commercial]## ##[.badge.cloud]## ##
 
 == Overview
-The RabbitMQ  plugin connects QALIPSIS to the https://www.rabbitmq.com/[RabbitMQ] broker.
+The RabbitMQ plugin connects QALIPSIS to the https://www.rabbitmq.com/[RabbitMQ] broker.
 
 Technology addressed::
- RabbitMQ: https://www.rabbitmq.com/[]
+RabbitMQ: https://www.rabbitmq.com/[]
 
 Dependency::
- `io.qalipsis.plugin:qalipsis-plugin-rabbitmq`
- 
+`io.qalipsis.plugin:qalipsis-plugin-rabbitmq`
+
 Namespace in scenario::
- `rabbitmq()`
+`rabbitmq()`
 
 Client library::
 RabbitMQ: refer to https://www.rabbitmq.com/[rabbitMQ]
 
 Supported steps::
-* <<Consume step,`consume`>>: polls data from the RabbitMQ  broker.
-* <<Produce step,`produce`>>: pushes data to the RabbitMQ  broker.
+* <<Consume step,`consume`>>: polls data from the RabbitMQ broker.
+* <<Produce step,`produce`>>: pushes data to the RabbitMQ broker.
 
-Examples of usage are provided later in this <<Examples of usage,section>>. 
+Examples of usage are provided later in this <<Examples of usage,section>>.
 
 == Configuration
 
 === Example configuration file
-[source,kotlin,linenumbers]
+[source,yaml,linenumbers]
 ----
 campaign:
   name: rabbitmq-${random.shortuuid}
@@ -50,15 +50,15 @@ report:
 Available parameters are described in the table below.
 [cols="1,4" options="header"]
 |===
-| *Parameter* 
+| *Parameter*
 | *Description*
 
-| `connection`  
-a| Configures the connection to the RabbitMQ broker. *
+| `connection`
+a| Configures the connection to the RabbitMQ broker. +
 *Applicable Steps:* Consume, Produce +
 *Optional/Required:* Required +
-*Data Type:* String +
-*Default Value:* ("localhost:5672") +
+*Data Type:* Lambda within which configuration parameters are defined. +
+*Default Value:* N/A +
 
 .Example
 [source,kotlin]
@@ -68,33 +68,125 @@ connection {
   port = 5672
   username = "Celia45"
   password = "Columbus1963"
-  }
+  virtualHost = "/"
+  clientProperties = emptyMap()
+}
 ----
 
-| `concurrency`  
-a| Defines the number of concurrent channels producing messages to RabbitMQ. +
+| `connection.host`
+a| Hostname or IP address of the RabbitMQ broker. +
 *Applicable Steps:* Consume, Produce +
 *Optional/Required:* Optional +
-*Data Type:* Integer +
+*Data Type:* `String` +
+*Default Value:* `"localhost"` +
+
+.Example
+[source,kotlin]
+----
+connection {
+  host = "localhost"
+}
+----
+
+| `connection.port`
+a| TCP port the RabbitMQ broker listens on. Use `5671` for TLS connections. +
+*Applicable Steps:* Consume, Produce +
+*Optional/Required:* Optional +
+*Data Type:* `Int` +
+*Default Value:* `5672` +
+
+.Example
+[source,kotlin]
+----
+connection {
+  port = 5672
+}
+----
+
+| `connection.username`
+a| Username used to authenticate with the broker. +
+*Applicable Steps:* Consume, Produce +
+*Optional/Required:* Optional +
+*Data Type:* `String` +
+*Default Value:* `"guest"` +
+
+.Example
+[source,kotlin]
+----
+connection {
+  username = "qalipsis"
+}
+----
+
+| `connection.password`
+a| Password used to authenticate with the broker. +
+*Applicable Steps:* Consume, Produce +
+*Optional/Required:* Optional +
+*Data Type:* `String` +
+*Default Value:* `"guest"` +
+
+.Example
+[source,kotlin]
+----
+connection {
+  password = "qalipsis"
+}
+----
+
+| `connection.virtualHost`
+a| RabbitMQ virtual host that scopes exchanges, queues, and bindings. Allows multiple isolated environments on a single broker instance. +
+*Applicable Steps:* Consume, Produce +
+*Optional/Required:* Optional +
+*Data Type:* `String` +
+*Default Value:* `"/"` +
+
+.Example
+[source,kotlin]
+----
+connection {
+  virtualHost = "/"
+}
+----
+
+| `connection.clientProperties`
+a| Additional client properties sent to the broker during the AMQP handshake, for example a human-readable connection name visible in the RabbitMQ management UI. +
+*Applicable Steps:* Consume, Produce +
+*Optional/Required:* Optional +
+*Data Type:* `Map<String, Any>` +
+*Default Value:* `emptyMap()` +
+
+.Example
+[source,kotlin]
+----
+connection {
+  clientProperties = mapOf("connection.name" to "my-consumer")
+}
+----
+
+| `concurrency`
+a| Defines the number of concurrent channels for consuming or producing messages. +
+*Applicable Steps:* Consume, Produce +
+*Optional/Required:* Optional +
+*Data Type:* `Int` +
 *Default Value:* `1` +
 
 .Example
 [source,kotlin]
 ----
- concurrency: 1
+concurrency(2)
 ----
 
-| `records`  
-a| Configures and generates a list of produced records. +
+| `records`
+a| Configures the factory that generates the list of records to produce for each minion execution. +
 *Applicable Steps:* Produce +
 *Optional/Required:* Required +
-*Data Type:* Lambda +
+*Data Type:* Lambda that takes the step context and input and returns `List<RabbitMqProducerRecord>` +
 *Default Value:* N/A +
 
 .Example
 [source,kotlin]
 ----
-records { _, input ->
+records { stepContext, input ->
   listOf(
     RabbitMqProducerRecord(
       exchange = "battery_state",
@@ -106,114 +198,140 @@ records { _, input ->
 }
 ----
 
-| `queue`  
-a| Defines the name of the queue to consume. + 
+| `queue`
+a| Defines the name of the queue to consume. +
 *Applicable Steps:* Consume +
 *Optional/Required:* Required +
-*Data Type:* String +
+*Data Type:* `String` +
 *Default Value:* N/A +
 
 .Example
 [source,kotlin]
 ----
- queue(queueName = "battery_state")
+queue("battery_state")
 ----
 
-| `prefetchCount`  
-a| Defines the prefetch count value +
+| `prefetchCount`
+a| Sets the prefetch count for the consumer, which limits the number of unacknowledged messages that can be delivered to the consumer at a time. +
 *Applicable Steps:* Consume +
 *Optional/Required:* Optional +
-*Data Type:* Integer  +
-*Default Value:* 10 +
+*Data Type:* `Int` +
+*Default Value:* `10` +
 
 .Example
 [source,kotlin]
 ----
-prefetchCount: 10
+prefetchCount(10)
 ----
 
 | `singletonConfiguration`
 a| Configures how polled results are delivered to scenario minions. +
-Refer to xref:plugins/plugins.adoc#singletonconfiguration-parameters[SingletonConfiguration parameters] for details on strategies and examples of usage.
+*Applicable Steps:* Consume +
+*Optional/Required:* Optional +
+*Data Type:* `SingletonConfiguration`, configured via `unicast(bufferSize: Int, idleTimeout: Duration)` +
+*Default Value:* `SingletonType.UNICAST` +
+
+.Example (Consume)
+[source,kotlin]
+----
+unicast(bufferSize = 100, idleTimeout = Duration.ofSeconds(10))
+----
+
+Refer to xref:plugins/plugins.adoc#singletonconfiguration-parameters[SingletonConfiguration parameters] for details, strategies, and usage examples.
 
 |===
- 
+
 
 == Examples of usage
 === Consume step
-The `consume` step within the RabbitMQ  plugin consumes data from queues of the RabbitMQ  broker and forwards the data to the next step.
+The `consume` step within the RabbitMQ plugin consumes data from queues of the RabbitMQ broker and forwards it to the next step.
 
-This step is generally used in conjunction with `join` to assert data or inject data into a workflow.
+This step is commonly used with `join` to assert data or inject data into a workflow.
 
-This step supports multithreading concurrent consumers using  the `concurrency()` property.  When the concurrency is set to more than 1, the sequence of the records transmitted to the next step in no longer guaranteed.
- 
+This step supports concurrent consumers through the `concurrency()` property. When `concurrency` is greater than 1, record order is no longer guaranteed.
+
 To learn more, visit the https://www.rabbitmq.com/#getstarted[RabbitMQ] website.
 
 Ancestor::
 Scenario
- 
+
 Functionality::
-The `consume` step starts a polling loop for consumption of the designated queue.  As new records appear, `consume` polls them and sends them to the next step.
+The `consume` step starts a polling loop for consumption of the configured queue.  As new records arrive, the `consume` step polls them and sends them to the next step.
 
 Example::
 [source,kotlin,linenumbers]
 ----
-rabbitmq()
+//Preceded by scenario configuration and a workflow entry point such as `start()`.
+ .rabbitmq() <1>
   .consume {
-    name = "consume"
+    name = "consume-battery-state" <2>
     connection {
       host = "localhost"
       port = 5672
       username = "Celia45"
       password = "Columbus1963"
     }
-    queue(queueName = "battery_state")
-}
+    queue("battery_state") <3>
+    prefetchCount(10)
+    concurrency(1)
+  }
+  .deserialize(io.qalipsis.api.messaging.deserializer.MessageStringDeserializer::class) <4>
 ----
+<1> Enter into the RabbitMQ namespace.
+<2> Set a unique step name for reporting and troubleshooting.
+<3> Select the RabbitMQ queue to consume.
+<4> Deserialize message bodies as strings using a built-in deserializer.
 
 Tip::
 Use the `consume` step with `join` to assert data or inject data into a workflow.
 
 Reference documentation::
-* Learn more about `prefetchCount` by reading the  https://www.rabbitmq.com/consumer-prefetch.html[RabbitMQ Prefetch] documentation.
-* To configure the `consume` step, consult the https://www.rabbitmq.com/documentation.html[RabbitMQ ] documentation.
+* Learn more about `prefetchCount` in the https://www.rabbitmq.com/consumer-prefetch.html[RabbitMQ Prefetch] documentation.
+* For `consume` configuration details, see the https://www.rabbitmq.com/documentation.html[RabbitMQ documentation].
 
 //-
-=== Produce step 
-The `produce` step within the RabbitMQ plugin provides messages to the RabbitMQ broker using a query; the messages are then forwarded as input to the next step.
+=== Produce step
+The `produce` step in the RabbitMQ plugin sends messages to the RabbitMQ broker; the results are then forwarded to the next step.
 
 Ancestor::
 Scenario
- 
+
 Functionality::
-The `produce` step's input and step context are used to generate the values to complete the step; results are then forwarded to the next step(s).
+The `produce` step's input and step context are used to generate records that are sent to the broker; results are then forwarded to the next step(s).
 
 Example::
 [source,kotlin,linenumbers]
 ----
-.rabbitmq()
-.produce {
-  connection {
-    host = "localhost"
-    port = 5672
-      username = "Celia45"
-      password = "Columbus1963"
-  }
-  records { StepContext, input ->
-    listOf(
-      RabbitMqProducerRecord(
-        exchange = "battery_state",
-        routingKey = "battery_state",
-        props = null,
-        value = objectMapper.writeValueAsBytes(input)
+//Preceded by scenario configuration and a workflow entry point such as `start()`.
+  .rabbitmq() <1>
+  .produce { <2>
+    connection { <3>
+      host = "localhost"
+      port = 5672
+      username = "qalipsis"
+      password = "qalipsis"
+    }
+    concurrency(1)
+    records { stepContext, input -> <4>
+      listOf(
+        RabbitMqProducerRecord(
+          exchange = "battery_state",
+          routingKey = "battery_state",
+          props = null,
+          value = input.toString().toByteArray() <5>
+        )
       )
-    )
+    }
   }
-}
 ----
+<1> Enter into the RabbitMQ namespace to access the `produce` step.
+<2> Configure the `produce` step.
+<3> Configure the connection to the RabbitMQ broker.
+<4> Build the list of records to publish.
+<5> Convert the string payload to a `ByteArray`, which is the required type for `RabbitMqProducerRecord.value`.
 
-Reference documentation:: 
-* For more information on configuring the connection to RabbitMQ, refer to  https://www.rabbitmq.com/api-guide.html#connecting[Connecting to RabbitMQ].
+Reference documentation::
+* For more information about RabbitMQ connection configuration, see https://www.rabbitmq.com/api-guide.html#connecting[Connecting to RabbitMQ].
 * For more information on configuring the `produce` step, refer to the https://www.rabbitmq.com/documentation.html[RabbitMQ] documentation.
 
 //-
@@ -223,108 +341,85 @@ Example::
 ----
 @Scenario("rabbitmq-produce-and-consume")
 fun rabbitmqProduceAndConsume() {
-
-  try { <1>
-    ConnectionFactory().apply {
-      host = "localhost"
-      port = 5672
-      username = "qalipsis"
-      password = "qalipsis"
-      createExchangeAndQueue(
-        channel = newConnection().createChannel(),
-        queueName = "battery_state",
-        routingKey = "battery_state"
-      )
-    }
-  } catch (e: IOException) { <2>
-  }
-
-  scenario { <3> 
-    
+  scenario { <1>
     minionsCount = 10
     profile {
       immediate()
     }
   }
-    .start()
-    .jackson()  <4> 
-    .csvToObject(mappingClass = BatteryState::class) <5>
-    { classpath(path = "battery-levels.csv")
-      header { <6>
+    .start() <2>
+    .jackson()
+    .csvToObject(mappingClass = BatteryState::class) { <3>
+      classpath(path = "battery-levels.csv")
+      header {
         column(name = "deviceId")
         column(name = "timestamp")
         column(name = "batteryLevel").integer()
       }
       unicast()
     }
-    .map { it.value } <7> 
+    .map { it.value } <4>
     .rabbitmq()
     .produce {
-
       connection {
         host = "localhost"
         port = 5672
         username = "qalipsis"
         password = "qalipsis"
-
       }
-
-      records { StepContext, input ->
+      records { _, input -> <5>
         listOf(
           RabbitMqProducerRecord(
             exchange = "battery_state",
             routingKey = "battery_state",
             props = null,
-            value = objectMapper.writeValueAsBytes(input)
+            value = input.toString().toByteArray() <6>
           )
         )
       }
     }
-    .map {
-      it.input
-    }
+    .map { it.input } <7>
     .innerJoin()
-    .using { correlationRecord ->
-      correlationRecord.value.deviceId
-    }
+    .using { produced -> produced.deviceId } <8>
     .on {
       it.rabbitmq()
         .consume {
-          name = "consume"
+          name = "consume-battery-state"
           connection {
             host = "localhost"
             port = 5672
             username = "qalipsis"
             password = "qalipsis"
           }
-
-          queue(queueName = "battery_state")
-
+          queue("battery_state") <9>
+          prefetchCount(10)
+          concurrency(1)
         }
-        .deserialize(valueDeserializer = MessageJsonDeserializer(BatteryState::class)) // use this method to transform your RabbitMQ consumer data to a specific object of your class
-          .map { result ->
-            result.value
-          }
-          .filterNotNull()
-      }
-      .having { correlationRecord ->
-        correlationRecord.value.deviceId
-      }
-      .filterNotNull()
-      .verify { result ->
-        result.asClue {
-          assertSoftly {
-            it.first.batteryLevel shouldBeExactly (it.second).batteryLevel
-          }
+        .deserialize(MessageJsonDeserializer(BatteryState::class)) <10>
+        .map { result -> result.value }
+        .filterNotNull()
+    }
+    .having { consumed -> consumed.deviceId } <11>
+    .verify { result -> <12>
+      result.asClue {
+        assertSoftly {
+          it.first.batteryLevel shouldBeExactly it.second.batteryLevel
         }
       }
+    }
 
 }
+
 ----
-<1> Create the exchange and the queue that will be used by the scenario prior to its execution.
-<2> Ignore the exception, the exchange might already exist.
-<3> Configure the number of minions and ramp up profile. 
-<4> Start the jackson step to fetch data from the csv file. 
-<5> Use the csvToObject method to map csv entries to list of utils.BatteryState object.
-<6> Define the header of the csv file.
-<7> Transform the output of the CSV reader entries to utils.BatteryState.
+<1> Configure the scenario with 10 minions and an immediate execution profile.
+<2> Start the pipeline; all subsequent steps are chained off this entry point.
+<3> Read `battery-levels.csv` from the classpath and deserialize each row into a `BatteryState` instance.
+<4> Unwrap the `BatteryState` value from the CSV step output before entering the producer branch.
+<5> Build the list of records to publish.
+<6> Convert the `BatteryState` to bytes, which is the required type for `RabbitMqProducerRecord.value`.
+<7> Extract `RabbitMqProducerResult.input`, the original `BatteryState` from the producer result.
+<8> Define the key used to match produced records on the left branch of the join.
+<9> Consume records from the same `battery_state` queue that the producer branch writes to.
+<10> Deserialize the raw message bytes back into a `BatteryState` instance using the JSON deserializer.
+<11> Define the key used to match consumed records on the right branch of the join: `deviceId` on the deserialized `BatteryState`.
+<12> Assert that the `batteryLevel` of the produced record exactly matches the `batteryLevel` of the corresponding consumed record for every correlated device.

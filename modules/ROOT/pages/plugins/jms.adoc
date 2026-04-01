@@ -1,7 +1,7 @@
 = JMS plugin [.badge.oss]## ##[.badge.commercial]## ##[.badge.cloud]## ##
 
 == Overview
-The JMS plugin connects QALIPSIS to a messaging platform that supports https://www.oracle.com/java/technologies/java-message-service.html[JMS].
+The JMS plugin connects QALIPSIS to any messaging platform that implements the JMS standard, such as ActiveMQ, IBM MQ, or RabbitMQ.
 
 Technology addressed::
 JMS: https://www.oracle.com/java/technologies/java-message-service.html[]
@@ -10,10 +10,10 @@ Dependency::
 `io.qalipsis.plugin:qalipsis-plugin-jms`
 
 Namespace in scenario::
-jms()
- 
+`jms()`
+
 Client library::
-JMS API: refer to 
+JMS API: refer to
 https://docs.oracle.com/javaee/7/api/javax/jms/package-summary.html[Java Interface Summary].
 
 Supported steps::
@@ -25,7 +25,7 @@ Examples of usage are provided later in this <<Examples of usage,section>>.
 == Configuration
 
 === Example configuration file
-[source,kotlin,linenumbers]
+[source,yaml,linenumbers]
 ----
 campaign:
   name: jms-${random.shortuuid}
@@ -50,11 +50,11 @@ report:
 Available parameters are described in the table below.
 [cols="1,4" options="header"]
 |===
-| *Parameter* 
+| *Parameter*
 | *Description*
 
-| `connect`  
-a| Specifies the connection type for the `JmsProducerRecord`(s) +
+| `connect`
+a| Defines the connection factory used by the `produce` step to establish a JMS connection. +
 *Applicable Steps:* Produce +
 *Optional/Required:* Required +
 *Data Type:* Lambda within which connection parameters are defined. +
@@ -68,8 +68,8 @@ connect {
 }
 ----
 
-| `consume`  
-a| Configures the the https://activemq.apache.org/[ActiveMQ] connection. +
+| `consume`
+a| Configures the https://activemq.apache.org/[ActiveMQ] connection for the `consume` step. +
 *Applicable Steps:* Consume +
 *Optional/Required:* Required +
 *Data Type:* Lambda within which connection parameters are defined. +
@@ -80,15 +80,17 @@ a| Configures the the https://activemq.apache.org/[ActiveMQ] connection. +
 ----
 jms().consume {
     queues("battery_state")
-    queueConnection { ActiveMQConnectionFactory("tcp://localhost:61616").createQueueConnection() }
+    queueConnection {
+        ActiveMQConnectionFactory("tcp://localhost:61616").createQueueConnection()
+    }
 }
 ----
 
 | `queues`
-a| Specifies the queue(s) for the connection. +
+a| Specifies the name(s) of the queues to consume from. +
 *Applicable Steps:* Consume +
-*Optional/Required:* Required +
-*Data Type:* Lambda within which connection parameters are defined. +
+*Optional/Required:* Required  +
+*Data Type:*  String (vararg) +
 *Default Value:* N/A +
 
 .Example
@@ -97,11 +99,11 @@ a| Specifies the queue(s) for the connection. +
 queues("battery_state")
 ----
 
-| `QueueConnection`
-a| Provides the java ActiveMQ connection for the specified queues. +
+| `queueConnection`
+a| Provides a `javax.jms.QueueConnection` instance for consuming from the specified queues. Setting this clears any previously set `topicConnection`. +
 *Applicable Steps:* Consume +
 *Optional/Required:* Optional +
-*Data Type:* Lambda within which connection parameters are defined. +
+*Data Type:* Lambda within which connection parameters are defined; returns a `javax.jms.QueueConnection`. +
 *Default Value:* N/A +
 
 .Example
@@ -112,28 +114,28 @@ queueConnection {
       "tcp://localhost:61616",
       "qalipsis_user",
       "qalipsis_password"
-    ).createQueueConnection()
-  }
+    )
+}
 ----
 
 | `topics`
-a| Specifies the topic(s) to consume. +
+a| Specifies the name(s) of the topics to consume from. +
 *Applicable Steps:* Consume +
-*Optional/Required:* Optional +
-*Data Type:* String. +
+*Optional/Required:* Required +
+*Data Type:* String (vararg) +
 *Default Value:* N/A +
 
 .Example
 [source,kotlin]
 ----
-topics ("battery_state")
+topics("battery_state")
 ----
 
 | `topicConnection`
-a| Provides the connection to attach to the topic consumer, which is generally specific to the underlying product. +
+a| Provides a `javax.jms.TopicConnection` instance for consuming from the specified topics. Setting this clears any previously set `queueConnection`. +
 *Applicable Steps:* Consume +
-*Optional/Required:* Optional +
-*Data Type:* Lambda within which connection parameters are defined. +
+*Optional/Required:* Required +
+*Data Type:* Lambda within which connection parameters are defined; `javax.jms.TopicConnection`. +
 *Default Value:* N/A +
 
 .Example
@@ -144,101 +146,114 @@ topicConnection {
     "tcp://localhost:61616",
     "qalipsis_user",
     "qalipsis_password"
-  ).createTopicConnection()
-}
-----
-
-| `records`
-a| Generates a list of records to send the messaging platform. +
-*Applicable Steps:* Produce +
-*Optional/Required:* Required +
-*Data Type:* Lambda  +
-*Default Value:* N/A +
-
-.Example
-[source,kotlin]
-----
-records { _, input ->
-  listOf(
-    JMSProducerRecord(
-      destination = Topic(name = "battery_state"),
-      messageType = JMSMessageType.BYTES,
-      value = objectMapper.writeValueAsBytes(input)
-    )
   )
 }
 ----
 
-| `destination`
-a| Defines the destination for each `JMSProducerRecord` as either queues (`QueueConnection`) or topics (`TopicConnection`). +
+| `records`
+a| Generates the list of `JmsProducerRecord` instances to send to the messaging platform. +
 *Applicable Steps:* Produce +
 *Optional/Required:* Required +
-*Data Type:* Function +
+*Data Type:* Lambda that receives the step context and the input value, and returns a `List<JmsProducerRecord>`. +
 *Default Value:* N/A +
 
 .Example
 [source,kotlin]
 ----
-destination = Topic(name = "battery_state")
+records { stepContext, input ->
+    listOf(
+        JmsProducerRecord(
+            destination = ActiveMQQueue("battery_state"),
+            messageType = JmsMessageType.BYTES,
+            value = ObjectMapper().writeValueAsBytes(input)
+        )
+    )
+}
+----
+
+| `destination`
+a| Defines the destination for each `JmsProducerRecord` as either a queue or a topic. The value must be a concrete implementation of `javax.jms.Destination`. +
+*Applicable Steps:* Produce +
+*Optional/Required:* Required +
+*Data Type:* `javax.jms.Destination` +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+destination = ActiveMQQueue("battery_state")
 ----
 
 | `messageType`
-a| Indicates the `JMSMessageType` as: `TEXT`, `AUTO`, `BYTES`, or `OBJECT`. +
+a| Controls how the value of a `JmsProducerRecord` is converted into a native JMS `Message`. +
 *Applicable Steps:* Produce +
-*Optional/Required:* Required +
-*Data Type:* ENUM +
-*Default Value:* N/A +
+*Optional/Required:* Optional +
+*Data Type:* `JmsMessageType` enum — one of `TEXT`, `BYTES`, `OBJECT`, `AUTO` +
+*Default Value:* `JmsMessageType.AUTO` +
 
 .Example
 [source,kotlin]
 ----
-messageType = JMSMessageType.BYTES
+messageType = JmsMessageType.BYTES
 ----
 
 |`value`
-a| Defines the message to be displayed at the `destination`. +
-*Applicable Steps:* Produce +
+a| The payload of the JMS message. For Produce, this is the value passed into `JmsProducerRecord`. For Consume, this is the deserialized message body exposed on `JmsConsumerRecord<T>`. +
+*Applicable Steps:* Consume, Produce +
 *Optional/Required:* Required +
-*Data Type:* Function +
+*Data Type:* +
+Consume: the type parameter of `JmsConsumerRecord<T>`, determined by the configured deserializer +
+Produce: any value; must be compatible with the chosen `JmsMessageType` (`String` for `TEXT`, `ByteArray` for `BYTES`, `Serializable` for `OBJECT`) +
 *Default Value:* N/A +
 
 .Example
-[source,kotlin]
 ----
-value = objectMapper.writeValueAsBytes(input)
+//Accessing the deserialized value from a consumer result.
+.map { result ->
+    result.record.value  // type is BatteryState, as resolved by JmsJsonDeserializer(BatteryState::class)
+}
 ----
 
+.Example (Produce)
+[source,kotlin]
+----
+value = ObjectMapper().writeValueAsBytes(input)  //ByteArray, used with JmsMessageType.BYTES.
+----
 
 | `deserialize`
-a| Specifies the class to use to deserialize the body of the response. +
+a| Specifies the deserializer used to convert a consumed `javax.jms.Message` body into a typed value. Three overloads are available: pass a fully-qualified class name (`String`), a `KClass` reference, or a pre-built `JmsDeserializer<V>` instance. +
 *Applicable Steps:* Consume +
 *Optional/Required:* Required +
-*Data Type:* Function +
-*Default Value:* N/A +
+*Data Type:* Function overloads accepting either a `String` (fully-qualified class name), a `KClass` reference, or a pre-built `JmsDeserializer<V>` instance. The deserializer must be configured with the target type (e.g., `BatteryState`) as the type parameter V. +
+*Default Value:* `JmsStringDeserializer` (applied automatically when using `jms().consume {}`) +
 
 .Example
 [source,kotlin]
 ----
- .deserialize(JakartaJsonDeserializer(targetClass = BatteryState::class))
+// Using a KClass reference. The class must have a no-arg constructor.
+.deserialize(JmsJsonDeserializer(BatteryState::class))
+
+// Using a fully-qualified class name. The class must have a no-arg constructor.
+.deserialize<String>("io.qalipsis.plugins.jms.deserializer.JmsStringDeserializer")
+
+// Using a pre-built instance with custom mapper configuration. The deserializer must be configured with the target type (BatteryState in this case) as the type parameter V.
+.deserialize(JmsJsonDeserializer(BatteryState::class) {
+    disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+})
 ----
-
-| `singletonConfiguration`
-a|Configures how consumed results are delivered to scenario minions. +
- Refer to xref:plugins/plugins.adoc#singletonconfiguration-parameters[SingletonConfiguration parameters] for details on strategies and examples of usage.
-
 |===
 
 
 == Examples of usage
 
-=== Consume step 
+=== Consume step
 The `consume` step within the JMS plugin consumes records from https://activemq.apache.org/[ActiveMQ].
- 
+
 Ancestor::
 Scenario
- 
+
 Functionality::
-The `consume` step polls data from the designated https://activemq.apache.org/[ActiveMQ] connection, step context, and the data deserializer.
+The `consume` step polls messages from the configured ActiveMQ connection, then uses the specified deserializer to convert each message into the target data type.
 
 Example::
 +
@@ -246,32 +261,34 @@ Example::
 ----
 jms().consume { <1>
     queues("battery_state") <2>
-    queueConnection { ActiveMQConnectionFactory("tcp://localhost:61616").createQueueConnection() } <3>
-}
-    .deserialize(JmsJsonDeserializer(targetClass = BatteryState::class)) <4>
-    .map { result -> <5>
-        result.record.value
+    queueConnection { <3>
+        ActiveMQConnectionFactory("tcp://localhost:61616").createQueueConnection()
     }
+}.deserialize(JmsJsonDeserializer(BatteryState::class)) <4>
+ .map { result -> <5>
+    result.record.value <6>
+}
 ----
-<1> Start the Consume step.
-<2> Specify the queue to consume.
-<3> Configure the connection to the queue.
-<4> Specify the class to use to deserialize the body of the response.
-<5> Define how the result of the consume step is sent to the next step in a scenario.
+<1> Enter the JMS namespace and start the Consume step.
+<2> Specify the name of the queue to consume messages from. Calling `queues()` clears any previously set topics.
+<3> Provide a `QueueConnection` instance. The lambda is called once per step execution to establish the connection.
+<4> Deserialize each consumed `javax.jms.Message` into a `BatteryState` instance using `JmsJsonDeserializer`.
+<5> Map the `JmsConsumerResult` to extract only the deserialized value for downstream steps.
+<6> `result.record.value` holds the deserialized `BatteryState` object produced by the deserializer.
 
 //-
 Tip::
-The https://activemq.apache.org/[ActiveMQ] connection can be configured for either `queues` (`QeueConnection`) or `topics` (`TopicConnection`), but not both.
+The https://activemq.apache.org/[ActiveMQ] connection can be configured for either `queues` (`QueueConnection`) or `topics` (`TopicConnection`), but not both.
 
 Reference documentation::
 Refer to the  https://www.oracle.com/java/technologies/java-message-service.html[JMS] documentation for further parameter and configuration information.
- 
+
 === Produce step
 The `produce` step within the JMS plugin produces records in https://activemq.apache.org/[ActiveMQ] using https://www.oracle.com/java/technologies/java-message-service.html[JMS].
- 
+
 Ancestor::
 Step
- 
+
 Functionality::
 The `produce` step produces a batch of records into one or more https://www.oracle.com/java/technologies/java-message-service.html[JMS] `destinations`. The record values may be provided by previous steps.
 
@@ -286,22 +303,26 @@ Example::
     }
     records { _, input -> <3>
         listOf(
-            JmsProducerRecord(
-                destination = ActiveMQQueue().createDestination("battery_state"),
-                messageType = JmsMessageType.BYTES,
-                value = objectMapper.writeValueAsBytes(input)
+            JmsProducerRecord( // <4>
+                destination = ActiveMQQueue("battery_state"), // <5>
+                messageType = JmsMessageType.BYTES, // <6>
+                value = objectMapper.writeValueAsBytes(input)  //<7>
             )
         )
     }
 }
 ----
-<1> Start the `produce` step.
-<2> Provide the connection for the `JakartaProducerRecord`(s).
-<3> Generate a list of records to send the messaging platform.
+<1> Enter the JMS namespace and start the Produce step.
+<2> Provide a `javax.jms.Connection` instance. The lambda is called once to establish the connection used for all produced records.
+<3> Define the list of `JmsProducerRecord` objects to produce. The lambda receives the step context (`_`, unused here) and the input value from the previous step.
+<4> Create a `JmsProducerRecord` — the QALIPSIS representation of a JMS message to be sent.
+<5> Set the destination as an `ActiveMQQueue`. Any concrete `javax.jms.Destination` implementation is valid here.
+<6> Set the message type to `BYTES`. Use `JmsMessageType.AUTO` if you want the type inferred from the value's runtime type.
+<7> Serialize `input` to a byte array using Jackson. This is passed as the message payload.
 
 //-
 Tip::
-If you are not sure about the `JmsMessageType`, use `AUTO` to allow the system to infer the type and display the result. 
+If you are not sure about the `JmsMessageType`, use `AUTO` to allow the system to infer the JMS message type from the value's runtime type (`String` → `TextMessage`, `ByteArray` → `BytesMessage`, other `Serializable` → `ObjectMessage`).
 
 Reference documentation::
 Refer to the  https://www.oracle.com/java/technologies/java-message-service.html[JMS] documentation for further parameter and configuration information.
@@ -309,73 +330,79 @@ Refer to the  https://www.oracle.com/java/technologies/java-message-service.html
 === JmsProduceAndConsume scenario
 [source,kotlin,linenumbers]
 ----
-scenario {  <1>
+scenario { <1>
     minionsCount = 20
     profile {
-        immediate()
+        regular(100, 20) <2>
     }
 }
-    .start()
-    .jackson() <2> 
-    .csvToObject(mappingClass = BatteryState::class) { <3>
-
-        classpath(path = "battery-levels.csv")
-        header { <4>
-            column(name = "deviceId")
-            column(name = "timestamp")
-            column(name = "batteryLevel").integer()
-        }
-        unicast()
+.start()
+.jackson() <3>
+.csvToObject(mappingClass = BatteryState::class) { <4>
+    classpath(path = "battery-levels.csv")
+    header { <5>
+        column(name = "deviceId")
+        column(name = "timestamp")
+        column(name = "batteryLevel").integer()
     }
-    .map { it.value } <5>
-    .jms()
-    .produce {
-        connect {
-            ActiveMQConnectionFactory("tcp://localhost:61616").createConnection()
-        }
-
-        records { _, input ->
-            listOf(
-                JmsProducerRecord(
-                    destination = ActiveMQQueue().createDestination("battery_state"),
-                    messageType = JmsMessageType.BYTES,
-                    value = objectMapper.writeValueAsBytes(input)
-                )
+    unicast()
+}
+.map { it.value } <6>
+.jms()
+.produce { <7>
+    connect {
+        ActiveMQConnectionFactory("tcp://localhost:61616").createConnection()
+    }
+    records { _, input -> <8>
+        listOf(
+            JmsProducerRecord(
+                destination = ActiveMQQueue("battery_state"), // <9>
+                messageType = JmsMessageType.BYTES,
+                value = ObjectMapper().writeValueAsBytes(input)
             )
+        )
+    }
+}
+.map { it.input } <10>
+.innerJoin() <11>
+.using { correlationRecord ->
+    correlationRecord.value.deviceId <12>
+}
+.on {
+    it.jms().consume { <13>
+        queues("battery_state")
+        queueConnection { ActiveMQConnectionFactory("tcp://localhost:61616").createQueueConnection() }
+    }
+    .deserialize(JmsJsonDeserializer(BatteryState::class)) <14>
+    .map { result -> result.record.value } <15>
+}
+.having { correlationRecord ->
+    correlationRecord.value.deviceId <16>
+}
+.filterNotNull() <17>
+.verify { result -> <18>
+    result.asClue {
+        assertSoftly {
+            it.first.batteryLevel shouldBeExactly it.second.batteryLevel
         }
     }
-    .map {
-        it.input
-    }
-    .innerJoin()
-    .using { correlationRecord ->
-        correlationRecord.value.deviceId
-    }
-    .on {
-        it.jms().consume {
-            queues("battery_state")
-            queueConnection { ActiveMQConnectionFactory("tcp://localhost:61616").createQueueConnection() }
-        }
-            .deserialize(JmsJsonDeserializer(targetClass = BatteryState::class))
-            .map { result ->
-                result.record.value
-            }
-
-    }
-    .having { correlationRecord ->
-        correlationRecord.value.deviceId
-    }
-    .filterNotNull()
-    .verify { result ->
-        result.asClue {
-            assertSoftly {
-                it.first.batteryLevel shouldBeExactly it.second.batteryLevel
-            }
-        }
-    }
+}
 ----
-<1> Define the scenario, set the name, number of minions and rampUp
-<2> Start the jackson step to fetch data from the csv file. 
-<3> Use the csvToObject method to map csv entries to list of utils.BatteryState object.
-<4> Define the header of the csv file.
-<5> Transform the output of the CSV reader entries to utils.BatteryState.
+<1> Define the scenario and set the number of minions (virtual users) to 20.
+<2> Use a `regular` execution profile that starts 100 minions per second until all 20 are running.
+<3> Enter the Jackson plugin namespace to read and parse data from the CSV file.
+<4> Map each CSV row to a `BatteryState` object using the Jackson CSV reader.
+<5> Declare the CSV column structure: `deviceId`, `timestamp`, and `batteryLevel` (parsed as an integer).
+<6> Extract the `BatteryState` value from the CSV reader output to pass to the next step.
+<7> Enter the JMS namespace and start the Produce step to publish each `BatteryState` to the `battery_state` queue.
+<8> Build the list of `JmsProducerRecord` objects. `input` is the `BatteryState` from the previous `map` step.
+<9> Target the `battery_state` queue as an `ActiveMQQueue` destination.
+<10> Extract the original `BatteryState` input from `JmsProducerResult` to use as the correlation key in the join.
+<11> Start an inner join that correlates produced records with consumed records by a shared key.
+<12> Use `deviceId` as the correlation key on the left (produce) side of the join.
+<13> On the right side of the join, consume messages from the same `battery_state` queue to verify delivery.
+<14> Deserialize each consumed `javax.jms.Message` back into a `BatteryState` object.
+<15> Extract the deserialized `BatteryState` value from the consumer result for use in the join comparison.
+<16> Use `deviceId` as the correlation key on the right (consume) side of the join to match with the produced record.
+<17> Discard any join result where either side produced a null, ensuring only complete pairs are verified.
+<18> Assert that the `batteryLevel` of the produced record matches the `batteryLevel` of the consumed record exactly.

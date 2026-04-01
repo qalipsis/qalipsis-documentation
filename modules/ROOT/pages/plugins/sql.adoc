@@ -1,0 +1,699 @@
+= SQL plugin [.badge.oss]## ##[.badge.commercial]## ##[.badge.cloud]## ##
+
+== Overview
+
+The SQL plugin connects QALIPSIS to relational databases through R2DBC. It is designed to insert test data, execute parameterized read queries, and continuously poll tables or views for new rows during a scenario.
+
+Technology addressed::
+SQL databases via R2DBC: PostgreSQL, MariaDB, MySQL, Microsoft SQL Server, Oracle Database.
+
+Dependency::
+`io.qalipsis.plugin:qalipsis-plugin-sql`
+
+Namespace in scenario::
+`sql()`
+
+Client library::
+R2DBC SPI with `r2dbc-pool` and vendor drivers for PostgreSQL, MariaDB, MySQL, Microsoft SQL Server, and Oracle Database.
+
+Supported steps::
+* <<Poll step,`poll`>>: periodically executes an ordered `SELECT` and emits the newest rows.
+* <<Save step,`save`>>: inserts one or more rows into a table from the input and step context.
+* <<Search step,`search`>>: executes a parameterized query and forwards the result set with the original input.
+
+Examples of usage are provided later in this <<Examples of usage,section>>.
+
+== Configuration
+
+The SQL plugin is configured directly in the scenario DSL. This module does not declare a dedicated external `sql.yaml` schema; instead, you configure the connection pool, dialect, and monitoring on each step or via scenario defaults.
+
+=== Example default configuration
+
+[source,kotlin,linenumbers]
+----
+scenario { <1>
+    minionsCount = 10
+    profile {
+        immediate()
+    }
+}
+    .sql()
+    .defaults { <2>
+        connection { <3>
+            host = "localhost"
+            port = 5432
+            database = "qalipsis"
+            username = "qalipsis"
+            password = "qalipsis"
+            maxSize = 10
+            maxIdleTime = Duration.ofMinutes(1)
+            maxCreateConnectionTime = Duration.ofSeconds(5)
+            applicationName = "sql"
+            options = emptyMap()
+        }
+        protocol(Protocol.POSTGRESQL) <4>
+        monitoring {
+            events = true
+            meters = true
+        }
+    }
+    .start()
+----
+<1> Define the scenario as usual.
+<2> Register SQL defaults once so that the sibling SQL steps inherit them automatically.
+<3> Configure the R2DBC connection pool, database name, credentials, and pooling options.
+<4> Select the protocol / SQL dialect to use for connection creation and placeholder conversion.
+
+=== Properties
+
+Available properties are described in the table below.
+
+[cols="1,4" options="header"]
+|===
+| *Property*
+| *Description*
+
+| `defaults`
+a| Registers default SQL configuration for sibling steps in the same scenario, or for the next steps when called on a step. It can preconfigure `connection`, `protocol`, and `monitoring`.
++
+*Applicable Steps:* Poll, Search, Save +
+*Optional/Required:* Optional +
+*Data Type:* `sql().defaults { ... }` +
+*Default Value:* N/A +
++
+.Example
+[source,kotlin]
+----
+scenario { }.sql().defaults {
+    connection {
+        host = "localhost"
+        port = 5432
+        database = "qalipsis"
+        username = "qalipsis"
+        password = "qalipsis"
+    }
+    protocol(Protocol.POSTGRESQL)
+}
+----
+
+| `connection`
+a| Configures the database connection pool for the step. The same block is available inside `defaults {}`.
++
+*Applicable Steps:* Poll, Search, Save +
+*Optional/Required:* Required unless inherited from `defaults` +
+*Data Type:* Lambda with receiver `SqlConnection` +
+*Default Value:* `SqlConnection(host = "localhost", port = -1, database = null, username = null, password = null, maxSize = 1, maxIdleTime = Duration.ofMinutes(1), maxCreateConnectionTime = Duration.ofMillis(5000), applicationName = "sql", options = emptyMap())` +
++
+.Example
+[source,kotlin]
+----
+connection {
+    host = "localhost"
+    port = 5432
+    database = "qalipsis"
+    username = "qalipsis"
+    password = "qalipsis"
+}
+----
+
+| `connection.host`
+a| Host name of the database server.
++
+*Applicable Steps:* Poll, Search, Save +
+*Optional/Required:* Optional +
+*Data Type:* `String` +
+*Default Value:* `"localhost"` +
++
+.Example
+[source,kotlin]
+----
+connection {
+    host = "db.internal"
+}
+----
+
+| `connection.port`
+a| Port of the database server.
++
+*Applicable Steps:* Poll, Search, Save +
+*Optional/Required:* Required unless inherited from `defaults` +
+*Data Type:* `Int` +
+*Default Value:* `-1` +
++
+.Example
+[source,kotlin]
+----
+connection {
+    port = 5432
+}
+----
+
+| `connection.database`
+a| Name of the target database or schema catalog passed to the R2DBC connection factory.
++
+*Applicable Steps:* Poll, Search, Save +
+*Optional/Required:* Optional +
+*Data Type:* `String` +
+*Default Value:* `null` +
++
+.Example
+[source,kotlin]
+----
+connection {
+    database = "qalipsis"
+}
+----
+
+| `connection.username`
+a| Username used to authenticate to the database.
++
+*Applicable Steps:* Poll, Search, Save +
+*Optional/Required:* Optional +
+*Data Type:* `String` +
+*Default Value:* `null` +
++
+.Example
+[source,kotlin]
+----
+connection {
+    username = "qalipsis"
+}
+----
+
+| `connection.password`
+a| Password used to authenticate to the database.
++
+*Applicable Steps:* Poll, Search, Save +
+*Optional/Required:* Optional +
+*Data Type:* `String` +
+*Default Value:* `null` +
++
+.Example
+[source,kotlin]
+----
+connection {
+    password = "secret"
+}
+----
+
+| `connection.maxSize`
+a| Maximum number of connections in the R2DBC pool.
++
+*Applicable Steps:* Poll, Search, Save +
+*Optional/Required:* Optional +
+*Data Type:* `Int` +
+*Default Value:* `1` +
++
+.Example
+[source,kotlin]
+----
+connection {
+    maxSize = 10
+}
+----
+
+| `connection.maxIdleTime`
+a| Maximum duration a pooled connection can stay idle before being recycled.
++
+*Applicable Steps:* Poll, Search, Save +
+*Optional/Required:* Optional +
+*Data Type:* `Duration` +
+*Default Value:* `Duration.ofMinutes(1)` +
++
+.Example
+[source,kotlin]
+----
+connection {
+    maxIdleTime = Duration.ofMinutes(5)
+}
+----
+
+| `connection.maxCreateConnectionTime`
+a| Timeout used while establishing a new connection to the database.
++
+*Applicable Steps:* Poll, Search, Save +
+*Optional/Required:* Optional +
+*Data Type:* `Duration` +
+*Default Value:* `Duration.ofMillis(5000)` +
++
+.Example
+[source,kotlin]
+----
+connection {
+    maxCreateConnectionTime = Duration.ofSeconds(10)
+}
+----
+
+| `connection.applicationName`
+a| Optional application name stored on the `SqlConnection` configuration object.
++
+*Applicable Steps:* Poll, Search, Save +
+*Optional/Required:* Optional +
+*Data Type:* `String` +
+*Default Value:* `"sql"` +
++
+.Example
+[source,kotlin]
+----
+connection {
+    applicationName = "my-load-campaign"
+}
+----
+
+| `connection.options`
+a| Optional extra options stored on the `SqlConnection` configuration object.
++
+*Applicable Steps:* Poll, Search, Save +
+*Optional/Required:* Optional +
+*Data Type:* `Map<String, String>` +
+*Default Value:* `emptyMap()` +
++
+.Example
+[source,kotlin]
+----
+connection {
+    options = mapOf("key1" to "value1")
+}
+----
+
+| `protocol`
+a| Selects the SQL dialect. The dialect drives the connection factory and rewrites the DSL placeholders to the vendor-specific syntax when necessary. +
+*Applicable Steps:* Poll, Search, Save +
+*Optional/Required:* Required unless inherited from `defaults` +
+*Data Type:* Function with parameter `Protocol` (enum): `POSTGRESQL`, `MARIADB`, `MYSQL`, `MSSQL`, `ORACLE` +
+*Default Value:* N/A +
++
+.Example
+[source,kotlin]
+----
+protocol(Protocol.POSTGRESQL)
+----
+
+| `query`
+a| Defines the SQL statement to execute.
++
+*Applicable Steps:* Poll, Search +
+*Optional/Required:* Required +
+*Data Type:* +
+Poll: `String` +
+Search: Lambda which receives the current `StepContext` and input, and returns a `String` +
+*Default Value:* N/A +
++
+For Poll, the statement must be an ordered `SELECT`; the first `ORDER BY` column is used automatically as the polling tie-breaker. There is no separate `tieBreaker` property in the SQL DSL.
++
+All placeholders must be written as `?` in the DSL. The plugin converts them automatically for PostgreSQL (`$1`, `$2`, ...), Microsoft SQL Server (`@P1`, `@P2`, ...), and Oracle (`:1`, `:2`, ...).
++
+.Example (Poll)
+[source,kotlin]
+----
+query(
+    """
+    select id, device, eventname
+    from events
+    where device <> ?
+    order by id
+    """.trimIndent()
+)
+----
++
+.Example (Search)
+[source,kotlin]
+----
+query { stepContext, input ->
+    """
+    select id, username, enabled
+    from buildingentries
+    where action = ? and enabled = ?
+    order by id
+    """.trimIndent()
+}
+----
+
+| `parameters`
+a| Ordered values bound to the placeholders in `query`.
++
+*Applicable Steps:* Poll, Search +
+*Optional/Required:* Optional for queries without placeholders; otherwise required +
+*Data Type:* +
+Poll: `vararg Any?` +
+Search: Lambda which receives the current `StepContext` and input, and returns a `List<Any?>` +
+*Default Value:* +
+Poll: `[]` +
+Search: return `emptyList()` when no parameters are required +
++
+The order of the values must match the order of the `?` placeholders in the query.
++
+.Example (Poll)
+[source,kotlin]
+----
+parameters("Truck #1")
+----
++
+.Example (Search)
+[source,kotlin]
+----
+parameters { stepContext, input ->
+    listOf(input.action, input.enabled)
+}
+----
+
+| `tableName`
+a| Resolves the destination table for the `save` step.
++
+*Applicable Steps:* Save +
+*Optional/Required:* Required +
+*Data Type:* Lambda which receives the current `StepContext` and input, and returns a `String` +
+*Default Value:* `{ _, _ -> "" }` +
++
+.Example
+[source,kotlin]
+----
+tableName { stepContext, input ->
+    "buildingentries"
+}
+----
+
+| `columns`
+a| Resolves the ordered list of columns to populate in the generated `INSERT INTO ... VALUES ...` statement.
++
+*Applicable Steps:* Save +
+*Optional/Required:* Required +
+*Data Type:* Lambda which receives the current `StepContext` and input, and returns a `List<String>` +
+*Default Value:* `{ _, _ -> emptyList() }` +
++
+.Example
+[source,kotlin]
+----
+columns { stepContext, input ->
+    listOf("timestamp", "action", "username", "enabled")
+}
+----
+
+| `values`
+a| Produces the rows to insert. Each `SqlSaveRecord` is matched positionally to `columns`.
++
+*Applicable Steps:* Save +
+*Optional/Required:* Required +
+*Data Type:* Lambda which receives the current `StepContext` and input, and returns a `List<SqlSaveRecord>` +
+*Default Value:* `{ _, _ -> emptyList() }` +
++
+The save step does not batch records into one multi-row SQL statement; it inserts each `SqlSaveRecord` one by one.
++
+.Example
+[source,kotlin]
+----
+values { stepContext, input ->
+    listOf(
+        SqlSaveRecord(
+            input.timestamp,
+            input.action,
+            input.username,
+            input.enabled
+        )
+    )
+}
+----
+
+| `pollDelay`
+a| Delay between the end of one poll execution and the start of the next one.
++
+*Applicable Steps:* Poll +
+*Optional/Required:* Required +
+*Data Type:* `Duration` +
+*Default Value:* N/A +
++
+.Example
+[source,kotlin]
+----
+pollDelay(Duration.ofSeconds(1))
+----
+
+| `flatten`
+a| Changes the output of `poll` from a batch `SqlPollResults<Map<String, Any?>>` to individual `DatasourceRecord<Map<String, Any?>>` items.
++
+*Applicable Steps:* Poll +
+*Optional/Required:* Optional +
+*Data Type:* Function call `flatten()` +
+*Default Value:* Not enabled; poll emits batch results +
++
+.Example
+[source,kotlin]
+----
+scenario.sql().poll {
+    // configuration
+}.flatten()
+----
+
+| `singletonConfiguration`
+a| Configures how the results of `poll` are delivered to scenario minions. The default delivery mode is unicast; it can be switched to broadcast.
++
+*Applicable Steps:* Poll +
+*Optional/Required:* Optional +
+*Data Type:* `unicast()` or `broadcast(bufferSize, idleTimeout)` +
+*Default Value:* `unicast()` (`SingletonType.UNICAST`) +
++
+.Example
+[source,kotlin]
+----
+broadcast(123, Duration.ofSeconds(20))
+----
++
+Refer to xref:plugins/plugins.adoc#singletonconfiguration-parameters[SingletonConfiguration parameters] for details on the available strategies.
+
+|===
+
+== Examples of usage
+
+=== Poll step
+The `poll` step periodically executes an ordered query and forwards the rows that match it.
+
+Ancestor::
+Scenario
+
+Functionality::
+The `poll` step is created from the scenario namespace. On each execution, it runs the configured `SELECT`, emits the returned rows, remembers the value of the first `ORDER BY` column from the last row of the batch, and reuses that value on the next poll to continue from the latest seen record.
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+sql().poll {
+    name = "poll-new-events"
+    protocol(Protocol.POSTGRESQL) <1>
+    connection { <2>
+        port = 5432
+        database = "qalipsis"
+        username = "qalipsis"
+        password = "qalipsis"
+    }
+    query( <3>
+        """
+        select id, device, eventname
+        from events
+        where device <> ?
+        order by id
+        """.trimIndent()
+    )
+    parameters("Truck #1") <4>
+    pollDelay(Duration.ofSeconds(1)) <5>
+}.flatten() <6>
+----
+<1> Select the SQL dialect used to create the connection pool and rewrite placeholders if needed.
+<2> Configure the connection details for the target database.
+<3> Declare the ordered `SELECT` statement. The first `ORDER BY` column (`id`) is used automatically as the poll tie-breaker.
+<4> Bind the query parameter in the same order as the `?` placeholder.
+<5> Wait one second between two polling executions.
+<6> Emit each row individually as `DatasourceRecord<Map<String, Any?>>` instead of forwarding a full `SqlPollResults` batch.
+
+//-
+Reference Documentation::
+Refer to your database vendor documentation for the exact SQL dialect and data types.
+
+=== Save step
+The `save` step inserts one or more rows into a SQL table.
+
+Ancestor::
+Step
+
+Functionality::
+The `save` step builds an `INSERT INTO ... VALUES ...` statement from the table name and column list, then executes it for each `SqlSaveRecord` produced from the current input and step context.
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+.sql() <1>
+.save {
+    name = "save-entry"
+    protocol(Protocol.POSTGRESQL) <2>
+    connection { <3>
+        port = 5432
+        database = "qalipsis"
+        username = "qalipsis"
+        password = "qalipsis"
+    }
+    tableName { stepContext, input -> "buildingentries" } <4>
+    columns { stepContext, input -> listOf("timestamp", "action", "username", "enabled") } <5>
+    values { stepContext, input -> <6>
+        listOf(
+            SqlSaveRecord(
+                input.timestamp,
+                input.action,
+                input.username,
+                input.enabled
+            )
+        )
+    }
+}
+----
+<1> Enter the SQL plugin namespace from the previous step.
+<2> Select the target SQL dialect.
+<3> Configure the connection pool for the save step.
+<4> Resolve the table to insert into.
+<5> Declare the ordered list of destination columns.
+<6> Build the rows to insert. The order of values in `SqlSaveRecord` must match the order of `columns` exactly.
+
+//-
+Reference Documentation::
+Refer to the documentation of your target SQL database for table definitions, constraints, and generated key behavior.
+
+=== Search step
+The `search` step executes a parameterized query and forwards the matching rows together with the original input.
+
+Ancestor::
+Step
+
+Functionality::
+The `search` step computes the query and parameters from the current input and step context, executes the statement, and returns the rows as `SqlSearchBatchResults<I, Map<String, Any?>>`.
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+.sql() <1>
+.search {
+    name = "search-entries"
+    protocol(Protocol.POSTGRESQL) <2>
+    connection { <3>
+        port = 5432
+        database = "qalipsis"
+        username = "qalipsis"
+        password = "qalipsis"
+    }
+    query { stepContext, input -> <4>
+        """
+        select id, username, enabled
+        from buildingentries
+        where action = ? and enabled = ?
+        order by id
+        """.trimIndent()
+    }
+    parameters { stepContext, input -> <5>
+        listOf(input.action, input.enabled)
+    }
+}
+----
+<1> Enter the SQL plugin namespace from the previous step.
+<2> Select the target SQL dialect.
+<3> Configure the connection pool for the search step.
+<4> Build the SQL query dynamically from the current input and step context.
+<5> Provide the parameter values in the same order as the `?` placeholders in the query.
+
+Tip::
+The returned rows are available as `result.records`. Each `SqlSearchRecord.value` is a `Map<String, Any?>` keyed by lower-cased column names, for example `record.value["username"]`.
+
+Reference Documentation::
+Refer to your database documentation for the supported SQL syntax, indexes, and query tuning recommendations.
+
+=== Transaction support
+The current SQL plugin DSL does not expose explicit transaction settings, isolation levels, or commit / rollback controls. Each step acquires a connection from the pool, executes its operation, and closes the connection. If transactional behavior is required, it must be handled outside of the SQL plugin DSL.
+
+=== SqlSaveAndSearch scenario
+[source,kotlin,linenumbers]
+----
+scenario { <1>
+    minionsCount = 20
+    profile {
+        immediate()
+    }
+}
+    .sql()
+    .defaults { <2>
+        connection {
+            port = 5432
+            database = "qalipsis"
+            username = "qalipsis"
+            password = "qalipsis"
+            maxSize = 10
+        }
+        protocol(Protocol.POSTGRESQL)
+    }
+    .start()
+    .jackson() <3>
+    .csvToObject(mappingClass = VehicleEvent::class) { <4>
+        classpath(path = "events-data.csv") <5>
+        header {
+            column(name = "timestamp") <6>
+            column(name = "device") <7>
+            column(name = "eventname") <8>
+        }
+        unicast()
+    }
+    .map { it.value } <9>
+    .sql()
+    .save { <10>
+        name = "save-events"
+        tableName { stepContext, input -> "events" } <11>
+        columns { stepContext, input -> listOf("timestamp", "device", "eventname") } <12>
+        values { stepContext, input -> <13>
+            listOf(SqlSaveRecord(input.timestamp, input.device, input.eventname))
+        }
+    }
+    .map { it.input } <14>
+    .sql()
+    .search { <15>
+        name = "search-events"
+        query { stepContext, input -> <16>
+            """
+            select timestamp, device, eventname
+            from events
+            where device = ? and eventname = ?
+            order by id
+            """.trimIndent()
+        }
+        parameters { stepContext, input -> listOf(input.device, input.eventname) } <17>
+    }
+    .map { result -> <18>
+        result.input to result.records.first().value
+    }
+    .verify { result -> <19>
+        result.asClue {
+            assertSoftly {
+                val persisted = it.second
+                (persisted["device"] as String) shouldBeExactly it.first.device <20>
+                (persisted["eventname"] as String) shouldBeExactly it.first.eventname <21>
+            }
+        }
+    }
+----
+<1> Define the scenario with 20 minions launched immediately.
+<2> Register shared SQL defaults once for both the `save` and `search` steps.
+<3> Enable the Jackson-based CSV step.
+<4> Convert each CSV row into a `VehicleEvent` instance.
+<5> Read the input data from `events-data.csv` on the classpath.
+<6> Map the `timestamp` column from the CSV header.
+<7> Map the `device` column from the CSV header.
+<8> Map the `eventname` column from the CSV header.
+<9> Unwrap the CSV record to obtain the raw `VehicleEvent` input.
+<10> Save each event into the SQL table.
+<11> Resolve the target table name.
+<12> Declare the ordered list of inserted columns.
+<13> Build the `SqlSaveRecord` from the current event.
+<14> Forward only the original input to the next step.
+<15> Search for the event that was just inserted.
+<16> Build the search query dynamically from the current input.
+<17> Bind the parameters used by the query.
+<18> Pair the original `VehicleEvent` with the first returned row for verification.
+<19> Assert that the values persisted in SQL match the original input.
+<20> Verify the `device` value read back from SQL.
+<21> Verify the `eventname` value read back from SQL.

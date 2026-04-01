@@ -2,14 +2,12 @@
 
 == Overview
 
-The https://netty.io/[Netty] plugin supports https://datatracker.ietf.org/doc/html/rfc793[TCP], https://datatracker.ietf.org/doc/html/rfc768[UDP], https://httpwg.org/[HTTP] and https://mqtt.org/[MQTT] clients.
+The https://netty.io/[Netty] plugin enables load testing and performance testing for network protocols including https://datatracker.ietf.org/doc/html/rfc793[TCP], https://datatracker.ietf.org/doc/html/rfc768[UDP], and https://mqtt.org/[MQTT].
 
 Technologies addressed::
-* HTTP/1.1: https://httpwg.org/[]
-* HTTP/2: https://httpwg.org/[]
-* MQTT: https://mqtt.org/[]
 * TCP (Transmission Control Protocol): https://datatracker.ietf.org/doc/html/rfc793[]
 * UDP (User Datagram Protocol): https://datatracker.ietf.org/doc/html/rfc768[]
+* MQTT 3.1.0 / 3.1.1: https://mqtt.org/[]
 
 Dependency::
 `io.qalipsis.plugin:qalipsis-plugin-netty`
@@ -20,25 +18,26 @@ Namespace in scenario::
 Client library::
 Netty: refer to the https://netty.io/[Netty] project.
 
-Supported steps::
-* <<HTTP step,`HTTP`>>: executes an HTTP request using https://datatracker.ietf.org/doc/rfc2616[`HTTP 1.1`] or https://datatracker.ietf.org/doc/rfc7540[`HTTP 2.0`].
-* <<HTTP WITH step,`HTTP WITH`>>: executes an HTTP request reusing the HTTP connection created by a precedent step.
-* <<CLOSE HTTP step,`CLOSE HTTP`>>: closes an HTTP connection created by a precedent step.
-* <<MQTT Publish step,`MQTT Publish`>>: sends data to an MQTT server.
-* <<MQTT Subscribe step,`MQTT Subscribe`>>: consumes data from an MQTT server.
-* <<TCP step,`TCP`>>: exchanges data with a TCP server.
-* <<TCP WITH step,`TCP WITH`>>: exchanges data reusing the TCP connection created by a precedent step.
-* <<CLOSE TCP step,`CLOSE TCP`>>: closes a TCP connection created by a precedent step.
-* <<UDP step,`UDP`>>: exchanges data with a UDP endpoint.
+Supported step models::
+* <<TCP steps,TCP>>: establishes connections and exchanges data over TCP protocol.
+** `tcp`: creates and executes TCP requests.
+** `tcpWith`: reuses an existing TCP connection for subsequent requests.
+** `closeTcp`: closes an open TCP connection.
+* <<UDP steps,UDP>>: sends datagrams over UDP protocol.
+** `udp`: creates and sends UDP datagrams.
+* <<MQTT steps,MQTT>>: publishes and subscribes to MQTT topics.
+** `mqttPublish`: sends records to MQTT topics.
+** `mqttSubscribe`: consumes messages from MQTT topics.
 
-Examples of usage are provided later in this <<Examples of usage,section>>. 
+Examples of usage are provided later in this <<Examples of usage,section>>.
 
 == Configuration
 
 === Example configuration file
-Netty configuration settings are configured in a netty.yaml file. 
 
-[source,kotlin,linenumbers]
+Netty configuration settings are configured in a netty.yaml file.
+
+[source,yaml,linenumbers]
 ----
 campaign:
   name: mqtt-${random.shortuuid}
@@ -60,82 +59,61 @@ report:
 ----
 
 === Configuration parameters
-Available parameters are described in the table below.
+
+Available parameters are described in the table below, organized by protocol.
+
+==== Common parameters
+
+The following parameters are applicable to all protocol types.
 
 [cols="1,4" options="header"]
 |===
-| *Parameter* 
+| *Parameter*
 | *Description*
 
 | `connect`
-a| Configures the connection to the remote endpoint +
-*Applicable Steps:* HTTP, MQTT Publish, MQTT Subscribe, TCP, UDP + 
+a| Configures the connection to the remote endpoint. +
+*Applicable Steps:* TCP, UDP, MQTT Publish, MQTT Subscribe +
 *Optional/Required:* Required +
-*Data Type:* Lambda +
-*Default Value:* `all` +
-
-.Example 
-[source,kotlin]
-----
-connect {
-    url("https://my-website.com:8080/test")
-    connectTimeout = Duration.ofSeconds(5)
-    inflate()
-    charset(Charsets.ISO_8859_1)
-    maxContentLength(123)
-    followRedirections(15)
-    noDelay = false
-    keepConnectionAlive = false
-    tls {
-    disableCertificateVerification = true
-    }
-    proxy {
-        type = HttpProxyType.SOCKS5
-        address("my-proxy", 9876)
-    }
-    followRedirections(5)
-}
-----
-
-| `version`
-a| Identifies the version of the HTTP protocol to use: `HTTP_1_1` or `HTTP_2_0`. +
-*Applicable Steps:* HTTP +
-*Optional/Required:* Optional +
-*Data Type:* ENUM +
-*Default Value:* `HTTP_1_1` +
-
-.Example 
-[source,kotlin]
-----
-connect {
-    version: HTTP_1_1
-}
-----
-
-| `url`
-a| The root URL; the path of the request is appended to it. + 
-*Applicable Steps:* HTTP + 
-*Optional/Required:* Required +
-*Data Type:* String +
+*Data Type:* Lambda/Configuration block +
 *Default Value:* N/A +
 
-.Example 
+.Example (TCP)
 [source,kotlin]
-
 ----
 connect {
-    url("https://my-website.com:8080/test")
+    address("remote-server.acme.com", 9000)
+    connectTimeout = Duration.ofSeconds(5)
+    noDelay = true
 }
 ----
 
-| `connectTimeout`
-a| Limit duration to fully establish the connection.   + 
-*Applicable Steps:* HTTP, TCP, UDP + 
-*Optional/Required:* Optional +
-*Data Type:* Duration of time +
-*Default Value:* 10seconds +
+.Example (UDP)
+[source,kotlin]
+----
+connect {
+    address("remote-server.acme.com", 9000)
+    connectTimeout = Duration.ofSeconds(5)
+}
+----
 
-.Example 
+.Example (MQTT)
+[source,kotlin]
+----
+connect {
+    host = "localhost"
+    port = 1883
+}
+----
+
+| `connect.connectTimeout`
+a| Maximum duration to establish a connection before timing out. +
+*Applicable Steps:* TCP, UDP +
+*Optional/Required:* Optional +
+*Data Type:* `java.time.Duration` +
+*Default Value:* 10 seconds +
+
+.Example
 [source,kotlin]
 ----
 connect {
@@ -143,29 +121,29 @@ connect {
 }
 ----
 
-| `readTimeout`
-a| Limit duration to receive a response and read it totally after a request. + 
-*Applicable Steps:* HTTP, TCP, UDP + 
+| `connect.readTimeout`
+a| Maximum duration to wait for a response after sending a request before timing out. +
+*Applicable Steps:* TCP, UDP +
 *Optional/Required:* Optional +
-*Data Type:* Duration of time +
+*Data Type:* `java.time.Duration` +
 *Default Value:* 10 seconds +
 
-.Example 
+.Example
 [source,kotlin]
 ----
 connect {
     readTimeout = Duration.ofSeconds(5)
-  }
+}
 ----
 
-| `shutdownTimeout`
-a| Limit duration to close a connection. + 
-*Applicable Steps:* HTTP, TCP, UDP + 
+| `connect.shutdownTimeout`
+a| Maximum duration to gracefully close a connection. +
+*Applicable Steps:* TCP, UDP +
 *Optional/Required:* Optional +
-*Data Type:* Duration of time +
+*Data Type:* `java.time.Duration` +
 *Default Value:* 10 seconds +
 
-.Example 
+.Example
 [source,kotlin]
 ----
 connect {
@@ -173,48 +151,63 @@ connect {
 }
 ----
 
-| `sendBufferSize`
-a| The size of the buffer used to prepare the data to send. + 
-*Applicable Steps:* HTTP, TCP, UDP + 
+| `connect.sendBufferSize`
+a| Size of the buffer used to prepare data for transmission. When omitted, the operating system default is used. +
+*Applicable Steps:* TCP, UDP +
 *Optional/Required:* Optional +
-*Data Type:* Integer +
-*Default Value:* 1024 bytes +
+*Data Type:* `Int` (bytes) +
+*Default Value:* `null` (uses the operating system default) +
 
-.Example 
+.Example
 [source,kotlin]
 ----
 connect {
-    sendBufferSize = 1024 
-}  
+    sendBufferSize = 2048
+}
 ----
 
-| `receiveBufferSize`
-a| The size of the buffer used to prepare the data to send. + 
-*Applicable Steps:* HTTP, TCP, UDP + 
+| `connect.receiveBufferSize`
+a| Size of the buffer used to receive incoming data. When omitted, the operating system default is used. +
+*Applicable Steps:* TCP, UDP +
 *Optional/Required:* Optional +
-*Data Type:* Integer +
-*Default Value:* 1024 bytes
+*Data Type:* `Int` (bytes) +
+*Default Value:* `null` (uses the operating system default) +
 
-.Example 
+.Example
 [source,kotlin]
 ----
 connect {
-    receiveBufferSize = 1024 
-}  
+    receiveBufferSize = 2048
+}
 ----
 
-| `nettyChannelOptions`
-a|Overwrites the options of the Netty channel. + 
-*Applicable Steps:* HTTP, TCP, UDP +
+| `connect.nettyChannelOption`
+a| Adds a single Netty channel option for advanced tuning. +
+*Applicable Steps:* TCP, UDP +
 *Optional/Required:* Optional +
-*Data Type:* Map<ChannelOption<*>, Any> + 
-*Default Value:* emptyMap() ;uses Netty/OS defaults. +
+*Data Type:* `ChannelOption<T>` and `T` +
+*Default Value:* N/A +
 
-.Example +
+.Example
 [source,kotlin]
 ----
-netty {
-    channelOptions = mapOf(
+connect {
+    nettyChannelOption(ChannelOption.SO_REUSEADDR, true)
+}
+----
+
+| `connect.nettyChannelOptions`
+a| Adds multiple Netty channel options for advanced tuning. +
+*Applicable Steps:* TCP, UDP +
+*Optional/Required:* Optional +
+*Data Type:* Vararg `Pair<ChannelOption<*>, Any>` +
+*Default Value:* `emptyMap()` (uses Netty/OS defaults) +
+
+.Example
+[source,kotlin]
+----
+connect {
+    nettyChannelOptions(
         ChannelOption.SO_KEEPALIVE to true,
         ChannelOption.TCP_NODELAY to true,
         ChannelOption.CONNECT_TIMEOUT_MILLIS to 5000,
@@ -223,655 +216,1064 @@ netty {
 }
 ----
 
-| `noDelay`
-a| Disables the Nagle Algorithm. + 
-*Applicable Steps:* HTTP, TCP + 
-*Optional/Required:* Optional +
-*Data Type:* Lambda +
-*Default Value:* true
+|===
 
-.Example +
-[source,kotlin]
-----
-connect {
-    noDelay = false
-}
-----
+==== TCP-specific parameters
 
-| `keepConnectionAlive`
-a| When set to true, the HTTP header connection is set to `Keep-Alive` and the client connection is kept open until `CLOSEHTTP`() is called. + 
-*Applicable Steps:* HTTP + 
+The following parameters apply only to TCP connections.
+
+[cols="1,4" options="header"]
+|===
+| *Parameter*
+| *Description*
+
+| `connect.address`
+a| The remote host and port to connect to. +
+*Applicable Steps:* TCP +
 *Optional/Required:* Required +
-*Data Type:* Lambda +
-*Default Value:* false +
-
-.Example 
-[source,kotlin]
-----
-connect {
-    keepConnectionAlive = false
-}
-----
-
-| `tls`
-a| Configuration for SSL/TLS   + 
-*Applicable Steps:* HTTP, TCP + 
-*Optional/Required:* Optional +
-*Data Type:* Block +
+*Data Type:* `String` (hostname/IP) and `Int` (port) +
 *Default Value:* N/A +
-
-.Example +
-[source,kotlin]
-----
-connect {
-    tls {
-        disableCertificateVerification = true
-        protocols(HttpProtocol.HTTP_1_1, HttpProtocol.HTTP_2)
-        ciphers = listOf(
-            "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
-            "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-            "TLS_AES_128_GCM_SHA256"
-        )
-    }
-}
-----
-
-| `disableCertificationVerification`
-a| Enables (false) or disables (true) verification of the certificate on the server; for example, set to `true` for a self-signed certificate. + 
-*Applicable Steps:* HTTP, TCP + 
-*Optional/Required:* Optional +
-*Data Type:* Boolean +
-*Default Value:* false +
-
-.Example 
-[source,kotlin]
-----
-connect {
-    tls {
-        disableCertificateVerification = true
-    }
-}
-----
-
-| `protocols`
-a| Defines the list of allowed HTTP versions for the connection.
- *Applicable Steps:* HTTP, TCP + 
- *Optional/Required:* Optional +
- *Data Type:* ENUM +
- *Default Value:* HttpProtocol.HTTP_1_1
-
-.Example +
-[source,kotlin]
-----
-connect {     
-    tls {
-        protocols(HttpProtocol.HTTP_1_1, HttpProtocol.HTTP_2) 
-    }
-}
-----
-
-| `ciphers`
-|a Defines the list ofsupported cipher algorithms. defaults to the Netty default for the related HTTP version. +
-*Applicable Steps:* HTTP, TCP + 
-*Optional/Required:* Optional +
-*Data Type:* ENUM +
-*Default Value:* null +
-
-.Example +
-[source,kotlin]
-----
-connect {     
-    tls {
-        ciphers = listOf(
-            "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
-            "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-            "TLS_AES_128_GCM_SHA256"
-        )    
-    }
-}
-----
-
-|`proxy`
-a|Configuration to exchange HTTP data via a proxy.   + 
-*Applicable Steps:* HTTP, TCP + 
-*Optional/Required:* Optional +
-*Data Type:* Block +
-*Default Value:* null +
-
-.Example 
-[source,kotlin]
-----
-connect {
-    proxy {
-        type = HttpProxyType.SOCKS5
-        address("my-proxy", 9876)
-    }
- }
-----
-
-| `address`
-a| The host and port of the proxy + 
-*Applicable Steps:* HTTP, TCP, UDP +   
-*Optional/Required:* Optional +
-*Data Type:* String (Host) and Int (Port) +
-*Default Value:* None +
-
-.Example +
-[source,kotlin]
-----
-address("my-proxy", 9876)
-----
-
-| `type`
-a| Defines the type of the proxy to use. +
-Available choices: HTTP:  `HTTP`, `SOCKS5` ; TCP: `SOCKS4`, `SOCKS5` +
-*Applicable Steps:* HTTP, MQTT Publish, MQTT Subscribe, UDP + 
-*Optional/Required:* Optional +
-*Data Type:* HttpProxyType (ENUM) +
-*Default Value:* None +
-
-.Example +
-[source,kotlin]
-----
-type = HttpProxyType.SOCKS5
-----
-
-|`authenticate`
-a| Credentials (username and optional password) to authenticate to the proxy, if the proxy supports and requires it   + 
-*Applicable Steps:* HTTP, MQTT Publish, MQTT Subscribe, UDP + 
-*Optional/Required:* Optional +
-*Data Type:* Lambda +
-*Default Value:* N/A +
-
-.Example (HTTP proxy type) +
-[source,kotlin]
-----
-credentials {
-    username = "office_user"
-    password = "password123"
-}
-----
-
-.Example (SOCKS5 proxy type)
-[source,kotlin]
-----
-credentials {
-    username = "tunnel_admin"
-    password = "secure_socks_pass"
-}
-----
-
-| `charset`
-a| Character encoding of the HTTP requests. +
-*Applicable Steps:* HTTP + 
-*Optional/Required:* Optional +
-*Data Type:* java.nio.charset.Charset +
-*Default Value:* StandardCharsets.UTF_8 +
-
-.Example +
-[source,kotlin]
-----
-charset(Charsets.ISO_8859_1)
-----
-
-|`maxContentLength`
-a| Sets the maximum allowed size (in bytes) for the HTTP response body. If the response exceeds this limit, the connection is closed to prevent memory exhaustion. +
-*Applicable Steps:* HTTP +
-*Optional/Required:*  Optional +
-*Data Type:* Int +
-*Default Value:* 1048576
 
 .Example
 [source,kotlin]
 ----
-maxContentLength(10 * 1024 * 1024)
+connect {
+    address("remote-server.acme.com", 9000)
+}
 ----
 
-| `followRedirections`
-a| Defines the maximum number of HTTP redirects (status codes 3xx) the client will automatically follow before giving up. This prevents infinite redirection loops +
-*Applicable Steps:* HTTP +
-*Optional/Required:* Optional+
-*Data Type:* Int +
-*Default Value:* 0 (Redirects are not followed.) +
-
-.Example +
-[source,kotlin]
-----
-followRedirections(5)
-----
-
-| `pool`
-a| Configures the connection pooling strategy. Pooling reuses existing connections for multiple requests to avoid the overhead of repeated TCP handshakes and TLS negotiations. +
-*Applicable Steps:*  HTTP, TCP +
+| `connect.noDelay`
+a| Disables the Nagle Algorithm for reduced latency at the cost of potential throughput reduction. When `true`, data is sent immediately. +
+*Applicable Steps:* TCP +
 *Optional/Required:* Optional +
-*Data Type:* Configuration Block +
-*Default Value:* N/A +
+*Data Type:* `Boolean` +
+*Default Value:* `true` +
 
-.Example +
-[source,kotlin]
-----
-pool { 
-    size = 143
-    checkHealthBeforeUse = true
-}
-----
-
-| `pool.size`
-a| Maximum nuber of concurrent connections. Pooling reuses existing connections for multiple requests to avoid the overhead of repeated TCP handshakes and TLS negotiations. +
-*Applicable Steps:*  HTTP, TCP +
-*Optional/Required:* Optional +
-*Data Type:* Block +
-*Default Value:* Enabled with default settings (Size: 20 connections). +
-
-.Example +
-[source,kotlin]
-----
-pool { 
-    size = 143
-}
-----
-
-| `pool.checkHealthBeforeUse`
-a| Verifies that the socket is still on before sending data open (true) before sending data. +
-*Applicable Steps:* HTTP, TCP + 
-*Optional/Required:* Optional +
-*Data Type:*  Boolean +
-*Default Value:* true +
-
-.Example +
-[source,kotlin]
-----
-pool { 
-    checkHealthBeforeUse = true
-}
-----
-
-| `inflate`
-a| Enables or disables the automatic decompression of the HTTP response body. +
-*Applicable Steps:* HTTP +
-*Optional/Required:* Optional +
-*Data Type:* Boolean +
-*Default Value:* true +
-
-.Example +
-[source,kotlin]
-----
-inflate(true)
-----
-
-| `request`
-a| A factory to create the request to exchange, using the step context and the input as arguments. +
-The following types of reqiests can be created: `simple`, `form`, or `multipart`. +
-*Applicable Steps:* HTTP, HTTP WITH, TCP, TCP WITH, UDP +
-*Optional/Required:* Required +
-*Data Type:* Lambda Block +
-*Default Value:* None +
-
-.Example  (`simple`) + 
-[source,kotlin]
-----
-request { context, input ->
-    simple(HttpMethod.POST, "/v1/users") {
-        header("Content-Type", "application/json")
-        body("{\"name\": \"Gemini\"}")
-    }
-}
-----
-
-.Example  (`form`) + 
-[source,kotlin]
-----
-request { context, input -> 
-    form(HttpMethod.POST, "/v1/login") { 
-        param("username", "user_123") 
-        param("grant_type", "password") 
-        param("scope", "read write") 
-    } 
-}
-----
-
-.Example  (`multipart`) + 
-[source,kotlin]
-----
-request { context, input ->
-    multipart(HttpMethod.POST, "/v1/profile/upload") {
-        text("description", "New profile picture")
-        binary("avatar", input.fileBytes, "image/jpeg", "photo.jpg")
-    }
-}
-----
-
-| `deserialize`
-a| Specifies the transformation logic used to convert the raw HTTP response bytes into a high-level object. +
-*Applicable Steps:* HTTP, HTTP WITH, TCP  +
-*Optional/Required:* Optional +
-*Data Type:* Block +
-*Default Value:* ByteBuf +
-
-.Example +
+.Example
 [source,kotlin]
 ----
 connect {
-    deserialize(String::class)
+    noDelay = true
 }
 ----
 
-| `closeHttp`
-a| Specifies the  name of an `HTTP` step owning the `HTTP` connection to close. +
-*Applicable Steps:* CLOSE HTTP  +
+| `connect.keepConnectionAlive`
+a| Keeps the connection open across multiple steps instead of closing after each request. When `true`, the connection persists; when `false`, connections are closed after use. +
+*Applicable Steps:* TCP +
 *Optional/Required:* Optional +
-*Data Type:* String +
-*Default Value:* N/A +
+*Data Type:* `Boolean` +
+*Default Value:* `true` +
 
-.Example +
+.Example
 [source,kotlin]
 ----
-netty().closeHttp("name-of-a-previous-HTTP-step")
+connect {
+    keepConnectionAlive = true
+}
+----
+
+| `connect.tls`
+a| Enables SSL/TLS encryption for the TCP connection. +
+*Applicable Steps:* TCP +
+*Optional/Required:* Optional +
+*Data Type:* Lambda that receives a TLS configuration block +
+*Default Value:* N/A (no encryption) +
+
+.Example
+[source,kotlin]
+----
+connect {
+    tls {
+        disableCertificateVerification = true
+        protocols(SslProtocol.TLS_1_2, SslProtocol.TLS_1_3)
+        ciphers = listOf(
+            "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+            "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
+        )
+    }
+}
+----
+
+| `connect.tls.disableCertificateVerification`
+a| Disables SSL/TLS certificate verification. +
+*Applicable Steps:* TCP +
+*Optional/Required:* Optional +
+*Data Type:* `Boolean` +
+*Default Value:* `false` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    tls {
+        disableCertificateVerification = true
+    }
+}
+----
+
+| `connect.tls.protocols`
+a| List of allowed SSL/TLS protocol versions. +
+*Applicable Steps:* TCP +
+*Optional/Required:* Optional +
+*Data Type:* Vararg `String` +
+*Default Value:* `emptyArray<String>()` (uses Netty defaults) +
+
+.Example
+[source,kotlin]
+----
+connect {
+    tls {
+        protocols("TLSv1.2", "TLSv1.3")
+    }
+}
+----
+
+| `connect.tls.ciphers`
+a| List of supported cipher suites for SSL/TLS negotiation. Defaults to Netty/JDK defaults when not specified. +
+*Applicable Steps:* TCP +
+*Optional/Required:* Optional +
+*Data Type:* Vararg `String` +
+*Default Value:* `emptyArray<String>()` (uses Netty/JDK defaults) +
+
+.Example
+[source,kotlin]
+----
+connect {
+    tls {
+        ciphers(
+            "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+            "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+            "TLS_AES_128_GCM_SHA256"
+        )
+    }
+}
+----
+
+| `connect.proxy`
+a| Configuration for routing connections through a proxy server (SOCKS4, SOCKS5). +
+*Applicable Steps:* TCP +
+*Optional/Required:* Optional +
+*Data Type:* Configuration block +
+*Default Value:* N/A (direct connection) +
+
+.Example
+[source,kotlin]
+----
+connect {
+    proxy {
+        type = TcpProxyType.SOCKS5
+        address("my-proxy.acme.com", 9876)
+        authenticate("tunnel_user", "secure_pass")
+    }
+}
+----
+
+| `connect.proxy.type`
+a| Type of proxy protocol to use. +
+*Applicable Steps:* TCP +
+*Optional/Required:* Optional +
+*Data Type:* ENUM (`TcpProxyType`: `SOCKS4`, `SOCKS5`) +
+*Default Value:* `SOCKS4` +
+
+.Example
+[source,kotlin]
+----
+proxy {
+    type = TcpProxyType.SOCKS5
+}
+----
+
+| `connect.proxy.address`
+a| The proxy server host and port. +
+*Applicable Steps:* TCP +
+*Optional/Required:* Required (if proxy block present) +
+*Data Type:* `String` (hostname/IP) and `Int` (port) +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+proxy {
+    address("my-proxy.acme.com", 9876)
+}
+----
+
+| `connect.proxy.authenticate`
+a| Optional credentials for proxy authentication. +
+*Applicable Steps:* TCP +
+*Optional/Required:* Optional +
+*Data Type:* `String?` (username) and `String?` (password) +
+*Default Value:* `null`, `null` +
+
+.Example
+[source,kotlin]
+----
+proxy {
+    authenticate("tunnel_user", "secure_pass")
+}
+----
+
+| `connect.pool`
+a| Configures connection pooling to reuse existing connections across multiple requests. Reduces overhead of repeated TCP handshakes. +
+*Applicable Steps:* TCP +
+*Optional/Required:* Optional +
+*Data Type:* Configuration block +
+*Default Value:* N/A (individual connections per minion) +
+
+.Example
+[source,kotlin]
+----
+connect {
+    pool {
+        size = 50
+        checkHealthBeforeUse = true
+    }
+}
+----
+
+| `connect.pool.size`
+a| Maximum number of concurrent connections maintained in the pool. +
+*Applicable Steps:* TCP +
+*Optional/Required:* Required (if pool block present) +
+*Data Type:* `Int` +
+*Default Value:* `1` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    pool {
+        size = 50
+    }
+}
+----
+
+| `connect.pool.checkHealthBeforeUse`
+a| Attempts a health check on a pooled connection before reusing it. Helps detect stale connections. +
+*Applicable Steps:* TCP +
+*Optional/Required:* Optional +
+*Data Type:* `Boolean` +
+*Default Value:* `false` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    pool {
+        checkHealthBeforeUse = true
+    }
+}
+----
+
+| `request`
+a| Factory lambda to create the TCP payload from the step context and input. Returns a `ByteArray` to transmit. +
+*Applicable Steps:* TCP (via `tcp` and `tcpWith`) +
+*Optional/Required:* Optional +
+*Data Type:* Lambda that receives the stepContext, and input and returns `ByteArray` +
+*Default Value:* `ByteArray(0)` +
+
+.Example
+[source,kotlin]
+----
+request { context, input ->
+    "Hello, server!".toByteArray(StandardCharsets.UTF_8)
+}
+----
+
+|===
+
+==== UDP-specific parameters
+
+The following parameters apply only to UDP connections.
+
+[cols="1,4" options="header"]
+|===
+| *Parameter*
+| *Description*
+
+| `connect.address`
+a| The remote host and port to send datagrams to. +
+*Applicable Steps:* UDP +
+*Optional/Required:* Required +
+*Data Type:* `String` (hostname/IP) and `Int` (port) +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+connect {
+    address("remote-server.acme.com", 5000)
+}
+----
+
+| `request`
+a| Factory lambda to create the UDP datagram payload from the step context and input. +
+*Applicable Steps:* UDP +
+*Optional/Required:* Optional +
+*Data Type:* Lambda that receives the stepContext and input and returns `ByteArray` +
+*Default Value:* `ByteArray(0)` +
+
+.Example
+[source,kotlin]
+----
+request { context, input ->
+    "UDP datagram content".toByteArray(StandardCharsets.UTF_8)
+}
+----
+
+| `iterations`
+a| Number of UDP datagrams to send from each minion. +
+*Applicable Steps:* UDP +
+*Optional/Required:* Optional +
+*Data Type:* `Long` +
+*Default Value:* `1` +
+
+.Example
+[source,kotlin]
+----
+iterations = 10
+----
+
+|===
+
+==== MQTT-specific parameters
+
+The following parameters apply only to MQTT connections.
+
+[cols="1,4" options="header"]
+|===
+| *Parameter*
+| *Description*
+
+| `connect.host`
+a| The hostname or IP address of the MQTT broker. +
+*Applicable Steps:* MQTT Publish, MQTT Subscribe +
+*Optional/Required:* Optional +
+*Data Type:* `String` +
+*Default Value:* `"localhost"` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    host = "mqtt-broker.acme.com"
+}
+----
+
+| `connect.port`
+a| The port number of the MQTT broker. Standard MQTT port is 1883; MQTT over TLS uses 8883. +
+*Applicable Steps:* MQTT Publish, MQTT Subscribe +
+*Optional/Required:* Optional +
+*Data Type:* `Int` +
+*Default Value:* `1883` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    port = 1883
+}
+----
+
+| `connect.reconnect`
+a| Controls whether the MQTT client should try to reconnect when the connection is closed. +
+*Applicable Steps:* MQTT Publish, MQTT Subscribe +
+*Optional/Required:* Optional +
+*Data Type:* `Boolean` +
+*Default Value:* `true` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    reconnect = false
+}
+----
+
+| `protocol`
+a| MQTT protocol version to use. Specifies compatibility level with the broker. +
+*Applicable Steps:* MQTT Publish, MQTT Subscribe +
+*Optional/Required:* Optional +
+*Data Type:* MqttVersion enum: `MqttVersion`: `MQTT_3_1`, `MQTT_3_1_1`, `MQTT_5` +
+*Default Value:* `MqttVersion.MQTT_3_1_1` +
+
+.Example
+[source,kotlin]
+----
+protocol(MqttVersion.MQTT_3_1_1)
 ----
 
 | `clientName`
-a| Identifies the client onto the MQTT server. +
-*Applicable Steps:* MQTT Publish, MQTT Subscribe  +
+a| Unique identifier for the MQTT client on the broker. Used for connection authentication and session tracking. +
+*Applicable Steps:* MQTT Publish, MQTT Subscribe +
 *Optional/Required:* Required +
-*Data Type:* String +
+*Data Type:* `String` +
 *Default Value:* N/A +
 
-.Example +
+.Example
 [source,kotlin]
 ----
-clientName("mqtt-client-1")
+clientName("test-mqtt-client-1")
 ----
 
-| `topicName`
-a| Identifies the client onto the MQTT server where data is sent. +
+| `auth`
+a| Configures username and password authentication for the MQTT client. +
+*Applicable Steps:* MQTT Publish, MQTT Subscribe +
+*Optional/Required:* Optional +
+*Data Type:* Configuration block +
+*Default Value:* `username = ""`, `password = ""` +
+
+.Example
+[source,kotlin]
+----
+auth {
+    username = "mqtt-user"
+    password = "mqtt-password"
+}
+----
+
+| `auth.username`
+a| Username used to authenticate against the MQTT broker. +
+*Applicable Steps:* MQTT Publish, MQTT Subscribe +
+*Optional/Required:* Optional +
+*Data Type:* `String` +
+*Default Value:* `""` +
+
+.Example
+[source,kotlin]
+----
+auth {
+    username = "mqtt-user"
+}
+----
+
+| `auth.password`
+a| Password used to authenticate against the MQTT broker. +
+*Applicable Steps:* MQTT Publish, MQTT Subscribe +
+*Optional/Required:* Optional +
+*Data Type:* `String` +
+*Default Value:* `""` +
+
+.Example
+[source,kotlin]
+----
+auth {
+    password = "mqtt-password"
+}
+----
+
+| `records`
+a| Factory lambda to create a list of `MqttPublishRecord` objects from the step context and input. +
 *Applicable Steps:* MQTT Publish +
-*Optional/Required:* Required  +
-*Data Type:* String +
-*Default Value:* N/A +
+*Optional/Required:* Optional +
+*Data Type:* Lambda that receives the stepContext and input and returns `List<MqttPublishRecord>` +
+*Default Value:* `emptyList()` +
 
-.Example +
+.Example
 [source,kotlin]
 ----
-topicName("factory/floor1/machine5/telemetry")
+records { stepContext, input ->
+    listOf(
+        MqttPublishRecord(
+            value = "sensor reading: 23.5C",
+            topicName = "devices/sensors/temperature",
+            qoS = MqttQoS.EXACTLY_ONCE,
+            retainedMessage = true
+        )
+    )
+}
+----
+
+| `records.value`
+a| Payload value of the `MqttPublishRecord` to send. +
+*Applicable Steps:* MQTT Publish +
+*Optional/Required:* Required +
+*Data Type:* `String` +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+records { stepContext, input ->
+    listOf(MqttPublishRecord(value = "sensor reading: 23.5C", topicName = "devices/sensors/temperature"))
+}
+----
+
+| `records.topicName`
+a| The MQTT topic to publish messages to. Can contain MQTT topic wildcards at the application level. +
+*Applicable Steps:* MQTT Publish +
+*Optional/Required:* Required +
+*Data Type:* `String` +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+records { stepContext, input ->
+    listOf(MqttPublishRecord(value = "payload", topicName = "devices/sensors/temperature"))
+}
+----
+
+| `records.qoS`
+a| Quality of Service level to apply to each published MQTT record: +
+- `AT_MOST_ONCE` (0): Best effort, message may not arrive. +
+- `AT_LEAST_ONCE` (1): Guaranteed delivery, may receive duplicates. +
+- `EXACTLY_ONCE` (2): Guaranteed exact-once delivery. +
+*Applicable Steps:* MQTT Publish +
+*Optional/Required:* Optional +
+*Data Type:* MqttQoS (enum) one of `MqttQoS`: `AT_MOST_ONCE`, `AT_LEAST_ONCE`, `EXACTLY_ONCE` +
+*Default Value:* `AT_LEAST_ONCE` +
+
+.Example
+[source,kotlin]
+----
+records { stepContext, input ->
+    listOf(MqttPublishRecord(value = "payload", topicName = "devices/sensors/temperature", qoS = MqttQoS.EXACTLY_ONCE))
+}
+----
+
+| `records.properties`
+a| MQTT properties to attach to the published record. +
+*Applicable Steps:* MQTT Publish +
+*Optional/Required:* Optional +
+*Data Type:* `io.netty.handler.codec.mqtt.MqttProperties?` +
+*Default Value:* `null` +
+
+.Example
+[source,kotlin]
+----
+records { stepContext, input ->
+    listOf(
+        MqttPublishRecord(
+            value = "payload",
+            topicName = "devices/sensors/temperature",
+            properties = MqttProperties()
+        )
+    )
+}
+----
+
+| `records.retainedMessage`
+a| If `true`, the MQTT broker retains the last message on the topic for future subscribers. +
+*Applicable Steps:* MQTT Publish +
+*Optional/Required:* Optional +
+*Data Type:* `Boolean` +
+*Default Value:* `true` +
+
+.Example
+[source,kotlin]
+----
+records { stepContext, input ->
+    listOf(MqttPublishRecord(value = "payload", topicName = "devices/sensors/temperature", retainedMessage = true))
+}
 ----
 
 | `topicFilter`
-a| MQTT topics or patterns to consume. +
-*Applicable Steps:* MQTT Subscribe  +
-*Optional/Required:* Required  +
-*Data Type:* String +
+a| MQTT topic filter pattern for subscription. Supports wildcards: `+` (single level) and `#` (multi level). +
+*Applicable Steps:* MQTT Subscribe +
+*Optional/Required:* Required +
+*Data Type:* `String` +
 *Default Value:* N/A +
 
-.Example +
+.Example
 [source,kotlin]
 ----
-topicName("factory/floor1/machine5/telemetry")
+topicFilter("devices/sensors/+/temperature")
 ----
+
+| `qoS`
+a| Quality of Service level for the MQTT subscription: +
+- `AT_MOST_ONCE` (0): Best effort, message may not arrive. +
+- `AT_LEAST_ONCE` (1): Guaranteed delivery, may receive duplicates. +
+- `EXACTLY_ONCE` (2): Guaranteed exact-once delivery. +
+*Applicable Steps:* MQTT Subscribe +
+*Optional/Required:* Optional +
+*Data Type:* MqttQoS ENUM (`MqttQoS`: `AT_MOST_ONCE`, `AT_LEAST_ONCE`, `EXACTLY_ONCE`) +
+*Default Value:* `AT_LEAST_ONCE` +
+
+.Example
+[source,kotlin]
+----
+qoS(MqttQoS.EXACTLY_ONCE)
+----
+
+| `concurrency`
+a| Number of concurrent subscriber threads/tasks for this step. +
+*Applicable Steps:* MQTT Subscribe +
+*Optional/Required:* Optional +
+*Data Type:* `Int` +
+*Default Value:* `2` +
+
+.Example
+[source,kotlin]
+----
+concurrency(4)
+----
+
 |===
 
 == Examples of usage
 
-=== HTTP step
-The `HTTP` step within the Netty plugin executes an HTTP request using https://datatracker.ietf.org/doc/rfc2616[`HTTP 1.1`] or https://datatracker.ietf.org/doc/rfc7540[`HTTP 2.0`].
+=== TCP steps
+
+The TCP step model allows establishing connections to TCP servers and exchanging byte-level data.
+Two main patterns are supported: simple connections with built-in lifecycle management, and connection reuse across multiple steps.
+
+==== TCP step (simple connection)
+
+The `tcp` step creates a TCP connection, sends a request, and either maintains or closes the connection based on configuration.
 
 Ancestor::
 Scenario or Step
 
 Functionality::
-* The `HTTP` step establishes a connection with the server using either a pool of connections or an individual connection for each minion.
-* If an individual connection is used, the connection is maintained until the latest execution for the minion is performed, including the ones from the related <<HTTP WITH step,`HTTP WITH`>> step, as in the example.
-+
-* When the step is kept open without limit, a <<CLOSE TCP step,`CLOSE TCP`>> step must be executed to properly close the connections and avoid saturation of the system.
-+
-Be aware that the number of open connections that can be concurrently maintained depends on the configuration of your operating system. If there are issues with maintaining open connections, try adapting the limits of the file descriptors.
+* Establishes a TCP connection to the specified remote address.
+* Sends the payload generated by the `request` lambda.
+* Receives a response from the server.
+* If `keepConnectionAlive` is `false`, closes the connection after receiving the response.
+* If `keepConnectionAlive` is `true`, the connection persists for reuse via `tcpWith` steps.
+
+When connections are kept open without a pool, use a `closeTcp` step at the end of the workflow to properly close the connection and avoid system resource saturation.
 
 Example::
 +
 [source,kotlin,linenumbers]
 ----
-netty().http {
+.start()
+.netty()
+.tcp { <1>
+    name = "my-tcp" <2>
     connect {
-        url("https://my-website.com:8080/test")
-        connectTimeout = Duration.ofSeconds(5)
-        inflate()
-        charset(Charsets.ISO_8859_1)
-        maxContentLength(123)
-        followRedirections(15)
-        noDelay = false
-        keepConnectionAlive = false
-        tls {
-            disableCertificateVerification = true
-        }
-        proxy {
-            type = HttpProxyType.SOCKS5
-            address("my-proxy", 9876)
-        }
-        followRedirections(5)
+        address("remote-server.acme.com", 9000) <3>
+        noDelay = true <4>
+        keepConnectionAlive = true <5>
     }
-    pool {
-        size = 143
-        checkHealthBeforeUse = true
+    request { stepContext, input -> <6>
+        "My TCP request".toByteArray(StandardCharsets.UTF_8)
     }
-    request { context, input -> simple(HttpMethod.HEAD, "/head") }
-}.deserialize(String::class)
-
+.verify { <7>
+    assertThat(it.meters.timeToSuccessfulConnect)
+        .isNotNull()
+        .isLessThan(Duration.ofSeconds(1))
+}
 ----
+<1> Enters the Netty plugin namespace and starts a TCP step.
+<2> Names the step for later reference by `tcpWith` or `closeTcp`.
+<3> Sets the remote server address and port.
+<4> Disables Nagle Algorithm for reduced latency.
+<5> Keeps the connection open across multiple steps for reuse.
+<6> Defines the payload to send; returns a `ByteArray` from the input or context.
+<7> Verifies that the connection was established within 1 second.
+
+//-
 
 Reference Documentation::
-* Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
+Refer to the https://netty.io/wiki/index.html[Netty documentation] for advanced channel configuration and tuning options.
 
-=== HTTP WITH step
-The `HTTP WITH` step within the Netty plugin executes an HTTP request reusing the HTTP connection created by a precedent step.
+==== TCP WITH step (connection reuse)
 
-Ancestor::
-Step
-
-Functionality::
-* The `HTTP WITH` step is a direct or indirect follower of an `HTTP` step. `HTTP WITH` specifies the name of the step that owns the connection, and reuses a connection from that step as it was created (either from a pool or the connection attached to the minion).
-* `HTTP WITH` cannot configure the connection differently than the `HTTP` step it relates to.
-
-Example::
-+
-[source,kotlin,linenumbers]
-----
-netty().httpWith("name-of-a-previous-HTTP-step") {
-    request { context, input -> simple(HttpMethod.HEAD, "/head") }
-}.deserialize(String::class)
-----
-
-
-Reference Documentation:: 
-* Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
-
-== CLOSE HTTP step
-The `CLOSE HTTP` step within the Netty plugin closes the `HTTP` connection attached to the minion, and created by a direct or indirect ancestor step, when the tail of the minion workflow is received. 
-
-It is always a best practice to use a `CLOSE HTTP`  step when reusing an `HTTP` connection across several steps without a pool of connections. 
+The `tcpWith` step reuses an existing TCP connection created by a preceding `tcp` step, avoiding the overhead of repeated connection establishment.
 
 Ancestor::
 Step
 
 Functionality::
-The `CLOSE HTTP` step is a direct or indirect follower of an `HTTP` step which keeps the connection open.  `CLOSE HTTP` simply forwards the input it receives to the next step(s).
+* Requires a preceding `tcp` step with the name specified in `tcpWith`.
+* Reuses the exact connection configuration (address, TLS, proxy settings) from the `tcp` step.
+* Sends a new request payload on the existing connection.
+* Does not establish a new connection or renegotiate TLS.
 
 Example::
 +
 [source,kotlin,linenumbers]
 ----
-netty().closeHttp("name-of-a-previous-HTTP-step")
+.netty().tcp { <1>
+    name = "my-tcp"
+    connect {
+        address("remote-server.acme.com", 9000)
+        noDelay = true
+        keepConnectionAlive = true
+    }
+    request { stepContext, input -> "First request".toByteArray() }
+}
+.netty().tcpWith("my-tcp") { <2>
+    name = "reuse-tcp"
+    request { stepContext, input -> "Second request".toByteArray() } <3>
+    iterate(100) <4>
+}
 ----
+<1> Establishes a TCP connection named `"my-tcp"` with `keepConnectionAlive = true`.
+<2> Reuses the connection from `"my-tcp"` for a second request.
+<3> Sends a different payload on the same connection.
+<4> Repeats this request 100 times on the same connection.
+
+//-
+
+Tips::
+* `tcpWith` connects to the **same** remote address as its companion `tcp` step.
+* All connection settings (TLS, proxy, timeouts) are inherited from the `tcp` step.
+* Use `iterate()` to send multiple requests on the same connection.
+* Chain multiple `tcpWith` steps to build workflows across one persistent connection.
+
+//-
 
 Reference Documentation::
-* Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
+Refer to the https://netty.io/wiki/index.html[Netty documentation] for advanced connection patterns.
 
-=== MQTT Publish step 
-The `MQTT Publish` step within the Netty plugin sends data to an MQTT server.
+==== CLOSE TCP step
+
+The `closeTcp` step closes a TCP connection that was established with `keepConnectionAlive = true`, allowing graceful shutdown and resource cleanup.
 
 Ancestor::
 Step
- 
+
 Functionality::
-The MQTT Publish step provides a variety of options for controlling the quality and reliability of messages that are published to the server.
+* Closes the connection associated with the named `tcp` step.
+* Respects the `shutdownTimeout` setting for graceful closure.
+* Simply forwards the input to the next step(s) without modification.
+
+It is best practice to use `closeTcp` when reusing a TCP connection across multiple steps without a connection pool.
 
 Example::
 +
 [source,kotlin,linenumbers]
 ----
-.netty().mqttPublish {
+.netty().tcp {
+    name = "my-tcp"
     connect {
-        host =  "localhost"
-        port = 11883
+        address("remote-server.acme.com", 9000)
+        keepConnectionAlive = true
     }
-    clientName("mqtt-client-1")
-    records { _, batteryState ->
+    request { stepContext, input -> "Hello".toByteArray() }
+}
+.netty().tcpWith("my-tcp") {
+    request { stepContext, input -> "Goodbye".toByteArray() }
+}
+.closeTcp("my-tcp") <1>
+----
+<1> Closes the TCP connection associated with `"my-tcp"`.
+
+//-
+
+Reference Documentation::
+Refer to the https://netty.io/wiki/index.html[Netty documentation] for connection lifecycle management.
+
+==== TCP with connection pooling
+
+TCP connection pooling maintains a pool of reusable connections, automatically balancing load across minions.
+
+Pattern::
++
+[source,kotlin,linenumbers]
+----
+.start()
+.netty()
+.tcp { <1>
+    name = "pooled-tcp"
+    connect {
+        address("remote-server.acme.com", 9000)
+        noDelay = true
+        pool { size = 50 } <2>
+    }
+    request {stepContext, input -> "Request via pool".toByteArray() }
+}
+.netty().tcpWith("pooled-tcp") { <3>
+    request { stepContext, input -> "Another request via pool".toByteArray() }
+    iterate(50) <4>
+}
+----
+<1> Creates a TCP step with connection pooling enabled.
+<2> Pool maintains 50 concurrent connections, distributed among minions.
+<3> Reuses a pooled connection for the next request.
+<4> Sends 50 additional requests, each pulling from the pool.
+
+//-
+
+Tips::
+* Pooling is ideal for high-concurrency scenarios with many minions.
+* No `closeTcp` is needed when using pooling; connections are managed automatically.
+* Tune `pool.size` based on server capacity and target concurrency.
+* Enable `pool.checkHealthBeforeUse` to detect and refresh stale connections.
+
+=== UDP steps
+
+The UDP step sends datagrams to a UDP endpoint and receives responses.
+
+Ancestor::
+Scenario or Step
+
+Functionality::
+* Creates UDP datagrams and sends them to the specified endpoint.
+* Receives responses back from the endpoint (if available).
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+.start()
+.netty()
+.udp { <1>
+    iterations = 5 <2>
+    connect {
+        address("remote-server.acme.com", 5000) <3>
+        connectTimeout = Duration.ofSeconds(2) <4>
+    }
+    request { context, input -> <5>
+        "My UDP datagram".toByteArray(StandardCharsets.UTF_8)
+    }
+}
+----
+<1> Enters the Netty plugin namespace and starts a UDP step.
+<2> Each minion sends 5 datagrams to the endpoint.
+<3> Specifies the remote endpoint address and port.
+<4> Sets the maximum time allowed to establish the UDP channel.
+<5> Generates the datagram payload from the input or context.
+
+//-
+
+Tips::
+* Increase `iterations` to send multiple datagrams per minion.
+* UDP is ideal for stateless, request-response scenarios (DNS, metrics, etc.).
+* Response timeouts can be controlled via `readTimeout`.
+
+//-
+
+Reference Documentation::
+Refer to the https://netty.io/wiki/index.html[Netty documentation] for UDP protocol details.
+
+=== MQTT steps
+
+MQTT provides publish-subscribe messaging through a broker. Two step models support independent publish and subscribe operations.
+
+==== MQTT Publish step
+
+The `mqttPublish` step sends records (messages) to MQTT topics on a broker.
+
+Ancestor::
+Step
+
+Functionality::
+* Connects to an MQTT broker as a publisher client.
+* Sends one or more messages per execution via the `records` lambda.
+* Supports configurable Quality of Service (QoS) and message retention.
+* Each `MqttPublishRecord` can specify topic, payload, QoS, and retention independently.
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+.start()
+.netty()
+.mqttPublish { <1>
+    connect {
+        host = "mqtt-broker.acme.com" <2>
+        port = 1883 <3>
+    }
+    protocol(MqttVersion.MQTT_3_1_1) <4>
+    clientName("publisher-client") <5>
+    records { context, input -> <6>
         listOf(
             MqttPublishRecord(
-                value = objectMapper.writeValueAsString(batteryState),
-                topicName = "battery-state"
+                value = "Sensor reading: 23.5°C", <7>
+                topicName = "devices/sensors/temperature", <8>
+                qoS = MqttQoS.EXACTLY_ONCE, <9>
+                retainedMessage = true <10>
             )
         )
     }
-}               
-----
-
-Reference Documentation::
-Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
-  
-=== MQTT Subscribe step 
-The `MQTT Subscribe` step within the Netty plugin consumes data from an MQTT server.
-
-Ancestor::
-Step
-Functionality::
-The MQTT Subscribe step provides a variety of options for controlling the quality and reliability of the messages that are subscribed to from the server.
-
-Example::
-+
-[source,kotlin,linenumbers]
-----
-it.netty().mqttSubscribe {
-    connect {
-        host = localhost
-        port = 11883
-    }
-    clientName("mqtt-client-1")
-    topicFilter(ServerConfiguration.TOPIC_NAME)
 }
 ----
+<1> Enters the Netty plugin namespace and starts an MQTT publish step.
+<2> Specifies the MQTT broker hostname.
+<3> Sets the MQTT broker port (standard is 1883, 8883 for TLS).
+<4> Selects the MQTT protocol version for compatibility with the broker.
+<5> Sets the client identifier for the publisher on the broker.
+<6> Factory lambda to generate a list of records to publish from the input/context.
+<7> Message payload (typically JSON or text).
+<8> MQTT topic to publish to.
+<9> QoS level: `AT_MOST_ONCE` (0), `AT_LEAST_ONCE` (1), or `EXACTLY_ONCE` (2).
+<10> If `true`, broker retains the last message on this topic for new subscribers.
 
+//-
 
-=== TCP step
-The `TCP` step within the Netty plugin is a client for `TCP`.
- 
+Tips::
+* Generate multiple `MqttPublishRecord` objects in the `records` lambda to publish several topics in one execution.
+* Use `EXACTLY_ONCE` QoS for critical messages; `AT_LEAST_ONCE` for typical scenarios; `AT_MOST_ONCE` for best-effort.
+* Enable `retainedMessage` to preserve state across subscribers (e.g., for device status).
+* Reuse minion input/context values in topic names or payloads for dynamic scenarios.
+
+//-
+
+Reference Documentation::
+Refer to the https://mqtt.org/[MQTT specification] and your broker's documentation for topic design and QoS implications.
+
+==== MQTT Subscribe step
+
+The `mqttSubscribe` step consumes messages from MQTT topics on a broker.
+
 Ancestor::
 Scenario or Step
 
 Functionality::
-The TCP step establishes a connection with the server using either a pool of connections or an individual connection for each minion.
- 
-+
-If an individual connection is used, the connection is maintained until the latest execution for the minion is performed, including the ones from the related <<TCP WITH, `TCP WITH`>> step, as in the example.
-+
-When the step is kept open without limit, a <<CLOSE TCP Step,`CLOSE TCP`>> step should be executed to properly close the connections and avoid a saturation of the system.
-+
-Be aware that the number of open connections that can be concurrently maintained depends on the configuration of your operating system. If there are issues with maintaining open connections, adapting the limits for file descriptors may help.
-
+* Connects to an MQTT broker as a subscriber client.
+* Subscribes to one or more topics using filters (supporting `+` and `#` wildcards).
+* Receives messages from the broker in real-time.
+* Output can be deserialized to typed objects or strings via `.deserialize()`.
+* Concurrency controls how many subscriber tasks process messages in parallel.
 
 Example::
 +
 [source,kotlin,linenumbers]
 ----
-netty().tcp {
-    request { context, input -> input.encodeToByteArray() }
+.start()
+.netty()
+.mqttSubscribe { <1>
     connect {
-        address("remote-server.acme.com", 9000)
-        connectTimeout = Duration.ofMinutes(1)
-        noDelay = false
-        keepConnectionAlive = false
-        tls {
-            disableCertificateVerification = true
-        }
-        proxy {
-            type = HttpProxyType.SOCKS5
-            address("my-proxy", 9876)
-        }
+        host = "mqtt-broker.acme.com" <2>
+        port = 1883 <3>
     }
-    pool {
-        size = 1000
-        checkHealthBeforeUse = true
-    }
+    protocol(MqttVersion.MQTT_3_1_1) <4>
+    clientName("subscriber-client") <5>
+    concurrency(2) <6>
+    topicFilter("devices/sensors/+/temperature") <7>
+    qoS(MqttQoS.AT_LEAST_ONCE) <8>
+}
+.deserialize(MessageStringDeserializer::class) <9>
+.onEach { receivedMessage -> <10>
+    println("Received: ${receivedMessage.value}")
 }
 ----
+<1> Enters the Netty plugin namespace and starts an MQTT subscribe step.
+<2> Specifies the MQTT broker hostname.
+<3> Sets the MQTT broker port.
+<4> Selects the MQTT protocol version.
+<5> Unique client identifier for the subscriber on the broker.
+<6> Number of concurrent subscriber tasks (threads) processing messages.
+<7> Topic filter with wildcard: `+` matches a single level, `#` matches multiple levels. Here matches `devices/sensors/*/temperature`.
+<8> QoS for subscriptions: guarantees matching the server's capability.
+<9> Deserializes raw MQTT messages to strings (or JSON, byte arrays, etc.).
+<10> Processes each deserialized message in the workflow.
+
+//-
+
+Tips::
+* Combine multiple `mqttSubscribe` steps with different topic filters in a single scenario for multi-topic monitoring.
+* Use topic wildcards (`+`, `#`) to subscribe to many topics with a single filter.
+* Increase `concurrency` for high-throughput scenarios, but monitor latency impact.
+* Match QoS between publisher and subscriber for optimal performance.
+
+//-
 
 Reference Documentation::
-* Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
+Refer to the https://mqtt.org/[MQTT specification] for topic filter syntax and QoS semantics.
 
-=== TCP WITH step 
-The `TCP WITH` step within the Netty plugin sends a TCP payload, reusing the connection created by a precedent step.
+==== MQTT publish and subscribe scenario
 
-Ancestor::
-Step
+Complete scenario combining MQTT publish on one minion with subscription on another.
 
-Functionality::
-* The `TCP WITH` step is a direct or indirect follower of a `TCP`  step. `TCP WITH` specifies the name of the step that owns the connection, and reuses a connection from that step  as it was created (either from a pool or the connection attached to the minion).
-* `TCP WITH` cannot configure the connection differently than the `TCP` step it relates to.
- 
-Example::
-+
 [source,kotlin,linenumbers]
 ----
-netty().tcpWith("name-of-a-previous-HTTP-step") {
-    request { context, input -> input.encodeToByteArray() }
-}
-----
-
-Reference Documentation::
-* Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
-
-=== CLOSE TCP step 
-The `CLOSE TCP` step within the Netty plugin closes the TCP connection, attached to a minion and created by a direct or indirect ancestor step, when the tail of the minion workflow is received. 
-
-It is best practice to use a `CLOSE TCP` step when reusing a `TCP` connection across several steps without a pool of connections.
-
-Ancestor::
-Step
-
-Functionality::
-The `CLOSE TCP` step is a direct or indirect follower of an `HTTP` step which keeps the connection open. `CLOSE TCP` simply forwards the input it receives to the next step(s).
-
-Example::
-+
-[source,kotlin,linenumbers]
-----
-netty().closeHttp("name-of-a-previous-HTTP-step")
-----
-
-Reference Documentation::
-* Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
-
-=== UDP step 
-The `UDP` step within the Netty plugin is a client for UDP.
-
-It is best practice to use the  `UDP` step when reusing a `TCP` connection across several steps without a pool of connections.
-
-Ancestor:
-Scenario or Step
-
-Functionality::
-The `UDP` step creates a UDP Datagram packet from the `request` and sends it to the remote endpoint and expects a response.
-
-Example::
-+
-[source,kotlin,linenumbers]
-----
-netty().udp {
-    request { context, input -> input.encodeToByteArray() }
+scenario {
+    minionsCount = 1 <1>
+    profile {
+        regular(100, 1) <2>
+    }
+}.start()
+.netty() <3>
+.mqttSubscribe { <4>
     connect {
-        address("remote-server.acme.com", 9000)
-        connectTimeout = Duration.ofMinutes(1)
+        host = "mqtt-broker.acme.com" <5>
+        port = 1883 <6>
+    }
+    protocol(MqttVersion.MQTT_3_1_1) <7>
+    clientName("subscriber") <8>
+    topicFilter("sensor/temperature") <9>
+    concurrency(1) <10>
+}
+.deserialize(MessageStringDeserializer::class) <11>
+.netty() <12>
+.mqttPublish { <13>
+    connect {
+        host = "mqtt-broker.acme.com" <14>
+        port = 1883 <15>
+    }
+    protocol(MqttVersion.MQTT_3_1_1) <16>
+    clientName("publisher") <17>
+    records { stepContext, subscribedMessage -> <18>
+        listOf(
+            MqttPublishRecord(
+                value = "Processed: ${subscribedMessage.value}", <19>
+                topicName = "sensor/temperature/processed", <20>
+                qoS = MqttQoS.EXACTLY_ONCE <21>
+            )
+        )
     }
 }
+.verify { result -> <22>
+    assertThat(result.value).contains("Processed:") <23>
+}
 ----
+<1> Deploys a single minion to run the full subscribe-then-publish pipeline.
+<2> Ramps the minion to 100% load immediately; the second argument caps the ramp target to 1 minion.
+<3> Initializes the Netty plugin namespace for the subscribe leg of the pipeline.
+<4> Opens an MQTT subscriber connection and begins consuming messages from the broker.
+<5> Resolves the MQTT broker by hostname; replace with an IP address or DNS name for your environment.
+<6> Binds the subscriber to the standard MQTT port. Use `8883` for MQTT over TLS.
+<7> Negotiates the connection using MQTT 3.1.1. Set to `MQTT_3_1` or `MQTT_5` to match your broker's supported versions.
+<8> Registers a unique client identifier for the subscriber session on the broker.
+<9> Subscribes to the `sensor/temperature` topic.
+<10> Allocates one concurrent subscriber task to process incoming messages. Increase this value to handle higher message throughput.
+<11> Decodes the raw MQTT payload into a `String`. Swap in `MessageJsonDeserializer` or a custom deserializer to target a typed object.
+<12> Re-enters the Netty plugin namespace to open the publish leg of the pipeline.
+<13> Opens an MQTT publisher connection to forward the processed message to a new topic.
+<14> Targets the same broker as the subscriber. Publisher and subscriber can connect to different brokers if required.
+<15> Connects to the broker on the standard MQTT port.
+<16> Matches the protocol version used by the subscriber to ensure consistent broker compatibility.
+<17> Registers a distinct client identifier for the publisher session. Client identifiers must be unique per broker connection.
+<18> Factory lambda invoked once per execution. Receives the active step context and the deserialized message from the subscribe step as `subscribedMessage`.
+<19> Constructs the outbound payload by prefixing the received message value with `"Processed:"`.
+<20> Publishes to a derived topic, keeping processed data separate from raw sensor readings.
+<21> Delivers the message with `EXACTLY_ONCE` semantics, guaranteeing the broker receives and acknowledges it exactly one time.
+<22> Receives the publish result and runs assertions against it.
+<23> Confirms that the published payload was constructed correctly and contains the expected prefix.
 
-Reference Documentation::
-* Refer to the https://netty.io/wiki/index.html[Netty] documentation for further configuration and parameter information.
+
+==== UDP scenario
+
+[source,kotlin,linenumbers]
+----
+scenario {
+    minionsCount = 50
+    profile {
+        regular(100, 50) <1>
+    }
+}.start()
+.netty()
+.udp { <2>
+    iterations = 100 <3>
+    connect {
+        address("metrics-collector.acme.com", 5000) <4>
+        connectTimeout = Duration.ofSeconds(3) <5>
+        readTimeout = Duration.ofSeconds(5) <6>
+    }
+    request { context, input -> <7>
+        val timestamp = System.currentTimeMillis() <8>
+        val metric = "cpu.usage=75.2,timestamp=$timestamp" <9>
+        metric.toByteArray() <10>
+    }
+}
+.verify { result -> <11>
+    assertThat(result.isSuccess).isTrue()
+}
+----
+<1> Starts 50 minions ramping to full load over the profiled duration.
+<2> Opens a UDP channel to stream metrics to the collector endpoint.
+<3> Configures each minion to emit 100 datagrams, yielding 5,000 total datagrams across the cluster.
+<4> Resolves the collector host and binds the outbound channel to port 5000.
+<5> Sets the maximum time the client waits to open the UDP channel before aborting.
+<6> Sets the maximum time the client waits for a server acknowledgment after sending a datagram.
+<7> Supplies a payload factory that runs per-datagram, receiving the current step context and upstream input.
+<8> Reads the current wall-clock time in milliseconds to stamp each emitted metric.
+<9> Serializes the metric as a flat key-value string suitable for line-protocol ingestion.
+<10> Encodes the metric string as a raw `ByteArray` for datagram transmission.
+<11> Asserts that the datagram was accepted by the endpoint without error.

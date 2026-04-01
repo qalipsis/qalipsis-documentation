@@ -2,32 +2,33 @@
 
 == Overview
 
-The Jakarta EE plugin connects QALIPSIS to a messaging platform that supports https://jakarta.ee/specifications/messaging/[JAKARTA EE Messaging].
+The Jakarta EE plugin connects QALIPSIS to a messaging platform that supports https://jakarta.ee/specifications/messaging/[Jakarta EE Messaging].
 
 Technology addressed::
-https://jakarta.ee/specifications/messaging/[Jakarta EE Messaging] and the products compliant with it.
+https://jakarta.ee/specifications/messaging/[Jakarta EE Messaging] and the products compliant with it, including Apache ActiveMQ, IBM MQ, and any other JMS 3.x-compliant broker.
 
 Dependency::
 `io.qalipsis.plugin:qalipsis-plugin-jakarta-ee-messaging`
 
 Namespace in scenario::
-` .jakarta()`
+`.jakarta()`
 
 Client library::
-Refer to https://jakarta.ee/[Jarkata EE].
+Refer to https://jakarta.ee/[Jakarta EE]. Use the client library provided by your JMS broker (for example, `activemq-client` for Apache ActiveMQ).
 
 Supported steps::
-* <<Consume,`consume`>>: consumes data from a messaging platform supporting Jakarta EE.
-* <<Produce,`produce`>>: pushes data to a messaging platform supporting Jakarta EE.
+* <<Consume step,`consume`>>: polls messages from a queue or topic on a Jakarta EE-compatible broker and forwards each deserialized message individually to the next step.
+* <<Produce step,`produce`>>: sends a list of records to queues or topics on a Jakarta EE-compatible broker.
 
-Example of usage are provided later in this <<Example of usage,section>>.
+Examples of usage are provided later in this <<Examples of usage,section>>.
 
 == Configuration
 
 === Example configuration file
 
-Jakarta EE configuration settings are configured in a jakarta.yaml file. 
-[source,kotlin,linenumbers]
+Jakarta EE configuration settings are configured in an `jakarta.yaml` file.
+
+[source,yaml,linenumbers]
 ----
 campaign:
   name: jakarta-ee-messaging-${random.shortuuid}
@@ -54,33 +55,33 @@ Available parameters are described in the table below.
 
 [cols="1,4" options="header"]
 |===
-| *Parameter* 
+| *Parameter*
 | *Description*
 
-| `connect`  +
-a| Defines the connection parameters for the `JakartaProducerRecord`(s). +
+| `connect`
+a| Configures the connection to the Jakarta EE-compatible broker. +
 *Applicable Steps:* Produce +
 *Optional/Required:* Required +
-*Data Type:* Lambda within which connection parameters are defined. +
+*Data Type:* Lambda within which the connection parameters are defined +
 *Default Value:* N/A +
 
 .Example
 [source,kotlin]
 ----
 connect {
-  ActiveMQConnectionFactory(
-    "tcp://localhost:61616",
-      "qalipsis_user",
-      "qalipsis_password"
+    ActiveMQConnectionFactory(
+        "tcp://localhost:61616",
+        "qalipsis_user",
+        "qalipsis_password"
     ).createQueueConnection()
-  }
+}
 ----
 
 | `queues`
-a| Specifies the queue(s) to consume. +
+a| Declares the name(s) of the queues to consume messages from. +
 *Applicable Steps:* Consume +
-*Optional/Required:* Required +
-*Data Type:* Lambda within which connection parameters are defined. +
+*Optional/Required:* Required (if `queueConnection` is not configured) +
+*Data Type:* `vararg String` +
 *Default Value:* N/A +
 
 .Example
@@ -89,10 +90,10 @@ a| Specifies the queue(s) to consume. +
 queues("battery_state")
 ----
 
-| `QueueConnection`
-a| Provides the connection to attach to the queue consumer, which is generally specific to the underlying product. +
+| `queueConnection`
+a| Provides the factory that creates the `QueueConnection` used by the consumer. +
 *Applicable Steps:* Consume +
-*Optional/Required:* Optional +
+*Optional/Required:* Required +
 *Data Type:* Lambda within which connection parameters are defined. +
 *Default Value:* N/A +
 
@@ -101,31 +102,30 @@ a| Provides the connection to attach to the queue consumer, which is generally s
 ----
 queueConnection {
     ActiveMQConnectionFactory(
-      "tcp://localhost:61616",
-      "qalipsis_user",
-      "qalipsis_password"
+        "tcp://localhost:61616",
+        "qalipsis_user",
+        "qalipsis_password"
     ).createQueueConnection()
-  }
+}
 ----
 
 | `topics`
-a| Specifies the topic(s) to consume. +
+a| Declares the name(s) of the topics to subscribe to and consume messages from. +
 *Applicable Steps:* Consume +
-*Optional/Required:* Optional +
-*Data Type:* String. +
+*Optional/Required:* Required (if `queueConnection` is not configured) +
+*Data Type:* `vararg String` +
 *Default Value:* N/A +
 
 .Example
 [source,kotlin]
 ----
-topics ("battery_state")
+topics("battery_state")
 ----
 
-
 | `topicConnection`
-a| provides the connection to attach to the topic consumer, which is generally specific to the underlying product. +
+a| Provides the factory that creates the `TopicConnection` used by the consumer. +
 *Applicable Steps:* Consume +
-*Optional/Required:* Optional +
+*Optional/Required:* Required (if `topics` is configured) +
 *Data Type:* Lambda within which connection parameters are defined. +
 *Default Value:* N/A +
 
@@ -133,54 +133,56 @@ a| provides the connection to attach to the topic consumer, which is generally s
 [source,kotlin]
 ----
 topicConnection {
-  ActiveMQConnectionFactory(
-    "tcp://localhost:61616",
-    "qalipsis_user",
-    "qalipsis_password"
-  ).createTopicConnection()
+    ActiveMQConnectionFactory(
+        "tcp://localhost:61616",
+        "qalipsis_user",
+        "qalipsis_password"
+    ).createTopicConnection()
 }
 ----
 
 | `records`
-a| Generates a list of records to send the messaging platform. +
+a| Builds the list of `JakartaProducerRecord` instances to send to the broker. +
 *Applicable Steps:* Produce +
 *Optional/Required:* Required +
-*Data Type:* Lambda  +
+*Data Type:* Lambda that receives the step context and the upstream input, and returns a `List<JakartaProducerRecord>` +
 *Default Value:* N/A +
 
 .Example
 [source,kotlin]
 ----
-records { _, input ->
-  listOf(
-    JakartaProducerRecord(
-      destination = Topic(name = "battery_state"),
-      messageType = JakartaMessageType.BYTES,
-      value = objectMapper.writeValueAsBytes(input)
+records { stepContext, input ->
+    listOf(
+        JakartaProducerRecord(
+            destination = Queue(name = "battery_state"),
+            messageType = JakartaMessageType.BYTES,
+            value = objectMapper.writeValueAsBytes(input)
+        )
     )
-  )
 }
 ----
 
 | `destination`
-a| Defines the destination for each `JakartaProducerRecord` as either queues (`QueueConnection`) or topics (`TopicConnection`). +
+a| Defines the target destination for a `JakartaProducerRecord`. Use `Queue(name = "...")` to send to a queue or `Topic(name = "...")` to publish to a topic. +
 *Applicable Steps:* Produce +
 *Optional/Required:* Required +
-*Data Type:* Function +
+*Data Type:* `Destination` — either `Queue` or `Topic` +
 *Default Value:* N/A +
 
 .Example
 [source,kotlin]
 ----
+destination = Queue(name = "battery_state")
+// or
 destination = Topic(name = "battery_state")
 ----
 
 | `messageType`
-a| Indicates the `JakartaMessageType` as: `TEXT`, `AUTO`, `BYTES`, or `OBJECT`. +
+a| Specifies the JMS message subtype to use when sending the record. `AUTO` instructs the producer to infer the correct subtype from the runtime type of `value`. +
 *Applicable Steps:* Produce +
-*Optional/Required:* Required +
-*Data Type:* ENUM +
-*Default Value:* N/A +
+*Optional/Required:* Optional +
+*Data Type:* `JakartaMessageType` (enum)— one of `AUTO`, `TEXT`, `BYTES`, or `OBJECT` +
+*Default Value:* `JakartaMessageType.AUTO` +
 
 .Example
 [source,kotlin]
@@ -188,11 +190,11 @@ a| Indicates the `JakartaMessageType` as: `TEXT`, `AUTO`, `BYTES`, or `OBJECT`. 
 messageType = JakartaMessageType.BYTES
 ----
 
-|`value`
-a| Defines the message to be displayed at the `destination`. +
+| `value`
+a| The payload to include in the JMS message. When `messageType` is `BYTES`, pass a `ByteArray`; when `TEXT`, pass a `String`; when `OBJECT`, pass a `Serializable` object. +
 *Applicable Steps:* Produce +
 *Optional/Required:* Required +
-*Data Type:* Function +
+*Data Type:* `ByteArray` for `BYTES`, `String` for `TEXT`, or any `Serializable` object for `OBJECT` +
 *Default Value:* N/A +
 
 .Example
@@ -201,318 +203,469 @@ a| Defines the message to be displayed at the `destination`. +
 value = objectMapper.writeValueAsBytes(input)
 ----
 
-|`session`
-a| Configures the session to attach to the message producer. +
-*Applicable Steps:* Produce +
+| `session`
+a| Overrides the default JMS session created for the step. The lambda receives the active `Connection` and must return a configured `Session`. +
+*Applicable Steps:* Produce, Consume +
 *Optional/Required:* Optional +
-*Data Type:* Lambda within which session parameters are defined. +
-*Default Value:* N/A +
+*Data Type:* Lambda that receives a `Connection` and returns a `Session` +
+*Default Value:* `{ connection -> connection.createSession() }` +
 
 .Example
 [source,kotlin]
 ----
-session {
-  it.createSession(false, Session.AUTO_ACKNOWLEDGE)
+session { connection ->
+    connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
 }
 ----
 
-|`producers`
-a| The number of producers to use, in order to scale the data production upwards. +
+| `producers`
+a| Sets the number of concurrent producer threads. Increase this value to scale message throughput. +
 *Applicable Steps:* Produce +
 *Optional/Required:* Optional +
-*Data Type:* Integer +
-*Default Value:* 1 +
+*Data Type:* `Int` +
+*Default Value:* `1` +
 
 .Example
 [source,kotlin]
 ----
-producers = 1
+producers(3)
 ----
 
 | `deserialize`
-a| Specifies the class to use to deserialize the body of the response. +
+a| Specifies the deserializer used to decode the body of each incoming JMS message. This method is chained on the result of `consume {}`, outside the configuration block. Three overloads are available: pass an instance, a `KClass`, or a fully-qualified class name as a `String`. +
 *Applicable Steps:* Consume +
-*Optional/Required:* Required +
-*Data Type:* function +
-*Default Value:* N/A +
+*Optional/Required:* Optional +
+*Data Type:* +
+Instance: `JakartaDeserializer<V>` +
+Class reference: `KClass<out JakartaDeserializer<V>>` +
+Class name: `String` (fully-qualified) +
+*Default Value:* `JakartaStringDeserializer` (decodes `TextMessage` and `BytesMessage` as UTF-8 strings) +
 
 .Example
 [source,kotlin]
 ----
- .deserialize(JakartaJsonDeserializer(targetClass = BatteryState::class))
+// Using an instance:
+.deserialize(JakartaJsonDeserializer(targetClass = BatteryState::class))
+
+// Using a class reference:
+.deserialize(JakartaJsonDeserializer::class)
+
+// Using a fully-qualified class name:
+.deserialize("io.qalipsis.plugins.jakarta.deserializer.JakartaStringDeserializer")
+----
+
+| `monitoring`
+a| Enables collection of step-level metrics such as consumed or produced byte counts and record counts. +
+*Applicable Steps:* Produce, Consume +
+*Optional/Required:* Optional +
+*Data Type:* Lambda with receiver `StepMonitoringConfiguration` +
+*Default Value:* Monitoring disabled +
+
+.Example
+[source,kotlin]
+----
+monitoring {
+    events = true
+    meters = true
+}
 ----
 
 | `singletonConfiguration`
-a| Configures how polled results are delivered to scenario minions. +
- Refer to xref:plugins/plugins.adoc#singletonconfiguration-parameters[SingletonConfiguration parameters] for details on strategies and examples of usage.
+a| Configures how the singleton consumer delivers messages to scenario minions. +
+Refer to xref:plugins/plugins.adoc#singletonconfiguration-parameters[SingletonConfiguration parameters] for details on strategies and examples of usage.
 
 |===
-== Example of usage
+
+== Result types
+
+=== Consume step result: `JakartaConsumerResult<V>`
+
+The `consume` step wraps each received message in a `JakartaConsumerResult<V>`. Access its properties as shown below.
+
+[cols="1,1,3" options="header"]
+|===
+| *Property*
+| *Type*
+| *Description*
+
+| `record`
+| `JakartaConsumerRecord<V>`
+| The deserialized message record.
+
+| `record.value`
+| `V`
+| The deserialized message body.
+
+| `record.destination`
+| `jakarta.jms.Destination?`
+| The JMS destination from which the message was received.
+
+| `record.offset`
+| `Long?`
+| The consumer-relative offset of the message.
+
+| `record.messageId`
+| `String?`
+| The JMS message ID assigned by the broker.
+
+| `record.correlationId`
+| `String?`
+| The JMS correlation ID, if set.
+
+| `record.priority`
+| `Int?`
+| The JMS priority (0–9) of the message.
+
+| `record.expiration`
+| `Long?`
+| The message expiration timestamp in milliseconds since the Unix epoch.
+
+| `record.timestamp`
+| `Long?`
+| The time at which the message was handed to the broker, in milliseconds since the Unix epoch.
+
+| `meters`
+| `JakartaConsumerMeters`
+| Execution metrics for the consumer step.
+
+| `meters.consumedBytes`
+| `Int`
+| Total number of bytes consumed in this execution.
+
+|===
+
+=== Produce step result: `JakartaProducerResult<I>`
+
+The `produce` step wraps its output in a `JakartaProducerResult<I>`. Access its properties as shown below.
+
+[cols="1,1,3" options="header"]
+|===
+| *Property*
+| *Type*
+| *Description*
+
+| `input`
+| `I`
+| The original input received from the previous step, passed through unchanged.
+
+| `meters`
+| `JakartaProducerMeters`
+| Execution metrics for the producer step.
+
+| `meters.recordsToProduce`
+| `Int`
+| The number of records that were submitted for sending.
+
+| `meters.producedRecords`
+| `Int`
+| The number of records successfully sent.
+
+| `meters.producedBytes`
+| `Int`
+| Total number of bytes sent.
+
+|===
+
+== Examples of usage
 
 === Consume step
-The `consume` step within the Jakarta EE plugin consumes records from a Jakarta-EE-Messaging-compatible product.
+
+The `consume` step polls messages from a queue or topic on a Jakarta EE-compatible broker. It is created once as a singleton reader and delivers each deserialized message individually to the next step in the scenario.
 
 Ancestor::
-Scenario 
+Scenario
 
 Functionality::
-The `consume` step polls data from the designated connection, step context, and the data deserializer.
+The `consume` step creates a singleton JMS listener. On each execution, it reads one message from the configured queue or topic, deserializes the body using the configured `JakartaDeserializer`, and forwards a `JakartaConsumerResult` to the next step. Only queues or topics can be configured at a time — calling `queues()` clears any configured topics, and vice versa.
 
 Example::
 +
 [source,kotlin,linenumbers]
 ----
-it.jakarta().consume {. <1>
-  queues("battery_state") <2>
-  queueConnection { <3>
-    ActiveMQConnectionFactory(
-      "tcp://localhost:61616",
-      "qalipsis_user",
-      "qalipsis_password"
-    ).createQueueConnection()
-  }
-}
-  .deserialize(JakartaJsonDeserializer(targetClass = BatteryState::class))  <4>
-  .map { result ->  <5>
+.jakarta().consume { // <1>
+    queues("battery_state") // <2>
+    queueConnection { // <3>
+        ActiveMQConnectionFactory(
+            "tcp://localhost:61616",
+            "qalipsis_user",
+            "qalipsis_password"
+        ).createQueueConnection()
+    }
+    session { connection -> // <4>
+        connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
+    }
+} // <5>
+.deserialize(JakartaJsonDeserializer(targetClass = BatteryState::class)) // <6>
+.map { result -> // <7>
     result.record.value
-  }
+}
 ----
-<1> Start the Consume step.
-<2> Specify the queue to consume.
-<3> Configure the connection to the queue.
-<4> Specify the class to use to deserialize the body of the response.
-<5> Define how the result of the consume step is sent to the next step in a scenario.
+<1> Enter the Jakarta EE namespace and open the `consume` configuration block.
+<2> Declare the queue name to poll messages from.
+<3> Provide the factory that creates the `QueueConnection` to the broker.
+<4> Optionally override the default session; here, non-transacted mode with `AUTO_ACKNOWLEDGE` is set explicitly.
+<5> Close the `consume` configuration block. `.deserialize()` must be chained here, outside the block.
+<6> Decode each incoming JMS message body into a `BatteryState` instance using the JSON deserializer.
+<7> Extract the deserialized value from `JakartaConsumerResult` and forward it to the next step.
 
 //-
-Tip::
-The connection can be configured to consume either `queues` (`queueConnection`) or `topics` (`topicConnection`), but not both.
+Tips::
+* Use `queues()` + `queueConnection {}` for point-to-point messaging; use `topics()` + `topicConnection {}` for publish-subscribe.
+* Calling `queues()` automatically clears any configured topics, and calling `topics()` automatically clears any configured queues.
+* Pair the `consume` step with `.innerJoin()` to correlate consumed messages with data produced by a parallel branch.
+* If the default `JakartaStringDeserializer` is sufficient (plain text or raw UTF-8 bytes), `.deserialize()` may be omitted.
 
-Reference documentation::
-Refer to the  https://jakarta.ee/resources/#documentation[Jakarta EE] documentation for further parameter and configuration information.
+//-
+Reference Documentation::
+Refer to the https://jakarta.ee/resources/#documentation[Jakarta EE] documentation for further parameter and configuration information.
 
 === Produce step
-The `produce` step within the Jakarta EE plugin produces records in a Jakarta-EE-Messaging-compatible product.
+
+The `produce` step sends a list of `JakartaProducerRecord` instances to queues or topics on a Jakarta EE-compatible broker. After sending, it forwards the original step input downstream wrapped in a `JakartaProducerResult`.
 
 Ancestor::
 Step
 
 Functionality::
-The `produce` step within the Jakarta EE plugin produces records in a Jakarta-EE-Messaging-compatible product.
+On each execution, the `records` lambda is invoked with the current step context and the upstream input to build the list of records to send. Each record is converted to the appropriate JMS `Message` subtype based on its `messageType` field and dispatched to the configured destination. The original input is always preserved in `JakartaProducerResult.input`.
 
 Example::
 +
 [source,kotlin,linenumbers]
 ----
-.jakarta()
-.produce { <1>
-
-  connect { <2>
-    ActiveMQConnectionFactory(
-      "tcp://localhost:61616",
-      "qalipsis_user",
-      "qalipsis_password"
-    ).createQueueConnection()
-  }
-
-  session { <3>
-    it.createSession(false, Session.AUTO_ACKNOWLEDGE)
-  }
-
-  records { _, input -> <4>
-    listOf(
-      JakartaProducerRecord(
-        destination = Queue("battery_state"),
-        messageType = JakartaMessageType.BYTES,
-        value = objectMapper.writeValueAsBytes(input)
-      )
-    )
-  }
+.jakarta().produce { // <1>
+    connect { // <2>
+        ActiveMQConnectionFactory("tcp://localhost:61616")
+            .createConnection("qalipsis_user", "qalipsis_password")
+    }
+    session { connection -> // <3>
+        connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
+    }
+    records { stepContext, input -> // <4>
+        listOf(
+            JakartaProducerRecord(
+                destination = Queue(name = "battery_state"), // <5>
+                messageType = JakartaMessageType.BYTES, // <6>
+                value = ObjectMapper().writeValueAsBytes(input) // <7>
+            )
+        )
+    }
 }
 ----
-<1> Start the `produce` step.
-<2> Provide the connection for the `JakartaProducerRecord`(s).
-<3> Configure the session to attach to the message producer. 
-<4> Generate a list of records to send the messaging platform.
+<1> Enter the Jakarta EE namespace and open the `produce` configuration block.
+<2> Provide the factory that creates the `Connection` to the broker. Any `jakarta.jms.Connection` is accepted.
+<3> Optionally override the default session; here, non-transacted mode with `AUTO_ACKNOWLEDGE` is set explicitly.
+<4> Build the list of `JakartaProducerRecord` instances to send. The lambda receives the step context and the upstream input.
+<5> Set the destination to the queue named `battery_state`. Use `Topic(name = "...")` to publish to a topic instead.
+<6> Set the message type to `BYTES` so the payload is sent as a JMS `BytesMessage`.
+<7> Serialize the input object to a byte array and assign it as the message payload.
 
 //-
-Tip::
-If you are not sure about the `JakartaMessageType`, use `AUTO` to allow the system to infer the type and display the result. 
+Tips::
+* Use `JakartaMessageType.AUTO` if you are unsure of the correct message type. The producer will infer the appropriate JMS `Message` subtype from the runtime type of `value`.
+* Use `producers(n)` to run multiple concurrent producer threads and increase throughput.
+* The original input value is always available on `JakartaProducerResult.input` after the produce step, and can be extracted with `.map { it.input }`.
 
-Reference documentation::
-Refer to the  https://jakarta.ee/resources/#documentation[Jakarta EE] documentation for further parameter and configuration information.
-
+//-
+Reference Documentation::
+Refer to the https://jakarta.ee/resources/#documentation[Jakarta EE] documentation for further parameter and configuration information.
 
 === JakartaProduceAndConsumeFromQueue scenario
+
+This end-to-end scenario reads battery state records from a CSV file, publishes each one as a JMS `BytesMessage` to a queue, then consumes it back from the same queue and asserts that the data round-trips correctly.
+
 [source,kotlin,linenumbers]
 ----
-scenario { <1>
-  minionsCount = 20
-  profile {
-    immediate()
-  }
-}
-  .start()
-  .jackson() <2> 
-  .csvToObject(mappingClass = BatteryState::class) { <3>
-    classpath(path = "battery-levels.csv")
-    header { <4> 
-      column(name = "deviceId")
-      column(name = "timestamp")
-      column(name = "batteryLevel").integer()
+@Scenario("jakarta-produce-and-consume-from-queue")
+fun scenarioProduceAndConsumeFromQueue() {
+    scenario { // <1>
+        minionsCount = 20
+        profile {
+            immediate()
+        }
     }
-    unicast()
-  }
-    .map { it.value } <5>
+    .start()
+    .jackson() // <2>
+    .csvToObject(mappingClass = BatteryState::class) { // <3>
+        classpath(path = "battery-levels.csv")
+        header { // <4>
+            column(name = "deviceId")
+            column(name = "timestamp")
+            column(name = "batteryLevel").integer()
+        }
+        unicast()
+    }
+    .map { it.value } // <5>
     .jakarta()
-    .produce {
-
-      connect {
-        ActiveMQConnectionFactory(
-          "tcp://localhost:61616",
-          "qalipsis_user",
-          "qalipsis_password"
-        ).createQueueConnection()
-      }
-
-      session {
-        it.createSession(false, Session.AUTO_ACKNOWLEDGE)
-      }
-
-      records { _, input ->
-        listOf(
-          JakartaProducerRecord(
-            destination = Queue("battery_state"),
-            messageType = JakartaMessageType.BYTES,
-            value = objectMapper.writeValueAsBytes(input)
-          )
-        )
-      }
-    }
-    .map {
-      it.input
-    }
-    .innerJoin()
-    .using { correlationRecord ->
-      correlationRecord.value.deviceId
-    }
-    .on {
-      it.jakarta().consume {
-        queues("battery_state")
-        queueConnection {
-          ActiveMQConnectionFactory(
-          "tcp://localhost:61616",
-          "qalipsis_user",
-          "qalipsis_password"
-          ).createQueueConnection()
+    .produce { // <6>
+        connect { // <7>
+            ActiveMQConnectionFactory("tcp://localhost:61616")
+                .createConnection("qalipsis_user", "qalipsis_password")
         }
-      }
-        .deserialize(JakartaJsonDeserializer(targetClass = BatteryState::class))
-        .map { result ->
-          result.record.value
+        session { connection -> // <8>
+            connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
+        }
+        records { stepContext, input -> // <9>
+            listOf(
+                JakartaProducerRecord(
+                    destination = Queue(name = "battery_state"),
+                    messageType = JakartaMessageType.BYTES,
+                    value = ObjectMapper().writeValueAsBytes(input)
+                )
+            )
         }
     }
-    .having { correlationRecord ->
-      correlationRecord.value.deviceId
+    .map { it.input } // <10>
+    .innerJoin() // <11>
+    .using { correlationRecord -> // <12>
+        correlationRecord.value.deviceId
     }
-    .filterNotNull()
-    .verify { result ->
-      result.asClue {
-        assertSoftly {
-          it.first.batteryLevel shouldBeExactly it.second.batteryLevel
+    .on { // <13>
+        it.jakarta().consume { // <14>
+            queues("battery_state") // <15>
+            queueConnection { // <16>
+                ActiveMQConnectionFactory(
+                    "tcp://localhost:61616",
+                    "qalipsis_user",
+                    "qalipsis_password"
+                ).createQueueConnection()
+            }
         }
-      }
+        .deserialize(JakartaJsonDeserializer(targetClass = BatteryState::class)) // <17>
+        .map { result -> result.record.value } // <18>
     }
+    .having { correlationRecord -> // <19>
+        correlationRecord.value.deviceId
+    }
+    .filterNotNull() // <20>
+    .verify { result -> // <21>
+        result.asClue {
+            assertSoftly {
+                it.first.batteryLevel shouldBeExactly it.second.batteryLevel // <22>
+            }
+        }
+    }
+}
 ----
-<1> Define the scenario, set the name, number of minions and rampUp
-<2> Start the jackson step to fetch data from the csv file. 
-<3> Use the csvToObject method to map csv entries to list of utils.BatteryState object.
-<4> Define the header of the csv file.
-<5> Transform the output of the CSV reader entries to utils.BatteryState.
+<1> Define the scenario: set 20 minions, and use the `immediate()` ramp-up profile so all minions start at once.
+<2> Activate the Jackson plugin to enable CSV reading and deserialization.
+<3> Map each CSV row to a `BatteryState` object. `unicast()` ensures each record is processed by exactly one minion.
+<4> Declare the CSV column structure. `batteryLevel` is parsed as an integer; `deviceId` and `timestamp` are read as strings.
+<5> Unwrap the `CsvRecord` envelope to obtain the raw `BatteryState` value for the next step.
+<6> Open the Jakarta `produce` configuration block to publish each `BatteryState` to the broker.
+<7> Provide the connection factory. The `Connection` is shared across all records in a single step execution.
+<8> Override the default session with non-transacted mode and `AUTO_ACKNOWLEDGE`.
+<9> Build the record list. Each `BatteryState` is serialized to a `ByteArray` and wrapped in a `JakartaProducerRecord` targeting the `battery_state` queue.
+<10> Extract the original `BatteryState` input from the `JakartaProducerResult` to use as the left side of the join.
+<11> Start an `innerJoin` to correlate each produced record with its corresponding consumed record.
+<12> Define the left-side correlation key: the `deviceId` of the produced `BatteryState`.
+<13> Open the right-side branch of the join. This branch runs as a concurrent sub-scenario that independently consumes from the queue.
+<14> Within the sub-scenario context (`it`), enter the Jakarta namespace and open a `consume` configuration block.
+<15> Declare `battery_state` as the queue to consume from — must match the queue used in the produce step.
+<16> Provide the `QueueConnection` factory for the consumer.
+<17> Decode each received JMS `BytesMessage` body into a `BatteryState` instance using the JSON deserializer.
+<18> Extract the deserialized `BatteryState` from the consumer result to use as the right side of the join.
+<19> Define the right-side correlation key: the `deviceId` of the consumed `BatteryState`. Records with matching keys are joined into a pair.
+<20> Discard any join pairs where correlation produced a null result.
+<21> Assert that the produced and consumed records match. `asClue` attaches the full result to any assertion failure for easier debugging.
+<22> Verify that the `batteryLevel` round-tripped correctly: the value consumed from the queue must be exactly equal to the value that was produced.
 
 === JakartaProduceAndConsumeFromTopic scenario
+
+This end-to-end scenario reads battery state records from a CSV file, publishes each one as a JMS `BytesMessage` to a topic, then consumes it back from the same topic and asserts that the data round-trips correctly.
+
 [source,kotlin,linenumbers]
 ----
-scenario { <1> 
-  minionsCount = 20
-  profile {
-    immediate()
-  }
+@Scenario("jakarta-produce-and-consume-from-topic")
+fun scenarioProduceAndConsumeFromTopic() {
+    scenario { // <1>
+        minionsCount = 20
+        profile {
+            immediate()
+        }
+    }
+    .start()
+    .jackson() // <2>
+    .csvToObject(mappingClass = BatteryState::class) { // <3>
+        classpath(path = "battery-levels.csv")
+        header { // <4>
+            column(name = "deviceId")
+            column(name = "timestamp")
+            column(name = "batteryLevel").integer()
+        }
+        unicast()
+    }
+    .map { it.value } // <5>
+    .jakarta()
+    .produce { // <6>
+        connect { // <7>
+            ActiveMQConnectionFactory("tcp://localhost:61616")
+                .createConnection("qalipsis_user", "qalipsis_password")
+        }
+        session { connection -> // <8>
+            connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
+        }
+        records { stepContext, input -> // <9>
+            listOf(
+                JakartaProducerRecord(
+                    destination = Topic(name = "battery_state"),
+                    messageType = JakartaMessageType.BYTES,
+                    value = ObjectMapper().writeValueAsBytes(input)
+                )
+            )
+        }
+    }
+    .map { it.input } // <10>
+    .innerJoin() // <11>
+    .using { correlationRecord -> // <12>
+        correlationRecord.value.deviceId
+    }
+    .on { // <13>
+        it.jakarta().consume { // <14>
+            topics("battery_state") // <15>
+            topicConnection { // <16>
+                ActiveMQConnectionFactory(
+                    "tcp://localhost:61616",
+                    "qalipsis_user",
+                    "qalipsis_password"
+                ).createTopicConnection()
+            }
+        }
+        .deserialize(JakartaJsonDeserializer(targetClass = BatteryState::class)) // <17>
+        .map { result -> result.record.value } // <18>
+    }
+    .having { correlationRecord -> // <19>
+        correlationRecord.value.deviceId
+    }
+    .filterNotNull() // <20>
+    .verify { result -> // <21>
+        result.asClue {
+            assertSoftly {
+                it.first.batteryLevel shouldBeExactly it.second.batteryLevel // <22>
+            }
+        }
+    }
 }
-  .start()
-  .jackson() <2> 
-  .csvToObject(mappingClass = BatteryState::class) { <3>
-
-    classpath(path = "battery-levels.csv")
-    header {  <4>
-      column(name = "deviceId")
-      column(name = "timestamp")
-      column(name = "batteryLevel").integer()
-    }
-    unicast()
-  }
-  .map { it.value } <5>
-  .jakarta()
-  .produce {
-
-    connect {
-      ActiveMQConnectionFactory(
-        "tcp://localhost:61616",
-        "qalipsis_user",
-        "qalipsis_password"
-        ).createTopicConnection()
-    }
-
-    session {
-      it.createSession(false, Session.AUTO_ACKNOWLEDGE)
-    }
-
-    records { _, input ->
-      listOf(
-        JakartaProducerRecord(
-          destination = Topic(name = "battery_state"),
-          messageType = JakartaMessageType.BYTES,
-          value = objectMapper.writeValueAsBytes(input)
-        )
-      )
-    }
-  }
-  .map {
-    it.input
-  }
-  .innerJoin()
-  .using { correlationRecord ->
-    correlationRecord.value.deviceId
-  }
-  .on {
-    it.jakarta().consume {
-      topics("battery_state")
-      topicConnection {
-        ActiveMQConnectionFactory(
-          "tcp://localhost:61616",
-          "qalipsis_user",
-          "qalipsis_password"
-        ).createTopicConnection()
-      }
-    }
-      .deserialize(JakartaJsonDeserializer(targetClass = BatteryState::class))
-      .map { result ->
-        result.record.value
-      }
-  }
-  .having { correlationRecord ->
-    correlationRecord.value.deviceId
-  }
-  .filterNotNull()
-  .verify { result ->
-    result.asClue {
-      assertSoftly {
-        it.first.batteryLevel shouldBeExactly it.second.batteryLevel
-      }
-    }
-  }
 ----
-<1> Define the scenario, set the name, number of minions and rampUp
-<2> Start the jackson step to fetch data from the csv file. 
-<3> Use the csvToObject method to map csv entries to list of utils.BatteryState object.
-<4> Define the header of the csv file.
-<5> Transform the output of the CSV reader entries to utils.BatteryState.
+<1> Define the scenario: set 20 minions, and use the `immediate()` ramp-up profile so all minions start at once.
+<2> Activate the Jackson plugin to enable CSV reading and deserialization.
+<3> Map each CSV row to a `BatteryState` object. `unicast()` ensures each record is processed by exactly one minion.
+<4> Declare the CSV column structure. `batteryLevel` is parsed as an integer; `deviceId` and `timestamp` are read as strings.
+<5> Unwrap the `CsvRecord` envelope to obtain the raw `BatteryState` value for the next step.
+<6> Open the Jakarta `produce` configuration block to publish each `BatteryState` to the broker.
+<7> Provide the connection factory. The `Connection` is shared across all records in a single step execution.
+<8> Override the default session with non-transacted mode and `AUTO_ACKNOWLEDGE`.
+<9> Build the record list. Each `BatteryState` is serialized to a `ByteArray` and wrapped in a `JakartaProducerRecord` targeting the `battery_state` topic.
+<10> Extract the original `BatteryState` input from the `JakartaProducerResult` to use as the left side of the join.
+<11> Start an `innerJoin` to correlate each produced record with its corresponding consumed record.
+<12> Define the left-side correlation key: the `deviceId` of the produced `BatteryState`.
+<13> Open the right-side branch of the join. This branch runs as a concurrent sub-scenario that independently subscribes to the topic.
+<14> Within the sub-scenario context (`it`), enter the Jakarta namespace and open a `consume` configuration block.
+<15> Declare `battery_state` as the topic to subscribe to — must match the topic used in the produce step.
+<16> Provide the `TopicConnection` factory for the consumer.
+<17> Decode each received JMS `BytesMessage` body into a `BatteryState` instance using the JSON deserializer.
+<18> Extract the deserialized `BatteryState` from the consumer result to use as the right side of the join.
+<19> Define the right-side correlation key: the `deviceId` of the consumed `BatteryState`. Records with matching keys are joined into a pair.
+<20> Discard any join pairs where correlation produced a null result.
+<21> Assert that the produced and consumed records match. `asClue` attaches the full result to any assertion failure for easier debugging.
+<22> Verify that the `batteryLevel` round-tripped correctly: the value consumed from the topic must be exactly equal to the value that was produced.

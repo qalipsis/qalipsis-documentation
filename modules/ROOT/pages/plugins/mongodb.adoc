@@ -20,14 +20,14 @@ Supported steps::
 * <<Save step,`save`>>: saves a batch of documents generated from the input and step context.
 * <<Search step,`search`>>: searches documents and builds a query from the input and step context.
 
-Example of usage are provided later in this <<Examples of usage,section>>.  
+Example of usage are provided later in this <<Examples of usage,section>>.
 
 == Configuration
 
 === Example configuration file
 
-MongoDB configuration settings are configured in a mongodb.yaml file. 
-[source,kotlin,linenumbers]
+MongoDB configuration settings are configured in a mongodb.yaml file.
+[source,yaml,linenumbers]
 ----
 campaign:
   name: mongodb-${random.shortuuid}
@@ -49,18 +49,18 @@ Available parameters are described in the table below.
 
 [cols="1,4" options="header"]
 |===
-| *Parameter* 
+| *Parameter*
 | *Description*
 
 
 | `connect`
 a| Configures the connection to https://mongodb.com/[MongoDb]. +
- *Applicable Steps:* Poll, Save, Search + 
- *Optional/Required:* Required +
- *Data Type:*  Lambda +
- *Default Value:*   +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Required +
+*Data Type:* Lambda within which a MongoDB reactive client is created and returned. The lambda receives the step context and the input from the previous step, allowing dynamic configuration of the connection based on scenario data. +
+*Default Value:* N/A +
 
-.Example 
+.Example
 [source,kotlin]
 ----
 connect {
@@ -70,37 +70,40 @@ connect {
 
 | `query`
 a| Specifies a document respecting the requirements of the target database.  +
-*Applicable Steps:* Poll, Save + 
+*Applicable Steps:* Save +
 *Optional/Required:* Required +
-*Data Type:*  Lambda  +
-*Default Value:*   N/A +
+*Data Type:* Lambda that takes step context and input and returns a document. +
+*Default Value:* N/A +
 
-.Example 
+.Example
 [source,kotlin]
 ----
 query {
-    database { _, _ ->
+    database { stepContext, input ->
         "iot"
     }
-    collection { _, _ ->
+    collection { stepContext, input ->
         "batteryState"
     }
-    documents { _, input ->
+    documents { stepContext, input ->
         listOf(Document.parse(objectMapper.writeValueAsString(input)))
     }
 }
 ----
 
 | `search`
-a| Defines the search parameters including,`database`, `collection` `query` and `sort`.  +
-*Applicable Steps:* Search, Poll + 
+a| Configures the search parameters block. The shape of the block differs between Poll and Search. +
+*Applicable Steps:* Poll, Search +
 *Optional/Required:* Required +
-*Data Type:*  Lambda +
-*Default Value:*   N/A +
+*Data Type:* +
+    Poll: Lambda with receiver `MongoDbSearchConfiguration` +
+    Search: Lambda with receiver `MongoDbQueryConfiguration<I>` +
+*Default Value:* N/A +
 
-.Example (Poll)
+.Example (poll)
 [source,kotlin]
 ----
+
 search {
     database = "iot"
     collection = "batteryState"
@@ -109,13 +112,14 @@ search {
     tieBreaker = "deviceId"
 }
 ----
-.Example (Search)
+
+.Example (search)
 [source,kotlin]
 ----
 search {
-    database { _, _ -> "iot" }
-    collection { _, _ -> "batteryState" }
-    query { _, input ->
+    database { stepContext, input -> "iot" }
+    collection { stepContext, input -> "batteryState" }
+    query { stepContext, input ->
         Document(
             mapOf(
                 "deviceId" to input.deviceId,
@@ -126,104 +130,168 @@ search {
 }
 ----
 
-| `tieBreaker`
-a| Configures the tiebreaker column used to track the "last seen" value for polling. +
-*Applicable Steps:* Poll, Search + 
-*Optional/Required:* Optional +
-*Data Type:* Lambda within which tiebreaker parameters are defined. +
-*Default Value:*  N/A +
+| `search.database`
+a| The name of the MongoDB database to target. +
+*Applicable Steps:* Poll, Search +
+*Optional/Required:* Required +
+*Data Type:* +
+    Poll: `String` +
+    Search: Lambda that takes step context and input and returns a `String` +
+*Default Value:* +
+Poll: `""` +
+Search: `{ stepContext, input -> "" }` +
 
-.Example 
+.Example (Poll)
 [source,kotlin]
 ----
-tieBreaker {         
-    name = "timestamp"
-    type = GenericType.INSTANT
+search {
+    database = "iot"
 }
 ----
 
-| `tieBreaker.type`
-a|Data type to help the datastax driver interpret a value. +
-*Applicable Step:* Poll +
+.Example (Search)
+[source,kotlin]
+----
+search {
+    database { stepContext, input -> "iot" }
+}
+----
+
+| `search.collection`
+a| The name of the MongoDB collection to target within the database. +
+*Applicable Steps:* Poll, Search +
 *Optional/Required:* Required +
-*Data Type:* GenericType (ENUM) +
-*Default Value:* null +
+*Data Type:* +
+Poll: `String` +
+Search: Lambda that takes step context and input and returns a `String` +
+*Default Value:* +
+Poll: `""` +
+Search: `{ stepContext, input -> "" }` +
 
-.Example
-[source,kotlin] 
+.Example (Poll)
+[source,kotlin]
 ----
-tieBreaker {
-    type = GenericType.INSTANT
+search {
+    collection = "batteryState"
 }
 ----
 
-| `tieBreaker.name`
-a|Name of the column used as a tiebreaker. +
-*Applicable Step:* Poll +
-*Optional/Required:* Required +
-*Data Type:* String  +
-*Default Value:* "" +
-
-.Example
-[source,kotlin] 
+.Example (Search)
+[source,kotlin]
 ----
-tieBreaker {
-    name = "timestamp"
+search {
+    collection { stepContext, input -> "batteryState" }
 }
 ----
 
-| `parameters`
-a| Poll: Binds values to the clauses of the prepared query. +
- Search: Computes the list of values bound to the prepared query using the step context and input. +
-*Applicable Steps:* Poll, Search + 
+| `search.query`
+a| The BSON filter document used to match records. In Poll, assigned directly as a `Document`. In Search, computed per execution from the step context and input. +
+*Applicable Steps:* Poll, Search +
 *Optional/Required:* Optional +
 *Data Type:* +
-    Poll: `List<Any>` / `vararg Any` +
-    Search: Lambda that takes step context and input and returns `List<Any>`. +
-*Default Value:* `emptyList()` +
-    
+Poll: `Document` +
+Search: Lambda that takes step context and input and returns a `Document` +
+*Default Value:* +
+Poll: `Document()` +
+Search: `{ stepContext, input -> Document() }` +
+
 .Example (Poll)
-[source,kotlin] 
+[source,kotlin]
 ----
-parameters(listOf(1, "abc")) or parameters(1, "abc") 
-----
-.Example (Search)
-[source,kotlin] 
-----
-parameters { 
-    stepContext, input -> listOf("ACME Inc.") 
-} 
+search {
+    query = Document("status", "active")
+}
 ----
 
-| `pollDelay`
-a| Delay between two polling executions. +
-*Applicable Step:* Poll +
-*Optional/Required:* Optional +
-*Data Type:* java.time.Duration +
-*Default Value:* Duration.ofSeconds(10)  +
+.Example (Search)
+[source,kotlin]
+----
+search {
+    query { stepContext, input ->
+        Document(
+            mapOf(
+                "deviceId" to input.deviceId,
+                "timestamp" to input.timestamp.epochSecond
+            )
+        )
+    }
+}
+----
+
+| `search.sort`
+a| Defines the ordering of results. In Poll, `sort` is a plain `LinkedHashMap` property that must contain at least one entry and whose first key must match `tieBreaker`. In Search, `sort` is a suspend lambda function returning a `LinkedHashMap`. +
+*Applicable Steps:* Poll, Search +
+*Optional/Required:* Required (Poll, `@NotEmpty`); Optional (Search, defaults to empty map) +
+*Data Type:* +
+Poll: `LinkedHashMap<String, Sorting>` +
+Search: Lambda that takes step context and input and returns a `LinkedHashMap<String, Sorting>` +
+*Default Value:* +
+Poll: N/A  +
+Search: `{ stepContext, input -> linkedMapOf() }` +
+
+.Example (Poll)
+[source,kotlin]
+----
+search {
+    sort = LinkedMapOf("deviceId" to Sorting.ASC)
+}
+----
+
+.Example (Search)
+[source,kotlin]
+----
+search {
+    sort { stepContext, input ->
+        linkedMapOf("timestamp" to Sorting.DESC)
+    }
+}
+----
+
+| `search.tieBreaker`
+a| Name of the field used to track the last-seen value for polling. Only records whose `tieBreaker` field value is greater than (or less than, if sorted descending) the last polled value will be fetched in the next poll. Must be the first field listed in `sort`. +
+*Applicable Steps:* Poll +
+*Optional/Required:* Required +
+*Data Type:* `String` +
+*Default Value:* "" empty string +
 
 .Example
-[source,kotlin] 
+[source,kotlin]
 ----
- pollDelay(Duration.ofSeconds(1)) 
+search {
+    tieBreaker = "timestamp"
+}
+----
+
+
+| `pollDelay`
+a| Delay between two polling executions. Accepts either a `java.time.Duration` or a `Long` value in milliseconds via two separate overloads. +
+*Applicable Steps:* Poll +
+*Optional/Required:* Optional +
+*Data Type:* Function that accepts either a `Duration` or milliseconds as `Long` +
+*Default Value:* `Duration.ofSeconds(10)` +
+
+.Example
+[source,kotlin]
+----
+pollDelay(Duration.ofSeconds(1)) or pollDelay(1000L)
 ----
 
 | `singletonConfiguration`
 a| Configures how polled results are delivered to scenario minions. +
-   Refer to xref:plugins/plugins.adoc#singletonconfiguration-parameters[SingletonConfiguration parameters] for details on strategies and examples of usage.
+Refer to xref:plugins/plugins.adoc#singletonconfiguration-parameters[SingletonConfiguration parameters] for details on strategies and examples of usage.
 
 |===
 
 == Examples of usage
 
 === Poll step
-The `poll` step within the MongoDB plugin polls the newest records from a database table, with a delay between each execution.
+The `poll` step within the MongoDB plugin polls the newest records from a database collection, with a delay between each execution.
 
 Ancestor::
 Scenario
 
 Functionality::
-The `poll` step is created only once in a scenario;  it is then used throughout the scenario as called. The `poll` step within the MongoDB plugin uses a strategy of “delivered at least once”. 
+The `poll` step is created only once in a scenario;  it is then used throughout the scenario as called. The `poll` step within the MongoDB plugin uses a strategy of "delivered at least once".
 
 Example::
 +
@@ -238,21 +306,23 @@ mongodb().poll {
         database = "iot"
         collection = "batteryState"
         query = Document()
-        sort = linkedMapOf("deviceId" to Sorting.ASC)
-        tieBreaker = "deviceId"
+        sort = linkedMapOf("deviceId" to Sorting.ASC) // <3>
+        tieBreaker = "deviceId" <4>
     }
-    pollDelay(Duration.ofSeconds(1)) <3>
+    pollDelay(Duration.ofSeconds(1)) <5>
 }
 ----
-<1> Configure the connection to https://mongodb.com/[MongoDb]. 
-<2> Define the search parameters.
-<3> Specify the delay between search executions.
+<1> Create a MongoDB reactive client using the connection string.
+<2> Configure the search parameters. `database` and `collection` identify the target.
+<3> Order results by `deviceId` ascending.
+<4> Configure name of the field used to track the last-seen value.
+<5> Wait one second between poll executions.
 
 //-
 Tips::
 * Use the `poll` step with a join operator if you need to verify the values saved by your tested system in the database.
-* The `search` parameter requires at least one sorting field (`tiebreaker` in the example) to filter the newest results and not fetch the same records repeatedly.
-* The latest known value for `tiebreaker` is used to filter out the values already received from the database.
+* `sort` and `tieBreaker` are both required. The `tieBreaker` field name must be the first key in `sort`.
+* The latest known value for `tieBreaker` is used to filter out records already received from the database.
 
 //-
 Reference Documentation::
@@ -265,32 +335,37 @@ Ancestor::
 Step
 
 Functionality::
-The `save` step's input and step context are used to generate the table, the list of columns and their values, which are then combined and forwarded to the database.
+The `save` step's input and step context are used to generate the database name, collection name, and list of `Document` objects, which are then inserted into the database.
+
 Example::
 +
 [source,kotlin,linenumbers]
 ----
-.mongodb()
+.mongodb() <1>
 .save {
     name = "save"
-    connect { <1>
+    connect { <2>
         MongoClients.create("mongodb://James23:SantaFe1987@localhost:27017")
     }
-    query { <2>
-        database { StepContext, input ->
+    query { <3>
+        database { stepContext, input -> <4>
             "iot"
         }
-        collection { StepContext, input ->
+        collection { stepContext, input -> <5>
             "batteryState"
         }
-        documents { StepContext, input ->
+        documents { stepContext, input -> <6>
             listOf(Document.parse(objectMapper.writeValueAsString(input)))
         }
     }
 }
 ----
-<1> Configure the connection to https://mongodb.com/[MongoDb].
-<2> Specifies query parameters respecting the requirements of the target database.
+<1> Wraps the preceding step into the MongoDB plugin namespace. Required before any MongoDB step.
+<2> Create a MongoDB reactive client using the connection string.
+<3> Configure the save query. All three sub-functions (`database`, `collection`, `documents`) receive the step context and the input value from the previous step.
+<4> Returns the name of the target database. Can be dynamic based on `ctx` or `input`.
+<5> Returns the name of the target collection. Can be dynamic based on `ctx` or `input`.
+<6> Builds the list of `Document` objects to insert. Here the input object is serialized to JSON and parsed into a BSON `Document`.
 
 //-
 Tips::
@@ -301,28 +376,29 @@ Tips::
 Reference Documentation::
 Refer to the  https://www.mongodb.com/docs/[Mongodb] documentation for further parameter and configuration information.
 
-=== Search step 
+=== Search step
 The `search` step within the MongoDB plugin searches records in the database using a search query.
 
 Ancestor::
 Step
 
 Functionality::
-The `search` step’s input and step context are used to generate a document and the values to complete it; the batch of results is then forwarded to the next step(s).
+The `search` step's input and step context are used to generate a query document. The matching results are wrapped in a `MongoDBSearchResult` and forwarded to the next step(s). Access the result documents via `result.documents: List<Document>`.
 
 Example::
 +
 [source,kotlin,linenumbers]
 ----
+.mongodb() <1>
 .search {
     name = "search"
-    connect { <1>
+    connect { <2>
         MongoClients.create("mongodb://James23:SantaFe1987@localhost:27017")
     }
-    search { <2>
-        database { StepContext, input -> "iot" }
-        collection { StepContext, input -> "batteryState" }
-        query {StepContext, input ->
+    search { <3>
+        database { stepContext, input -> "iot" } <4>
+        collection { stepContext, input -> "batteryState" } <5>
+        query { stepContext, input -> <6>
             Document(
                 mapOf(
                     "deviceId" to input.deviceId,
@@ -333,8 +409,12 @@ Example::
     }
 }
 ----
-<1> Configure the connection to https://mongodb.com/[MongoDb].
-<2> Define the search parameters including `database`, `collection` and `query`. 
+<1> Wraps the preceding step into the MongoDB plugin namespace. Required before calling `.search {}`.
+<2> Create a MongoDB reactive client using the connection string.
+<3> Configure the search query parameters. Each sub-function receives the step context and the input from the previous step, allowing fully dynamic queries.
+<4> Returns the name of the target database.
+<5> Returns the name of the target collection.
+<6> Builds the BSON `Document` used as the query filter. Fields are populated from the current step input.
 
 Tip::
 Use the `search` step after a `collect()` step in order to reduce the number of queries executed onto the database and to reduce the load the scenario generates on the test system.
@@ -342,7 +422,7 @@ Use the `search` step after a `collect()` step in order to reduce the number of 
 Reference Documentation::
 Refer to the  https://www.mongodb.com/docs/[Mongodb] documentation for further parameter and configuration information.
 
-=== MongoDbSaveAndSearch scenario 
+=== MongoDbSaveAndSearch scenario
 [source,kotlin,linenumbers]
 ----
 scenario { <1>
@@ -352,52 +432,41 @@ scenario { <1>
     }
 }
     .start()
-    .jackson() <2> 
+    .jackson() <2>
     .csvToObject(mappingClass = BatteryState::class) { <3>
-
-        classpath(path = "battery-levels.csv") 
-        header { <4>
-            column(name = "deviceId")
-            column(name = "timestamp")
-            column(name = "batteryLevel").integer()
+        classpath(path = "battery-levels.csv") <4>
+        header { <5>
+            column(name = "deviceId") <6>
+            column(name = "timestamp") <7>
+            column(name = "batteryLevel").integer() <8>
         }
-        unicast()
+        unicast() <9>
     }
-    .map { it.value } <5> // we transform the output of the CSV reader entries to utils.BatteryState
-    .mongodb() <6> // we start the mongodb step to save data in mongodb database
-    .save {
-
-        connect { <7> setup connection of the database
+    .map { it.value } <10>
+    .mongodb() <11>
+    .save { <12>
+        connect { <13>
             MongoClients.create("mongodb://admin:password@localhost:27017")
         }
-
-        query {
-            database { _, _ ->
-                "iot"
-            }
-
-            collection { _, _ ->
-                "batteryState"
-            }
-
-            documents { _, input ->
+        query { <14>
+            database { stepContext, input -> "iot" } <15>
+            collection { stepContext, input -> "batteryState" } <16>
+            documents { stepContext, input -> <17>
                 listOf(Document.parse(objectMapper.writeValueAsString(input)))
             }
         }
     }
-    .map { it.input }
-    .mongodb()
-    .search {
+    .map { it.input } <18>
+    .mongodb() <19>
+    .search { <20>
         name = "search"
-
-        connect {
+        connect { <21>
             MongoClients.create("mongodb://admin:password@localhost:27017")
         }
-
-        search {
-            database { _, _ -> "iot" }
-            collection { _, _ -> "batteryState" }
-            query { _, input ->
+        search { <22>
+            database { stepContext, input -> "iot" } <23>
+            collection { stepContext, input -> "batteryState" } <24>
+            query { stepContext, input -> <25>
                 Document(
                     mapOf(
                         "deviceId" to input.deviceId,
@@ -407,27 +476,55 @@ scenario { <1>
             }
         }
     }
-    .map {
-        it.input to it.documents.first().let { document ->
+    .map { <26>
+        it.input to it.documents.first().let { document -> <27>
             BatteryState(
-                deviceId = document.getValue("deviceId") as String,
-                batteryLevel = document.getValue("batteryLevel") as Int,
-                timestamp = Instant.ofEpochSecond((document.getValue("timestamp") as Double).toLong())
+                deviceId = document.getString("deviceId"), <28>
+                batteryLevel = document.getInteger("batteryLevel"), <29>
+                timestamp = Instant.ofEpochSecond(document.getLong("timestamp")) <30>
             )
         }
     }
-    .verify { result ->
+    .verify { result -> <31>
         result.asClue {
             assertSoftly {
-                it.first.batteryLevel shouldBeExactly it.second.batteryLevel
+                it.first.batteryLevel shouldBeExactly it.second.batteryLevel <32>
             }
         }
     }
 ----
-<1> Define the scenario, set the name, number of minions and rampUp.
-<2> Start the jackson step to fetch data from the csv file. 
-<3> Use the csvToObject method to map csv entries to list of utils.BatteryState object.
-<4> Define the header of the csv file.
+<1> Define the scenario with 20 minions launched immediately using the `immediate()` profile.
+<2> Initialize the Jackson step to enable CSV file reading with Jackson deserialization.
+<3> Map each CSV row to a `BatteryState` instance using `csvToObject`.
+<4> Load the CSV file from the classpath at the given path.
+<5> Declare the structure of the CSV header so each column is mapped by name.
+<6> Map the `deviceId` column as a `String`.
+<7> Map the `timestamp` column as a `String`.
+<8> Map the `batteryLevel` column and parse it as an integer.
+<9> Call `unicast()` to ensure each CSV record is consumed by exactly one minion.
+<10> Unwrap the `CsvRecord` envelope to obtain the raw `BatteryState` value for the next step.
+<11> Enter the MongoDB plugin namespace. Required before any MongoDB step can be chained.
+<12> Insert the current `BatteryState` into MongoDB. The step wraps its output in `MongoDBSaveResult<BatteryState>`.
+<13> Create a MongoDB reactive client for the save step using the given connection string.
+<14> Configure the target database, collection, and documents to insert. All three sub-functions receive the step context and the current input.
+<15> Return the name of the target database (`"iot"`). Can be made dynamic using `ctx` or `input`.
+<16> Return the name of the target collection (`"batteryState"`). Can be made dynamic using `ctx` or `input`.
+<17> Serialize the `BatteryState` input to JSON and parse it into a BSON `Document` for insertion.
+<18> Unwrap the `MongoDBSaveResult` to extract the original `BatteryState` input and pass it to the next step.
+<19> Re-enter the MongoDB plugin namespace to chain the search step.
+<20> Search MongoDB for the document that was just saved. Output is `MongoDBSearchResult<BatteryState>`.
+<21> Create a MongoDB reactive client for the search step.
+<22> Configure the search query. Each sub-function receives the step context and the input from the previous step.
+<23> Return the name of the target database (`"iot"`).
+<24> Return the name of the target collection (`"batteryState"`).
+<25> Build the BSON query filter from the input. Matches the document by `deviceId` and `timestamp` to retrieve exactly the record that was saved.
+<26> Transform the `MongoDBSearchResult` into a `Pair<BatteryState, BatteryState>` for assertion.
+<27> Take the first document from `MongoDBSearchResult.documents` (`List<Document>`) and convert it to a `BatteryState`.
+<28> Read `deviceId` from the BSON document using the typed `getString` accessor.
+<29> Read `batteryLevel` from the BSON document using the typed `getInteger` accessor.
+<30> Read `timestamp` as a `Long` epoch second and convert it to an `Instant`.
+<31> Assert the saved and retrieved values match. `asClue` attaches the full result to any assertion failure message.
+<32> Assert that the battery level read back from MongoDB is exactly equal to the battery level that was originally saved.
 
 === MongoDbSaveAndPoll scenario
 [source,kotlin,linenumbers]
@@ -437,74 +534,61 @@ scenario { <1>
     profile {
         immediate()
     }
-}.start()
+    }.start()
     .jackson() <2>
     .csvToObject(mappingClass = BatteryState::class) { <3>
         name = "csv to json"
-
         classpath(path = "battery-levels.csv")
-            header { <4>
-                column(name = "deviceId")
-                column(name = "timestamp")
-                column(name = "batteryLevel").integer()
-            }
-            unicast()
-    }.map { it.value } <5> 
-    .mongodb() <6> 
-    .save {
-        name = "save"    
-        connect { <7>
+        header { <4>
+            column(name = "deviceId")
+            column(name = "timestamp")
+            column(name = "batteryLevel").integer()
+        }
+        unicast()
+    }
+    .map { it.value } <5>
+    .mongodb() <6>
+    .save { <7>
+        name = "save"
+        connect {
             MongoClients.create("mongodb://admin:password@localhost:27017")
         }
-
         query {
-            database { _, _ ->
-                "iot"
-            }
-            collection { _, _ ->
-                "batteryState"
-            }
-
-            documents { _, input ->
+            database { stepContext, input -> "iot" }
+            collection { stepContext, input -> "batteryState" }
+            documents { stepContext, input ->
                 listOf(Document.parse(objectMapper.writeValueAsString(input)))
             }
         }
     }
-    .map { it.input }
-    .innerJoin()
+    .map { it.input } <8>
+    .innerJoin() <9>
     .using { correlationRecord -> correlationRecord.value.deviceId }
     .on {
-        it.mongodb().poll {
+        it.mongodb().poll { <10>
             name = "poll"
-
             connect {
                 MongoClients.create("mongodb://admin:password@localhost:27017")
             }
-
-            search {
+            search { <11>
                 database = "iot"
                 collection = "batteryState"
                 query = Document()
-                sort = linkedMapOf("deviceId" to Sorting.ASC)
-                tieBreaker = "deviceId"
+                sort = linkedMapOf("deviceId" to Sorting.ASC) <12>
+                tieBreaker = "deviceId" <13>
             }
-
-            pollDelay(Duration.ofSeconds(1)) <8> 
-
-        }.flatten().map { record ->
+            pollDelay(Duration.ofSeconds(1)) <14>
+        }.flatten() <15>
+        .map { record -> <16>
             val batteryState = record.value
             BatteryState(
                 deviceId = batteryState.getValue("deviceId") as String,
                 batteryLevel = batteryState.getValue("batteryLevel") as Int,
                 timestamp = Instant.ofEpochSecond((batteryState.getValue("timestamp") as Double).toLong())
-            )
-        }
     }
-    .having { correlationRecord ->
-        correlationRecord.value.deviceId
-    }
+    .having { correlationRecord -> correlationRecord.value.deviceId }
     .filterNotNull()
-    .verify { result ->
+    .verify { result -> <17>
         result.asClue {
             assertSoftly {
                 it.first.batteryLevel shouldBeExactly it.second.batteryLevel
@@ -512,11 +596,20 @@ scenario { <1>
         }
     }
 ----
-<1> Define the scenario, set the name, number of minions and rampUp.
-<2> Start the jackson step to fetch data from the csv file. 
-<3> Use the csvToObject method to map csv entries to list of utils.BatteryState object.
-<4> Define the header of the csv file.
-<5> Transform the output of the CSV reader entries to utils.BatteryState.
-<6> Start the mongodb step to save data in mongodb database.
-<7> Setup the connection of the database.
-<8> Poll the database after every on second.
+<1> Define the scenario with 20 minions launched immediately.
+<2> Initialize the Jackson step to enable reading from a CSV file.
+<3> Map each CSV row to a `BatteryState` instance. `unicast()` ensures each record is consumed by exactly one minion.
+<4> Declare the CSV column names and types. `batteryLevel` is parsed as an integer.
+<5> Unwrap the `CsvRecord` wrapper to obtain the raw `BatteryState` value.
+<6> Enter the MongoDB plugin namespace on the preceding step's output.
+<7> Save each `BatteryState` document into the `iot.batteryState` collection.
+<8> Unwrap the `MongoDBSaveResult` to pass only the original `BatteryState` input into the join.
+<9> Correlate the save output with the poll output using `deviceId` as the join key.
+<10> Start the poll step. `it.mongodb()` enters the MongoDB namespace from the scenario context.
+<11> Configure the poll query. `query = Document()` matches all documents; results are filtered incrementally via `tieBreaker`.
+<12> Order results by `deviceId` ascending. The first key in `sort` must match `tieBreaker`.
+<13> Track the last-seen `deviceId`. Only records with a `deviceId` greater than the last polled value are returned on subsequent polls.
+<14> Wait one second between poll executions.
+<15> Emit each `MongoDbRecord` individually to downstream steps, rather than as a batch `MongoDBPollResults`.
+<16> Convert the `MongoDbRecord.value` (`Map<String, Any?>`) into a typed `BatteryState`.
+<17> Assert that the battery level polled from MongoDB exactly matches the value that was saved.
