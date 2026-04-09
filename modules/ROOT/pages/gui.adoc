@@ -9,13 +9,38 @@ You can configure campaigns and run them immediately, at a future time, or on a 
 * You can view in-process campaign results in real time.
 * You can view finalized reports of a previous campaign's data on static reports and on an interactive time-series chart.
 
-The following topics are discussed in this section:
+The QALIPSIS GUI is available via open-source or by purchasing a Cloud subscription.
+
+The open-source version includes the following features:
+
+
+The Cloud version (via subscription) alows the user access to following additional features:
+
+
+== Where to start
+
+If you are new to QALIPSIS Cloud, you are encouraged to start by reading and understanding the following sections:
 
 * <<Logging in to QALIPSIS>>
 * <<Navigating QALIPSIS>>
+
+
+== Configuring a running a campaign
+The QALISIS GUI alows you to easliy configure andrun a campaign. +
+
+
 * <<Working with series data and filters>>
 * <<Configuring and running a campaign>>
+** Creating a  campaign
+** Adding scenarios to a campaign
+** Running a campaign.
 * <<Displaying campaign data>>
+* Updating Settings
+** Managing users and their permissions
+** Creating and managing API Keys
+** Managing subscriptions
+
+
 
 == Logging in to QALIPSIS
 . Navigate to the _QALIPSIS Welcome_ page according to the installation details provided by your administrator.
@@ -64,7 +89,7 @@ Note:: The left sidebar remains displayed throughout your session.
 . Click on your name at the bottom of the left sidebar to open the  _Tenant Modal_ window.
 . Click on the `settings` icon.
 . Click on `My profile` to open the _My Profile_ page.
-. Make changes to your profile and click on `Save changes`.
+. Make changes to your profile and click on `Save` in the top right corner of the screen
 
 === Change your password
 . Click on your name at the bottom of the left sidebar to open the  _Tenant Modal_ window.
@@ -116,7 +141,7 @@ Series are data sets that are preconfigured to monitor and display relevant camp
 * The logged events and meters can be graphically displayed
 * You can create a series if your profile has write permissions.
 * You can update a series if one of the following is true.
-** You are the owner
+** You are the owner.
 ** The owner has shared it in write mode and you have write permissions.
 
 === Creating a series

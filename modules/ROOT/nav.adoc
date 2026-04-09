@@ -57,7 +57,7 @@
 ** xref:plugins/slack.adoc[]
 ** xref:plugins/timescaledb.adoc[]
 
-// * xref:gui.adoc[]
+* xref:gui.adoc[]
 * https://qalipsis.io/docs/api[REST API specifications, window=_blank]
 * xref:glossary.adoc[]
 // * xref:faq.adoc[]
