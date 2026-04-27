@@ -15,41 +15,41 @@ Namespace in scenario::
 Client library::
 JsonMapper: refer to http://fasterxml.github.io/jackson-databind/javadoc/2.11/com/fasterxml/jackson/databind/json/JsonMapper.html[FasterXML].
 
-Supported steps::
-* <<csvToMap and csvToObject, csvToMap and csvToObject>>: reads a csv file, and converts the data to a Map (or an Object).
-* <<jsonToMap and jsonToObject, jsonToMap and jsonToObject>>: reads a json file and converts the data to a Map (or Object).
-* <<xmlToObject,`xmlToObject`>>: reads an xml file and converts the data to an object.
+== Supported steps
 
-== csvToMap and csvToObject
-The `csvToMap` and `csvToObject` steps within the Jackson plugin read a CSV resource (file, classpath resource, URL) and returns each item as an instance of an Object or Map.
- 
+=== csvToMap and csvToObject
+The `csvToMap` step reads a CSV resource (file, classpath resource, or URL) and returns each row as a `Map` keyed by column name. The `csvToObject` step reads the same resource and deserializes each row directly into a typed object.
+
 Ancestor::
- Step
- 
-Functionality::
-The `csvToMap` and `csvToObject` step specification has a `targetClass` property to which the output lines should be mapped.
-The step reads a CSV file, converts the data to a `map` (or an `object`) and pushes the `map` (or `object`) to the next step.
+Step
 
-Example::
-+
+Functionality::
+The `csvToMap` step converts each CSV row to a `Map` and pushes it to the next step. +
+The `csvToObject` step maps each CSV row to an instance of the specified target class and pushes it to the next step.
+
+Example(csvToMap):: +
 [source,kotlin,linenumbers]
 ----
 jackson().csvToMap {
-   classpath(file)
+   classpath("battery-levels.csv")
+   escapeChar('E')
+   quoteChar('"')
+   columnSeparator(';')
+   withHeader()
+   allowComments()
    header {
-      escapeChar('E')
-      quoteChar('"')
-      columnSeparator(';')
-      withHeader()
-      allowComments()
-
       column("1st value").double()
-      column("2th value").string().array(",")
+      column("2nd value").string().array(",")
       column("3rd value").string(true)
       column("4th value").string(true)
    }
 }
-.jackson() 
+----
+
+Example (csvToObject)::
+[source,kotlin,linenumbers]
+----
+jackson()
 .csvToObject(BatteryState::class) {
    classpath("battery-levels.csv")
    header {
@@ -60,24 +60,57 @@ jackson().csvToMap {
    unicast()
 }
 ----
-Notable parameters::
-* `classpath(file)`: reads the data from a specified class path resource; `file` is the path to the resource with the leading slash ignored.
-* `file(path)`: reads the data from a specified plain file in the file system; `path` is the path to the file, either absolute or relative to the current working directory.
-* `url(url)`: specifies and links to the `url` of the data resource.
-* `mapper`: configures the JSON Mapper to deserialize the records.
 
 Tip::
-Only one path (`classpath(file)`, `file(path)`, or `url(url)`) to the resource is allowed for each `csvToObject` or `csvToMap` step.
+Only one path (`classpath(path)`, `file(path)`, or `url(url)`) to the resource is allowed for each `csvToObject` or `csvToMap` step.
+
+=== csvToList
+The `csvToList` step within the Jackson plugin reads a CSV resource (classpath, file, or url) and returns each item as a `List` of values, preserving column order. Use `csvToList` when a positional list of values per row is preferred over a `Map` or a typed object.
+
+Ancestor::
+Step
+
+Functionality::
+The `csvToList` step converts each CSV row to a list and pushes that list to the next step. 
+
+Rows are converted as: +
+* `List<String>`: Each row emitted with no header parsing. +
+* `List<Any>`: Each row emitted with parsed types in the configured column order; a `header` block is provided to define column types and parsing behavior.
+
+
+Example (`List<String>`)::
++
+[source,kotlin,linenumbers]
+----
+jackson().csvToList {
+   classpath("battery-levels.csv")
+}
+----
+
+Example (`List<Any>`)::
+[source,kotlin,linenumbers]
+----
+jackson().csvToList {
+   file("/data/measurements.csv")
+   header {
+      withHeader()           
+      column("deviceId").string()
+      column("batteryLevel").integer()
+      column("timestamp").long()
+   }
+   broadcast()
+}
+----
 
 Reference documentation::
 Refer to the https://github.com/FasterXML/jackson[jackson] documentation for further configuration and parameter information.
 
-== xmlToObject
+=== xmlToObject
 The `xmlToObject` step within the Jackson plugin reads an XML resource (classpath, file, or url) and returns each item as an instance of an object of the specified class.
 
 Ancestor::
- Step
- 
+Step
+
 Functionality::
 The `xmlToObject` step specification has a `targetClass` property to which the output lines should be mapped.
 The step reads an XML file, converts the data to an `Object`, and pushes the `Object` to the next step.
@@ -87,47 +120,260 @@ Example::
 [source,kotlin,linenumbers]
 ----
 jackson().xmlToObject(PojoForTest::class) {
-   classpath(file)
+   classpath("data.xml")
 }
 ----
-Notable parameters::
-* `classpath(file)`: reads the data from a specified class path resource; `file` is the path to the resource with the leading slash ignored.
-* `file(path)`: reads the data from a specified plain file in the file system; `path` is the path to the file, either absolute or relative to the current working directory.
-* `url(url)`: specifies and links to the `url` of the data resource.
 
 Tip::
-Only one path (`classpath(file)`, `file(path)`, or `url(url)`) to the resource is allowed for each `xmlToObject` step.
+Only one path (`classpath(path)`, `file(path)`, or `url(url)`) to the resource is allowed for each `xmlToObject` step.
 
 Reference documentation::
 Refer to the https://github.com/FasterXML/jackson[jackson] documentation for further configuration and parameter information.
 
-== jsonToMap and jsonToObject
-The `jsonToMap` and `jsonToObject` steps within the Jackson plugin read a JSON resource (file, classpath resource, URL) and returns each item as an instance of `map` or `object`).
- 
+=== jsonToMap and jsonToObject
+The `jsonToMap` step reads a JSON resource (file, classpath resource, or URL) and returns each element as a `Map`. The `jsonToObject` step reads the same resource and deserializes each element directly into a typed object.
+
 Ancestor::
 Step
 
 Functionality::
-The `jsonToMap` and  `jsonToObject` step specification has a `targetClass` property to which the output lines should be mapped. The step reads a JSON file, converts the data to a `Map` (or an `Object`)  and pushes the `Map` (or `Object`) to the next step.
+The `jsonToMap` step converts each JSON element to a `Map` and pushes it to the next step. +
+The `jsonToObject` step maps each JSON element to an instance of the specified target class and pushes it to the next step.
 
 Example::
 +
 [source,kotlin,linenumbers]
 ----
 jackson().jsonToMap() {
-   classpath(file)
+   classpath("data.json")
 }
 jackson().jsonToObject(PojoForTest::class) {
-   classpath(file)
+   classpath("data.json")
 }
 ----
-Notable parameters::
-* `classpath(file)`: reads the data from a specified `path` resource; `file` is the path to the resource with the leading slash ignored.
-* `file(path)`: reads the data from a specified plain file in the file system; `path` is the path to the file, either absolute or relative to the current working directory.
-* `url(url)`: specifies and links to the `url` of the data resource.
 
 Tip::
-Only one path (`classpath(file)`, `file(path)`, or `url(url)`) to the resource is allowed for each `jsnToObject` or `jsnToMap` step.
+Only one path (`classpath(path)`, `file(path)`, or `url(url)`) to the resource is allowed for each `jsonToObject` or `jsonToMap` step.
 
 Reference documentation::
 Refer to the https://github.com/FasterXML/jackson[jackson] documentation for further configuration and parameter information.
+
+== Configuration
+
+=== DSL parameters
+
+Available parameters are described in the table below.
+[cols="1,4" options="header"]
+|===
+| *Parameter*
+| *Description*
+
+|`classpath(file)`
+a| Reads the data from a specified class path resource; `file` is the path to the resource with the leading slash ignored. +
+*Applicable Steps:* csvToMap, csvToObject, csvToList, jsonToMap, jsonToObject, xmlToObject +
+*Optional/Required:* Optional +
+*Data Type:* String +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin,linenumbers]
+----
+classpath("battery-levels.csv")
+----
+
+|`file (path)`
+a|Reads the data from a specified plain file in the file system; `path` is the path to the file, either absolute or relative to the current working directory. +
+*Applicable Steps:* csvToMap, csvToObject, csvToList, jsonToMap, jsonToObject, xmlToObject +
+*Optional/Required:* Optional +
+*Data Type:* String +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin,linenumbers]
+----
+file("/battery-levels.csv")
+----
+
+|`url(url)`
+a| Reads the data from a specified remote web resource. +
+*Applicable Steps:* csvToMap, csvToObject, csvToList, jsonToMap, jsonToObject, xmlToObject +
+*Optional/Required:* Optional +
+*Data Type:* url +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin,linenumbers]
+----
+url("https://raw.githubusercontent.com/iot-data/sensors/main/battery-levels.csv")
+----
+
+|`encoding(charset)`
+a| Sets the character encoding used to open the `InputStreamReader` for the source file. Accepts either the charset name as a `String` (passed to `Charset.forName()`) or a `java.nio.charset.Charset` instance directly. +
+*Applicable Steps:* csvToMap, csvToObject, csvToList, jsonToMap, jsonToObject, xmlToObject +
+*Optional/Required:* Optional +
+*Data Type:* `String` or `java.nio.charset.Charset` +
+*Default Value:* `UTF-8` +
+
+.Example
+[source,kotlin,linenumbers]
+----
+encoding("windows-1252") or encoding(Charsets.UTF_8)
+----
+
+|`columnSeparator(sep)`
+a| Sets the character used to split columns in a CSV row. +
+*Applicable Steps:* csvToMap, csvToObject, csvToList +
+*Optional/Required:* Optional +
+*Data Type:* `Char` +
+*Default Value:* `,` +
+
+.Example
+[source,kotlin,linenumbers]
+----
+columnSeparator(';')
+----
+
+|`quoteChar(quoteChar)`
+a| Sets the character used to quote cell values that contain the column separator or line separator, preventing them from being split. +
+*Applicable Steps:* csvToMap, csvToObject, csvToList +
+*Optional/Required:* Optional +
+*Data Type:* `Char` +
+*Default Value:* `"` +
+
+.Example
+[source,kotlin,linenumbers]
+----
+quoteChar('"')
+----
+
+|`escapeChar(escapeChar)`
+a| Sets the character used to escape special characters inside a cell value so they are not interpreted as delimiters. +
+*Applicable Steps:* csvToMap, csvToObject, csvToList +
+*Optional/Required:* Optional +
+*Data Type:* `Char` +
+*Default Value:* `\` +
+
+.Example
+[source,kotlin,linenumbers]
+----
+escapeChar('\\')
+----
+
+|`lineSeparator(sep)`
+a| Sets the line separator used to split rows. Accepts either a `String` or a `Char`. An empty string throws `InvalidSpecificationException`. +
+*Applicable Steps:* csvToMap, csvToObject, csvToList +
+*Optional/Required:* Optional +
+*Data Type:* `String` or `Char` +
+*Default Value:* `System.lineSeparator()` +
+
+.Example
+[source,kotlin,linenumbers]
+----
+lineSeparator('\n') or lineSeparator("\r\n")
+----
+
+|`allowComments()`
+a| When called, any line whose first non-whitespace character is `#` is silently skipped by the CSV parser. No argument is taken; calling the function sets the flag to `true`. +
+*Applicable Steps:* csvToMap, csvToObject, csvToList +
+*Optional/Required:* Optional +
+*Data Type:* Function (no arguments) +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin,linenumbers]
+----
+allowComments()
+----
+
+|`header { ... }`
+a| Configures the column structure of the CSV file. The lambda receiver is `CsvHeaderConfiguration`, which exposes `withHeader()`, `skipFirstDataRow()`, and `column(...)`. Parsing options (`columnSeparator`, `quoteChar`, `escapeChar`, `allowComments`) must be set at the step level, not inside this block. +
+*Applicable Steps:* csvToMap, csvToObject, csvToList +
+*Optional/Required:* Optional +
+*Data Type:* `CsvHeaderConfiguration.() -> Unit` +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin,linenumbers]
+----
+header {
+   withHeader()
+   column("deviceId").string()
+   column("batteryLevel").integer()
+   column("timestamp").long()
+}
+----
+
+|`header.withHeader()`
+a| Declares that the first non-skipped line of the CSV file is the header row. Its cell values become the keys of the output map (for `csvToMap`) or the property names used for binding (for `csvToObject`). Must be called inside `header {}`. +
+*Applicable Steps:* csvToMap, csvToObject, csvToList +
+*Optional/Required:* Optional +
+*Data Type:* Function (no arguments) +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin,linenumbers]
+----
+header {
+   withHeader()
+}
+----
+
+|`header.skipFirstDataRow()`
+a| Skips the first data row after the header. Use this when an external tool adds a units row or summary row immediately after the header line. Must be called inside `header {}`. +
+*Applicable Steps:* csvToMap, csvToObject, csvToList +
+*Optional/Required:* Optional +
+*Data Type:* Function (no arguments) +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin,linenumbers]
+----
+header {
+   skipFirstDataRow()
+}
+----
+
+|`column(name)` / `column(index, name)` / `column(index)` (inside `header {}`)
+a| Registers a column by name (appended in declaration order) or by explicit 0-based index and name. Returns a `CsvColumnConfiguration` on which type methods (`string()`, `integer()`, `long()`, `double()`, `boolean()`, etc., and their nullable variants) can be chained. Without a type call, the default type is `NULLABLE_STRING`. `array(separator)` may be chained after a type call to split the cell on an intra-cell separator. `ignoreError(default)` may be chained to suppress conversion errors and substitute a fallback value. +
+*Applicable Steps:* csvToMap, csvToObject, csvToList +
+*Optional/Required:* Optional +
+*Data Type:* Function that accepts a `String` name, an `Int` index alone, or an `Int` index and a `String` name, and returns a `CsvColumnConfiguration` for chaining type and parsing options. +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin,linenumbers]
+----
+column("voltage").double()
+column("tags").string().array(",")
+column("notes").string(true).ignoreError("")
+----
+
+|`mapper { ... }`
+a| Tweaks the `JsonMapper` (JSON steps) or `XmlMapper` (XML step) used to deserialize records. The lambda receives the already-configured mapper instance (with `KotlinModule`, `JavaTimeModule`, `Jdk8Module`, and `BeanIntrospectionModule` pre-registered) and adds behaviour on top. This block does not replace the default module registrations. +
+*Applicable Steps:* jsonToMap, jsonToObject, xmlToObject +
+*Optional/Required:* Optional +
+*Data Type:* `(JsonMapper) -> Unit` for JSON steps; `(XmlMapper) -> Unit` for the XML step. +
+*Default Value:* No-op lambda `{}` +
+
+.Example (JSON)
+[source,kotlin,linenumbers]
+----
+mapper { jsonMapper ->
+    jsonMapper.configure(
+        com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false
+    )
+}
+----
+
+.Example (XML)
+[source,kotlin,linenumbers]
+----
+mapper { xmlMapper ->
+    xmlMapper.configure(
+        com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false
+    )
+}
+----
+
+|===
+

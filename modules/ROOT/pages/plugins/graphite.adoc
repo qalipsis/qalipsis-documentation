@@ -18,21 +18,16 @@ Client library::
 * https://netty.io/[Netty]
 * https://ktor.io/[Ktor]
 
-Supported steps::
-* <<Poll step,`poll`>>: polls data from Graphite. 
-* <<Save step,`save`>>: saves events and records to Graphite. 
+== Supported steps
 
-Example scenarios using a combination of Graphite supported steps are provided in https://github.com/qalipsis/qalipsis-examples/tree/main/graphite[Github].
-
-== Poll step
-The poll step within the the Graphite plugin collects metrics from a Graphite server and broadcasts them to other components.
+=== Poll step
+The poll step within the Graphite plugin collects metrics from a Graphite server and broadcasts them to other components.
 
 Ancestor::
 Scenario or Step
 
 Functionality::  
 The ‘poll’ step is typically used to collect and distribute metrics for monitoring and visualization purposes.
-
  
 Example::
 [source,kotlin,linenumbers]
@@ -60,16 +55,11 @@ graphite().poll {
 }
 ----
 
-Notable parameters:: 
-* `connect` (required): configures the connection to the https://github.com/graphite-project/graphite-web[Graphite] server.
-* `query` (required): specifies a query to retrieve metrics from the Graphite server. 
-* `broadcast` (required): specifies the broadcast parameters for the step. 
-* `pollDelay` (required): `query` (required): specifies a query to retrieve metrics from the https://github.com/graphite-project/graphite-web[Graphite] server.
 
 Reference documentation::
 Refer to the https://github.com/graphite-project/graphite-web/tree/master/docs[Graphite] documentation for parameter and configuration information. 
 
-== Save step
+=== Save step
 The `save` step within the Graphite plugin persists records into a Graphite database using the save query.
 
 Ancestor::
@@ -88,7 +78,7 @@ Example::
     server("localhost", 2003)
   }
 
-  records { _, input ->
+  records { StepContext, input ->
     listOf(
       GraphiteRecord(
         metricPath = "device.battery-state.${input.deviceId.lowercase()}",
@@ -97,62 +87,521 @@ Example::
       )
     )
   }
+  monitoring {
+    events = false
+    meters = true
+  }
 }
 ----
-
-Notable parameters::
-* connect (required): configures the connection to the https://github.com/graphite-project/graphite-web[Graphite] server.
-* records (required): generates and configures a list of saved records.
-
 
 Reference documentation::
 Refer to the https://github.com/graphite-project/graphite-web/tree/master/docs[Graphite] documentation for further parameter and configuration information. 
 
-== Configuration of publication of events and meters to Graphite.
+== Configuration
 
-=== Configuration namespace
-Events::
-`events.export.graphite`
+=== DSL parameters
 
-Meters::
-`meters.export.graphite`
+Available parameters are described in the table below.
 
-=== Example configuration file
+[cols="1,4" options="header"]
+|===
+| *Parameter* 
+| *Description*
+
+| `connect` 
+a| Configures the connection to the https://github.com/graphite-project/graphite-web[Graphite] server. +
+*Applicable Steps:* Poll, Save +  
+*Optional/Required:* Required +
+*Data Type:* Lambda within which connection parameters are defined. +
+*Default Value:* N/A +
+
+.Example (Save)
 [source,kotlin,linenumbers]
+----
+connect {
+  server("localhost", 2003)
+  protocol(GraphiteProtocol.PICKLE)
+  netty(channelClass) { workerGroup }
+}
+----
+.Example (Poll)
+[source,kotlin,linenumbers]
+----
+connect {
+  server("http://localhost:8090/render")
+  basicAuthentication("myUser", "password") 
+} 
+----
+
+| `connect.server`
+a| Sets the base URL of the Graphite HTTP server used to execute queries.  +
+*Applicable Steps:* Poll, Save +  
+*Optional/Required:* Required +
+*Data Type:* String +
+*Default Value:* N/A +
+
+.Example (Save)
+[source,kotlin,linenumbers]
+----
+server("localhost", 2003)
+----
+
+.Example (Poll)
+[source,kotlin,linenumbers]
+----
+server("http://localhost:8090/render")
+----
+
+|`records`
+a| Factory that produces a collection of `GraphiteRecord` instances to be sent for each input. +
+*Applicable Steps:* Save    +
+*Optional/Required:* Required +
+*Data Type:* Lambda that receives the step context and input to return `Collection<GraphiteRecord>`. +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin,linenumbers]
+----
+records { stepContext, input ->
+  listOf(
+    GraphiteRecord(
+      metricPath = "device.battery-state.${input.deviceId.lowercase()}",
+      value = input.batteryLevel,
+      timestamp = input.timestamp
+    )
+  )
+}
+----
+
+|`GraphiteRecord`
+a| Defines the data format of the saved records. +
+*Applicable Steps:* Save    +
+*Optional/Required:* Required +
+*Data Type:*  `GraphiteRecord` data class +
+*Default Value:* N/A +
+
+.Example (arrayOf tags)
+[source,kotlin,linenumbers]
+----
+GraphiteRecord(
+  metricPath = "device.battery-state.${input.deviceId.lowercase()}",
+  value = input.batteryLevel,
+  timestamp = input.timestamp,
+  tags = arrayOf("env" to "prod", "zone" to "eu-west")
+)
+----
+
+.Example (mapOf tags)
+[source,kotlin,linenumbers]
+----
+GraphiteRecord(
+  metricPath = "device.battery-state.${input.deviceId.lowercase()}",
+  value = input.batteryLevel,
+  timestamp = input.timestamp,
+  tags = mapOf("env" to "prod", "zone" to "eu-west")
+)
+----
+
+|`metricPath`, `path`
+a|Metric name or path used by Graphite. +
+*Applicable Steps:* Save    +
+*Optional/Required:* Required +
+*Data Type:* String +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin,linenumbers]
+----
+metricPath = "device.battery-state.${input.deviceId.lowercase()}"
+----
+
+|`value`
+a| Numeric value to record.    +
+*Applicable Steps:* Save    +
+*Optional/Required:* Required +
+*Data Type:* Number +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin,linenumbers]
+----
+value = input.batteryLevel
+----
+
+|`timestamp`
+a| Captures the exact moment the value recorded.  +
+*Applicable Steps:* Save    +
+*Optional/Required:* Required +
+*Data Type:* java.time.Instant +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin,linenumbers]
+----
+timestamp = input.timestamp
+----
+
+|`tags`
+a| Optional labels attached to the record. +
+*Applicable Steps:* Save  +
+*Optional/Required:* Required  +
+*Data Type:* Map<String, String> \| vararg tags: Pair<String, String> +
+*Default Value:* N/A +
+
+.Examples
+[source,kotlin,linenumbers]
+----
+tags = mapOf("env" to "prod")
+----
+[source,kotlin,linenumbers]
+----
+tags = arrayOf("env" to "prod", "zone" to "eu-west")
+----
+
+| `monitoring`
+a| Configures QALIPSIS monitoring (meters/events) for the step.  +
+Refer to xref:plugins/plugins.adoc#monitoring-parameters[Monitoring parameters] for configuration details and examples of usage.
+
+| `query`
+a|Specifies a query to poll data from the https://github.com/graphite-project/graphite-web[Graphite] server. +
+*Applicable Steps:*  Poll +
+*Optional/Required:* Required +
+*Data Type:* Lambda within which query parameters are defined. + 
+*Default Value:* N/A +
+
+.Example
+[source,kotlin,linenumbers]
+----
+query {
+  withTarget("device.battery-state.*")
+    .from(GraphiteMetricsTime(-2, GraphiteMetricsTimeUnit.DAYS))
+    .noNullPoints(true)
+}
+----
+
+| `query.withTarget`
+a|Adds a new target to the request. +
+*Applicable Steps:*  Poll +
+*Optional/Required:* Optional +
+*Data Type:* Function + 
+*Default Value:* N/A +
+
+.Example
+[source,kotlin,linenumbers]
+----
+query {
+  withTarget("device.battery-state.*")
+}
+----
+
+| `query.withTargetFromSeriesByTag`
+a|Adds a new target defined on a series by tag to the request. +
+*Applicable Steps:*  Poll +
+*Optional/Required:* Optional +
+*Data Type:* Function + 
+*Default Value:* N/A +
+
+.Example
+[source,kotlin,linenumbers]
+----
+query {
+  withTargetFromSeriesByTag("tag-name", "~qalipsis.test.key.*")
+}
+----
+
+| `query.from`
+a|Sets the start time for the query. Accepts multiple types; Instant overload requires a date after epoch. +
+*Applicable Steps:*  Poll +
+*Optional/Required:* Optional +
+*Data Type:* Function + 
+*Default Value:* N/A +
+
+.Examples
+[source,kotlin,linenumbers]
+----
+query {
+  from("-2h")
+}
+----
+[source,kotlin,linenumbers]
+----
+query {
+  from(1620000000L)
+}
+----
+[source,kotlin,linenumbers]
+----
+query {
+  from(instant.now()) //Instant must be after epoch.
+}
+----
+[source,kotlin,linenumbers]
+----
+query {
+  from(GraphiteMetricsTime(1, GraphiteMetricsTimeUnit.HOURS))
+}
+----
+
+| `query.until`
+a|Sets the end time for the query. +
+*Applicable Steps:*  Poll +
+*Optional/Required:* Optional +
+*Data Type:* Function + 
+*Default Value:* N/A +
+
+.Examples
+[source,kotlin,linenumbers]
+----
+query {
+  until("-2h")
+}
+----
+[source,kotlin,linenumbers]
+----
+query {
+  until(1620000000L)
+}
+----
+[source,kotlin,linenumbers]
+----
+query {
+  until(instant.now()) //Instant must be after epoch
+}
+----
+[source,kotlin,linenumbers]
+----
+query {
+  until(GraphiteMetricsTime(1, GraphiteMetricsTimeUnit.HOURS))
+}
+----
+
+| `query.noNullPoints`
+a|When true, null points are excluded from the returned series. +
+*Applicable Steps:* Poll +
+*Optional/Required:* Optional +
+*Data Type:* Boolean Function +
+*Default Value:* True +
+
+.Example
+[source,kotlin]
+----
+query {
+  noNullPoints(true)
+}
+----
+
+| `GraphiteMetricsTime`
+a|The window of time to retrieve data from Graphite. +
+*Applicable Steps:* Poll +
+*Optional/Required:* Optional +
+*Data Type:* Graphite time shorthand (amount + unit). +
+*Default Value:* True +
+
+.Example
+[source,kotlin]
+----
+GraphiteMetricsTime(1, GraphiteMetricsTimeUnit.HOURS)
+----
+
+| `GraphiteMetricsTimeUnit`
+a|Units for the Graphic Metrics Time +
+*Applicable Steps:*  Poll +
+*Optional/Required:* Optional +
+*Data Type:* Graphite time shorthand (amount + unit). +
+*Default Value:* True +
+
+.Example
+[source,kotlin]
+----
+GraphiteMetricsTime(1, GraphiteMetricsTimeUnit.HOURS)
+----
+
+| `singletonConfiguration`
+a| Configures how polled results are delivered to scenario minions. +
+  Refer to xref:plugins/plugins.adoc#singletonconfiguration-parameters[SingletonConfiguration parameters] for details on strategies and examples of usage.
+
+| `pollDelay`
+a|Frequency/delay between two poll executions. +
+*Applicable Step:* Poll +
+*Optional/Required:* Optional +
+*Data Type:* Duration +
+*Default Value:* 10s +
+
+.Example
+[source,kotlin,linenumbers]
+----
+pollDelay(Duration.ofSeconds(1))
+----
+
+|===
+
+=== Shared defaults for Graphite steps
+You can define defaults once in the scenario section or just after, and let all following Graphite steps inherit them.
+
+[source,kotlin,linenumbers]
+----
+scenario {
+  graphite().defaults { <1>
+    pollConnection {
+      server("http://localhost:8090/render")
+    }
+    saveConnection {
+      server("localhost", 2003)
+      protocol(GraphiteProtocol.PICKLE)
+    }
+    monitoring {
+      events = true
+      meters = true
+    }
+  }
+}
+----
+<1> Defaults are applied to subsequent Graphite steps in the same scenario. Individual steps can still override values.
+
+== Analytics
+
+QALIPSIS can publish the meters and events collected during a campaign to Graphite through dedicated publishers.
+
+Configure the publishers in the factory configuration, separate from the scenario DSL. Refer to xref:up-and-running/configuration/provide-configuration.adoc[Provide configuration] for information about specifying the configuration to QALIPSIS.
+
+=== Meters
+
+The meters publisher sends the meter snapshots collected during a campaign to Graphite using the configured transport protocol.
+
+.Example configuration file (YAML)
+[source,yaml,linenumbers]
+----
+meters:
+  export:
+    graphite:
+      enabled: true
+      host: localhost
+      port: 2004
+      protocol: PICKLE
+      batch-size: 100
+      prefix: qalipsis.
+      publishers: 1
+----
+
+The parameters used to configure the publication of meters to Graphite are described in the table below.
+
+[cols="1,4" options="header"]
+|===
+| *Parameter*
+| *Description*
+
+|`meters.export.graphite.enabled`
+a|Activates the publication of meters to Graphite. Must be set to `true` to enable publishing. +
+*Data Type:* Boolean +
+*Default Value:* `false`
+
+|`meters.export.graphite.host`
+a|Host of the Graphite instance receiving the meters. +
+*Data Type:* String +
+*Default Value:* `localhost`
+
+|`meters.export.graphite.port`
+a|Port of the Graphite instance receiving the meters. +
+*Data Type:* Positive integer +
+*Default Value:* `2004`
+
+|`meters.export.graphite.protocol`
+a|Transport protocol used to send meters to Graphite. Acceptable values are `PLAINTEXT` and `PICKLE`. +
+*Data Type:* ENUM +
+*Default Value:* `PICKLE`
+
+|`meters.export.graphite.batch-size`
+a|Maximum number of meter snapshots batched together before being sent to Graphite. +
+*Data Type:* Positive integer +
+*Default Value:* `100`
+
+|`meters.export.graphite.prefix`
+a|Prefix prepended to every metric name when publishing to Graphite. +
+*Data Type:* String +
+*Default Value:* `qalipsis.`
+
+|`meters.export.graphite.publishers`
+a|Number of concurrent publishers that can send meter batches to Graphite. +
+*Data Type:* Positive integer +
+*Default Value:* `1` (no concurrency)
+
+|===
+
+=== Events
+
+The events publisher buffers the events emitted during a campaign and sends them to Graphite using the configured transport protocol.
+
+.Example configuration file (YAML)
+[source,yaml,linenumbers]
 ----
 events:
   export:
     graphite:
       enabled: true
-      min-level: INFO
+      min-level: TRACE
       host: localhost
       port: 2004
-      protocol: pickle
-      batch-size: 2
+      protocol: PICKLE
+      batch-size: 100
       linger-period: 10s
       publishers: 2
-
-meters:
-  export:
-    graphite:
-      host: localhost
-      port: 2004
-      enabled: true
-      step: PT10S
+      prefix: qalipsis.
 ----
 
-Event parameters::
-* `enabled` (required): boolean flag that activates/deactivates event publishing to Graphite; defaults to `false`; *must* be set to `true`.
-* `min-level` (required): minimal accepted level of events; defaults to INFO; allowed values are `EventLevel` values: `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `OFF`. 
-* `host` (required): defaults to `localhost`; cannot be blank.
-* `port` (required): positive integer; defaults to `2004`
-* `protocol` (required): the GraphiteProtocol type; default is `pickle`; available choices are `pickle` or `plaintext`.
-* `batch-size` (required): maximum number of events buffered between two publications of events to Graphite; positive integer; defaults to `2`.
-* `linger-period` (required): maximum period between two publications of events to Graphite; positive duration; defaults to `10s`.
-* `publishers` (required): maximum number of concurrent publication of events to Graphite; positive integer; defaults to `2`.
+The parameters used to configure the publication of events to Graphite are described in the table below.
 
-Meter parameters::
-* `enabled` (required): boolean flag that activates/deactivates meter publishing to Graphite; defaults to `false`; *must* be set to `true`.
-* `host` (required): defaults to localhost; cannot be blank.
-* `port` (required): positive integer; defaults to `2004`.
-* `step` (required): The step size (reporting frequency); defaults to `PT10S`.
+[cols="1,4" options="header"]
+|===
+| *Parameter*
+| *Description*
+
+|`events.export.graphite.enabled`
+a|Activates the publication of events to Graphite. Must be set to `true` to enable publishing. +
+*Data Type:* Boolean +
+*Default Value:* `false`
+
+|`events.export.graphite.min-level`
+a|Minimum event level published. Acceptable values are `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `OFF`. +
+*Data Type:* ENUM +
+*Default Value:* `TRACE`
+
+|`events.export.graphite.host`
+a|Host of the Graphite instance receiving the events. +
+*Data Type:* String +
+*Default Value:* `localhost`
+
+|`events.export.graphite.port`
+a|Port of the Graphite instance receiving the events. +
+*Data Type:* Positive integer +
+*Default Value:* `2004`
+
+|`events.export.graphite.protocol`
+a|Transport protocol used to send events to Graphite. Acceptable values are `PLAINTEXT` and `PICKLE`. +
+*Data Type:* ENUM +
+*Default Value:* `PICKLE`
+
+|`events.export.graphite.batch-size`
+a|Maximum number of events batched together before being sent to Graphite. +
+*Data Type:* Positive integer +
+*Default Value:* `100`
+
+|`events.export.graphite.linger-period`
+a|Maximum time the events are buffered before forcing a flush to Graphite, even when the batch size is not reached. +
+*Data Type:* Positive duration +
+*Default Value:* `10s`
+
+|`events.export.graphite.publishers`
+a|Number of concurrent publishers that can send event batches to Graphite. +
+*Data Type:* Positive integer +
+*Default Value:* `2`
+
+|`events.export.graphite.prefix`
+a|Prefix prepended to every event name when publishing to Graphite. +
+*Data Type:* String +
+*Default Value:* `qalipsis.`
+
+|===
+
+//-
+Reference Documentation::
+Refer to xref:up-and-running/configuration/monitoring-test-campaigns.adoc[Monitoring test campaigns] for a further explanation of the meter and event parameter values.

@@ -1,8 +1,12 @@
 = QALIPSIS Gradle plugin  [.badge.oss]## ##[.badge.commercial]## ##[.badge.cloud]## ##
 
 The QALIPSIS Gradle plugin simplifies the creation of new QALIPSIS projects and the integration of QALIPSIS projects into CI pipelines.
+It is composed of two plugins:
 
-== Setup 
+* the *bootstrap plugin* (`io.qalipsis.bootstrap`), used to initialize a QALIPSIS project and run scenarios locally,
+* the *cloud plugin* (`io.qalipsis.cloud`), used to publish scenarios to and trigger campaigns in the QALIPSIS cloud environment.
+
+== Setup
 The Gradle plugin is built into the bootstrap project. If you choose not use the bootstrap project skeleton, you can still setup your project to take advantage of the Gradle plugin.
 
 You can check the latest version of the QALIPSIS Gradle plugin from the https://plugins.gradle.org/plugin/io.qalipsis.bootstrap[Gradle Plugin Portal, window=_blank].
@@ -24,6 +28,37 @@ Groovy::
 plugins {
     id 'io.qalipsis.bootstrap' version '...'
 }
+----
+
+=== With the Cloud plugin
+
+The cloud plugin enables publishing scenarios to and triggering campaigns in the QALIPSIS cloud environment.
+It can be applied alongside the bootstrap plugin.
+
+Kotlin::
+[source,kotlin,linenumbers]
+----
+plugins {
+    id("io.qalipsis.cloud") version "..."
+}
+----
+
+Groovy::
+[source,kotlin,linenumbers]
+----
+plugins {
+    id 'io.qalipsis.cloud' version '...'
+}
+----
+
+The cloud plugin requires the following properties to be set, typically in `gradle.properties` or as Gradle execution options:
+
+[source,properties,linenumbers]
+----
+qalipsis.cloud.registry.url=https://app.qalipsis.io/api/scenarios
+qalipsis.cloud.registry.list=true
+qalipsis.cloud.registry.token=<your-api-token>
+qalipsis.cloud.api.url=https://app.qalipsis.io/api
 ----
 
 == Version Configuration
@@ -113,6 +148,7 @@ Gradle is available for the following QALIPSIS plugins:
 * apacheKafka
 * elasticsearch
 * graphite
+* http
 * influxDb
 * jackson
 * jms
@@ -124,6 +160,7 @@ Gradle is available for the following QALIPSIS plugins:
 * rabbitMq
 * redisLettuce
 * slack
+* sql
 * timescaleDb
 
 == Executing QALIPSIS
@@ -172,5 +209,53 @@ tasks.create('executeRestApiSpikeTest', RunQalipsis) {
     scenarios 'spike-test-of-rest-api', 'constant-monitoring'
     configuration 'report.export.junit.enabled': 'true',
                   'report.export.junit.folder': layout.buildDirectory.dir('test-results/my-new-scenario').get().asFile.path
+}
+----
+
+=== Cloud Campaign Execution
+
+When the cloud plugin is applied, you can create tasks of type `CloudRunQalipsis` to trigger campaigns in the QALIPSIS cloud environment.
+A campaign can configure several scenarios, each with its own minions count, geographic distribution and execution profile.
+
+[source,kotlin,linenumbers]
+----
+tasks {
+    create("qalipsisRunCampaign", CloudRunQalipsis::class.java) {
+        campaign("Test campaign") {
+            speedFactor.set(2.0)
+            startOffsetMs.set(2000)
+            campaignTimeout.set("PT1H30M")
+            hardTimeout.set(false)
+            scenario("My scenario 1") {
+                minionsCount = 710
+                zones {
+                    "US" to 45
+                    "DE" to 55
+                }
+                profile {
+                    stages(completionMode = CompletionMode.HARD) {
+                        stage(
+                            minionsCount = 10,
+                            rampUpDurationMs = 10,
+                            totalDurationMs = 100000,
+                            resolutionMs = 10000
+                        )
+                        stage(
+                            minionsCount = 200,
+                            rampUpDurationMs = 100,
+                            totalDurationMs = 10000,
+                            resolutionMs = 1000
+                        )
+                        stage(
+                            minionsCount = 500,
+                            rampUpDurationMs = 2000,
+                            totalDurationMs = 1000,
+                            resolutionMs = 4000
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 ----

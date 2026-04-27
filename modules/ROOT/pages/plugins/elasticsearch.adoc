@@ -1,7 +1,11 @@
 = Elasticsearch plugin [.badge.oss]## ##[.badge.commercial]## ##[.badge.cloud]## ##
 
 == Overview
-The Elasticsearch plugin connects QALIPSIS to https://www.elastic.co/[Elasticsearch].
+The Elasticsearch plugin connects QALIPSIS to https://www.elastic.co/[Elasticsearch] using the elasticsearch REST client.
+
+Elasticsearch allows QALIPSIS to poll, search, save, and analyze data from your tested system. 
+
+This page explains configuration, core concepts, secure connection options, runnable examples and best practices.
 
 Technology addressed::
 Elasticsearch: https://www.elastic.co/[]
@@ -13,33 +17,31 @@ Namespace in scenario::
 `elasticsearch()`
 
 Client library::
-JAVA API:  refer to  
-https://www.elastic.co/guide/en/elasticsearch/client/java-api-client/8.1/connecting.html[Elasticsearch JAVA Client]. 
+JAVA API:  refer to
+https://www.elastic.co/docs/reference/elasticsearch/clients/java/setup/connecting[Elasticsearch JAVA Client].
 
+== Supported steps
 
-Supported steps::
-* <<poll step,`poll`>>: polls the newest data periodically.
-* <<save step,`save`>>: saves a batch records generated from the input and step context.
-* <<search step,`search`>>: searches records and builds a query from the input and step context.
+=== Poll step
 
-Example scenarios using a combination of Elasticsearch supported steps are provided on https://github.com/qalipsis/qalipsis-examples/tree/master/elasticsearch[Github].
-
-== Poll step
-The `poll` step within the Elasticsearch plugin periodically polls data from Elasticsearch. The output is a list of `ElasticsearchDocument` containing JSON data or deserialized to objects. 
+The `poll` step within the Elasticsearch plugin reads batches of documents periodically from Elasticsearch.
+The output is a list of `ElasticsearchDocument` containing JSON data or deserialized to objects.
 
 Ancestor::
 Scenario
 
 Functionality::
-The `poll` step is created only once in a scenario; it is then used throughout the scenario as called. The `poll` step within the Elasticsearch plugin uses a strategy of “delivered exactly once”. The output of the `poll` step is an `ElasticsearchDocument` that contains maps of column to values.
+* The `poll` step is created only once in a scenario; it is then used throughout the scenario as called. +
+* The `poll` step within the Elasticsearch plugin uses a strategy of “delivered exactly once”. +
+* The output of the `poll` step is an `ElasticsearchDocument` that contains maps of column to values.
 
 Example::
 [source,kotlin,linenumbers]
 ----
-elasticsearch().poll {
-    name = "poll"
-    client { RestClient.builder(HttpHost.create("http://localhost:9200")).build() }
-    query {
+elasticsearch().poll {  <1>
+    name = "my-poll-step"
+    client { RestClient.builder(HttpHost.create("http://localhost:9200")).build() }  <2>
+    query {       <3>
         """{
             "query":{
                 "match_all":{}
@@ -47,29 +49,29 @@ elasticsearch().poll {
                 "sort" : ["_score"]
             }""".trimIndent()
     }
-    index("battery-state")   
-    pollDelay(Duration.ofSeconds(1))  
+    index("battery-state")   <4>
+    pollDelay(Duration.ofSeconds(1))  <5>
 }
 ----
-Notable parameters::
-* `index`: sets the `elasticsearch` indices to use for the queries; defaults to `all`.
-* `client`: configures the REST client to connect to https://www.elastic.co/[Elasticsearch].
-* `query`: configures the builder for the JSON query to perform the first poll.
-* `queryParameters`(optional): adds parameters to the query. 
-* `pollDelay` (required): specifies the delay between query executions.
-* `broadcast` (optional): specifies the broadcast parameters for the step.
+ <1> Start the `poll` step.
+ <2> Configure the REST client connection.
+ <3> Configure the query.
+ <4> Set the `elasticsearch` index to use for the queries.
+ <5> Specify the delay between query executions.
 
+//-
 Tips::
 * The `poll` step is generally used in conjunction with a `join` to assert data or inject data into a workflow.
 * The `query` parameter requires at least one sorting field to filter the newest results and not fetch the same records repeatedly.
 * The output of the `poll` step is an `ElasticsearchDocument` that contains maps of column names to values. If `flatten` is called, the records are provided one by one to the next step; otherwise each poll batch remains complete.
 
+//-
 Reference Documentation::
 * Refer to
 https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-query-params[Elasticsearch Query Parameters] for more information on query parameters.
 * Refer to the https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html#search-after[Elasticsearch] documentation for further parameter and configuration information.
 
-== Save step 
+=== Save step 
 The `save` step within the Elasticsearch plugin persists a batch of documents into  https://www.elastic.co/[Elasticsearch].
 
 Ancestor::
@@ -81,14 +83,14 @@ The `save` step's input and step context are used to generate a list of document
 Example::
 [source,kotlin,linenumbers]
 ----
-.elasticsearch()
-.save {
-    name = "save"
-    client {
+
+previousStep.elasticsearch().save {   <1>
+    name = "my-save-step" <2>
+    client {    <3>
         RestClient.builder(HttpHost.create("http://localhost:9200"))
             .build() 
     }
-    documents { _, input ->
+    documents { stepContext, input ->  <4>
         listOf(
             Document(
                 index = "battery-state",
@@ -100,35 +102,35 @@ Example::
 }
 ----
 
+<1> Start the `save` step.
+    Note: `previousStep` is a placeholder for any preceding step (e.g. `collect()` etc.).
+<2> Give a name to the step.
+<3> Configure the REST client connection.
+<4> Define the strategy to create documents to save using the step context and input.
 
-Notable Parameters::
-
-* `client`: configures the REST client to connect to https://www.elastic.co/[Elasticsearch].
-* `documents`: defines the strategy to create documents to save from the input and step context.
-
+//-
 Reference Documentation::
 Refer to the https://www.elastic.co/guide[Elasticsearch] documentation for further parameter information.
 
-== Search step
-The `search` step within the Elasticsearch plugin searches documents in the Elasticsearch database using a search query. 
+=== Search step
+The `search` step within the Elasticsearch plugin searches documents in the Elasticsearch database using a search query.
 
 Ancestor::
 Step
- 
+
 Functionality::
 The `search` step’s input and step context are used to generate a query; the batch of results is then forwarded to the next step(s).
- 
+
 Example::
 [source,kotlin,linenumbers]
 ----
-.elasticsearch()
-.search {
-    name = "search"
-    client {
+previousStep.elasticsearch().search {   <1>
+    name = "my-search-step"
+    client {    <2>
         RestClient.builder(HttpHost.create("http://localhost:9200")).build()
     }
-    index { _, _ -> listOf("battery-state") }   
-    query { _, input ->                         
+    index {  stepContext, input -> listOf("battery-state") }   <3>
+    query { stepContext, input ->     <4>
         """{
             "query": {
                 "bool": {
@@ -142,89 +144,457 @@ Example::
     }  
 }
 ----
+<1> Start the `search` step.
+    Note: `previousStep` is a placeholder for any preceding step (e.g. `collect()` etc.)
+<2> Configure the REST client connection.
+<3> Set the `elasticsearch` indices to use for the queries, resolved from the step context and input.
+<4> Configure the builder for the JSON query to perform a search, resolved from the step context and input.
 
-Notable parameters::
-* `client`: configures the REST client to connect to https://www.elastic.co/[Elasticsearch].
-* `index`: sets the `elasticsearch` indices to use for the queries; defaults to `all`.
-* `query`: configures the builder for the JSON query to perform a search. 
-
+//-
 Reference Documentation::
 * Refer to the https://www.elastic.co/guide[Elasticsearch] documentation for further parameter and configuration information.
-* For specifics on `queryParameters` refer to https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-query-paramsElastic[Elasticsearch Query Parameters].
-* For specifics on `search` parameters, refer to 
+* For specifics on `queryParameters` refer to https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-search#operation-search-query[Elasticsearch Query Parameters].
+* For specifics on `search` parameters, refer to
  https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html[Elasticsearch Search Parameters].
 
-== Configuration of publication of events and meters to Elasticsearch
+== Configuration
 
-=== Configuration namespace
-Events::
-`events.export.elasticsearch`
-Meters::
-`meters.export.elasticsearch`
+=== DSL parameters
 
-=== Example configuration file
+Available parameters are described in the table below.
+
+[cols="1,4" options="header"]
+|===
+| *Parameter* 
+| *Description*
+
+| `client`
+a| Configures the REST client to connect to https://www.elastic.co/[Elasticsearch] +
+*Applicable Steps:* Poll, Search, Save + 
+*Optional/Required:* Optional +
+*Data Type:* Lambda that returns an instance of RestClient +
+*Default Value:* http://localhost:9200 +
+
+.Example
+[source,kotlin]
+----
+client { 
+    RestClient.builder(HttpHost.create("http://localhost:9200")).build()
+}
+OR
+client {
+  RestClient.builder(HttpHost(hostname = "localhost", port = 9200,  scheme = "http")).build() 
+}
+----
+
+| `index`
+a| Sets the elasticsearch indices to use for the queries. +
+*Applicable Steps:* Poll, Search + 
+*Optional/Required:* Optional +
+*Data Type:* +
+   Poll: `vararg String` +
+   Search: Lambda that receives the step context and input to return `List<String>` +
+*Default Value:* `_all`
+
+.Example (Poll)
+[source,kotlin]
+----
+index("battery-state")
+----
+
+.Example (Search)
+[source,kotlin]
+----
+index { stepContext, input -> listOf("${input.batteryState}") } 
+----
+
+| `query`
+a| Configures the builder for the JSON query to perform the poll/search. +
+*Applicable Steps:* Poll, Search + 
+*Optional/Required:* Required +
+*Data Type:* +
+ Poll: Lambda that returns a String. +
+ Search: Lambda that receives the step context and input to return a String. +
+*Default Value:* N/A +
+
+.Example (Poll)
+[source,kotlin]
+----
+query { 
+        """{
+            "query":{
+                "match_all":{}
+            },
+                "sort" : ["_score"]
+            }"""
+    }
+----
+
+.Example (Search)
+[source,kotlin]
+----
+query { stepContext, input ->
+        """{
+            "query": {
+                "bool": {
+                    "must": [
+                        { "match": { "deviceId": "${input.deviceId}" }},
+                        { "term": { "timestamp": ${input.timestamp.epochSecond} }}
+                    ]
+                }
+            }
+        }"""
+    }
+----
+
+| `queryParameters`
+a|Adds parameters to the query. +
+*Applicable Steps:* Poll, Search +  
+*Optional/Required:* Optional +
+*Data Type:* + 
+ Poll: vararg Pair<String, String>  +
+ Search: Lambda that receives the step context and input to return `Map<String, String>` +
+*Default Value:* N/A + 
+
+.Example (Poll)
+[source,kotlin]
+----
+queryParameters("deviceId" to "deviceId1", "param-2" to "val-2")
+----
+
+.Example (Search) 
+[source,kotlin]
+----
+queryParameters { stepContext, input → mapOf("deviceId" to "${input.deviceId}") }
+----
+
+| `pollDelay`
+a| Specifies the delay between two successive polls.  +
+*Applicable Step:* Poll +
+*Optional/Required:* Optional  +
+*Data Type:* java.time.Duration +
+*Default Value:* null + 
+
+.Example
+[source,kotlin]
+----
+pollDelay(Duration.ofSeconds(1)) +
+----
+
+| `singletonConfiguration`
+a|Configures how polled results are delivered to scenario minions. +
+  Refer to xref:plugins/plugins.adoc#singletonconfiguration-parameters[SingletonConfiguration parameters] for details on strategies and examples of usage.
+  
+| `documents`
+a| Builds the list of documents to save using the Elasticsearch Bulk API. +
+*Applicable Step:* Save +
+*Optional/Required:* Required +
+*Data Type:*  Lambda that receives the step context and input to return `List<Document>` +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin] 
+----
+documents { stepContext, input ->
+    listOf(
+        Document(
+            index = "battery-state",
+            id = input.deviceId,
+            source = objectMapper.writeValueAsString(input)
+        )
+    )
+}
+----
+
+| `monitoring`
+a| Configures QALIPSIS monitoring (meters/events) for the step. +
+Refer to xref:plugins/plugins.adoc#monitoring-parameters[Monitoring parameters] for configuration details and examples of usage.
+
+| `keepResponse`
+a| When called, keeps the response from Elasticsearch after saving documents and forwards it to the next step. +
+*Applicable Step:* Save +
+*Optional/Required:* Optional +
+*Data Type:* Function + 
+*Default Value:* N/A +
+
+.Example
+[source,kotlin] 
+----
+keepResponse()
+----
+
+| `fetchAll`
+a| Fetches all results from Elasticsearch, even if over the result-sized window. +
+*Applicable Step:* Search +
+*Optional/Required:* Optional +
+*Data Type:* Function + 
+*Default Value:* N/A + 
+
+.Example
+[source,kotlin] 
+----
+   fetchAll()
+----
+
+| `mapper`
+a|Configures the JSON mapper to use for deserializing JSON documents from Elasticsearch into objects. +
+*Applicable Steps:* Search, Poll +
+*Optional/Required:* Optional +
+*Data Type:* Lambda that receives a JsonMapper to use in deserializing JSON records. + 
+*Default Value:* N/A + 
+ 
+.Example
+[source,kotlin] 
+----
+mapper { jsonMapper ->
+    // Custom configuration of the mapper
+}
+----
+|===
+
+=== Shared defaults for Elasticsearch steps
+You can define defaults once in the scenario section or just after, and let all following Elasticsearch steps inherit them.
+
 [source,kotlin,linenumbers]
 ----
-events:
-    export:
-        elasticsearch:
-            enabled: true
-            min-level: INFO
-            urls: http://localhost:9200
-            index-prefix: qalipsis-events
-            index-date-pattern: yyyy-MM-dd
-            duration-as-nano: false
-            linger-period: 10s
-            batch-size: 2000
-            publishers: 1
-            username:
-            password:
-            shards: 1
-            replicas: 0
+scenario {
+  elasticsearch().defaults { <1>
+    client {
+      RestClient.builder(HttpHost.create("http://localhost:9200")).build()
+    }
+    monitoring {
+      events = true
+      meters = true
+    }
+  }
+}
+----
+<1> Defaults are applied to subsequent Elasticsearch steps in the same scenario. Individual steps can still override values.
 
+== Analytics
+
+QALIPSIS can publish the meters and events collected during a campaign to Elasticsearch through dedicated publishers.
+
+Configure the publishers in the factory configuration, separate from the scenario DSL. Refer to xref:up-and-running/configuration/provide-configuration.adoc[Provide the configuration to QALIPSIS] for information about specifying the configuration to QALIPSIS.
+
+=== Meters
+
+The meters publisher writes the meter snapshots collected during a campaign as documents to time‑partitioned Elasticsearch indices.
+
+.Example configuration file (YAML)
+[source,yaml,linenumbers]
+----
 meters:
-    export:
-        elasticsearch:
-            urls: http://localhost:9200
-            host: ${meters.export.elasticsearch.urls}
-            enabled: true
-            step: PT10S
-            index: qalipsis-meters
-            index-date-format: yyyy-MM-dd
-            auto-create-index: true
----- 
-       
-Event parameters::
-* `enabled` (required): boolean flag that activates/deactivates event publishing to Elasticsearch; defaults to `false`; *must* be set to `true`.
-* `min-level` (required): minimal accepted level of events; allowable values are `EventLevel`values: `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `OFF`; defaults to `INFO`.
-* `urls` (required): list of URLs to the Elasticsearch instances; defaults to http://localhost:9200.
-* `index-prefix` (required): string prefix to use for the created indices containing the events; defaults to `qalipsis-events`.
-* `path-prefix` (required): string prefix used to demarcate url paths; defaults to `http://`.
-* `index-date-pattern` (required): string format of the date part of the index as supported by [java.time.format.DateTimeFormatter]; defaults to `yyyy-MM-dd`.
-* `refresh-interval` (required): string delay to refresh the indices in Elasticsearch; defaults to `10s`.
-* `store-source` (required): boolean flag identifies whether the source of documents is stored with the values; set to `true` for yes and `false` for no; defaults to `false`.
-* `linger-period` (required): maximum period between publication of events to Elasticsearch; positive duration, defaults to `10s`.
-* `batch-size` (required): maximum number of events buffered between two publications of events to Elasticsearch; positive integer; defaults to `2000`.
-* `publishers` (required): number of concurrent publication of events that can run; positive integer; defaults to `1` (no concurrency).
-* `shards` (required): number of shards to apply on the created indices for events; positive integer; defaults to `1`.
-* `replicas` (required): number of replicas to apply on the created indices for events; defaults to `0`.
-* `username` (optional): name of the user for basic authentication when connecting to Elasticsearch.
-* `password` (optional): password of the user for basic authentication when connecting to Elasticsearch.
-+
-By default, Elasticsearch does not require a `username` or `password` for authentication. However, it is recommended that the information be provided to ensure secure access to the Elasticsearch data.
+  export:
+    elasticsearch:
+      enabled: true
+      urls:
+        - http://localhost:9200
+      path-prefix: /
+      index-prefix: qalipsis-meters
+      refresh-interval: 10s
+      store-source: true
+      index-date-pattern: yyyy-MM-dd
+      publishers: 1
+      username:
+      password:
+      shards: 1
+      replicas: 0
+      proxy:
+----
 
-Meter parameters:: 
-* `urls` (required): list of URLs to the Elasticsearch instances; defaults to http://localhost:9200.
-* `host` (required): defaults to the value of `urls` above.
-* `enabled` (required): boolean flag that activates/deactivates meter publishing to Elasticsearch; defaults to `false`; *must* be set to `true`.
-* `step` (required): The step size (reporting frequency) to use; defaults to `PT10S`.
-* `index` (required): string value to use for creation of index containing the meters; defaults to `qalipsis-meters`.
-* `index-date-format` (required): string format of the date part of the index as supported by [java.time.format.DateTimeFormatter]; defaults to yyyy-MM-dd.
-* `auto-create-index` (required): boolean flag to enable/disable auto creation of `index`; defaults to `true`.
-* `proxy` (optional):  string URL of the HTTP proxy to use to access Elasticsearch; defaults to `null`. 
-+
-It is recommended that the appropriate `proxy` configuration be identified (rather than letting it default to `null`) in order to enable support for various authentication mechanisms in Elasticsearch.
-* `username` (optional): name of the user for basic authentication when connecting to Elasticsearch.
-* `password`(optional): password of the user for basic authentication when connecting to Elasticsearch.
-+
-By default, Elasticsearch does not require a `username` or `password` for authentication. However, it is recommended that the information be provided to ensure secure access to the Elasticsearch data.
+The parameters used to configure the publication of meters to Elasticsearch are described in the table below.
+
+[cols="1,4" options="header"]
+|===
+| *Parameter*
+| *Description*
+
+|`meters.export.elasticsearch.enabled`
+a|Activates the publication of meters to Elasticsearch. Must be set to `true` to enable publishing. +
+*Data Type:* Boolean +
+*Default Value:* `false`
+
+|`meters.export.elasticsearch.urls`
+a|List of URLs to the Elasticsearch instances. +
+*Data Type:* List of String +
+*Default Value:* `[http://localhost:9200]`
+
+|`meters.export.elasticsearch.path-prefix`
+a|Prefix prepended to the URL paths sent to Elasticsearch. +
+*Data Type:* String +
+*Default Value:* `/`
+
+|`meters.export.elasticsearch.index-prefix`
+a|Prefix used for the created indices that contain the meters. +
+*Data Type:* String +
+*Default Value:* `qalipsis-meters`
+
+|`meters.export.elasticsearch.refresh-interval`
+a|Delay between two refreshes of the meter indices in Elasticsearch. +
+*Data Type:* String +
+*Default Value:* `10s`
+
+|`meters.export.elasticsearch.store-source`
+a|Stores the `_source` field of the documents alongside the values when set to `true`. +
+*Data Type:* Boolean +
+*Default Value:* `true`
+
+|`meters.export.elasticsearch.index-date-pattern`
+a|Pattern of the date suffix appended to the index name to generate time‑partitioned indices, as supported by `java.time.format.DateTimeFormatter`. +
+*Data Type:* String +
+*Default Value:* `yyyy-MM-dd`
+
+|`meters.export.elasticsearch.publishers`
+a|Number of concurrent publishers that can send meter batches to Elasticsearch. +
+*Data Type:* Positive integer +
+*Default Value:* `1` (no concurrency)
+
+|`meters.export.elasticsearch.username`
+a|Name of the user for basic authentication when connecting to Elasticsearch. +
+*Data Type:* String +
+*Default Value:* None
+
+|`meters.export.elasticsearch.password`
+a|Password of the user for basic authentication when connecting to Elasticsearch. +
+*Data Type:* String +
+*Default Value:* None
+
+|`meters.export.elasticsearch.shards`
+a|Number of shards applied to the created meter indices. +
+*Data Type:* Positive integer +
+*Default Value:* `1`
+
+|`meters.export.elasticsearch.replicas`
+a|Number of replicas applied to the created meter indices. +
+*Data Type:* Positive integer +
+*Default Value:* `0`
+
+|`meters.export.elasticsearch.proxy`
+a|URL of the HTTP proxy to use to access Elasticsearch. Useful when an alternative authentication mechanism is required to reach the cluster. +
+*Data Type:* String +
+*Default Value:* None
+
+|===
+
+=== Events
+
+The events publisher buffers the events emitted during a campaign and writes them in bulk as documents to time‑partitioned Elasticsearch indices.
+
+.Example configuration file (YAML)
+[source,yaml,linenumbers]
+----
+events:
+  export:
+    elasticsearch:
+      enabled: true
+      min-level: INFO
+      urls:
+        - http://localhost:9200
+      path-prefix: /
+      index-prefix: qalipsis-events
+      refresh-interval: 10s
+      store-source: true
+      index-date-pattern: yyyy-MM-dd
+      linger-period: 10s
+      batch-size: 40000
+      publishers: 1
+      username:
+      password:
+      shards: 1
+      replicas: 0
+      proxy:
+----
+
+The parameters used to configure the publication of events to Elasticsearch are described in the table below.
+
+[cols="1,4" options="header"]
+|===
+| *Parameter*
+| *Description*
+
+|`events.export.elasticsearch.enabled`
+a|Activates the publication of events to Elasticsearch. Must be set to `true` to enable publishing. +
+*Data Type:* Boolean +
+*Default Value:* `false`
+
+|`events.export.elasticsearch.min-level`
+a|Minimum event level published. Acceptable values are `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `OFF`. +
+*Data Type:* ENUM +
+*Default Value:* `INFO`
+
+|`events.export.elasticsearch.urls`
+a|List of URLs to the Elasticsearch instances. +
+*Data Type:* List of String +
+*Default Value:* `[http://localhost:9200]`
+
+|`events.export.elasticsearch.path-prefix`
+a|Prefix prepended to the URL paths sent to Elasticsearch. +
+*Data Type:* String +
+*Default Value:* `/`
+
+|`events.export.elasticsearch.index-prefix`
+a|Prefix used for the created indices that contain the events. +
+*Data Type:* String +
+*Default Value:* `qalipsis-events`
+
+|`events.export.elasticsearch.refresh-interval`
+a|Delay between two refreshes of the event indices in Elasticsearch. +
+*Data Type:* String +
+*Default Value:* `10s`
+
+|`events.export.elasticsearch.store-source`
+a|Stores the `_source` field of the documents alongside the values when set to `true`. +
+*Data Type:* Boolean +
+*Default Value:* `true`
+
+|`events.export.elasticsearch.index-date-pattern`
+a|Pattern of the date suffix appended to the index name to generate time‑partitioned indices, as supported by `java.time.format.DateTimeFormatter`. +
+*Data Type:* String +
+*Default Value:* `yyyy-MM-dd`
+
+|`events.export.elasticsearch.linger-period`
+a|Maximum time the events are buffered before forcing a flush to Elasticsearch, even when the batch size is not reached. +
+*Data Type:* Positive duration +
+*Default Value:* `10s`
+
+|`events.export.elasticsearch.batch-size`
+a|Maximum number of events buffered between two publications to Elasticsearch before flushing a bulk request. +
+*Data Type:* Positive integer +
+*Default Value:* `40000`
+
+|`events.export.elasticsearch.publishers`
+a|Number of concurrent publishers that can send event batches to Elasticsearch. +
+*Data Type:* Positive integer +
+*Default Value:* `1` (no concurrency)
+
+|`events.export.elasticsearch.username`
+a|Name of the user for basic authentication when connecting to Elasticsearch. +
+*Data Type:* String +
+*Default Value:* None
+
+|`events.export.elasticsearch.password`
+a|Password of the user for basic authentication when connecting to Elasticsearch. +
+*Data Type:* String +
+*Default Value:* None
+
+|`events.export.elasticsearch.shards`
+a|Number of shards applied to the created event indices. +
+*Data Type:* Positive integer +
+*Default Value:* `1`
+
+|`events.export.elasticsearch.replicas`
+a|Number of replicas applied to the created event indices. +
+*Data Type:* Positive integer +
+*Default Value:* `0`
+
+|`events.export.elasticsearch.proxy`
+a|URL of the HTTP proxy to use to access Elasticsearch. Useful when an alternative authentication mechanism is required to reach the cluster. +
+*Data Type:* String +
+*Default Value:* None
+
+|===
+
+//-
+Reference Documentation::
+Refer to xref:up-and-running/configuration/monitoring-test-campaigns.adoc[Monitoring test campaigns] for a further explanation of the meter and event parameter values.

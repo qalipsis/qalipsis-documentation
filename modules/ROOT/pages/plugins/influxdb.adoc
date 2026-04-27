@@ -17,14 +17,9 @@ Namespace in scenario::
 Client library::
 influxdb-client-kotlin: refer to the https://github.com/influxdata/influxdb-client-java/tree/master/client-kotlin[influxdb-client-kotlin].
 
-Supported steps::
-* <<Poll step,`poll`>>: polls the newest data periodically.
-* <<Save step,`save`>>: saves a batch of records generated from the input and step context.
-* <<Search step,`search`>>: searches records and builds a query from the input and step context.
+== Supported steps
 
-Example scenarios using a combination of the InfluxDB supported steps are provided on https://github.com/qalipsis/qalipsis-examples/tree/master/influxdb[GitHub].
-
-== Poll step 
+=== Poll step
 The `poll` step within the InfluxDB plugin polls the newest records from the database, with a delay between each execution of a select query.
 
 Ancestor::
@@ -38,7 +33,7 @@ Example::
 [source,kotlin,linenumbers]
 ----
 influxdb().poll {
-    connect {
+    connect { <1>
         server(
             url = "http://localhost:18086",
             bucket = "iot",
@@ -46,7 +41,7 @@ influxdb().poll {
         )
         basic(user = "DJones", password = "Oxford1987")
     }
-    query(
+    query( <2>
         """
         from(bucket:"${iot}")
             |> range(start: -15m)
@@ -58,13 +53,8 @@ influxdb().poll {
     pollDelay(Duration.ofSeconds(1))
 }
 ----
-
-Notable parameters::
-* `connect` (required): configures the connection to https://www.influxdata.com/[InfluxDB].
-* `query` (required): specifies a query respecting the requirements of https://www.influxdata.com/[InfluxDB]. 
-* `parameters` (optional): binds values to the clauses of the prepared query.
-* `pollDelay` (required): specifies the delay between query executions.
-* `broadcast` (optional): specifies the broadcast parameters for the step.
+<1> Define the connection parameters to InfluxDB.
+<2> Specify a query respecting the requirements of https://www.influxdata.com/[InfluxDB].
 
 Tip::
 Use the `poll` step with a join operator to verify the values that the tested system saves to the database.
@@ -72,7 +62,7 @@ Use the `poll` step with a join operator to verify the values that the tested sy
 Reference: Documentation::
 Refer to the https://docs.influxdata.com/[InfluxDB] documentation for further parameter and configuration information.
  
-== Save step
+=== Save step
 The `save` step within the InfluxDB plugin persists a batch of records into the InfluxDB bucket using a specific `points` class.
 
 Ancestor::
@@ -86,7 +76,7 @@ Example::
 [source,kotlin,linenumbers]
 ----
 .save {
-    connect {
+    connect { <1> 
         server(
             url =  "http://localhost:18086",
             bucket = "iot",
@@ -94,8 +84,8 @@ Example::
         )
         basic(user = "DJones", password = "Oxford1987")
     }
-    query {
-        bucket = { _, _ -> "iot" }
+    query {  <2>
+        bucket = { StepContext, input -> "iot" }
         organization = { _, _ -> "qalipsis" }
         points = { _, input ->
             listOf(
@@ -108,18 +98,19 @@ Example::
     }
 }
 ----
-Notable parameter::
-* `connect` (required): configures the connection to https://www.influxdata.com/[InfluxDB].
-* `query` (required): specifies a query respecting the requirements of https://www.influxdata.com/[InfluxDB].
+<1> Define the connection parameters to InfluxDB.
+<2> Specify a query respecting the requirements of https://www.influxdata.com/[InfluxDB].
 
+//-
 Tips::
 * Use the `save` step after a `collect` step to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.
 * The `save` step is extremely flexible: bucket, tags, measurement and fields might depend on the context and input value received from the previous step.
 
+//-
 Reference documentation::
 Refer to the https://docs.influxdata.com/[InfluxDB] documentation for further parameter and configuration information.
 
-== Search step 
+=== Search step
 The `search` step within the InfluxDB plugin searches records in the database using a search query.
 
 Ancestor::
@@ -133,7 +124,7 @@ Example::
 ----
 .influxdb()
 .search {
-    connect {
+    connect { <1>
         server(
             url = "http://localhost:18086",
             bucket = "iot",
@@ -141,7 +132,7 @@ Example::
         )
         basic(user = "DJones", password = "Oxford1987")
     }
-    query { _, input ->
+    query { StepContext, input -> <2>
         """
             from(bucket: "${iot}")
                 |> range(start: -15m)
@@ -154,71 +145,379 @@ Example::
     }
 }
 ----
+<1> Define the connection parameters to InfluxDB.
+<2> Specify a query respecting the requirements of https://www.influxdata.com/[InfluxDB].
 
-Notable parameters::
-* `connect` (required): configures the connection to https://www.influxdata.com/[InfluxDB]. 
-* `query` (required): specifies a query respecting the requirements of https://www.influxdata.com/[InfluxDB].
-
+//-
 Tip::
 Use the `search` step after a `collect` step to reduce the number of queries executed onto the database and to reduce the load the scenario generates on the test system.
 
 Reference documentation::
 Refer to the https://docs.influxdata.com/[InfluxDB] documentation for further parameter and configuration information.
 
+== Configuration
 
-== Configuration of publication of events and meters to InfluxDB
-=== Configuration namespace
-Events::
-`events.export.influxdb`
 
-Meters::
-`meters.export.influxdb`
+=== DSL parameters
+Available parameters are described in the table below.
+[cols="1,4" options="header"]
+|===
+| *Parameter* 
+| *Description*
 
-=== Example configuration file
+| `connect`  +
+a| Defines the connection parameters to https://www.influxdata.com/[InfluxDB]. +
+*Applicable Steps:* Poll, Search, Save +
+*Optional/Required:* Required +
+*Data Type:* Lambda within which connection parameters are defined. +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+connect {
+    server(
+        url = "http://localhost:18086",
+        bucket = "iot",
+        org = "qalipsis"
+    ) 
+}
+----
+
+| `connect.server`  +
+a| Identifies the server parameters for the connection to https://www.influxdata.com/[InfluxDB]. +
+*Applicable Steps:* Poll, Search, Save +
+*Optional/Required:* Required +
+*Data Type:* Named function argument +
+*Default Value:* N/A +
+ 
+.Example
+[source,kotlin]
+----
+connect {
+    server(
+        url = "http://localhost:18086",
+        bucket = "iot",
+        org = "qalipsis"
+    )
+}
+----
+
+| `connect.server.url`  
+a| Identifies the url for the connection to https://www.influxdata.com/[InfluxDB]. +
+*Applicable Steps:* Poll, Search, Save +
+*Optional/Required:* Required +
+*Data Type:* url +
+*Default Value:* http://localhost:8086 +
+ 
+.Example
+[source,kotlin]
+----
+connect {
+    server(
+        url = "http://localhost:8086"
+    )
+}
+----
+ 
+| `connect.server.bucket`  
+a| Name of the bucket to use; a bucket defines the the highest level of data organization in InfluxDB. +
+*Applicable Steps:* Poll, Search, Save +
+*Optional/Required:* Required +
+*Data Type:* String +
+*Default Value:* "" +
+ 
+.Example
+[source,kotlin]
+----
+connect {
+    server(
+        bucket = "iot"
+    )
+}
+----
+
+|`connect.server.org`  
+a| The name of the organization (i.e., workspace) associated with the bucket. +
+*Applicable Steps:* Poll, Search, Save +
+*Optional/Required:* Required +
+*Data Type:* String +
+*Default Value:* N/A +
+ 
+.Example
+[source,kotlin]
+----
+connect {
+    server(
+    org = "qalipsis"
+    )
+}
+----
+
+| `query` 
+a| Specifies a query respecting the requirements of https://www.influxdata.com/[InfluxDB]. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Required +
+*Data Type:* Lambda that returns a String. +
+*Default Value:* N/A +
+
+.Example (Poll)
+[source,kotlin]
+----
+query( 
+    """
+    from(bucket:"${iot}")
+        \|> range(start: -15m)
+        \|> filter(
+            fn: (r) => r._measurement == "battery_state"
+        )
+""".trimIndent()
+)
+----
+
+.Example (Save)
+----
+query {  
+    bucket = { _, _ -> "iot" }
+    organization = { _, _ -> "qalipsis" }
+    points = { _, input ->
+        listOf(
+            Point.measurement("battery_state")
+                .addField("battery_level", input.batteryLevel)
+                .addTag("device_id", input.deviceId)
+                .addTag("timestamp", input.timestamp.epochSecond.toString())
+        )
+    }
+}
+----
+
+.Example (Search)
+----
+query { _, input -> <
+    """
+        from(bucket: "${iot}")
+            \|> range(start: -15m)
+            \|> filter(
+                fn: (r) => r._measurement == "${"battery_state"}" and
+                r.${"device_id"} == "${input.deviceId}" and
+                r.${"timestamp"} == "${input.timestamp.epochSecond}"
+        )               
+    """.trimIndent()
+}
+----
+
+| `parameters`
+a|Binds values to the clauses of the prepared query. +
+*Applicable Step:* Poll +
+*Optional/Required:* Optional +
+*Data Type:* + Lambda that returns a string. +
+*Default Value:* `List<Any>` / `vararg Any` + 
+ 
+.Example 
+[source,kotlin]
+----
+parameters(listOf(1, "abc")) or parameters(1, "abc") 
+----
+
+| `pollDelay`
+a| Specifies the delay between query executions. +
+*Applicable Step:* Poll +
+*Optional/Required:* Optional  +
+*Data Type:* java.time.Duration +
+*Default Value:* N/A + 
+
+.Example
+[source,kotlin]
+----
+pollDelay(Duration.ofSeconds(1)) 
+----
+
+| `singletonConfiguration`
+a| Configures how polled results are delivered to scenario minions. +
+ Refer to xref:plugins/plugins.adoc#singletonconfiguration-parameters[SingletonConfiguration parameters] for details on strategies and examples of usage.
+|===
+
+=== Shared defaults for InfluxDB steps
+You can define defaults once in the scenario section or just after, and let all following InfluxDB steps inherit them.
+
 [source,kotlin,linenumbers]
 ----
-events:
-    export:
-        influxdb:
-            url: http://localhost:8086
-            enabled: true
-            min-level: INFO
-            linger-period: 10s
-            batch-size: 2000
-            org: qalipsis
-            bucket: qalipsis-event
-            username: user
-            password: paspasspass
-
-meters:
-    export:
-        influxdb:
-            url: http://localhost:8086
-            enabled: true
-            step: PT10S
-            org: qalipsis
-            bucket: qalipsis-meter
-            username: user
-            password: passpasspass
+scenario {
+  influxdb().defaults { <1>
+    connect {
+      server(
+        url = "http://localhost:8086",
+        bucket = "iot",
+        org = "qalipsis"
+      )
+    }
+    monitoring {
+      events = true
+      meters = true
+    }
+  }
+}
 ----
-Event parameters::
-* `url` (required): string URL to the InfluxDB instance; defaults to `http://localhost:8086`.
-* `enabled` (required): boolean flag that activates/deactivates event publishing to InfluxDB; defaults to `false`; *must* be set to `true`.
-* `min-level` (required): minimum accepted level of events; defaults to INFO; allowable values are `EventLevel`values: TRACE, DEBUG, INFO, WARN, ERROR, OFF. 
-* `linger-period` (required): maximum period between publication of events to InfluxDB; positive duration, defaults to `10s`.
-* `batch-size` (required): maximum number of events buffered between two publications of events to InfluxDB; positive integer; defaults to `2000`.
-* `org` (required): name of the organization to use for basic authentication when connecting to InfluxDB; defaults to `qalipsis`.
-* `bucket` (required): password of the bucket to use for saving events to InfluxDB; defaults to `qalipsis-event`.
-* `username` (required): name of the user for basic authentication when connecting to InfluxDB; defaults to `user`.
-* `password` (required): password of the user for basic authentication when connecting to InfluxDB; defaults to `passpasspass`.
-* `publishers` (optional): number of concurrent publication of events that can run; positive integer; defaults to `1` (no concurrency).
+<1> Defaults are applied to subsequent InfluxDB steps in the same scenario. Individual steps can still override values.
+
+== Analytics
+
+QALIPSIS can publish the meters and events collected during a campaign to InfluxDB through dedicated publishers.
+
+Configure the publishers in the factory configuration, separate from the scenario DSL. Refer to xref:up-and-running/configuration/provide-configuration.adoc[Provide the configuration to QALIPSIS] for information about specifying the configuration to QALIPSIS.
+
+=== Meters
+
+The meters publisher writes the meter snapshots collected during a campaign as records to an InfluxDB bucket.
+
+.Example configuration file (YAML)
+[source,yaml,linenumbers]
+----
+meters:
+  export:
+    influxdb:
+      enabled: true
+      url: http://localhost:8086
+      user-name:
+      password:
+      org: qalipsis
+      bucket: qalipsis-meter
+      prefix: qalipsis.
+      publishers: 1
+----
+
+The parameters used to configure the publication of meters to InfluxDB are described in the table below.
+
+[cols="1,4" options="header"]
+|===
+| *Parameter*
+| *Description*
+
+|`meters.export.influxdb.enabled`
+a|Activates the publication of meters to InfluxDB. Must be set to `true` to enable publishing. +
+*Data Type:* Boolean +
+*Default Value:* `false`
+
+|`meters.export.influxdb.url`
+a|URL of the InfluxDB instance receiving the meters. +
+*Data Type:* String +
+*Default Value:* `http://localhost:8086`
+
+|`meters.export.influxdb.user-name`
+a|Name of the user used for basic authentication when connecting to InfluxDB. +
+*Data Type:* String +
+*Default Value:* Empty string
+
+|`meters.export.influxdb.password`
+a|Password of the user used for basic authentication when connecting to InfluxDB. +
+*Data Type:* String +
+*Default Value:* Empty string
+
+|`meters.export.influxdb.org`
+a|Name of the InfluxDB organization to which the meters are written. +
+*Data Type:* String +
+*Default Value:* `qalipsis`
+
+|`meters.export.influxdb.bucket`
+a|Name of the InfluxDB bucket where the meters are written. +
+*Data Type:* String +
+*Default Value:* `qalipsis-meter`
+
+|`meters.export.influxdb.prefix`
+a|Prefix prepended to every metric name when publishing to InfluxDB. +
+*Data Type:* String +
+*Default Value:* `qalipsis.`
+
+|`meters.export.influxdb.publishers`
+a|Number of concurrent publishers that can send meter batches to InfluxDB. +
+*Data Type:* Positive integer +
+*Default Value:* `1` (no concurrency)
+
+|===
+
+=== Events
+
+The events publisher buffers the events emitted during a campaign and writes them in bulk as records to an InfluxDB bucket.
+
+.Example configuration file (YAML)
+[source,yaml,linenumbers]
+----
+events:
+  export:
+    influxdb:
+      enabled: true
+      url: http://localhost:8086
+      min-level: INFO
+      linger-period: 10s
+      batch-size: 40000
+      publishers: 1
+      username:
+      password:
+      org: qalipsis
+      bucket: qalipsis-event
+----
+
+The parameters used to configure the publication of events to InfluxDB are described in the table below.
+
+[cols="1,4" options="header"]
+|===
+| *Parameter*
+| *Description*
+
+|`events.export.influxdb.enabled`
+a|Activates the publication of events to InfluxDB. Must be set to `true` to enable publishing. +
+*Data Type:* Boolean +
+*Default Value:* `false`
+
+|`events.export.influxdb.url`
+a|URL of the InfluxDB instance receiving the events. +
+*Data Type:* String +
+*Default Value:* `http://localhost:8086`
+
+|`events.export.influxdb.min-level`
+a|Minimum event level published. Acceptable values are `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `OFF`. +
+*Data Type:* ENUM +
+*Default Value:* `INFO`
+
+|`events.export.influxdb.linger-period`
+a|Maximum time the events are buffered before forcing a flush to InfluxDB, even when the batch size is not reached. +
+*Data Type:* Positive duration +
+*Default Value:* `10s`
+
+|`events.export.influxdb.batch-size`
+a|Maximum number of events buffered between two publications to InfluxDB. +
+*Data Type:* Positive integer +
+*Default Value:* `40000`
+
+|`events.export.influxdb.publishers`
+a|Number of concurrent publishers that can send event batches to InfluxDB. +
+*Data Type:* Positive integer +
+*Default Value:* `1` (no concurrency)
+
+|`events.export.influxdb.username`
+a|Name of the user used for basic authentication when connecting to InfluxDB. +
+*Data Type:* String +
+*Default Value:* Empty string
+
+|`events.export.influxdb.password`
+a|Password of the user used for basic authentication when connecting to InfluxDB. +
+*Data Type:* String +
+*Default Value:* Empty string
+
+|`events.export.influxdb.org`
+a|Name of the InfluxDB organization to which the events are written. +
+*Data Type:* String +
+*Default Value:* Empty string
+
+|`events.export.influxdb.bucket`
+a|Name of the InfluxDB bucket where the events are written. +
+*Data Type:* String +
+*Default Value:* Empty string
+
+|===
+
+//-
+Reference Documentation::
+Refer to xref:up-and-running/configuration/monitoring-test-campaigns.adoc[Monitoring test campaigns] for a further explanation of the meter and event parameter values.
 
 
-Meter parameters::
-* `url` (required): string URL to the InfluxDB instance; defaults to `http://localhost:8086`.
-* `enabled` (required): boolean flag that activates/deactivates meter publishing to InfluxDB; defaults to `false`; *must* be set to `true`.
-* `step` (required): step size (reporting frequency); defaults to `PT10S`.
-* `org` (required): name of the organization to use for basic authentication when connecting to InfluxDB; defaults to `qalipsis`.
-* `bucket` (required): password of the bucket to use for saving meters to InfluxDB; defaults to `qalipsis-meter`.
-* `username` (required): name of the user for basic authentication when connecting to InfluxDB; defaults to `user`.
-* `password` (required): password of the user for basic authentication when connecting to InfluxDB; defaults to `passpasspass`.

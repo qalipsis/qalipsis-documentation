@@ -1,0 +1,879 @@
+= Apache HTTP plugin [.badge.oss]## ##[.badge.commercial]## ##[.badge.cloud]## ##
+
+== Overview
+The Apache HTTP plugin connects QALIPSIS to HTTP and HTTPS systems using Apache HttpComponents Async Client.
+
+Technology addressed::
+HTTP/HTTPS over Apache HttpComponents: https://hc.apache.org/httpcomponents-client-5.6.x/index.html[]
+
+Dependency::
+`io.qalipsis.plugin:qalipsis-plugin-http`
+
+Namespace in scenario::
+`httpApache()`
+
+Client library::
+Apache HttpComponents Client 5 (async): refer to https://hc.apache.org/httpcomponents-client-5.6.x/index.html[Apache HttpComponents Client].
+
+== Supported steps
+
+=== HTTP step
+The `http` step within the Apache HTTP plugin executes one HTTP request per input and emits an `HttpResponse<B>`.
+
+Ancestor::
+Scenario, Step
+
+Functionality::
+The `http` step receives an input, builds a request through `request { ... }`, executes it using the configured connection strategy, and forwards the response downstream.
+
+Example::
++
+[source,kotlin,linenumbers]
+----
+scenario { <1>
+    minionsCount = 20
+}.start()
+    .httpApache() <2>
+    .http {
+        name = "health-check" <3>
+        connect { <4>
+            url("http://localhost:8080")
+            connectionStrategy { <5>
+                strategyType = ConnectionStrategyType.ON_DEMAND
+            }
+        }
+        request { stepContext, input -> <6>
+            simple(HttpMethod.GET, "/actuator/health")
+                .addHeader("Accept", "application/json") <7>
+        }
+    }
+    .verify { response -> <8>
+        assertThat(response.code).isEqualTo(200)
+    }
+----
+<1> Create a scenario with 20 minions.
+<2> Enter the Apache HTTP plugin namespace ("health-check").
+<3> Name the step for reporting and logs.
+<4> Define the target server base URL.
+<5> Use one client per execution (`ON_DEMAND` strategy).
+<6> Build a GET request for each execution.
+<7> Add an `Accept` header.
+<8> Define the verification parameters for the HTTP response status.
+
+//-
+Tip::
+* Use `.deserialize(MyType::class)` when responses are JSON or XML and should be converted to typed objects.
+
+//-
+Reference Documentation::
+Refer to the https://hc.apache.org/httpcomponents-client-5.5.x/index.html[Apache HttpComponents Client] documentation for further parameter and configuration information.
+
+== Configuration
+
+=== DSL parameters
+Available parameters are described in the table below.
+
+[cols="1,4" options="header"]
+|===
+| *Parameter*
+| *Description*
+
+
+| `http`
+a| Creates an HTTP step specification. +
+*Applicable Step:* HTTP +
+*Optional/Required:* Required +
+*Data Type:* Lambda with receiver `HttpClientStepSpecification<INPUT, String>` +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+.httpApache()
+.http {
+    name = "call-service"
+    connect {
+        url("http://localhost:8080")
+    }
+    request { stepContext, input ->
+        simple(HttpMethod.GET, "/health")
+    }
+}
+----
+
+| `connect`
+a| Configures endpoint, protocol options, connection strategy, proxy and TLS. +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Optional +
+*Data Type:* Lambda with receiver `HttpClientConfiguration` +
+*Default Value:* `url("http://localhost")` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    version = HttpVersion.HTTP_2
+    url("https://api.example.com/v1")
+    followRedirections(5)
+    connectionStrategy {
+        strategyType = ConnectionStrategyType.POOL
+        shared = true
+    }
+}
+----
+
+| `connect.url`
+a| Sets scheme, host, port and context path from a base URL. +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Required unless `address(...)` is used +
+*Data Type:* Function that receives URL as `String` +
+*Default Value:* `"http://localhost"` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    url("https://orders.example.com:8443/api")
+}
+----
+
+| `connect.address`
+a| Sets remote host and port explicitly. +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Optional +
+*Data Type:* `address(host: String, port: Int)` or `address(address: InetAddress, port: Int)` +
+*Default Value:* Host and port from `url(...)` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    address("api.example.com", 8443)
+}
+----
+
+| `connect.version`
+a| HTTP protocol version policy. +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Optional +
+*Data Type:* `org.apache.hc.core5.http.HttpVersion` +
+*Default Value:* `HttpVersion.HTTP_1_1` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    version = HttpVersion.HTTP_2
+}
+----
+
+| `connect.connectionStrategy`
+a| Configures how HTTP clients are provisioned for executions. +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Optional +
+*Data Type:* Lambda with receiver `ConnectionStrategyConfiguration` +
+*Default Value:* `strategyType = ON_DEMAND`, `shared = false` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    connectionStrategy {
+        strategyType = ConnectionStrategyType.WARMUP
+        shared = false
+    }
+}
+----
+
+| `connect.connectionStrategy.strategyType`
+a| Chooses the connection strategy implementation. +
+    `ON_DEMAND`: Creates a new HTTP connection on demand for each minion and closes connection after request. Use when request isolation is required, or when the target server does not support persistent connections. +
+    `POOL`: Maintains a pool of HTTP connections shared among all minions. Use when you want a single persistent connection pool shared across all minions for maximum connection reuse. +
+    `WARMUP`: Pre-initializes a pool of HTTP connections per minion. Use when you want zero cold-start latency; every minion gets a fully started, warmed-up client before the scenario begins. +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Optional +
+*Data Type:* `ConnectionStrategyType` +
+*Default Value:* `ON_DEMAND` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    connectionStrategy {
+        strategyType = ConnectionStrategyType.POOL
+    }
+}
+----
+
+| `connect.connectionStrategy.shared`
+a| Enables provider reuse across steps when pooled/warmup strategy and same settings are used. +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Optional +
+*Data Type:* `Boolean` +
+*Default Value:* `false` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    connectionStrategy {
+        strategyType = ConnectionStrategyType.POOL
+        shared = true
+    }
+}
+----
+
+| `connect.proxy`
+a| Enables proxy configuration. +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Optional +
+*Data Type:* Lambda with receiver `HttpProxyConfiguration` +
+*Default Value:* Disabled +
+
+.Example
+[source,kotlin]
+----
+connect {
+    proxy {
+        type = HttpProxyType.HTTP
+        address("proxy.local", 3128)
+        authenticate("user", "password")
+    }
+}
+----
+
+| `connect.proxy.type`
+a| Proxy protocol. +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Optional +
+*Data Type:* `HttpProxyType` (`HTTP`, `SOCKS5`) +
+*Default Value:* `HTTP` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    proxy {
+        type = HttpProxyType.SOCKS5
+        address("proxy.example.com", 1080)
+    }
+}
+----
+
+| `connect.proxy.address`
+a| Proxy server host and port. +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Required when proxy is enabled +
+*Data Type:* +
+Overload 1: `address(host: String, port: Int)` +
+Overload 2: `address(address: InetAddress, port: Int)` +
+*Default Value:* `localhost:0` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    proxy {
+        type = HttpProxyType.HTTP
+        address("proxy.internal", 3128)
+    }
+}
+----
+
+| `connect.proxy.authenticate`
+a| Proxy credentials. +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Optional +
+*Data Type:* `authenticate(username: String?, password: String?)` +
+*Default Value:* None +
+
+.Example
+[source,kotlin]
+----
+connect {
+    proxy {
+        type = HttpProxyType.HTTP
+        address("proxy.internal", 3128)
+        authenticate("proxy_user", "proxy_password")
+    }
+}
+----
+
+| `connect.tls`
+a| Configures TLS behavior. +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Optional +
+*Data Type:* Lambda with receiver `TlsConfiguration` +
+*Default Value:* Disabled +
+
+.Example
+[source,kotlin]
+----
+connect {
+    tls {
+        disableCertificateVerification = true
+        disableHostnameVerification = true
+        protocols("TLSv1.3")
+    }
+}
+----
+
+| `connect.tls.disableCertificateVerification`
+a| Disables certificate chain validation. +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Optional +
+*Data Type:* `Boolean` +
+*Default Value:* `false` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    tls {
+        disableCertificateVerification = true
+    }
+}
+----
+
+| `connect.tls.disableHostnameVerification`
+a| Disables hostname verification. +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Optional +
+*Data Type:* `Boolean` +
+*Default Value:* `false` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    tls {
+        disableHostnameVerification = true
+    }
+}
+----
+
+| `connect.tls.protocols`
+a| Restricts enabled TLS protocol versions. +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Optional +
+*Data Type:* `protocols(vararg String)` +
+*Default Value:* Client defaults +
+
+.Example
+[source,kotlin]
+----
+connect {
+    tls {
+        protocols("TLSv1.2", "TLSv1.3")
+    }
+}
+----
+
+| `connect.tls.ciphers`
+a| Restricts enabled TLS cipher suites. +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Optional +
+*Data Type:* `ciphers(vararg String)` +
+*Default Value:* Client defaults +
+
+.Example
+[source,kotlin]
+----
+connect {
+    tls {
+        ciphers(
+            "TLS_AES_256_GCM_SHA384",
+            "TLS_CHACHA20_POLY1305_SHA256"
+        )
+    }
+}
+----
+
+| `connect.charset`
+a| Charset used for request entities built by this plugin. +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Optional +
+*Data Type:* `charset(charset: Charset)` +
+*Default Value:* `UTF-8` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    charset(Charsets.ISO_8859_1)
+}
+----
+
+| `connect.maxContentLength`
+a| Maximum response content length in bytes. Responses exceeding this limit are truncated. +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Optional +
+*Data Type:* `maxContentLength(maxContentLength: Int)` +
+*Default Value:* `1048576` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    maxContentLength(5_242_880) // 5 MB
+}
+----
+
+| `connect.followRedirections`
+a| Enables redirection following and sets the maximum number of redirects to follow. +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Optional +
+*Data Type:* `followRedirections(max: Int = 10)` +
+*Default Value:* Disabled, max `10` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    followRedirections(5)
+}
+----
+
+| `connect.inflate`
+a| Enables automatic decompression of compressed response bodies (e.g. `gzip`, `deflate`). +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Optional +
+*Data Type:* `inflate()` +
+*Default Value:* Disabled +
+
+.Example
+[source,kotlin]
+----
+connect {
+    inflate()
+}
+----
+
+| `connect.readTimeout`
+a| Maximum time to wait for a response from the server before the request is aborted. +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Optional +
+*Data Type:* `Duration` +
+*Default Value:* `PT10S` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    readTimeout = Duration.ofSeconds(30)
+}
+----
+
+| `connect.shutdownTimeout`
+a| Maximum time to wait for in-flight requests to complete when the step is shut down. +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Optional +
+*Data Type:* `Duration` +
+*Default Value:* `PT10S` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    shutdownTimeout = Duration.ofSeconds(15)
+}
+----
+
+| `connect.sendBufferSize`
+a| Size in bytes of the socket send buffer. +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Optional +
+*Data Type:* `Int` +
+*Default Value:* `1024` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    sendBufferSize = 8192
+}
+----
+
+| `connect.receiveBufferSize`
+a| Size in bytes of the socket receive buffer. +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Optional +
+*Data Type:* `Int` +
+*Default Value:* `1024` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    receiveBufferSize = 8192
+}
+----
+
+| `connect.maxConnPerRoute`
+a| Maximum number of pooled connections allowed per route (host + port combination). +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Optional +
+*Data Type:* `Int` +
+*Default Value:* `5` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    connectionStrategy {
+        strategyType = ConnectionStrategyType.POOL
+    }
+    maxConnPerRoute = 20
+}
+----
+
+| `connect.maxConnTotal`
+a| Maximum total number of pooled connections across all routes. +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Optional +
+*Data Type:* `Int` +
+*Default Value:* `25` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    connectionStrategy {
+        strategyType = ConnectionStrategyType.POOL
+    }
+    maxConnTotal = 100
+}
+----
+
+| `connect.poolConcurrencyPolicy`
+a| Apache pool concurrency policy. `STRICT` enforces the per-route limit strictly; `LAX` allows temporary bursts above the limit. +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Optional +
+*Data Type:* `org.apache.hc.core5.pool.PoolConcurrencyPolicy` +
+*Default Value:* `STRICT` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    poolConcurrencyPolicy = PoolConcurrencyPolicy.LAX
+}
+----
+
+| `connect.idleConnectionTimeout`
+a| Time after which an idle pooled connection is evicted and closed. +
+*Applicable Step:* HTTP, defaults +
+*Optional/Required:* Optional +
+*Data Type:* `Duration` +
+*Default Value:* `PT30S` +
+
+.Example
+[source,kotlin]
+----
+connect {
+    idleConnectionTimeout = Duration.ofSeconds(60)
+}
+----
+
+| `request`
+a| Configures how to build the request for each execution from the current step context and input. +
+*Applicable Step:* HTTP +
+*Optional/Required:* Required +
+*Data Type:* Lambda that receives step context and input, and returns one of the supported request types (`simple`, `form`, `multipart`) +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+request { stepContext, input ->
+    simple(HttpMethod.POST, "/api/orders")
+        .addHeader("X-Minion-Id", stepContext.minionId)
+        .body(input.toString(), ContentType.APPLICATION_JSON)
+}
+----
+
+| `request.simple`
+a| Creates a standard request with optional text or binary body. +
+*Applicable Step:* HTTP +
+*Optional/Required:* Optional (one request type is required) +
+*Data Type:* Function with parameters `method: HttpMethod`, `uri: String` that returns `SimpleHttpRequest` +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+request { stepContext, input ->
+    simple(HttpMethod.GET, "/api/items")
+        .addParameter("limit", "50")
+}
+----
+
+| `request.form`
+a| Creates an `application/x-www-form-urlencoded` request. +
+*Applicable Step:* HTTP +
+*Optional/Required:* Optional (one request type is required) +
+*Data Type:* Function with parameters `method: HttpMethod`, `uri: String` that returns `FormHttpRequest` +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+request { stepContext, input ->
+    form(HttpMethod.POST, "/token")
+        .addFormField("grant_type", "client_credentials")
+        .addFormField("scope", "inventory.read")
+}
+----
+
+| `request.multipart`
+a| Creates a `multipart/form-data` request with text/file/stream parts. +
+*Applicable Step:* HTTP +
+*Optional/Required:* Optional (one request type is required) +
+*Data Type:* Function with parameters `method: HttpMethod`, `uri: String` that returns `MultipartHttpRequest` +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+request { stepContext, input ->
+    multipart(HttpMethod.POST, "/upload")
+        .addTextPart("category", "reports")
+        .addFilePart("file", File("build/reports/result.txt"))
+}
+----
+
+| `request.addHeader`
+a| Adds or overrides a request header. +
+*Applicable Step:* HTTP (all request types) +
+*Optional/Required:* Optional +
+*Data Type:* Function that receives header name and value as `CharSequence` +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+request { stepContext, input ->
+    simple(HttpMethod.GET, "/api/items")
+        .addHeader("Accept", "application/json")
+        .addHeader("X-Api-Key", "my-secret-key")
+}
+----
+
+| `request.addParameter`
+a| Adds a query parameter. Repeated keys are supported. +
+*Applicable Step:* HTTP (all request types) +
+*Optional/Required:* Optional +
+*Data Type:* Function that receives parameter name and value as `CharSequence` +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+request { stepContext, input ->
+    simple(HttpMethod.GET, "/api/items")
+        .addParameter("page", "1")
+        .addParameter("size", "50")
+}
+----
+
+| `request.addCookies`
+a| Adds cookies to the request. +
+*Applicable Step:* HTTP (all request types) +
+*Optional/Required:* Optional +
+*Data Type:* Function that receives a vararg of `org.apache.hc.client5.http.cookie.Cookie` objects +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+request { stepContext, input ->
+    val cookie = BasicClientCookie("session", "abc123").apply {
+        domain = "api.example.com"
+        path = "/"
+    }
+    simple(HttpMethod.GET, "/api/profile")
+        .addCookies(cookie)
+}
+----
+
+| `request.withBasicAuth`
+a| Adds HTTP basic authentication header `Authorization: Basic ...`. +
+*Applicable Step:* HTTP (all request types) +
+*Optional/Required:* Optional +
+*Data Type:* Function that receives username and password as `String` +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+request { stepContext, input ->
+    simple(HttpMethod.GET, "/api/secure")
+        .withBasicAuth("qalipsis_user", "qalipsis_password")
+}
+----
+
+| `request.simple.body`
+a| Sets request body on `simple` request. Two overloads are available for text and bytes. +
+*Applicable Step:* HTTP (`simple`) +
+*Optional/Required:* Optional +
+*Data Type:* +
+    Text: Function that receives body as `String` and optional content type as `org.apache.hc.core5.http.ContentType` +
+    Bytes: Function that receives body as `ByteArray` and content type as `CharSequence` +
+*Default Value:* Empty body +
+
+.Example (Text body)
+[source,kotlin]
+----
+
+request { stepContext, input ->
+    simple(HttpMethod.POST, "/api/orders")
+        .body("""{"item":"${input.sku}","qty":${input.quantity}}""", ContentType.APPLICATION_JSON)
+}
+----
+
+.Example (Byte array body)
+----
+request { stepContext, input ->
+    simple(HttpMethod.PUT, "/api/files/upload")
+        .body(input.toByteArray(), "application/octet-stream")
+}
+----
+
+| `request.simple.contentType`
+a| Sets body content type on `simple` request. +
+*Applicable Step:* HTTP (`simple`) +
+*Optional/Required:* Optional +
+*Data Type:* Function that receives content type as `ContentType` +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+request { stepContext, input ->
+    simple(HttpMethod.POST, "/api/data")
+        .contentType(ContentType.APPLICATION_JSON)
+        .body(input.toString())
+}
+----
+
+| `request.form.addFormField`
+a| Adds or replaces one form field with one value. +
+*Applicable Step:* HTTP (`form`) +
+*Optional/Required:* Optional +
+*Data Type:* Function that receives field name and value as `CharSequence` +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+request { stepContext, input ->
+    form(HttpMethod.POST, "/oauth/token")
+        .addFormField("grant_type", "client_credentials")
+        .addFormField("client_id", "load-test")
+}
+----
+
+| `request.form.addFormFields`
+a| Adds or replaces one form field with multiple values. +
+*Applicable Step:* HTTP (`form`) +
+*Optional/Required:* Optional +
+*Data Type:* Function that receives field name and vararg of values as `CharSequence` +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+request { stepContext, input ->
+    form(HttpMethod.POST, "/api/filter")
+        .addFormFields("tags", "sensor", "battery", "iot")
+}
+----
+
+| `request.multipart.addTextPart`
+a| Adds one text part to a multipart request. +
+*Applicable Step:* HTTP (`multipart`) +
+*Optional/Required:* Optional +
+*Data Type:* Function that receives part name, text value and optional content type as `CharSequence` +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+request { stepContext, input ->
+    multipart(HttpMethod.POST, "/api/upload")
+        .addTextPart("description", "Battery level report for device ${input.deviceId}")
+}
+----
+
+| `request.multipart.addFilePart`
+a| Adds one file part to a multipart request. +
+*Applicable Step:* HTTP (`multipart`) +
+*Optional/Required:* Optional +
+*Data Type:* Function that receives part name, file name, content type and `File` object +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+request { request { stepContext, input ->
+    multipart(HttpMethod.POST, "/api/reports")
+        .addFilePart("report", File("build/reports/battery-summary.csv"), ContentType.TEXT_PLAIN)
+}
+----
+
+| `request.multipart.addStreamPart`
+a| Adds one stream part to a multipart request. Stream lifecycle stays caller responsibility. +
+*Applicable Step:* HTTP (`multipart`) +
+*Optional/Required:* Optional +
+*Data Type:* Function that receives part name, file name, content type and a lambda that returns an `InputStream` +
+*Default Value:*N/A +
+
+.Example
+[source,kotlin]
+----
+request { request { stepContext, input ->
+    multipart(HttpMethod.POST, "/api/upload")
+        .addStreamPart("content", "${input.deviceId}.json", ContentType.APPLICATION_JSON) {
+            ObjectMapper().writeValueAsBytes(input).inputStream()
+        }
+}
+----
+
+| `request.multipart.setBoundary`
+a| Sets the multipart boundary string. +
+*Applicable Step:* HTTP (`multipart`) +
+*Optional/Required:* Optional +
+*Data Type:* Function that receives boundary string as `CharSequence` +
+*Default Value:* Auto-generated +
+
+.Example
+[source,kotlin]
+----
+request { request { stepContext, input ->
+    multipart(HttpMethod.POST, "/api/upload")
+        .setBoundary("qalipsis-boundary-001")
+        .addTextPart("label", "test-run")
+}
+----
+
+
+|===
+
+=== Shared defaults for Apache HTTP steps
+You can define defaults once in the scenario section or just after, and let all following Apache HTTP steps inherit them.
+
+[source,kotlin,linenumbers]
+----
+scenario {
+  httpApache().defaults { <1>
+    connect {
+      url("https://api.example.com")
+    }
+    monitoring {
+      events = true
+      meters = true
+    }
+  }
+}
+----
+<1> Defaults are applied to subsequent Apache HTTP steps in the same scenario. Individual steps can still override values.

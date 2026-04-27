@@ -120,22 +120,22 @@ Add an `http` step to the scenario that will send a POST request to the server.
 
 [source,kotlin]
 ----
-        .start() // <1>
-        .netty() // <2>
-        .http {  // <3>
-            name = "quickstart-http-post"  // <4>
-            connect {  // <5> 
+        .start()  <1>
+        .netty()  <2>
+        .http {   <3>
+            name = "quickstart-http-post"  <4>
+            connect {   <5> 
                 url("http://localhost:18080")
                 version = HttpVersion.HTTP_1_1
             }
-            request { _,_ ->  // <6>
+            request { _,_ ->  <6>
                     SimpleHttpRequest(HttpMethod.POST, "/echo").body(  
                     "Hello World!",
                     HttpHeaderValues.TEXT_PLAIN
                     )
             }
             report {
-                reportErrors = true  // <7>
+                reportErrors = true  <7>
             }
         }
 ----
