@@ -1,11 +1,11 @@
 = TimescaleDB plugin [.badge.oss]## ##[.badge.commercial]## ##
 
 == Overview
-The TimescaleDB plugin connects QALIPSIS to https://docs.timescale.com/timescaledb/latest[TimescaleDB].
+The TimescaleDB plugin connects QALIPSIS to https://www.tigerdata.com/timescaledb[TimescaleDB].
 
 Technology addressed::
 * PSQL: https://www.postgresql.org/
-* TimescaleDB: https://www.timescale.com/
+* TimescaleDB: https://www.tigerdata.com/timescaledb
 
 Dependency::
 `io.qalipsis:plugin-timescaledb`
@@ -14,20 +14,139 @@ Namespace in scenario::
 `timescaledb()`
 
 Client library::
-https://docs.timescale.com/keywords/Toolkit/
+https://www.tigerdata.com/docs/deploy/self-hosted/tooling/install-toolkit
 
-== Configuration of publication of events and meters to TimescaleDB.
+== Analytics
 
-=== Configuration namespace
+QALIPSIS can publish the meters and events collected during a campaign to TimescaleDB through dedicated publishers.
 
-Events::
-`events.export.timescaledb`
+Configure the publishers in the factory configuration, separate from the scenario DSL. Refer to xref:up-and-running/configuration/provide-configuration.adoc[Provide the configuration to QALIPSIS] for information about specifying the configuration to QALIPSIS.
 
-Meters::
-`meters.export.timescaledb`
+TIP: TimescaleDB requires valid credentials for authentication. Ensure that the username and password for a properly configured TimescaleDB user are provided in the configuration.
 
-=== Example configuration file
-[source,kotlin,linenumbers]
+=== Meters
+
+The meters publisher writes the meter snapshots collected during a campaign as rows into the configured TimescaleDB schema.
+
+.Example configuration file (YAML)
+[source,yaml,linenumbers]
+----
+meters:
+  export:
+    timescaledb:
+      enabled: true
+      host: localhost
+      port: 5432
+      database: qalipsis
+      schema: meters
+      username: qalipsis_user
+      password: qalipsis-pwd
+      prefix: qalipsis
+      enable-ssl: false
+      ssl-mode: PREFER
+      ssl-root-cert:
+      ssl-cert:
+      ssl-key:
+      min-idle-connection: 1
+      max-pool-size: 1
+      init-schema: true
+----
+
+The parameters used to configure the publication of meters to TimescaleDB are described in the table below.
+
+[cols="1,4" options="header"]
+|===
+| *Parameter*
+| *Description*
+
+|`meters.export.timescaledb.enabled`
+a|Activates the publication of meters to TimescaleDB. Must be set to `true` to enable publishing. +
+*Data Type:* Boolean +
+*Default Value:* `false`
+
+|`meters.export.timescaledb.host`
+a|Hostname or IP address of the TimescaleDB/PostgreSQL server. +
+*Data Type:* String +
+*Default Value:* `localhost`
+
+|`meters.export.timescaledb.port`
+a|Port on which the TimescaleDB/PostgreSQL server listens. +
+*Data Type:* Positive integer +
+*Default Value:* `5432`
+
+|`meters.export.timescaledb.database`
+a|Name of the TimescaleDB database receiving the meters. +
+*Data Type:* String +
+*Default Value:* `qalipsis`
+
+|`meters.export.timescaledb.schema`
+a|Name of the schema where the meters are stored. +
+*Data Type:* String +
+*Default Value:* `meters`
+
+|`meters.export.timescaledb.username`
+a|Name of the user used for basic authentication when connecting to TimescaleDB. +
+*Data Type:* String +
+*Default Value:* `qalipsis_user`
+
+|`meters.export.timescaledb.password`
+a|Password of the user used for basic authentication when connecting to TimescaleDB. +
+*Data Type:* String +
+*Default Value:* `qalipsis-pwd`
+
+|`meters.export.timescaledb.prefix`
+a|Prefix prepended to every metric name when publishing to TimescaleDB. +
+*Data Type:* String +
+*Default Value:* `qalipsis`
+
+|`meters.export.timescaledb.enable-ssl`
+a|Enables SSL/TLS encryption for the database connection. +
+*Data Type:* Boolean +
+*Default Value:* `false`
+
+|`meters.export.timescaledb.ssl-mode`
+a|SSL mode applied to the database connection. Acceptable values are `DISABLE`, `ALLOW`, `PREFER`, `REQUIRE`, `VERIFY_CA`, `VERIFY_FULL`. +
+*Data Type:* ENUM +
+*Default Value:* `PREFER`
+
+|`meters.export.timescaledb.ssl-root-cert`
+a|Path to the SSL root certificate file used for SSL/TLS connections. +
+*Data Type:* String +
+*Default Value:* None
+
+|`meters.export.timescaledb.ssl-cert`
+a|Path to the SSL client certificate file used for SSL/TLS connections. +
+*Data Type:* String +
+*Default Value:* None
+
+|`meters.export.timescaledb.ssl-key`
+a|Path to the SSL client private key file used for SSL/TLS connections. +
+*Data Type:* String +
+*Default Value:* None
+
+|`meters.export.timescaledb.min-idle-connection`
+a|Minimum number of idle database connections maintained in the connection pool. +
+*Data Type:* Positive integer +
+*Default Value:* `1`
+
+|`meters.export.timescaledb.max-pool-size`
+a|Maximum number of database connections in the connection pool. +
+*Data Type:* Positive integer +
+*Default Value:* `1`
+
+|`meters.export.timescaledb.init-schema`
+a|Creates or updates the meter schema at startup when set to `true`. +
+*Data Type:* Boolean +
+*Default Value:* `true`
+
+|===
+
+=== Events
+
+The events publisher buffers the events emitted during a campaign and writes them in bulk as rows into the configured TimescaleDB schema.
+
+.Example configuration file (YAML)
+[source,yaml,linenumbers]
 ----
 events:
   export:
@@ -43,42 +162,108 @@ events:
       publishers: 1
       username: qalipsis_user
       password: qalipsis-pwd
+      enable-ssl: false
+      ssl-mode: PREFER
+      ssl-root-cert:
+      ssl-cert:
+      ssl-key:
+      init-schema: true
+----
 
-meters:
-  export:
-    timescaledb:
-      enabled: true
-      host: localhost
-      port: 5432
-      database: qalipsis
-      schema: meters
-      username: qalipsis_user
-      password: qalipsis-pwd
-      step: PT10S
-----      
-Event Parameters::
-* `enabled` (required): boolean flag that activates/deactivates event publishing to TimescaleDB; defaults to `false`; *must* be set to `true`.
-* `min-level` (required): minimum accepted level of events; defaults to INFO; allowable values are `EventLevel`values: TRACE, DEBUG, INFO, WARN, ERROR, OFF; cannot be null.
-* `host` (required): defaults to localhost; cannot be blank.
-* `port` (required): positive integer; defaults to `5432`.
-* `database` (required): string name of the database; defaults to `qalipsis`; cannot be blank.
-* `schema` (required): string name of the schema; defaults to `events`; cannot be blank.
-* `linger-period` (required): maximum period between publication of events to TimescaleDB; positive duration, defaults to `10s`.
-* `batch-size` (required): maximum number of events buffered between two publications of events toTimescaleDB; positive integer; defaults to `2000`.
-* `publishers` (required): number of concurrent publication of events that can run; positive integer; defaults to `1` (no concurrency).
-* `username` (optional): name of the user for basic authentication when connecting to TimescaleDB; defaults to `qalipsis_user`.
-* `password` (optional): password of the user for basic authentication when connecting to TimescaleDB; defaults to `qalipsis_pwd`.
-+
-By default, TimescaleDB does not require a username and password for authentication. However, it is recommended that the information be provided to ensure secure access to the TimescaleDB data.
+The parameters used to configure the publication of events to TimescaleDB are described in the table below.
 
-Meter Parameters::
-* enabled` (required): boolean flag that activates/deactivates meter publishing to TimescaleDB; defaults to `false`; *must* be set to `true`.
-* `host` (required): defaults to localhost; cannot be blank.
-* `port` (required): positive integer; defaults to `5432`.
-* `database` (required): string name of the database; defaults to `qalipsis`; cannot be blank.
-* `schema` (required): string name of the schema; defaults to `events`; cannot be blank.
-* `step` (required): the step size (reporting frequency); defaults to `PT10S`.
-* `username` (optional): name of the user for basic authentication when connecting to TimescaleDB; defaults to `qalipsis_user`.
-* `password` (optional): password of the user for basic authentication when connecting to TimescaleDB; defaults to `qalipsis_pwd`.
-+
-By default, TimescaleDB does not require a username and password for authentication. However, it is recommended that the information be provided to ensure secure access to the TimescaleDB data.
+[cols="1,4" options="header"]
+|===
+| *Parameter*
+| *Description*
+
+|`events.export.timescaledb.enabled`
+a|Activates the publication of events to TimescaleDB. Must be set to `true` to enable publishing. +
+*Data Type:* Boolean +
+*Default Value:* `false`
+
+|`events.export.timescaledb.min-level`
+a|Minimum event level published. Acceptable values are `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `OFF`. +
+*Data Type:* ENUM +
+*Default Value:* `INFO`
+
+|`events.export.timescaledb.host`
+a|Hostname or IP address of the TimescaleDB/PostgreSQL server. +
+*Data Type:* String +
+*Default Value:* `localhost`
+
+|`events.export.timescaledb.port`
+a|Port on which the TimescaleDB/PostgreSQL server listens. +
+*Data Type:* Positive integer +
+*Default Value:* `5432`
+
+|`events.export.timescaledb.database`
+a|Name of the TimescaleDB database receiving the events. +
+*Data Type:* String +
+*Default Value:* `qalipsis`
+
+|`events.export.timescaledb.schema`
+a|Name of the schema where the events are stored. +
+*Data Type:* String +
+*Default Value:* `events`
+
+|`events.export.timescaledb.linger-period`
+a|Maximum time the events are buffered before forcing a flush to TimescaleDB, even when the batch size is not reached. +
+*Data Type:* Duration +
+*Default Value:* `10s`
+
+|`events.export.timescaledb.batch-size`
+a|Maximum number of events buffered between two publications to TimescaleDB. +
+*Data Type:* Positive integer +
+*Default Value:* `20000`
+
+|`events.export.timescaledb.publishers`
+a|Number of concurrent publishers that can send event batches to TimescaleDB. +
+*Data Type:* Positive integer +
+*Default Value:* `1` (no concurrency)
+
+|`events.export.timescaledb.username`
+a|Name of the user used for basic authentication when connecting to TimescaleDB. +
+*Data Type:* String +
+*Default Value:* `qalipsis_user`
+
+|`events.export.timescaledb.password`
+a|Password of the user used for basic authentication when connecting to TimescaleDB. +
+*Data Type:* String +
+*Default Value:* `qalipsis-pwd`
+
+|`events.export.timescaledb.enable-ssl`
+a|Enables SSL/TLS encryption for the database connection. +
+*Data Type:* Boolean +
+*Default Value:* `false`
+
+|`events.export.timescaledb.ssl-mode`
+a|SSL mode applied to the database connection. Acceptable values are `DISABLE`, `ALLOW`, `PREFER`, `REQUIRE`, `VERIFY_CA`, `VERIFY_FULL`. +
+*Data Type:* ENUM +
+*Default Value:* `PREFER`
+
+|`events.export.timescaledb.ssl-root-cert`
+a|Path to the SSL root certificate file used for SSL/TLS connections. +
+*Data Type:* String +
+*Default Value:* None
+
+|`events.export.timescaledb.ssl-cert`
+a|Path to the SSL client certificate file used for SSL/TLS connections. +
+*Data Type:* String +
+*Default Value:* None
+
+|`events.export.timescaledb.ssl-key`
+a|Path to the SSL client private key file used for SSL/TLS connections. +
+*Data Type:* String +
+*Default Value:* None
+
+|`events.export.timescaledb.init-schema`
+a|Creates or updates the event schema at startup when set to `true`. +
+*Data Type:* Boolean +
+*Default Value:* `true`
+
+|===
+
+//-
+Reference Documentation::
+Refer to xref:up-and-running/configuration/monitoring-test-campaigns.adoc[Monitoring test campaigns] for more information about meter and event configuration parameters.

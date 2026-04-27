@@ -129,7 +129,7 @@ class EcommercePurchase(private val retryPolicies: List<RetryPolicy>) {
 }
 ----
 == Summary
-The sample code below includes all the supported methods of injection for beans and properties.
+The example code below includes all the supported methods of injection for beans and properties.
 
 The example is for a scenario method, but can also be used for the constructor of a class declaring scenarios.
 
@@ -147,6 +147,7 @@ The example is for a scenario method, but can also be used for the constructor o
         @Property(name = "this-is-yet-another-test") mayBeProperty: Optional<String> <8> 
     ) {
     }
+----
 <1> An instance of `ClassToInject` is injected, failing if missing.
 <2> An instance of `Optional<OtherClassToInject>` is injected, replaced by an empty optional if missing.
 <3> An instance of `InterfaceToInject` qualified by the name `myInjectable` is injected, failing if missing.
@@ -156,4 +157,3 @@ The example is for a scenario method, but can also be used for the constructor o
 <7> The value of the property `this-is-another-test` is injected after its conversion to a `Int`, replace by 10 as Int if missing.
 <8> The value of the property `this-is-yet-another-test` is injected after its conversion to a `String`, replaced by an empty optional if missing.
 
-----

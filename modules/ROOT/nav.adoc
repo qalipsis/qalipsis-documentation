@@ -43,6 +43,7 @@
 ** xref:plugins/cassandra.adoc[]
 ** xref:plugins/elasticsearch.adoc[]
 ** xref:plugins/graphite.adoc[]
+** xref:plugins/http.adoc[]
 ** xref:plugins/influxdb.adoc[]
 ** xref:plugins/jackson.adoc[]
 ** xref:plugins/jakarta-ee.adoc[]
@@ -55,6 +56,7 @@
 ** xref:plugins/rabbitmq.adoc[]
 ** xref:plugins/redis-lettuce.adoc[]
 ** xref:plugins/slack.adoc[]
+** xref:plugins/sql.adoc[]
 ** xref:plugins/timescaledb.adoc[]
 
 // * xref:gui.adoc[]

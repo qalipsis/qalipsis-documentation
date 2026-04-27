@@ -1,6 +1,7 @@
-= Redis-lettuce plugin [.badge.oss]## ##[.badge.commercial]## ##[.badge.cloud]## ##
+= Redis Lettuce plugin [.badge.oss]## ##[.badge.commercial]## ##[.badge.cloud]## ##
 
-The Redis-lettuce plugin connects QALIPSIS to https://redis.io/[Redis].
+== Overview
+The Redis Lettuce plugin connects QALIPSIS to https://redis.io/[Redis] using the https://lettuce.io/[Lettuce] Java client.
 
 Technology addressed::
 Redis: https://redis.io/[]
@@ -12,68 +13,69 @@ Namespace in scenario::
 `redisLettuce()`
 
 Client library::
-Lettuce: refer to https://lettuce.io/[Lettuce].
+Lettuce Core: refer to https://lettuce.io/[Lettuce].
 
-Supported steps::
-* <<Poll step,`poll`>>: polls the newest data periodically.
-* <<Save step,`save`>>: saves a batch of records generated from the input and step context.
-* <<Consume step,`consume`>>: consumes data from Redis streams.
-* <<Produce step,`produce`>>: pushes messages to Redis streams.
+Model separation::
+* Core Redis (`poll*`, `save`) targets keys and Redis data structures.
+* Redis Streams (`streamsConsume`, `streamsProduce`) targets stream entries and consumer groups.
 
-Example scenarios using a combination of Redis supported steps are provided on https://github.com/qalipsis/qalipsis-examples/tree/master/Redis[Github].
+== Supported steps
 
-== Poll step 
-The `poll` step within the Redis-lettuce plugin polls the newest records from a Redis key, with a delay between each execution of polling.
+=== Core Redis examples
+
+==== Poll step
+The `poll` family in the Redis Lettuce plugin periodically scans Redis and forwards new records.
 
 Ancestor::
 Scenario
 
 Functionality::
-The `poll` step is created only once in a scenario; it is then used throughout the scenario as called.
-* The `KeyOrPattern` to be used in the poll is set to one of the following valid values: `scan`, `sscan`, `hscan`, `zscan`.
-* The native Redis-lettuce command is called using the `KeyOrPattern` provided.
+Use exactly one scan flavor depending on the targeted Redis structure:
+* `pollScan`: key pattern scan (`SCAN`)
+* `pollSscan`: set scan (`SSCAN`)
+* `pollHscan`: hash scan (`HSCAN`)
+* `pollZscan`: sorted set scan (`ZSCAN`)
 
-Example::
+Example (`pollSscan`)::
 +
 [source,kotlin,linenumbers]
 ----
-it.redisLettuce()
-  .pollSscan {
-    connection {
-      nodes = listOf("localhost:6379")
-      database = 0
-      redisConnectionType = RedisConnectionType.SINGLE
-      authUser = "Celia45"
-      authPassword = "Columbus1963"
+redisLettuce().pollSscan {
+    name = "poll-sscan" <1>
+    connection { <2>
+        nodes = listOf("localhost:6379")
+        database = 0
+        redisConnectionType = RedisConnectionType.SINGLE
     }
-    keyOrPattern("battery_state_save_and_poll")
-    pollDelay(Duration.ofSeconds(1))
-  }
+    keyOrPattern("battery-state-devices") <3>
+    pollDelay(Duration.ofSeconds(1)) <4>
+    monitoring {
+        events = true
+        meters = true
+    }
+}.flatten() <5>
 ----
-Notable parameters::
-* `Connection` (required): specifies the connection parameters.
-* `redisConnectionType` (required): indicates the connection type as `SINGLE`, `CLUSTER` or `SENTINEL`.
-* `KeyOrPattern` (required): specifies the key or pattern that will be polled after each `pollDelay`.
-* `pollDelay` (required): specifies the delay between query executions.
-* `broadcast` (optional): specifies the broadcast parameters for the step.
+<1> Create a poll step using the Redis `SSCAN` command.
+<2> Configure the Redis connection for this step.
+<3> Define the Redis key to scan for `SSCAN`.
+<4> Set the delay between two poll executions.
+<5> Emits one `RedisRecord<String>` at a time instead of batched `LettucePollResult<String>`.
 
 Tips::
-* Use the `poll` step with a join operator when you need to verify the values saved by your tested system in the database.
-* In addition to SSCAN (`pollSscan` in the example), the `poll` step also supports the following Redis commands: HSCAN (`polllHscan`) SCAN (`pollScan`), and ZSCAN (`pollZscan`). 
+* Use `pollScan` when you need wildcard key discovery.
+* Use `pollSscan`, `pollHscan`, or `pollZscan` when you target a known key of a specific Redis structure.
 
-Reference documentation::
-* For more information on the `SENTINEL` `redisConnectionType`, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]. 
-* Refer to the  https://redis.io/docs/[Redis] documentation for further parameter and configuration information.
+Reference Documentation::
+Refer to https://redis.io/docs/[Redis] and https://lettuce.io/core/release/reference/[Lettuce] for command and topology details.
 
-
-== Save step 
-The `save` step within the Redis-lettuce plugin persists a batch of records into Redis.
+==== Save step
+The `save` step writes generated records to Redis.
 
 Ancestor::
 Step
 
 Functionality::
-The `save` step's input and step context are used to generate a valid Redis command and the values to complete it; the batch of results is then forwarded to the next step(s). The records are saved individually.
+For each incoming input, `records {}` generates one or more `LettuceSaveRecord` objects. The record type selects the Redis command.
 
 Example::
 +
@@ -81,117 +83,324 @@ Example::
 ----
 .redisLettuce()
 .save {
-  connection {
-    nodes = listOf("localhost:6379")
-    database = 0
-    redisConnectionType = RedisConnectionType.SINGLE
-      authUser = "Celia45"
-      authPassword = "Columbus1963"
-  }
-
-  records { _, input ->
-    listOf(
-      SetRecord("battery_state_save_and_poll",
-        objectMapper.writeValueAsString(input)
-      )
-    )
-  }
-}  
+    name = "save" <1>
+    connection { <2>
+        nodes = listOf("localhost:6379")
+        database = 0
+        redisConnectionType = RedisConnectionType.SINGLE
+    }
+    records { stepContext, input -> <3>
+        listOf(
+            HashRecord(
+                key = "battery:${input.deviceId}",
+                value = mapOf(
+                    "deviceId" to input.deviceId,
+                    "batteryLevel" to input.batteryLevel.toString(),
+                    "timestamp" to input.timestamp.toString()
+                )
+            )
+        )
+    }
+}
 ----
-Notable parameters::
-* `Connection` (required): specifies the connection parameters.
-* `redisConnectionType` (required): indicates the connection type as `SINGLE`, `CLUSTER` or `SENTINEL`.
-* `records` (required): generates and configures a list of saved records.
+<1> Create a save step.
+<2> Configure the Redis connection for this step.
+<3> Build `HSET` records (via `HashRecord`) from the current input.
 
-Tip::
-* The `save` step supports the following Redis commands: SET, SADD, HSET, ZADD. The provided command may depend on the context and input value received from the previous step.
-* If the `redisConnectionType` is set to `SENTINEL`, the parameter `masterId` is necessary. 
+Tips::
+* Use `ValueRecord` for `SET`, `SetRecord` for `SADD`, `HashRecord` for `HSET`, and `SortedRecord` for `ZADD`.
+* Use a `collect` step before `save` if you need to reduce command churn and write in larger logical batches.
 
-Reference documentation::
-* For more information on the `SENTINEL` `redisConnectionType`, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]. 
-* Refer to the  https://redis.io/docs/[Redis] documentation for further parameter and configuration information.
+Reference Documentation::
+Refer to https://redis.io/docs/[Redis] and https://lettuce.io/core/release/reference/[Lettuce] for command and topology details.
 
-== Consume step
-The `consume` step within the Redis-lettuce plugin records data from Redis streams.
+=== Redis streams examples
+
+==== Consume step
+The `streamsConsume` step consumes records from a Redis stream using a consumer group.
 
 Ancestor::
-Scenario 
+Scenario
 
 Functionality::
-The `consume` step creates a consumer group in a Redis stream with the provided `connection`, consumer `group` name, and `concurrency`. If `concurrency` is set to 1, records are transmitted sequentially to the next step.
+The step reads from a stream key and consumer group and can emit data as batches or single records.
 
 Example::
 +
 [source,kotlin,linenumbers]
 ----
-redisLettuce()
-.streamsConsume {
-  connection {
-    nodes = redis://localhost:6439
-    database = 0
-    redisConnectionType = RedisConnectionType.SINGLE
-      authUser = "Celia45"
-      authPassword = "Columbus1963"
-  }
-  streamKey("battery_state_produce_and_consume")
-  offset(LettuceStreamsConsumerOffset.FROM_BEGINNING)
-  group("consumer")
-}
+redisLettuce().streamsConsume {
+    name = "consume" <1>
+    connection { <2>
+        nodes = listOf("localhost:6379")
+        database = 0
+        redisConnectionType = RedisConnectionType.SINGLE
+    }
+    streamKey("battery-state-stream") <3>
+    group("battery-consumers") <4>
+    offset(LettuceStreamsConsumerOffset.FROM_BEGINNING) <5>
+    concurrency(3) <6>
+}.flatten() <7>
 ----
-
-Notable parameters::
-* `connection` (required): configures the connection to QALIPSIS.
-* `redisConnectionType` (required): indicates the connection type as `SINGLE`, `CLUSTER` or `SENTINEL`. The default is `SINGLE`.
-* `offset` (required): sets the offset value to `FROM_BEGINNING`, `LAST_CONSUMED` or `LATEST` for each topic and consumer group.
-* `broadcast` (optional): specifies the broadcast parameters for the step.
+<1> Create a stream consumer step.
+<2> Configure the Redis connection for this step.
+<3> Define the stream to read.
+<4> Define the consumer group name.
+<5> Start from the beginning when no known state exists for the group.
+<6> Run three concurrent stream consumers.
+<7> Emits one `LettuceStreamsConsumedRecord` at a time.
 
 Tip::
-If `redisConnectionType` is set to `SENTINEL`, the parameter `masterId` is necessary. 
+Use `offset(LettuceStreamsConsumerOffset.LAST_CONSUMED)` when you want the group to continue from pending/acked state and `LATEST` when you only want new records.
 
-Reference documentation::
-* For more information on the `SENTINEL` `redisConnectionType`, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]. 
-* Refer to the  https://redis.io/docs/[Redis] documentation for further parameter and configuration information.
+Reference Documentation::
+Refer to https://redis.io/docs/[Redis] and https://lettuce.io/core/release/reference/[Lettuce] for stream and topology details.
 
-== Produce step
-The `produce` step within the Redis-lettuce plugin produces records into the Redis streams.
+== Configuration
 
-Ancestor::
-Step
+=== DSL configuration
 
-Example::
-+
-[source,kotlin,linenumbers]
+[cols="1,4" options="header"]
+|===
+| *Property*
+| *Description*
+
+| `connection`
+a| Configures Redis connection parameters at the step level. +
+*Applicable Steps:* Poll, Save, Consume, Produce +
+*Optional/Required:* Optional (defaults can be used) +
+*Data Type:* Lambda with receiver `RedisConnectionConfiguration` +
+*Default Value:* `nodes = listOf("localhost:6379")`, `database = 0`, `redisConnectionType = SINGLE`, `authUser = ""`, `authPassword = ""`, `masterId = ""` +
+
+.Example
+[source,kotlin]
 ----
-.redisLettuce()
-.streamsProduce {
-  connection {
+connection {
     nodes = listOf("localhost:6379")
     database = 0
     redisConnectionType = RedisConnectionType.SINGLE
-      authUser = "Celia45"
-      authPassword = "Columbus1963"
-  }
+    authUser = ""
+    authPassword = ""
+}
+----
 
-  records { _, input ->
+| `connection.nodes`
+a| Redis node addresses formatted as `host:port`. For `CLUSTER`, provide all relevant nodes; for `SENTINEL`, provide sentinel nodes. +
+*Applicable Steps:* Poll, Save, Consume, Produce +
+*Optional/Required:* Optional +
+*Data Type:* `List<String>` +
+*Default Value:* `listOf("localhost:6379")` +
+
+| `connection.database`
+a| Redis logical database index. +
+*Applicable Steps:* Poll, Save, Consume, Produce +
+*Optional/Required:* Optional +
+*Data Type:* `Int` +
+*Default Value:* `0` +
+
+| `connection.redisConnectionType`
+a| Redis connection topology. +
+*Applicable Steps:* Poll, Save, Consume, Produce +
+*Optional/Required:* Optional +
+*Data Type:* `RedisConnectionType` (enum) one of `SINGLE`, `CLUSTER`, `SENTINEL` +
+*Default Value:* `SINGLE` +
+
+| `connection.authUser`
+a| Username for ACL-based authentication (Redis 6+). +
+*Applicable Steps:* Poll, Save, Consume, Produce +
+*Optional/Required:* Optional +
+*Data Type:* `String` +
+*Default Value:* `""` +
+
+| `connection.authPassword`
+a| Password for authenticated connections. For `SENTINEL`, this value is also used when configuring sentinel authentication. +
+*Applicable Steps:* Poll, Save, Consume, Produce +
+*Optional/Required:* Optional +
+*Data Type:* `String` +
+*Default Value:* `""` +
+
+| `connection.masterId`
+a| Redis Sentinel master identifier. Required when `connection.redisConnectionType = SENTINEL`. +
+*Applicable Steps:* Poll, Save, Consume, Produce +
+*Optional/Required:* Optional in general, required for `SENTINEL` +
+*Data Type:* `String` +
+*Default Value:* `""` +
+
+.Example (`SENTINEL`)
+[source,kotlin]
+----
+connection {
+    nodes = listOf("localhost:26379")
+    redisConnectionType = RedisConnectionType.SENTINEL
+    masterId = "mymaster"
+}
+----
+
+|===
+
+=== Core Redis model properties (Poll/Save)
+
+[cols="1,4" options="header"]
+|===
+| *Property*
+| *Description*
+
+| `keyOrPattern`
+a| Defines the target scanned by polling. +
+For `pollScan`, this is a key pattern. +
+For `pollSscan`, `pollHscan`, and `pollZscan`, this is the key to scan. +
+*Applicable Step:* Poll +
+*Optional/Required:* Required (`@NotBlank`) +
+*Data Type:* `String` +
+*Default Value:* `""` +
+
+.Example
+[source,kotlin]
+----
+keyOrPattern("battery_state_*")
+----
+
+| `pollDelay`
+a| Delay between two poll executions. +
+*Applicable Step:* Poll +
+*Optional/Required:* Optional (`@PositiveOrZeroDuration`) +
+*Data Type:* Function overload accepting `Duration` or `Long` +
+*Default Value:* `Duration.ofSeconds(10)` +
+
+.Example
+[source,kotlin]
+----
+pollDelay(Duration.ofSeconds(1))
+// or
+pollDelay(1000L)
+----
+
+| `records`
+a| Generates records to persist for each incoming input. +
+Supported record types: `ValueRecord` (`SET`), `SetRecord` (`SADD`), `HashRecord` (`HSET`), `SortedRecord` (`ZADD`). +
+*Applicable Step:* Save +
+*Optional/Required:* Required to effectively write data +
+*Data Type:* Lambda which takes the stepContext and the input and returns a list of `LettuceSaveRecord` +
+*Default Value:* `{ _, _ -> emptyList() }` +
+
+.Example
+[source,kotlin]
+----
+records { stepContext, input ->
     listOf(
-      LettuceStreamsProduceRecord(
-        key = "battery_state_produce_and_consume", value = mapOf(
-        "device_id" to input.deviceId,
-        "timestamp" to input.timestamp.epochSecond.toString(),
-        "battery_level" to input.batteryLevel.toString()
-        )
-      )
+        ValueRecord("device:42", "ok"),
+        SetRecord("devices", "device:42"),
+        HashRecord("device:42:state", mapOf("batteryLevel" to "98")),
+        SortedRecord("device:42:history", 1712520900.0 to "98")
     )
+}
+----
+
+|===
+
+=== Redis streams model properties (Consume/Produce)
+
+[cols="1,4" options="header"]
+|===
+| *Property*
+| *Description*
+
+| `streamKey`
+a| Name of the Redis stream to consume from. +
+*Applicable Step:* Consume +
+*Optional/Required:* Required (`@NotBlank`) +
+*Data Type:* `String` +
+*Default Value:* `""` +
+
+.Example
+[source,kotlin]
+----
+streamKey("battery-state-stream")
+----
+
+| `group`
+a| Redis consumer group name used by the consume step. +
+*Applicable Step:* Consume +
+*Optional/Required:* Required (`@NotBlank`) +
+*Data Type:* `String` +
+*Default Value:* `""` +
+
+.Example
+[source,kotlin]
+----
+group("battery-consumers")
+----
+
+| `offset`
+a| Offset strategy used when the consumer group state is not yet known. +
+*Applicable Step:* Consume +
+*Optional/Required:* Optional +
+*Data Type:* Function call `offset(strategy)` where `strategy` is one of `LettuceStreamsConsumerOffset.FROM_BEGINNING`, `LettuceStreamsConsumerOffset.LAST_CONSUMED`, or `LettuceStreamsConsumerOffset.LATEST` +
+*Default Value:* `FROM_BEGINNING` +
+
+.Example
+[source,kotlin]
+----
+offset(LettuceStreamsConsumerOffset.FROM_BEGINNING)
+----
+
+| `concurrency`
+a| Number of concurrent consumers attached to the same stream/group. Must be a positive integer. +
+*Applicable Step:* Consume +
+*Optional/Required:* Optional +
+*Data Type:* `Int` +
+*Default Value:* `1` +
+
+.Example
+[source,kotlin]
+----
+concurrency(5)
+----
+
+| `records`
+a| Generates stream entries to publish for each incoming input. +
+Each `LettuceStreamsProduceRecord` contains the destination stream key and the map payload. +
+*Applicable Step:* Produce +
+*Optional/Required:* Required to effectively publish data +
+*Data Type:* Lambda which takes the stepContext and the input and returns a list of `LettuceStreamsProduceRecord`. +
+*Default Value:* `{ _, _ -> emptyList() }` +
+
+.Example
+[source,kotlin]
+----
+records { stepContext, input ->
+    listOf(
+        LettuceStreamsProduceRecord(
+            key = "battery-state-stream",
+            value = mapOf(
+                "deviceId" to "device-42",
+                "batteryLevel" to "98",
+                "timestamp" to "1712520900"
+            )
+        )
+    )
+}
+----
+
+|===
+
+=== Shared defaults for Redis Lettuce steps
+You can define defaults once in the scenario section or just after, and let all following Redis Lettuce steps inherit them.
+
+[source,kotlin,linenumbers]
+----
+scenario {
+  redisLettuce().defaults { <1>
+    connection {
+      nodes = listOf("localhost:6379")
+      database = 0
+      redisConnectionType = RedisConnectionType.SINGLE
+    }
+    monitoring {
+      events = true
+      meters = true
+    }
   }
 }
 ----
-Notable parameters::
-* `redisConnectionType` (required): sets the connection type as `SINGLE`, `CLUSTER` or `SENTINEL`.
-* `records` (required): generates and configures a list of produced records.
-
-Tip::
-* If `redisConnectionType` is set to `SENTINEL`, the parameter `masterId` is necessary. 
-
-Reference documentation::
-* For more information on the `SENTINEL` `redisConnectionType`, refer to: https://lettuce.io/core/release/reference/#sentinel.redis-discovery-using-redis-sentinel[Redis discovery using Redis Sentinel]. 
-* Refer to the  https://redis.io/docs/[Redis] documentation for further parameter and configuration information.
+<1> Defaults are applied to subsequent Redis Lettuce steps in the same scenario. Individual steps can still override values.

@@ -1,7 +1,7 @@
 = R2DBC-jasync plugin [.badge.oss]## ##[.badge.commercial]## ##[.badge.cloud]## ##
 
 == Overview
-The R2DBC-jasync plugin connects QALIPSIS to https://mariadb.org/[MariaDB], https://www.mysql.com[MySQL] and https://www.postgresql.org/[PostgreSQL].
+The R2DBC-jasync plugin connects QALIPSIS to https://mariadb.org/[MariaDB], https://www.mysql.com[MySQL], and https://www.postgresql.org/[PostgreSQL].
 
 Technologies addressed::
 * MariaDB: https://mariadb.org/[]
@@ -17,48 +17,52 @@ Namespace in scenario::
 `r2dbcJasync()`
 
 Client library::
-Jasync-sql: refer to https://github.com/jasync-sql/jasync-sql[jasync-sql]
+Jasync-sql: refer to https://github.com/jasync-sql/jasync-sql[jasync-sql].
 +
-Jasync-sql is an asynchronous database driver for PostgreSQL and MySQL written in kotlin.
+Jasync-sql is an asynchronous database driver for PostgreSQL and MySQL written in Kotlin.
 
-Supported steps::
-* <<Poll step,`poll`>>: polls the newest data periodically.
-* <<Save step,`save`>>: saves a batch of records generated from the input and step context.
-* <<Search step,`search`>>: searches records and builds a query from the input and step context.
+== Supported steps
 
-Example scenarios using a combination of R2DBC-jasync supported steps are provided https://github.com/qalipsis/qalipsis-examples/tree/master/r2dbc-jasync[GitHub].
-
-== Poll step 
+=== Poll step
 The `poll` step within the R2DBC-jasync plugin polls the newest records from the database, respecting a delay between each execution of a select query.
 
 Ancestor::
 Scenario
 
 Functionality::
-The `poll` step is created only once in a scenario; it is then used throughout the scenario as called. The `poll` step within the `r2b-jaysync` plugin uses a strategy of “delivered at least once”.
+The `poll` step is created only once in a scenario; it is then used throughout the scenario as called. The `poll` step within the R2DBC-jasync plugin uses a strategy of "delivered at least once".
 
 Example::
 +
 [source,kotlin,linenumbers]
 ----
 r2dbcJasync().poll {
-    protocol(Protocol.POSTGRESQL)
-    connection {
+    name = "poll-step"
+    protocol(Protocol.POSTGRESQL) <1>
+    connection { <2>
         database = "iot"
         port = 5432
         username = "DavidW"
         password = "Awesome_1978"
     }
-    query("select * from battery_state order by \"timestamp\"")
-    pollDelay(Duration.ofSeconds(1))
+    query("SELECT * FROM battery_state ORDER BY \"timestamp\" ASC") <3>
+    parameters() <4>
+    pollDelay(Duration.ofSeconds(1)) <5>
 }
 ----
+<1> Specify the protocol of the target database.
+<2> Configure the database connection.
+<3> Define the SQL query to execute. The first sorting column in `ORDER BY` becomes the poll tie-breaker.
+<4> Provide the query parameters. Here the statement does not require any explicit placeholder, so the parameter list is empty.
+<5> Wait one second between two poll executions.
 
-Notable parameters::
-* `connection` (required): specifies the connection parameters. 
-* `query` (required): specifies a query respecting the requirements of the target database (https://mariadb.org/[MariaDB],  https://www.mysql.com[MySQL], https://www.postgresql.org/[PostgreSQL],).
-* `pollDelay` (required): specifies the delay between query executions.
-* `broadcast` (optional): specifies the broadcast parameters for the step.
+The poll step derives its tie-breaker automatically from the first column in the `ORDER BY` clause of `query`.
+
+The plugin parses the SQL statement using https://calcite.apache.org/[Apache Calcite]. After the first successful poll, it appends a condition on the tie-breaker column and adds the latest tie-breaker value as an extra prepared-statement parameter.
+
+Use placeholders with `?` for the parameters you configure explicitly through `parameters(...)`. The generated tie-breaker parameter is appended by the plugin and must not be added manually.
+
+When the query uses reserved identifiers, escape them using the quoting style expected by the target database: generally double quotes for PostgreSQL and backticks for MySQL or MariaDB.
 
 Tips::
 * Use the `poll` step with a join operator when you need to verify the values saved by your tested system in the database.
@@ -67,39 +71,36 @@ Tips::
 Reference documentation::
 Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for further parameter and configuration information.
 
-== Save step 
+=== Save step
 The `save` step within the R2DBC-jasync plugin persists a batch of records into an SQL table using a prepared statement.
 
 Ancestor::
 Step
 
 Functionality::
-The `save` step's input and step context are used to generate the table and the list of columns and their values, which are then combined and forwarded to the database.
+The `save` step's input and step context are used to generate the table name, the ordered list of columns, and the rows to insert. The output is a `JasyncSaveResult<I>` that contains the original input, the generated identifiers returned by the driver, and execution metrics.
 
 Example::
 +
 [source,kotlin,linenumbers]
 ----
-.r2dbcJasync()   
+.r2dbcJasync() <1>
 .save {
-    protocol(Protocol.POSTGRESQL)
-    connection {
+    name = "save"
+    protocol(Protocol.POSTGRESQL) <2>
+    connection { <3>
         database = "iot"
         port = 5432
         username = "DavidW"
         password = "Awesome_1978"
     }
-    tableName { _, _ ->
+    tableName { stepContext, input -> <4>
         "battery_state"
     }
-    columns { _, _ ->
-        listOf(
-            "device_id",
-            "timestamp",
-            "battery_level"
-        )
+    columns { stepContext, input -> <5>
+        listOf("device_id", "timestamp", "battery_level")
     }
-    values { _, input ->
+    values { stepContext, input -> <6>
         listOf(
             JasyncSaveRecord(
                 input.deviceId,
@@ -108,59 +109,598 @@ Example::
             )
         )
     }
+    monitoring { <7>
+        events = false
+        meters = true
+    }
 }
 ----
+<1> Wrap the preceding step into the R2DBC-jasync plugin namespace. Required before any R2DBC-jasync step.
+<2> Specify the protocol of the target database.
+<3> Configure the database connection.
+<4> Returns the name of the table to insert into.
+<5> Returns the ordered list of columns used to build the `INSERT` statement.
+<6> Build the list of rows to insert. Each `JasyncSaveRecord` represents one row, and its values must match the order of `columns`.
+<7> Enable meter publication for the step while keeping event emission disabled.
 
-Notable parameter::
-* `connection` (required): specifies the connection parameters. 
+The save step builds an `INSERT INTO ... VALUES ...` prepared statement from `tableName`, `columns`, and `values`.
+
+Each `JasyncSaveRecord` represents one row. The plugin sends rows one by one, and the order of values in `JasyncSaveRecord` must exactly match the order of `columns`.
+
+The save output is `JasyncSaveResult<I>`, which exposes the original input via `result.input`, the generated identifiers supported by the driver via `result.resultIds`, and execution metrics via `result.jasyncSaveStepMeters`.
+
 
 Tips::
 * Use the `save` step after a `collect()` step in order to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.
-* The `save` step is extremely flexible; table, columns and values might depend on the context and input value received from the previous step.
+* The `save` step is extremely flexible; table name, columns, and values may depend on the context and input value received from the previous step.
 
 Reference documentation::
 Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for further parameter and configuration information.
 
-== Search step 
-The `search` step within the R2DBC-jasync plugin searches records in the database using a search query.
+=== Search step
+The `search` step within the R2DBC-jasync plugin searches records in the database using a prepared SQL query.
 
 Ancestor::
 Step
 
 Functionality::
-The `search` step’s input and step context are used to generate a prepared statement and the values to complete it; the batch of results is then forwarded to the next step(s).
+The `search` step's input and step context are used to generate a prepared statement and the values bound to its placeholders. The matching results are wrapped in a `JasyncSearchBatchResults<I, Map<String, Any?>>` and forwarded to the next step(s). Access the rows via `result.records: List<JasyncSearchRecord<Map<String, Any?>>>`.
 
 Example::
 +
 [source,kotlin,linenumbers]
 ----
-.r2dbcJasync()
+.r2dbcJasync() <1>
 .search {
-    protocol(Protocol.MARIADB)
-    connection {
+    name = "search"
+    protocol(Protocol.POSTGRESQL) <2>
+    connection { <3>
         database = "iot"
         port = 3306
         username = "DavidW"
         password = "Awesome_1978"
     }
-    query { _, _ ->
-        val request = "SELECT DISTINCT * from battery_state where timestamp = ? AND device_id = ?"
-        request
+    query { stepContext, input -> <4>
+        "SELECT DISTINCT * FROM battery_state WHERE \"timestamp\" = ? AND device_id = ?"
     }
-    parameters { _, input ->
+    parameters { stepContext, input -> <5>
         listOf(input.timestamp.epochSecond, input.deviceId)
     }
 }
 ----
-
-Notable parameters::
-* `connection` (required): specifies the connection parameters.
-* `query`: generates a prepared statement from the step's context and input.
-* `parameters` (optional): binds values to the clauses of the prepared query.
+<1> Enter the R2DBC-jasync plugin namespace.
+<2> Specify the protocol of the target database.
+<3> Configure the database connection.
+<4> Build the prepared SQL query to execute.
+<5> Returns the values bound to the placeholders in the same order as they appear in the query.
 
 Tip::
-Use the `search` step after a `collect` step in order to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.
+Use the `search` step after a `collect()` step in order to reduce the number of queries executed onto the database and to reduce the load the scenario generates on the test system.
 
 Reference documentation::
 Refer to https://github.com/jasync-sql/jasync-sql/wiki/Configuring-and-Managing-Connections[Configuring and Managing Connections] for further parameter and configuration information.
 
+== Configuration
+
+=== DSL parameters
+Available parameters are described in the table below.
+
+[cols="1,4" options="header"]
+|===
+| *Parameter*
+| *Description*
+
+| `connection`
+a| Configures the connection to the target SQL database. The same block is used by Poll, Save, and Search. The supported sub-properties are described as `connection.<name>` rows below. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Required +
+*Data Type:* Lambda with receiver `JasyncConnection` +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+connection {
+    host = "localhost"
+    port = 5432
+    database = "iot"
+    username = "postgres"
+    password = "root"
+}
+----
+
+| `connection.host`
+a| Database host name. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Optional +
+*Data Type:* `String` +
+*Default Value:* `"localhost"` +
+
+.Example
+[source,kotlin]
+----
+connection {
+    host = "db.internal"
+}
+----
+
+| `connection.port`
+a| Database port. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Required +
+*Data Type:* `Int` +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+connection {
+    port = 5432
+}
+----
+
+| `connection.database`
+a| Database name to connect to. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Required +
+*Data Type:* `String` +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+connection {
+    database = "iot"
+}
+----
+
+| `connection.username`
+a| User name for the database connection. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Required +
+*Data Type:* `String` +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+connection {
+    username = "postgres"
+}
+----
+
+| `connection.password`
+a| Password for the database connection. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Optional +
+*Data Type:* `String?` +
+*Default Value:* `null` +
+
+.Example
+[source,kotlin]
+----
+connection {
+    password = "root"
+}
+----
+
+| `connection.maxActiveConnections`
+a| Maximum number of active connections in the Jasync pool. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Optional +
+*Data Type:* `Int` +
+*Default Value:* `1` +
+
+.Example
+[source,kotlin]
+----
+connection {
+    maxActiveConnections = 10
+}
+----
+
+| `connection.maxIdleTime`
+a| Maximum idle time for pooled connections. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Optional +
+*Data Type:* `java.time.Duration` +
+*Default Value:* `Duration.ofMinutes(1)` +
+
+.Example
+[source,kotlin]
+----
+connection {
+    maxIdleTime = Duration.ofMinutes(5)
+}
+----
+
+| `connection.maxPendingQueries`
+a| Maximum number of queued requests waiting for a pooled connection. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Optional +
+*Data Type:* `Int` +
+*Default Value:* `Int.MAX_VALUE` +
+
+.Example
+[source,kotlin]
+----
+connection {
+    maxPendingQueries = 500
+}
+----
+
+| `connection.connectionValidationInterval`
+a| Period used by the pool to validate idle connections. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Optional +
+*Data Type:* `java.time.Duration` +
+*Default Value:* `Duration.ofMillis(5000)` +
+
+.Example
+[source,kotlin]
+----
+connection {
+    connectionValidationInterval = Duration.ofSeconds(10)
+}
+----
+
+| `connection.connectionCreateTimeout`
+a| Timeout for establishing a new database connection. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Optional +
+*Data Type:* `java.time.Duration` +
+*Default Value:* `Duration.ofMillis(5000)` +
+
+.Example
+[source,kotlin]
+----
+connection {
+    connectionCreateTimeout = Duration.ofSeconds(15)
+}
+----
+
+| `connection.connectionTestTimeout`
+a| Timeout for connection health checks performed by the pool. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Optional +
+*Data Type:* `java.time.Duration` +
+*Default Value:* `Duration.ofMillis(5000)` +
+
+.Example
+[source,kotlin]
+----
+connection {
+    connectionTestTimeout = Duration.ofSeconds(15)
+}
+----
+
+| `connection.queryTimeout`
+a| Optional timeout applied to SQL queries. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Optional +
+*Data Type:* `java.time.Duration?` +
+*Default Value:* `null` +
+
+.Example
+[source,kotlin]
+----
+connection {
+    queryTimeout = Duration.ofSeconds(30)
+}
+----
+
+| `connection.eventLoopGroup`
+a| Netty event loop group used by the Jasync client. Override it only when transport selection or advanced tuning is required. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Optional +
+*Data Type:* `io.netty.channel.EventLoopGroup` +
+*Default Value:* `NettyUtils.DefaultEventLoopGroup` +
+
+.Example
+[source,kotlin]
+----
+connection {
+    eventLoopGroup = NettyUtils.DefaultEventLoopGroup
+}
+----
+
+| `connection.executionContext`
+a| Executor used by Jasync to run callbacks. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Optional +
+*Data Type:* `java.util.concurrent.Executor` +
+*Default Value:* `ExecutorServiceUtils.CommonPool` +
+
+.Example
+[source,kotlin]
+----
+connection {
+    executionContext = ExecutorServiceUtils.CommonPool
+}
+----
+
+| `connection.ssl`
+a| SSL configuration passed to the Jasync client. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Optional +
+*Data Type:* `SSLConfiguration` +
+*Default Value:* `SSLConfiguration()` +
+
+.Example
+[source,kotlin]
+----
+connection {
+    ssl = SSLConfiguration()
+}
+----
+
+| `connection.charset`
+a| Character set used for the connection. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Optional +
+*Data Type:* `java.nio.charset.Charset` +
+*Default Value:* `StandardCharsets.UTF_8` +
+
+.Example
+[source,kotlin]
+----
+connection {
+    charset = StandardCharsets.UTF_8
+}
+----
+
+| `connection.maximumMessageSize`
+a| Maximum size, in bytes, of a server message accepted by the client. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Optional +
+*Data Type:* `Int` +
+*Default Value:* `16777216` +
+
+.Example
+[source,kotlin]
+----
+connection {
+    maximumMessageSize = 16777216
+}
+----
+
+| `connection.allocator`
+a| Netty buffer allocator used by the client. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Optional +
+*Data Type:* `io.netty.buffer.ByteBufAllocator` +
+*Default Value:* `PooledByteBufAllocator.DEFAULT` +
+
+.Example
+[source,kotlin]
+----
+connection {
+    allocator = PooledByteBufAllocator.DEFAULT
+}
+----
+
+| `connection.applicationName`
+a| Optional application name reported to the database server. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Optional +
+*Data Type:* `String?` +
+*Default Value:* `"r2dbc-jasync"` +
+
+.Example
+[source,kotlin]
+----
+connection {
+    applicationName = "inventory-checks"
+}
+----
+
+| `connection.interceptors`
+a| Query interceptors invoked by the Jasync client. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Optional +
+*Data Type:* `List<Supplier<QueryInterceptor>>` +
+*Default Value:* `emptyList()` +
+
+.Example
+[source,kotlin]
+----
+connection {
+    interceptors = emptyList()
+}
+----
+
+| `connection.maxConnectionTtl`
+a| Maximum lifetime for a pooled connection before it is recycled. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Optional +
+*Data Type:* `java.time.Duration?` +
+*Default Value:* `null` +
+
+.Example
+[source,kotlin]
+----
+connection {
+    maxConnectionTtl = Duration.ofMinutes(15)
+}
+----
+
+| `protocol`
+a| Specifies the protocol of the target database. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Required +
+*Data Type:* `Protocol` (enum) one of `Protocol.POSTGRESQL`, `Protocol.MYSQL`, or `Protocol.MARIADB` +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+protocol(Protocol.POSTGRESQL)
+----
+
+| `query`
+a| Configures the SQL statement to execute. The shape of the function differs between Poll and Search. In Poll, the statement must contain an `ORDER BY` clause and its first sorting column becomes the tie-breaker tracked by the plugin between poll executions. In Search, the statement is generated from the step context and the current input. +
+*Applicable Steps:* Poll, Search +
+*Optional/Required:* Required +
+*Data Type:* +
+Poll: `String` +
+Search: Lambda that takes step context and input and returns a `String` +
+*Default Value:* N/A +
+
+.Example (Poll)
+[source,kotlin]
+----
+query("SELECT * FROM battery_state ORDER BY \"timestamp\" ASC")
+----
+
+.Example (Search)
+[source,kotlin]
+----
+query { stepContext, input ->
+    "SELECT DISTINCT * FROM battery_state WHERE \"timestamp\" = ? AND device_id = ?"
+}
+----
+
+| `parameters`
+a| Supplies the values bound to the SQL placeholders. In Poll, parameters are provided directly and can be omitted when the statement has no placeholder. In Search, a parameter factory is expected even when the query does not require arguments, in which case it should return `emptyList()`. Java time values are converted to Jasync-compatible types automatically. +
+*Applicable Steps:* Poll, Search +
+*Optional/Required:* Optional (Poll); Required (Search) +
+*Data Type:* +
+Poll: `vararg Any?` +
+Search: Lambda that takes step context and input and returns `List<Any?>` +
+*Default Value:* +
+Poll: empty parameter list +
+Search: N/A +
+
+.Example (Poll)
+[source,kotlin]
+----
+parameters()
+----
+
+.Example (Search)
+[source,kotlin]
+----
+parameters { stepContext, input ->
+    listOf(input.timestamp.epochSecond, input.deviceId)
+}
+----
+
+| `tableName`
+a| Defines the target table for the save operation. The table name is computed from the step context and current input. +
+*Applicable Step:* Save +
+*Optional/Required:* Required +
+*Data Type:* Lambda that takes step context and input and returns a `String` +
+*Default Value:* `{ stepContext, input -> "" }` +
+
+.Example
+[source,kotlin]
+----
+tableName { stepContext, input ->
+    "battery_state"
+}
+----
+
+| `columns`
+a| Defines the ordered list of columns to insert into. The order of the column names must match the order of values in each `JasyncSaveRecord`. +
+*Applicable Step:* Save +
+*Optional/Required:* Required +
+*Data Type:* Lambda that takes step context and input and returns `List<String>` +
+*Default Value:* `{ stepContext, input -> emptyList() }` +
+
+.Example
+[source,kotlin]
+----
+columns { stepContext, input ->
+    listOf("device_id", "timestamp", "battery_level")
+}
+----
+
+| `values`
+a| Builds the records to insert. Each `JasyncSaveRecord` represents one row, and its values are bound in the same order as `columns`. The plugin sends rows one by one using prepared statements. +
+*Applicable Step:* Save +
+*Optional/Required:* Required +
+*Data Type:* Lambda that takes step context and input and returns `List<JasyncSaveRecord>` +
+*Default Value:* `{ stepContext, input -> emptyList() }` +
+
+.Example
+[source,kotlin]
+----
+values { stepContext, input ->
+    listOf(
+        JasyncSaveRecord(
+            input.deviceId,
+            input.timestamp.epochSecond,
+            input.batteryLevel
+        )
+    )
+}
+----
+
+| `pollDelay`
+a| Delay between two poll executions. The delay is applied between the end of one poll and the start of the next one. +
+*Applicable Step:* Poll +
+*Optional/Required:* Required +
+*Data Type:* `java.time.Duration` +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+pollDelay(Duration.ofSeconds(1))
+----
+
+| `monitoring`
+a| Configures step-level monitoring. The block allows enabling event emission and meter publication for Poll, Save, and Search. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Optional +
+*Data Type:* Lambda with receiver `StepMonitoringConfiguration` +
+*Default Value:* `events = false`, `meters = false` +
+
+.Example
+[source,kotlin]
+----
+monitoring {
+    events = false
+    meters = true
+}
+----
+
+| `singletonConfiguration`
+a| Configures how polled results are delivered to scenario minions. The poll step defaults to unicast delivery and can be switched to broadcast using the inherited singleton functions. +
+*Applicable Step:* Poll +
+*Optional/Required:* Optional +
+*Data Type:* `SingletonConfiguration` configured via `unicast()` or `broadcast(bufferSize, idleTimeout)` +
+*Default Value:* `SingletonConfiguration(SingletonType.UNICAST)` +
+
+.Example
+[source,kotlin]
+----
+r2dbcJasync().poll {
+    broadcast(123, Duration.ofSeconds(20))
+}
+----
+|===
+
+=== Shared defaults for R2DBC-jasync steps
+You can define defaults once in the scenario section or just after, and let all following R2DBC-jasync steps inherit them.
+
+[source,kotlin,linenumbers]
+----
+scenario {
+  r2dbcJasync().defaults { <1>
+    connection {
+      host = "localhost"
+      port = 5432
+      database = "iot"
+      username = "postgres"
+      password = "root"
+    }
+    protocol(Protocol.POSTGRESQL)
+    monitoring {
+      events = true
+      meters = true
+    }
+  }
+}
+----
+<1> Defaults are applied to subsequent R2DBC-jasync steps in the same scenario. Individual steps can still override values.

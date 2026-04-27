@@ -36,7 +36,7 @@ Default implementations of the above functionalities are part of the QALIPSIS co
 image::config_plugins.png[config_plugins,90%,align="center"]
 
 == Plugin integration
-To create a test scenario, a tiny Gradle project is required. The plugin is simply added as a dependency to the class path of the project. You can read more about scenario configuration within the xref:tutorials/quickstart-testing-rest-api.adoc[Step specifications].
+To create a test scenario, a tiny Gradle project is required. The plugin is simply added as a dependency to the class path of the project. You can read more about scenario configuration within the xref:develop-scenarios/steps.adoc[Step specifications].
 
 If the development of a scenario requires the plugin to compile (when using a step, for example), the dependency to the plugin artifact must be added to the `implementation` dependencies.
 
@@ -45,7 +45,20 @@ If the plugin delivers functionalities that you only need at runtime, add it to 
 == Using QALIPSIS plugins
 QALIPSIS provides several plugins targeting different technologies, systems and protocols.
 
-To use a plugin, add the related dependency to your project:
+If you are using the https://github.com/qalipsis/qalipsis-gradle-plugin[Gradle plugin for QALIPSIS], you can add the plugin dependency to your project using the `qalipsisPlugin` configuration. For example:
+[source,kotlin,subs="normal"]
+----
+qalipsis {
+    plugins {
+        apacheKafka()
+        jackson("1.2.3") // You can override the version of the plugin as argument.
+    }
+}
+----
+
+The full list of operators available to add plugins to your project is described in https://github.com/qalipsis/qalipsis-gradle-plugin#adding-qalipsis-plugins[Github].
+
+Alternatively, add the related dependency to your project:
 
 Gradle - Groovy DSL:
 [source,groovy,subs="normal"]
@@ -57,6 +70,205 @@ Gradle - Kotlin DSL:
 ----
 implementation("io.qalipsis.plugin:qalipsis-plugin-XXX:{revnumber}")
 ----
+
+== Plugin configuration
+
+Plugin configuration settings are configured in a .yaml file within a project.
+
+Parameters available for configuration are specific to each plugin and described within each plugin section.
+
+The following sets of parameters are QALIPSIS specific and configured identically across all applicable QALIPSIS plugins: +
+* Monitoring +
+* Singleton configuration (for Poll and Consume steps)
+
+[[monitoring-parameters]]
+=== Monitoring parameters
+
+[cols="1,4" options="header"]
+|===
+| *Parameter* 
+| *Description*
+
+| `monitoring`
+a| Configures QALIPSIS monitoring (meters/events) for the step.  +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Optional +
+*Data Type:* Lambda within which monitoring parameters are defined. +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin] 
+----
+monitoring {
+    meters = true
+    events = true
+}
+----
+
+| `monitoring.meters`
+a| Enables or disables QALIPSIS monitoring of meters for the step. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Optional +
+*Data Type:* Boolean +
+*Default Value:* false +
+
+.Example
+[source,kotlin] 
+----
+monitoring {
+    meters = true
+}
+----
+
+| `monitoring.events`
+a| Enables or disables QALIPSIS monitoring of events for the step. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Optional +
+*Data Type:* Boolean +
+*Default Value:* false +
+
+.Example
+[source,kotlin] 
+----
+monitoring {
+    events = true
+}
+----
+
+| `monitoring.all`
+a| Enables all QALIPSIS monitoring options for the step. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Optional +
+*Data Type:* Function +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin] 
+----
+monitoring {
+    all()
+}
+----
+|===
+
+[[singletonconfiguration-parameters]]
+=== Singleton configuration parameters
+
+Singleton configuration parameters configure how polled results are delivered to scenario minions.
+The following strategies are available:
+Available strategies: `sequential`, `broadcast`, `unicast`, `loop`. +
+
+ * `broadcast`: sends every polled record to all minions. Records are delivered in order, with the oldest buffered record sent first. In this mode, the singleton behaves like a Pub/Sub broadcaster. 
+
+ * `unicast`: sends each polled record to exactly one minion. The singleton acts as a FIFO distributor: Records are stored in a buffer until a minion consumes them. The buffer has a fixed size; when it becomes full, the oldest records are dropped to make space for new ones. 
+
+ * `loop`: sends each polled record to all minions, but once the end of the buffer is reached, it loops back to the beginning. This creates a continuous cyclic stream of the buffered records. 
+
+ * `sequential`: disables singleton execution and runs this step within the parent’s workflow. Data distribution is controlled entirely by the parent step. This mode is typically used when you want to process each record from a source from start to finish once, and then stop publishing until new data is available.
+   
+ Note::
+ Each strategy EXCEPT `sequential` requires `bufferSize` (Int) and `idleTimeout` (Duration); see `singletonConfiguration.bufferSize` and `singletonConfiguration.idleTimeout` definitions below. +
+
+
+[cols="1,4" options="header"]
+|===
+| *Parameter* 
+| *Description*
+
+| `singletonConfiguration`
+a| Configures how polled/consumed results are delivered to scenario minions. +
+Specify one of the strategies directly (not wrapped in a lambda). +
+*Applicable Steps:* Poll, Consume +
+*Optional/Required:* Optional +
+*Data Type:* Function +
+*Default Value:* unicast(-1, Duration.ZERO) +
+
+.Example
+[source,kotlin] 
+----
+broadcast(bufferSize = 4, idleTimeout = Duration.ofMinutes(1))
+----
+
+| `singletonConfiguration.bufferSize`
+a| Size of the buffer used to store polled/consumed records before delivery to minions. + 
+*Applicable Steps:*  Poll, Consume +
+*Optional/Required:* Optional +
+*Data Type:* Integer +
+*Default Value:* -1 (unlimited buffer size) +
+
+.Example
+[source,kotlin] 
+----
+broadcast(bufferSize = 4, idleTimeout = Duration.ofMinutes(1))
+----
+
+| `singletonConfiguration.idleTimeout`
+a| Maximum time to wait before delivering polled/consumed records to minions, even if the buffer is not full. +
+*Applicable Steps:* Poll, Consume +
+*Optional/Required:* Optional +
+*Data Type:* java.time.Duration +
+*Default Value:* Duration.ZERO +
+Note: Duration.ZERO or less signifies no timeout. +
+
+.Example
+[source,kotlin] 
+---- 
+broadcast(bufferSize = 4, idleTimeout = Duration.ofMinutes(1))
+----
+
+| `broadcast`
+a| Specifies the broadcast parameters for a step. +
+*Applicable Steps:* Poll, Consume +
+*Optional/Required:* Optional +
+*Data Type:* Function +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin] 
+----
+broadcast(3, Duration.ofMinutes(1))
+----
+
+| `unicast`
+a| Specifies the unicast parameters for a step. +
+*Applicable Steps:* Poll, Consume +
+*Optional/Required:* Optional +
+*Data Type:* Function +
+*Default Value:* unicast(1, Duration.ZERO) +
+
+.Example
+[source,kotlin] 
+----
+unicast(1, Duration.ofMinutes(3))
+----
+
+| `loop`
+a| Specifies the loop parameters for a step. +
+*Applicable Steps:* Poll, Consume  +
+*Optional/Required:* Optional +
+*Data Type:* Function +
+ *Default Value:* N/A +
+
+.Example
+[source,kotlin] 
+----
+loop(5, Duration.ofMinutes(2))
+----
+
+| `sequential`
+a| Specifies the sequential parameters for a step. +
+*Applicable Steps:* Poll, Consume + 
+*Optional/Required:* Optional +
+*Data Type:* Function +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin] 
+----
+sequential()
+----
+
+|===
 
 == QALIPSIS available plugins
 
@@ -89,6 +301,9 @@ Note: Before using a plugin, confirm that the related dependency has been added 
 |xref:plugins/graphite.adoc[Graphite plugin]
 |Connects QALIPSIS to https://github.com/graphite-project[Graphite] using the pickle or plaintext protocol.
 
+|xref:plugins/http.adoc[HTTP plugin]
+|Connects QALIPSIS to HTTP and HTTPS systems using https://hc.apache.org/index.html[Apache HttpComponents].
+
 |xref:plugins/influxdb.adoc[InfluxDB plugin]
 |Connects QALIPSIS to https://www.influxdata.com/[InfluxDB].
 
@@ -108,10 +323,10 @@ Note: Before using a plugin, confirm that the related dependency has been added 
 |Connects QALIPSIS to https://mongodb.com/[MongoDb].
 
 |xref:plugins/netty.adoc[Netty plugin]
-|Supports https://datatracker.ietf.org/doc/html/rfc793[TCP], https://datatracker.ietf.org/doc/html/rfc768[UDP], https://httpwg.org/[HTTP] and https://mqtt.org/[MQTT] clients
+|Supports https://datatracker.ietf.org/doc/html/rfc793[TCP], https://datatracker.ietf.org/doc/html/rfc768[UDP], https://httpwg.org/[HTTP] and https://mqtt.org/[MQTT] clients.
 
 |xref:plugins/timescaledb.adoc[TimescaleDB plugin]
-|Connects QALIPSIS to https://timescaledb.com/[TimescaleDB]
+|Connects QALIPSIS to https://timescaledb.com/[TimescaleDB].
 
 |xref:plugins/r2dbc-jasync.adoc[R2DBC Jasync plugin]
 |Connects QALIPSIS to https://mariadb.org/[MariaDB], https://www.mysql.com[MySQL] and https://www.postgresql.org/[PostgreSQL].
@@ -125,6 +340,10 @@ Note: Before using a plugin, confirm that the related dependency has been added 
 |xref:plugins/slack.adoc[Slack plugin]
 |Sends campaign notifications to a defined https://slack.com/[Slack] channel.
 
+|xref:plugins/sql.adoc[SQL plugin]
+|Connects QALIPSIS to relational databases through R2DBC.
+
 |xref:plugins/mail.adoc[Mail plugin]
 |Sends campaign notifications to a defined email address.
 |===
+

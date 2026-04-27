@@ -328,3 +328,7 @@ user-documentation/build/docs/asciidoc/html5/sections/plugins/08l_r2dbc-jasync.h
 user-documentation/build/docs/asciidoc/html5/sections/plugins/08m_rabbitmq.html
 user-documentation/build/docs/asciidoc/html5/sections/plugins/08n_redis-lettuce.html
 user-documentation/build/tmp/asciidoctor.javaexec-data
+modules/ROOT/pages/plugins/graphite.adoc
+modules/ROOT/pages/plugins/kafka.adoc
+.claude/
+

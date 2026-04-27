@@ -2,9 +2,9 @@
 
 == Overview
 The Apache Kafka plugin connects QALIPSIS to an https://kafka.apache.org/[Apache Kafka] cluster.
- 
+
 Technology addressed::
-Kafka: https://kafka.apache.org/[]
+Apache Kafka: https://kafka.apache.org/[]
 
 Dependency::
 `io.qalipsis.plugin:qalipsis-plugin-kafka`
@@ -13,160 +13,441 @@ Namespace in scenario::
 `kafka()`
 
 Client library::
-Kafka: refer to https://kafka.apache.org/[Apache Kafka]
+Apache Kafka Client: refer to https://kafka.apache.org/documentation/#api[Kafka API]
 
-Supported steps::
-* <<Consume step,`consume`>>: consumes data from topics of an Apache Kafka cluster.
-* <<Produce step,`produce`>>: pushes data to topics of the Apache Kafka cluster.
+== Supported steps
 
-An example scenario that uses a combination of the `kafka` `consume` and `produce` steps is provided on https://github.com/qalipsis/qalipsis-examples/tree/master/kafka[GitHub].
+=== Consume step
+The `consume` step polls Kafka records and forwards them to the next step as batches by default.
 
-== Consume step
-The `consume` step within the Apache Kafka plugin polls data from topics of an Apache Kafka cluster and forwards the data to the next step, either in batches or individually. 
+Use `.flatten(...)` when you want one consumed result per downstream event.
 
-The `consume` step:
-
-* is generally used in conjunction with a left join to assert data or inject data into a workflow.
-* supports multithreading (concurrent consumers) using the `concurrency` property.
-
-Ancestor::
-Scenario
- 
-Functionality::
-The `consume` step starts a polling loop for the designated `client`, using the provided subscription `topics` name, or `topicsPattern` and `groupId`. When new records appear, `consume` polls them and sends them to the next step(s). 
-
-Example::
-+
 [source,kotlin,linenumbers]
 ----
-kafka().consume {  
-  bootstrap("localhost:9092")
-  topics("battery_state")  
-  groupId("kafka-example")
-  offsetReset(OffsetResetStrategy.EARLIEST) 
-  pollTimeout(Duration.ofSeconds(1))
-}
-----
-
-Notable parameters::
-* `bootstrap`: configures the bootstrap hosts of the `Kafka` cluster; defaults to localhost:9092.
-* `groupId`: defines the consumer group.
-* `pollTimeout`: defines the consumer poll timeout to wait for records; defaults to 1 second.
-* `offsetReset` (required): defines the strategy to apply when the consumer starts consuming messages from the queue. 
-* `pollDelay` (required): specifies the delay between query executions.
-* `maxPolledRecords` (optional): defines the maximum number of records returned in a unique poll batch; defaults to 500.
-* `broadcast` (optional): specifies the broadcast parameters for the step.
-
-Tips::
-* Use the `consume` step with a left join to assert data or inject data into a workflow.
-* Valid `offsetReset` strategies are:
-** `OffsetResetStrategy.EARLIEST`: starts consuming messages from the beginning of the queue.
-** `OffsetResetStrategy.LATEST`: starts consuming messages when the  consumer starts, ignoring all previous messages in the queue.
-+
-`OffsetResetStrategy.LATEST` is the default. 
-
-Reference documentation::
-Refer to the https://kafka.apache.org/[Apache KAFKA] documentation for further parameter and configuration information. 
- 
-== Produce step
-The `produce` step within the Apache Kafka plugin pushes data onto topics of the Kafka broker and forwards the data as input to the next step.
-
-Ancestor::
-Scenario
- 
-Functionality::
-The `produce` step's input and step context are used to generate values to complete the step. The batch of results, or a single result, is then forwarded to the next step(s).
-
-Example::
-[source,kotlin,linenumbers]
-----
-.kafka()
-  .produce(
-    keySerializer = Serdes.String().serializer(),
-    valueSerializer = Serdes.String().serializer()
-    ) {
+  .kafka()
+  .consume { <1>
+    name = "orders-consumer"
     bootstrap("localhost:9092")
-    clientName("producer")
-    records { _, input ->
+    topics("orders")
+    groupId("orders-group")
+    pollTimeout(100)
+    offsetReset(OffsetResetStrategy.EARLIEST)
+    concurrency(2)
+  }
+  .flatten(Serdes.Integer().deserializer(), Serdes.String().deserializer()) <2>
+  .map { it.record.value } <3>
+  .filterNotNull()
+----
+<1> Configures the consume step and the subscription settings.
+<2> Switches output from batch mode to one consumed result at a time, deserializing keys as `Integer` and values as `String` inline.
+<3> Reads the deserialized value from `KafkaConsumerResult.record.value`.
+
+=== Produce step
+The `produce` step publishes records generated from step context and input.
+
+[source,kotlin,linenumbers]
+----
+  .kafka()
+  .produce( <1>
+    Serdes.Integer().serializer(),
+    Serdes.String().serializer()
+  ) {
+    name = "orders-producer"
+    bootstrap("localhost:9092")
+    clientName("producer-orders") <2>
+    records { stepContext, input -> <3>
       listOf(
         KafkaProducerRecord(
-          topic = "battery_state",
-          value = objectMapper.writeValueAsString(input),
-          key = input.deviceId
+          topic = "processed-orders",
+          key = input.record.key,
+          value = "processed-${input.record.value}"
         )
       )
     }
   }
 ----
-Notable parameters::
-* `keySerializer`: describes how to serialize the record keys to send  to `kafka`.
-* `valueSerializer`: describes how to serialize the record values to send to `kafka`.
-* `bootstrap`: configures the bootstrap hosts of the Kafka cluster; defaults to `localhost:9092`.
-* `clientName`: defines the name of the `kafka` client
-* `records` (required): generates and configures a list of produced records.
+<1> Declares key and value serializers required by `produce(...)`.
+<2> Sets the producer client name used by the step.
+<3> Builds one or more `KafkaProducerRecord` per consumed input.
 
-Reference documentation::
-Refer to the https://kafka.apache.org/documentation/[Apache KAFKA] documentation for further parameter and configuration information. 
+== Configuration
 
-== Configuration of publication of events and meters to Apache Kafka
+=== DSL parameters
+Available parameters are described in the table below.
 
-=== Configuration namespace
-Events:: 
-`events.export.kafka`
+[cols="1,4" options="header"]
+|===
+| *Property*
+| *Description*
 
-Meters::
-`meters.export.kafka`
+| `bootstrap`
+a| Configures the bootstrap servers used by the Kafka consumer. +
+*Applicable Steps:* Consume, Produce +
+*Optional/Required:* Optional +
+*Data Type:* `String (vararg)` +
+*Default Value:* `localhost:9092` +
 
-=== Example configuration file
+.Example
+[source,kotlin]
+----
+bootstrap("localhost:9092")
+----
+
+| `topics`
+a| Sets the explicit list of topics to subscribe to. Mutually exclusive with `topicsPattern(...)`. +
+*Applicable Steps:* Consume, Produce +
+*Optional/Required:* Required when `topicsPattern(...)` is not set +
+*Data Type:* `String (vararg)` +
+*Default Value:* empty list +
+
+.Example
+[source,kotlin]
+----
+topics("orders", "orders-retry")
+----
+
+| `topicsPattern`
+a| Subscribes to topics matching a regex pattern. Mutually exclusive with `topics(...)`. +
+*Applicable Steps:* Consume +
+*Optional/Required:* Required when `topics(...)` is not set +
+*Data Type:* `java.util.regex.Pattern` +
+*Default Value:* `null` +
+
+.Example
+[source,kotlin]
+----
+topicsPattern(Pattern.compile("orders-.*"))
+----
+
+| `groupId`
+a| Sets the Kafka consumer group id. +
+*Applicable Steps:* Consume +
+*Optional/Required:* Required +
+*Data Type:* `String` +
+*Default Value:* "" empty string +
+
+.Example
+[source,kotlin]
+----
+groupId("orders-consumer")
+----
+
+| `pollTimeout`
+a| Sets the timeout used for each Kafka poll. +
+*Applicable Steps:* Consume +
+*Optional/Required:* Optional +
+*Data Type:* `Duration` or Function taking `Long` argument for milliseconds +
+*Default Value:* `Duration.ofSeconds(1)` or `1000`+
+
+.Example
+[source,kotlin]
+----
+pollTimeout(Duration.ofMillis(250)) or pollTimeout(250)
+----
+
+| `offsetReset`
+a| Strategy used when the configured group has no committed offset. +
+*Applicable Steps:* Consume +
+*Optional/Required:* Optional +
+*Data Type:* `OffsetResetStrategy` (enum) `EARLIEST` or `LATEST` +
+*Default Value:* `OffsetResetStrategy.LATEST` +
+
+.Example
+[source,kotlin]
+----
+offsetReset(OffsetResetStrategy.EARLIEST)
+----
+
+| `maxPolledRecords`
+a| Maximum number of records returned per poll call. Must be strictly positive. +
+*Applicable Steps:* Consume +
+*Optional/Required:* Optional +
+*Data Type:* `Int` +
+*Default Value:* `500` +
+
+.Example
+[source,kotlin]
+----
+maxPolledRecords(1000)
+----
+
+| `concurrency`
+a| Number of concurrent consumer threads for the same step and group id. Must be strictly positive. +
+*Applicable Steps:* Consume +
+*Optional/Required:* Optional +
+*Data Type:* `Int` +
+*Default Value:* `1` +
+
+.Example
+[source,kotlin]
+----
+concurrency(4)
+----
+
+| `properties`
+a| Additional Kafka consumer properties forwarded as-is. +
+*Applicable Steps:* Consume, Produce +
+*Optional/Required:* Optional +
+*Data Type:* `Pair<String, Any>...` or `Map<String, Any>` +
+*Default Value:* empty map +
+
+.Example
+[source,kotlin]
+----
+properties(
+  "client.id" to "orders-consumer-1",
+  "fetch.min.bytes" to 1024
+)
+----
+
+| `deserialize`
+a| Sets key and value deserializers and keeps batch output (`List<KafkaConsumerResult<K?, V?>>`). +
+*Applicable Steps:* Consume +
+*Optional/Required:* Optional +
+*Data Type:* Overloads with class names, `KClass`, or `Deserializer` instances +
+*Default Value:* Byte array deserializers for key and value +
+
+.Example
+[source,kotlin]
+----
+.deserialize(Serdes.Integer().deserializer(), Serdes.String().deserializer())
+----
+
+| `keySerializer`
+a| Serializer used for the produced record key. Declared as a required argument of `produce(...)`. +
+*Applicable Steps:* Produce +
+*Optional/Required:* Required +
+*Data Type:* Serializer for the key type `K`: `Serializer<K>` +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+Serdes.String().serializer()
+----
+
+| `valueSerializer`
+a| Serializer used for the produced record value. Declared as a required argument of `produce(...)`. +
+*Applicable Steps:* Produce +
+*Optional/Required:* Required +
+*Data Type:* Serializer for the value type `V`: `Serializer<V>` +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+Serdes.String().serializer()
+----
+
+
+| `clientName`
+a| Defines the logical name used by the producer step. +
+*Applicable Steps:* Produce +
+*Optional/Required:* Required +
+*Data Type:* `String` +
+*Default Value:* empty string +
+
+.Example
+[source,kotlin]
+----
+clientName("producer-orders")
+----
+
+| `records`
+a| Builds the records to publish for each input received by the step. +
+*Applicable Steps:* Produce +
+*Optional/Required:* Required in practice +
+*Data Type:* Lambda that takes the step context and input and returns a list of `KafkaProducerRecord<K, V>` +
+*Default Value:* empty list +
+
+.Example
+[source,kotlin]
+----
+records { stepContext, input ->
+  listOf(
+    KafkaProducerRecord(
+      topic = "orders",
+      key = input.record.key,
+      value = "processed-${input.record.value}"
+    )
+  )
+}
+----
+
+|===
+
+=== Shared defaults for Kafka steps
+You can define defaults once in the scenario section or just after, and let all following Kafka steps inherit them.
+
 [source,kotlin,linenumbers]
+----
+scenario {
+  kafka().defaults { <1>
+    bootstrap("localhost:9092")
+    properties("security.protocol" to "PLAINTEXT")
+  }
+}
+----
+<1> Defaults are applied to subsequent Kafka `consume` and `produce` steps in the same scenario. Individual steps can still override values.
+
+== Analytics
+
+QALIPSIS can publish the meters and events collected during a campaign to Apache Kafka through dedicated publishers.
+
+Configure the publishers in the factory configuration, separate from the scenario DSL. Refer to xref:up-and-running/configuration/provide-configuration.adoc[Provide the configuration to QALIPSIS] for details about supplying configuration files to QALIPSIS.
+
+=== Meters
+
+The meters publisher serializes the meter snapshots collected during a campaign and produces them to a Kafka topic.
+
+.Example configuration file (YAML)
+[source,yaml,linenumbers]
+----
+meters:
+  export:
+    kafka:
+      enabled: true
+      bootstrap: localhost:9092
+      topic: qalipsis-meters
+      prefix: qalipsis
+      timestamp-field-name: timestamp
+      serializer: json
+      linger-ms: 1000
+      batch-size: 1
+      configuration:
+        delivery.timeout.ms: 10000
+----
+
+The parameters used to configure the publication of meters to Apache Kafka are described in the table below.
+
+[cols="1,4" options="header"]
+|===
+| *Parameter*
+| *Description*
+
+|`meters.export.kafka.enabled`
+a|Activates the publication of meters to Apache Kafka. Must be set to `true` to enable publishing. +
+*Data Type:* Boolean +
+*Default Value:* `false`
+
+|`meters.export.kafka.bootstrap`
+a|Comma‑separated list of bootstrap servers used by the Kafka producer (`bootstrap.servers` in Kafka terminology). +
+*Data Type:* String +
+*Default Value:* `localhost:9092`
+
+|`meters.export.kafka.topic`
+a|Name of the Kafka topic where the meter records are produced. +
+*Data Type:* String +
+*Default Value:* `qalipsis-meters`
+
+|`meters.export.kafka.prefix`
+a|Prefix prepended to every metric name when publishing to Kafka. +
+*Data Type:* String +
+*Default Value:* `qalipsis`
+
+|`meters.export.kafka.timestamp-field-name`
+a|Name of the field used to carry the timestamp in the serialized records. +
+*Data Type:* String +
+*Default Value:* `timestamp`
+
+|`meters.export.kafka.serializer`
+a|Identifier of the serializer used to encode the meters. +
+*Data Type:* String +
+*Default Value:* `json`
+
+|`meters.export.kafka.linger-ms`
+a|Maximum time, in milliseconds, the producer waits before sending a batch even if it is not full. +
+*Data Type:* Positive long +
+*Default Value:* `1000`
+
+|`meters.export.kafka.batch-size`
+a|Maximum size in bytes of a producer batch (`batch.size` in Kafka terminology). +
+*Data Type:* Positive integer +
+*Default Value:* `1`
+
+|`meters.export.kafka.configuration.<kafka-property>`
+a|Additional Kafka producer properties forwarded as-is to the underlying client (e.g. `delivery.timeout.ms`, `acks`, `compression.type`). Each entry uses the standard Kafka producer property name. +
+*Data Type:* Map of String to String +
+*Default Value:* None
+
+|===
+
+=== Events
+
+The events publisher buffers the events emitted during a campaign, serializes them and produces them to a Kafka topic.
+
+.Example configuration file (YAML)
+[source,yaml,linenumbers]
 ----
 events:
   export:
     kafka:
       enabled: true
-      bootstrap`: localhost:9092
+      min-level: INFO
+      bootstrap: localhost:9092
       topic: qalipsis-events
       duration-as-nano: false
-      linger-period: 10s
-      batch-size: 2
+      linger-period: 1s
+      batch-size: 2000
+      format: JSON
       configuration:
         delivery.timeout.ms: 10000
+----
 
-meters:
-  export:
-    kafka:
-      enabled: true
-      step: PT10S
-      bootstrap.servers: localhost:9092
-      topic: qalipsis-meters
-      linger.ms: 5000
-      batch-size: 800000 # In bytes.
-      configuration:
-        delivery.timeout.ms: 10000
-----  
-Event parameters::
-* `enabled` (required): boolean flag that activates/deactivates event publishing to Kafka; defaults to `false`; *must* be set to `true`.
-* `min-level` (required): minimal accepted level of events; defaults to INFO; allowable values are `EventLevel`values: TRACE, DEBUG, INFO, WARN, ERROR, OFF. 
-* `bootstrap` (required): bootstraps (string of host and port pair) of the Kafka broker; defaults to `localhost:9092`.
-* `topic` (required): string name of the topic to write the events to; defaults to `qalipsis-events`.
-* `duration-as-nano` (required): boolean flag that activates/deactivates converting the duration to nanoseconds; defaults to `false` (converts to milliseconds).
-* `linger-period` (required): maximum period between two publications of events to Kafka; positive duration; defaults to `10s`.
-* `batch-size` (required): maximum number of events buffered between two publications of events to Kafka; positive integer; defaults to `2`.
-* `format` (optional): format of the exported data; defaults to JSON.
-* `configuration` (optional): key, value configuration parameters of type `Properties`, for the Kafka producer. 
-** `delivery.timeout.ms` (optional): maximum integer value in milliseconds before time out; defaults to `10000`.
-+
-Refer to the https://kafka.apache.org/[Kafka] documentation for other event monitoring parameters.
+The parameters used to configure the publication of events to Apache Kafka are described in the table below.
 
-Meter parameters::
-* `enabled` (required): boolean flag that activates/deactivates meter publishing to Kafka; defaults to `false`; *must* be set to `true`.
-* `step` (required): The step size (reporting frequency); defaults to `PT10S`.
-* `bootstrap.servers` (required): bootstraps (string of host and port pair) of the Kafka broker; defaults to `localhost:9092`.
-* `topic` (required): string name of the topic to write events to; defaults to `qalipsis-meters`.
-* `linger.ms` (required): maximum period between two batches of events; positive duration; defaults to `5000`.
-* `batch-size` (required): maximum number of events buffered between two publications of events to Kafka; positive integer; defaults to `2`.
-* `format` (required): format of the exported data; defaults to JSON.
-* `configuration` (optional): key, value configuration parameters of type `Properties`, for the Kafka producer.
-** delivery.timeout.ms (optional): maximum integer value in milliseconds before time out; defaults to `10000`.
-+
-Refer to the https://kafka.apache.org/[Kafka] documentation for other meter monitoring parameters.
+[cols="1,4" options="header"]
+|===
+| *Parameter*
+| *Description*
+
+|`events.export.kafka.enabled`
+a|Activates the publication of events to Apache Kafka. Must be set to `true` to enable publishing. +
+*Data Type:* Boolean +
+*Default Value:* `false`
+
+|`events.export.kafka.min-level`
+a|Minimum event level published. Acceptable values are `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `OFF`. +
+*Data Type:* ENUM +
+*Default Value:* `INFO`
+
+|`events.export.kafka.bootstrap`
+a|Comma‑separated list of bootstrap servers used by the Kafka producer (`bootstrap.servers` in Kafka terminology). +
+*Data Type:* String +
+*Default Value:* `localhost:9092`
+
+|`events.export.kafka.topic`
+a|Name of the Kafka topic where the event records are produced. +
+*Data Type:* String +
+*Default Value:* `qalipsis-events`
+
+|`events.export.kafka.duration-as-nano`
+a|Exports event durations as nanoseconds when set to `true`, otherwise converts them to milliseconds. +
+*Data Type:* Boolean +
+*Default Value:* `false`
+
+|`events.export.kafka.linger-period`
+a|Maximum time the events are buffered before sending a batch to the brokers, even when the batch size is not reached. +
+*Data Type:* Duration +
+*Default Value:* `1s`
+
+|`events.export.kafka.batch-size`
+a|Maximum number of events buffered between two publications to Kafka. +
+*Data Type:* Positive integer +
+*Default Value:* `2000`
+
+|`events.export.kafka.format`
+a|Serialization format used for the exported events. +
+*Data Type:* ENUM +
+*Default Value:* `JSON`
+
+|`events.export.kafka.configuration.<kafka-property>`
+a|Additional Kafka producer properties forwarded as-is to the underlying client (e.g. `delivery.timeout.ms`, `acks`, `compression.type`). Each entry uses the standard Kafka producer property name. +
+*Data Type:* Map of String to String +
+*Default Value:* None
+
+|===
+
+//-
+Reference Documentation::
+Refer to xref:up-and-running/configuration/monitoring-test-campaigns.adoc[Monitoring test campaigns] for additional background on meter and event publication.

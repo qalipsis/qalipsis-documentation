@@ -15,21 +15,16 @@ Namespace in scenario::
 Client library::
 MongoDB Reactive Streams Driver: refer to https://www.mongodb.com/docs/drivers/reactive-streams/[MongoDB Java Reactive Streams].
 
-Supported steps::
-* <<Poll step,`poll`>>: polls the newest data periodically.
-* <<Save step,`save`>>: saves a batch of documents generated from the input and step context.
-* <<Search step,`search`>>: searches documents and builds a query from the input and step context.
+== Supported steps
 
-Example scenarios using a combination of MongoDB supported steps are provided on https://github.com/qalipsis/qalipsis-examples/tree/master/mongodb[GitHub].
-
-== Poll step
-The `poll` step within the MongoDB plugin polls the newest records from a database table, with a delay between each execution.
+=== Poll step
+The `poll` step within the MongoDB plugin polls the newest records from a database collection, with a delay between each execution.
 
 Ancestor::
 Scenario
 
 Functionality::
-The `poll` step is created only once in a scenario;  it is then used throughout the scenario as called. The `poll` step within the MongoDB plugin uses a strategy of “delivered at least once”. 
+The `poll` step is created only once in a scenario;  it is then used throughout the scenario as called. The `poll` step within the MongoDB plugin uses a strategy of "delivered at least once".
 
 Example::
 +
@@ -37,100 +32,106 @@ Example::
 ----
 mongodb().poll {
     name = "poll"
-    connect {
+    connect { <1>
         MongoClients.create("mongodb://James23:SantaFe1987@localhost:27017")
     }
-    search {
+    search { <2>
         database = "iot"
         collection = "batteryState"
         query = Document()
-        sort = linkedMapOf("deviceId" to Sorting.ASC)
-        tieBreaker = "deviceId"
+        sort = linkedMapOf("deviceId" to Sorting.ASC) <3>
+        tieBreaker = "deviceId" <4>
     }
-    pollDelay(Duration.ofSeconds(1)) 
+    pollDelay(Duration.ofSeconds(1)) <5>
 }
 ----
-Notable parameters::
-* `connect` (required): configures the connection to https://mongodb.com/[MongoDb].
-* `query` (required): specifies a document respecting the requirements of the target database. 
-* `tieBreaker` (required): repeats the first column used for sorting and comparison (`<=` or `>=`, depending on the ascending or descending order).
-* `parameters` (optional): binds values to the clauses of the prepared query.
-* `pollDelay` (required): specifies the delay between query executions.
-* `broadcast` (optional): specifies the broadcast parameters for the step.
- 
+<1> Create a MongoDB reactive client using the connection string.
+<2> Configure the search parameters. `database` and `collection` identify the target.
+<3> Order results by `deviceId` ascending.
+<4> Configure name of the field used to track the last-seen value.
+<5> Wait one second between poll executions.
+
+//-
 Tips::
 * Use the `poll` step with a join operator if you need to verify the values saved by your tested system in the database.
-* The `query` parameter requires at least one sorting field (`tiebreaker` in the example) to filter the newest results and not fetch the same records repeatedly.
-* The latest known value for `tiebreaker` is used to filter out the values already received from the database.
+* `sort` and `tieBreaker` are both required. The `tieBreaker` field name must be the first key in `sort`.
+* The latest known value for `tieBreaker` is used to filter out records already received from the database.
 
+//-
 Reference Documentation::
 Refer to the https://www.mongodb.com/docs/[Mongodb] documentation for further parameter and configuration information.
 
-== Save step
+=== Save step
 The `save` step within the MongoDB plugin persists a batch of documents into MongoDB.
 
 Ancestor::
 Step
 
 Functionality::
-The `save` step's input and step context are used to generate the table, the list of columns and their values, which are then combined and forwarded to the database.
+The `save` step's input and step context are used to generate the database name, collection name, and list of `Document` objects, which are then inserted into the database.
+
 Example::
 +
 [source,kotlin,linenumbers]
 ----
-.mongodb()
+.mongodb() <1>
 .save {
     name = "save"
-    connect {
+    connect { <2>
         MongoClients.create("mongodb://James23:SantaFe1987@localhost:27017")
     }
-    query {
-        database { _, _ ->
+    query { <3>
+        database { stepContext, input -> <4>
             "iot"
         }
-        collection { _, _ ->
+        collection { stepContext, input -> <5>
             "batteryState"
         }
-        documents { _, input ->
+        documents { stepContext, input -> <6>
             listOf(Document.parse(objectMapper.writeValueAsString(input)))
         }
     }
 }
 ----
+<1> Wraps the preceding step into the MongoDB plugin namespace. Required before any MongoDB step.
+<2> Create a MongoDB reactive client using the connection string.
+<3> Configure the save query. All three sub-functions (`database`, `collection`, `documents`) receive the step context and the input value from the previous step.
+<4> Returns the name of the target database. Can be dynamic based on `ctx` or `input`.
+<5> Returns the name of the target collection. Can be dynamic based on `ctx` or `input`.
+<6> Builds the list of `Document` objects to insert; the input object is serialized to JSON and parsed into a BSON `Document`.
 
-Notable parameters::
-* `connect` (required): configures the connection to https://mongodb.com/[MongoDb].
-* `query` (required): specifies a document respecting the requirements of the target database.
-
+//-
 Tips::
 * Use the `save` step after a `collect` step in order to reduce the number of queries executed onto the database and to reduce the load your scenario generates on the test system.
 * The `save` step is extremely flexible; database, collection and documents may depend on the context and input value received from the previous step.
 
+//-
 Reference Documentation::
 Refer to the  https://www.mongodb.com/docs/[Mongodb] documentation for further parameter and configuration information.
 
-== Search step 
+=== Search step
 The `search` step within the MongoDB plugin searches records in the database using a search query.
 
 Ancestor::
 Step
 
 Functionality::
-The `search` step’s input and step context are used to generate a document and the values to complete it; the batch of results is then forwarded to the next step(s).
+The `search` step's input and step context are used to generate a query document. The matching results are wrapped in a `MongoDBSearchResult` and forwarded to the next step(s). Access the result documents via `result.documents: List<Document>`.
 
 Example::
 +
 [source,kotlin,linenumbers]
 ----
+.mongodb() <1>
 .search {
     name = "search"
-    connect {
+    connect { <2>
         MongoClients.create("mongodb://James23:SantaFe1987@localhost:27017")
     }
-    search {
-        database { _, _ -> "iot" }
-        collection { _, _ -> "batteryState" }
-        query { _, input ->
+    search { <3>
+        database { stepContext, input -> "iot" } <4>
+        collection { stepContext, input -> "batteryState" } <5>
+        query { stepContext, input -> <6>
             Document(
                 mapOf(
                     "deviceId" to input.deviceId,
@@ -141,10 +142,12 @@ Example::
     }
 }
 ----
-
-Notable parameters::
-* `connect` (required): configures the connection to https://mongodb.com/[MongoDb].
-* `search` (required): defines the search parameters including `database`, `collection` `query` and `sort`.
+<1> Wraps the preceding step into the MongoDB plugin namespace. Required before calling `.search {}`.
+<2> Create a MongoDB reactive client using the connection string.
+<3> Configure the search query parameters. Each sub-function receives the step context and the input from the previous step, allowing fully dynamic queries.
+<4> Returns the name of the target database.
+<5> Returns the name of the target collection.
+<6> Builds the BSON `Document` used as the query filter. Fields are populated from the current step input.
 
 Tip::
 Use the `search` step after a `collect()` step in order to reduce the number of queries executed onto the database and to reduce the load the scenario generates on the test system.
@@ -152,3 +155,261 @@ Use the `search` step after a `collect()` step in order to reduce the number of 
 Reference Documentation::
 Refer to the  https://www.mongodb.com/docs/[Mongodb] documentation for further parameter and configuration information.
 
+== Configuration
+
+=== DSL parameters
+Available parameters are described in the table below.
+
+[cols="1,4" options="header"]
+|===
+| *Parameter*
+| *Description*
+
+
+| `connect`
+a| Configures the connection to https://mongodb.com/[MongoDb]. +
+*Applicable Steps:* Poll, Save, Search +
+*Optional/Required:* Required +
+*Data Type:* Lambda within which a MongoDB reactive client is created and returned. The lambda receives the step context and the input from the previous step, allowing dynamic configuration of the connection based on scenario data. +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+connect {
+    MongoClients.create("mongodb://James23:SantaFe1987@localhost:27017")
+}
+----
+
+| `query`
+a| Specifies a document respecting the requirements of the target database.  +
+*Applicable Step:* Save +
+*Optional/Required:* Required +
+*Data Type:* Lambda that takes step context and input and returns a document. +
+*Default Value:* N/A +
+
+.Example
+[source,kotlin]
+----
+query {
+    database { stepContext, input ->
+        "iot"
+    }
+    collection { stepContext, input ->
+        "batteryState"
+    }
+    documents { stepContext, input ->
+        listOf(Document.parse(objectMapper.writeValueAsString(input)))
+    }
+}
+----
+
+| `search`
+a| Configures the search parameters block. The shape of the block differs between Poll and Search. +
+*Applicable Steps:* Poll, Search +
+*Optional/Required:* Required +
+*Data Type:* +
+    Poll: Lambda with receiver `MongoDbSearchConfiguration` +
+    Search: Lambda with receiver `MongoDbQueryConfiguration<I>` +
+*Default Value:* N/A +
+
+.Example (poll)
+[source,kotlin]
+----
+
+search {
+    database = "iot"
+    collection = "batteryState"
+    query = Document()
+    sort = linkedMapOf("deviceId" to Sorting.ASC)
+    tieBreaker = "deviceId"
+}
+----
+
+.Example (search)
+[source,kotlin]
+----
+search {
+    database { stepContext, input -> "iot" }
+    collection { stepContext, input -> "batteryState" }
+    query { stepContext, input ->
+        Document(
+            mapOf(
+                "deviceId" to input.deviceId,
+                "timestamp" to input.timestamp.epochSecond
+            )
+        )
+    }
+}
+----
+
+| `search.database`
+a| The name of the MongoDB database to target. +
+*Applicable Steps:* Poll, Search +
+*Optional/Required:* Required +
+*Data Type:* +
+    Poll: `String` +
+    Search: Lambda that takes step context and input and returns a `String` +
+*Default Value:* +
+Poll: `""` +
+Search: `{ stepContext, input -> "" }` +
+
+.Example (Poll)
+[source,kotlin]
+----
+search {
+    database = "iot"
+}
+----
+
+.Example (Search)
+[source,kotlin]
+----
+search {
+    database { stepContext, input -> "iot" }
+}
+----
+
+| `search.collection`
+a| The name of the MongoDB collection to target within the database. +
+*Applicable Steps:* Poll, Search +
+*Optional/Required:* Required +
+*Data Type:* +
+Poll: `String` +
+Search: Lambda that takes step context and input and returns a `String` +
+*Default Value:* +
+Poll: `""` +
+Search: `{ stepContext, input -> "" }` +
+
+.Example (Poll)
+[source,kotlin]
+----
+search {
+    collection = "batteryState"
+}
+----
+
+.Example (Search)
+[source,kotlin]
+----
+search {
+    collection { stepContext, input -> "batteryState" }
+}
+----
+
+| `search.query`
+a| The BSON filter document used to match records. In Poll, assigned directly as a `Document`. In Search, computed per execution from the step context and input. +
+*Applicable Steps:* Poll, Search +
+*Optional/Required:* Optional +
+*Data Type:* +
+Poll: `Document` +
+Search: Lambda that takes step context and input and returns a `Document` +
+*Default Value:* +
+Poll: `Document()` +
+Search: `{ stepContext, input -> Document() }` +
+
+.Example (Poll)
+[source,kotlin]
+----
+search {
+    query = Document("status", "active")
+}
+----
+
+.Example (Search)
+[source,kotlin]
+----
+search {
+    query { stepContext, input ->
+        Document(
+            mapOf(
+                "deviceId" to input.deviceId,
+                "timestamp" to input.timestamp.epochSecond
+            )
+        )
+    }
+}
+----
+
+| `search.sort`
+a| Defines the ordering of results. In Poll, `sort` is a plain `LinkedHashMap` property that must contain at least one entry and whose first key must match `tieBreaker`. In Search, `sort` is a suspend lambda function returning a `LinkedHashMap`. +
+*Applicable Steps:* Poll, Search +
+*Optional/Required:* Required (Poll, `@NotEmpty`); Optional (Search, defaults to empty map) +
+*Data Type:* +
+Poll: `LinkedHashMap<String, Sorting>` +
+Search: Lambda that takes step context and input and returns a `LinkedHashMap<String, Sorting>` +
+*Default Value:* +
+Poll: N/A  +
+Search: `{ stepContext, input -> linkedMapOf() }` +
+
+.Example (Poll)
+[source,kotlin]
+----
+search {
+    sort = LinkedMapOf("deviceId" to Sorting.ASC)
+}
+----
+
+.Example (Search)
+[source,kotlin]
+----
+search {
+    sort { stepContext, input ->
+        linkedMapOf("timestamp" to Sorting.DESC)
+    }
+}
+----
+
+| `search.tieBreaker`
+a| Name of the field used to track the last-seen value for polling. Only records whose `tieBreaker` field value is greater than (or less than, if sorted descending) the last polled value will be fetched in the next poll. Must be the first field listed in `sort`. +
+*Applicable Step:* Poll +
+*Optional/Required:* Required +
+*Data Type:* `String` +
+*Default Value:* "" empty string +
+
+.Example
+[source,kotlin]
+----
+search {
+    tieBreaker = "timestamp"
+}
+----
+
+
+| `pollDelay`
+a| Delay between two polling executions. Accepts either a `java.time.Duration` or a `Long` value in milliseconds via two separate overloads. +
+*Applicable Step:* Poll +
+*Optional/Required:* Optional +
+*Data Type:* Function that accepts either a `Duration` or milliseconds as `Long` +
+*Default Value:* `Duration.ofSeconds(10)` +
+
+.Example
+[source,kotlin]
+----
+pollDelay(Duration.ofSeconds(1)) or pollDelay(1000L)
+----
+
+| `singletonConfiguration`
+a| Configures how polled results are delivered to scenario minions. +
+Refer to xref:plugins/plugins.adoc#singletonconfiguration-parameters[SingletonConfiguration parameters] for details on strategies and examples of usage.
+
+|===
+
+=== Shared defaults for MongoDB steps
+You can define defaults once in the scenario section or just after, and let all following MongoDB steps inherit them.
+
+[source,kotlin,linenumbers]
+----
+scenario {
+  mongodb().defaults { <1>
+    connect {
+      MongoClients.create("mongodb://user:password@localhost:27017")
+    }
+    monitoring {
+      events = true
+      meters = true
+    }
+  }
+}
+----
+<1> Defaults are applied to subsequent MongoDB steps in the same scenario. Individual steps can still override values.
