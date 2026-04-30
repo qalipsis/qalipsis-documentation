@@ -26,7 +26,7 @@ When you create a new API key, make sure to copy it immediately as it will not b
 
 When authentication is enabled, the HTTP requests look like this:
 ```
-POST /campaigns
+POST /api/campaigns
 Authorization: Bearer <API_KEY>
 Content-Type: application/json
 
@@ -41,7 +41,7 @@ To trigger a campaign, you need to send a POST request to the `/campaigns` endpo
 
 .Example request
 ```
-POST /campaigns
+POST /api/campaigns
 Content-Type: application/json
 
 {
@@ -225,7 +225,7 @@ The body is similar to the one used for creating a campaign, but should contain 
 
 .Example request
 ```
-POST /campaigns/schedule
+POST /api/campaigns/schedule
 Content-Type: application/json
 
 {

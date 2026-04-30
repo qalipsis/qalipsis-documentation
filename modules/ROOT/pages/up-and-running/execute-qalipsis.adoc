@@ -89,7 +89,7 @@ The default port to access the REST API is 8400, but can be changed via the conf
 You can test the access using an HTTP client like `curl`:
 
 ```
-curl -X GET http://localhost:8400/
+curl -X GET http://localhost:8400/api/
 ```
 
 [NOTE]
@@ -108,11 +108,6 @@ To start QALIPSIS with the GUI enabled, you need to pass the `--gui` or `-g` opt
 ----
 java -jar my-project-qalipsis.jar --gui
 ----
-
-[NOTE]
-====
-When executing QALIPSIS with the GUI, the endpoints fore the REST API are moved to the context path `/api`. For example, the root endpoint becomes `http://<my-host>:8400/api/campaigns` to the list the campaigns.
-====
 
 === Interactive (Standalone only)
 

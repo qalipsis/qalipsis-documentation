@@ -17,8 +17,8 @@ Note that the reports do not contain any analytics information and only reflect 
 
 You can access the reports via the GUI or REST API.
 
-* `GET /campaigns?sort=creation:desc`: will return the list of campaigns ordered by their creation date descending.
-* `GET /campaigns/{campaign-key}`: will return the details of a specific campaign, including its test results and messages.
+* `GET /api/campaigns?sort=creation:desc`: will return the list of campaigns ordered by their creation date descending.
+* `GET /api/campaigns/{campaign-key}`: will return the details of a specific campaign, including its test results and messages.
 
 You can learn more from the https://qalipsis.io/docs/api[REST API documentation].
 
