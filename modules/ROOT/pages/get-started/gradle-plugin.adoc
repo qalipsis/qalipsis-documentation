@@ -65,26 +65,26 @@ qalipsis.cloud.api.url=https://app.qalipsis.io/api
 The Gradle plugin includes a default QALIPSIS version; you can specify a different version in the appropriate build file.
 
 Kotlin::
-In build.gradle.kts, to specify version 0.16.a:
+In build.gradle.kts, to specify version 0.18.a:
 [source,kotlin,linenumbers]
 ----
 qalipsis {
-    version("0.16.a")
+    version("0.18.a")
 }
 ----
 Groovy::
-In build.gradle, to specify version 0.16.a:
+In build.gradle, to specify version 0.18.a:
 [source,kotlin,linenumbers]
 ----
 qalipsis {
-    version = '0.16.a'
+    version = '0.18.a'
 }
 ----
 As a Gradle property::
-To specify version 0.16.a, add the version in the gradle.properties or Gradle execution options:
+To specify version 0.18.a, add the version in the gradle.properties or Gradle execution options:
 [source,kotlin,linenumbers]
 ----
-qalipsis.version=0.16.a
+qalipsis.version=0.18.a
 ----
 
 
