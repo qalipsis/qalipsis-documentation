@@ -1,0 +1,33 @@
+= QALIPSIS GUI
+
+The QALIPSIS web GUI is a browser-based interface for configuring, running and analysing test campaigns.
+
+It is a single-page application served by default on the port 8400 when the command line argument `--gui` is enabled.
+
+== Layout
+
+The GUI is organised around a left **sidebar** and a main content area.
+The sidebar exposes three top-level sections:
+
+[cols="1,3"]
+|===
+| Section | Purpose
+
+| xref:gui/campaigns.adoc[Campaigns]
+| Create, schedule, monitor and inspect test campaigns.
+
+| xref:gui/series.adoc[Series]
+| Define data series (aggregations of meters and events) used to build charts and reports.
+  Series must exist before they can be referenced by a report.
+
+| xref:gui/reports.adoc[Reports]
+| Assemble series and campaign selections into re-usable analytical reports.
+|===
+
+== Recommended reading order
+
+Screens depend on each other:
+
+1. **Campaigns** — the entry point after login; produces the raw execution data.
+2. **Series** — must be defined first if you want tailored charts. Reports cannot be built without at least one series.
+3. **Reports** — combine one or more series with a set of campaigns.

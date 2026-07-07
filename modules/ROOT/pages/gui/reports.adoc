@@ -1,0 +1,46 @@
+= Reports
+
+A **report** aggregates one or more xref:gui/series.adoc[series] over a set of campaigns and renders them as charts and tables.
+Reports are re-usable: once defined, the same layout can be regenerated against different campaigns and downloaded as PDF.
+
+== Reports list
+
+image::gui/reports-list.png[Reports list,align=center]
+
+Each row shows:
+
+* **Display name**.
+* **Description**.
+* **Referenced campaigns** — number of campaigns currently attached.
+
+The header exposes the **New report** action, a deletion action and a filter.
+Hovering a row reveals the edit action, which opens the report details screen.
+
+== Creating a report
+
+image::gui/report-new.png[New report,align=center]
+
+The creation form collects:
+
+* A **display name** and a longer **description**.
+* A list of **campaigns** — select campaigns individually, or define a pattern matched against the campaign names. The included campaigns are resolved at generation time from the selected filters, so a dynamic pattern always includes the 10 most recent matching campaigns.
+* One or more **data components**:
+** `DIAGRAM` — line chart. Accepts several series and stacks them on the same time axis.
+** `DATA_TABLE` — tabular listing of the aggregated values.
+
+A report cannot be created without at least one series in the tenant — see xref:gui/series.adoc[Series] first.
+
+== Report details
+
+Opening an existing report displays the fully rendered layout together with the same edit form on the side:
+
+image::gui/report-details.png[Report details,align=center]
+
+From here you can:
+
+* Adjust the campaigns and scenarios attached to the report.
+* Add, remove or reorder data components.
+* Export the report as **PDF** via the top-right button.
+
+Changes are applied on save; the preview to the right refreshes with the new selection.
+The PDF export only reflects the saved configuration, so save before exporting.

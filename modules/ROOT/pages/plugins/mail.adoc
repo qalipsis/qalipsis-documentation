@@ -31,7 +31,7 @@ report:
         - qa-team@acme.io
       cc:
         - managers@acme.io
-      junit: true <3>
+      html: true <3>
       ssl: false
       starttls: true
       host: smtp.gmail.com
@@ -39,7 +39,7 @@ report:
 ----
 <1> Speicify that notifications are sent only when the campaign status is `SUCCESSFUL` or `FAILED`.
 <2> Enable SMTP authentication with username and password.
-<3> Enable the publisher to attach a ZIP of the JUnit report directory, if available.
+<3> Attach a ZIP of the HTML report to the notification email, when HTML reporting is enabled.
 
 === Configuration parameters
 Available parameters are described in the table below.
@@ -229,5 +229,3 @@ starttls: true
 ----
 
 |===
-
-// NOTE: The publisher also reads `report.export.junit.folder` (outside `report.export.mail`) to locate report files for ZIP attachments when `junit=true`. Confirm whether this property should be documented in a shared exporter document instead of this plugin page.

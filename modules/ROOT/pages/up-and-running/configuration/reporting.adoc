@@ -38,47 +38,44 @@ successful and failed operations, as well as the published metrics of each step,
 
 The counts in green represent successful operations, while the counts in red represent failed operations.
 
-== Console final report in standalone mode [.badge.oss]## ##[.badge.commercial]## ##
+== Plain text report [.badge.oss]## ##[.badge.commercial]## ##
 
-At the end of the test execution, QALIPSIS generates a final report in the console. This report summarizes the test results, including the number of passed and failed tests, execution time, and any errors encountered. The console final report provides a quick overview of the test execution and is useful for identifying any issues that need to be addressed.
+At the end of the test execution, QALIPSIS generates a final report in the console. This report summarizes the test results, including the number of passed and failed steps, execution time, published metrics and any errors encountered. The console final report provides a quick overview of the test execution and is useful for identifying any issues that need to be addressed.
 
-This report is only available in standalone mode and disabled by default. You can enable it by setting the following configuration property: `report.export.console.enabled: true`
+This report is only available in standalone mode and disabled by default. You can enable it by setting the following configuration property: `report.export.console.enabled: true`.
 
-[WARNING]
+Alternatively or additionally, the report can also be generated as a file by setting the configuration property `report.export.console.folder` to a folder that will contain one text file per executed campaign.
+
+[NOTE]
 ====
-The final report and the live reports are mutually exclusive and cannot be enabled at the same time.
-The live report will prevail.
+When a QALIPSIS local run task is executed, text reports are automatically created by the QALIPSIS Gradle plugin into the folder `build/reports/qalipsis/text`.
 ====
 
-.Example of final report
-```
-============================================================
-=====================  CAMPAIGN REPORT =====================
-============================================================   
+== HTML report [.badge.oss]## ##[.badge.commercial]## ##
 
-Campaign...........................cmeoa3wpz00036s62vs6mbuvd
-Start..............................2025-08-23T13:12:09.579742Z
-End................................2025-08-23T13:12:54.627953Z
-Duration...........................45 seconds 
-Started minions....................65
-Completed minions..................65
-Successful steps executions........3875620
-Failed steps executions............0
-Status.............................SUCCESSFUL
-   
-        
+QALIPSIS can generate HTML reports that provide a structured, interactive view of the test execution, including detailed results and published metrics.
 
-=====================  SCENARIO REPORT =====================
-Scenario...........................a-stats-scenario
-Start..............................2025-08-23T13:12:09.579742Z
-End................................2025-08-23T13:12:54.627953Z
-Duration...........................45 seconds 
-Started minions....................65
-Completed minions..................65
-Successful steps executions........3875620
-Failed steps executions............0
-Status.............................SUCCESSFUL
-Messages:
-	None
-        
-```
+The HTML report can be enabled by setting the configuration property `report.export.html.enabled: true`, and the output location can be defined by setting `report.export.html.folder` to a folder that will contain one HTML file per executed campaign.
+
+In the GUI, the HTML report is accessible from the details page of a specific campaign. A download button is available in the top-right corner of the page to retrieve the HTML report of the displayed campaign.
+
+[NOTE]
+====
+When a QALIPSIS local run task is executed, HTML reports are automatically created by the QALIPSIS Gradle plugin into the folder `build/reports/qalipsis/html`.
+====
+
+== JUnit report [.badge.oss]## ##[.badge.commercial]## ##
+
+To facilitate the integration with CI/CD pipelines, QALIPSIS can generate JUnit reports that are compatible with most CI/CD tools. These reports provide a standardized format for test results, making it easier to integrate QALIPSIS tests into existing CI/CD workflows.
+
+Each step is reported as a single test case, and each scenario as a test suite.
+
+The JUnit report contains the result of each step, including any errors encountered during execution as well as the published metrics.
+
+The JUnit report can be enabled by setting the configuration property `report.export.junit.enabled: true`, and the output location can be defined by setting `report.export.junit.folder` to a folder that will contain one JUnit file per executed campaign.
+
+[NOTE]
+====
+When a QALIPSIS local run task is executed, JUnit reports are automatically created by the QALIPSIS Gradle plugin into the folder `build/test-results/qalipsis`. A subfolder is created for each executed campaign.
+====
+

@@ -167,14 +167,16 @@ Gradle is available for the following QALIPSIS plugins:
 === Default Execution
 The QALIPSIS `RunAllScenarios` task runs all scenarios in your project's classpath.
 
+All tasks extending `RunQalipsis` write the plain-text and HTML reports to the `build/reports/qalipsis` folder, and the JUnit test results to the `build/test-results/qalipsis` folder. This behavior can be disabled or overridden through configuration, as shown below.
+
 Kotlin::
 [source,kotlin,linenumbers]
 ----
 tasks {
     named("qalipsisRunAllScenarios") {
         configuration(
-            "report.export.junit.enabled" to "true",
-            "report.export.junit.folder" to project.layout.buildDirectory.dir("test-results/my-new-scenario").get().asFile.path
+            "report.export.html.enabled" to "true",
+            "report.export.html.folder" to project.layout.buildDirectory.dir("qalipsis/reports").get().asFile.path
         )
     }
 }
@@ -183,8 +185,8 @@ Groovy::
 [source,kotlin,linenumbers]
 ----
 tasks.named('qalipsisRunAllScenarios') {
-    configuration 'report.export.junit.enabled': 'true',
-                  'report.export.junit.folder': layout.buildDirectory.dir('test-results/my-new-scenario').get().asFile.path
+    configuration 'report.export.html.enabled': 'true',
+                  'report.export.html.folder': layout.buildDirectory.dir('qalipsis/reports').get().asFile.path
 }
 ----
 === Custom Execution
@@ -196,8 +198,8 @@ Kotlin::
 tasks {
     create("executeRestApiSpikeTest", RunQalipsis::class.java) {
         scenarios("spike-test-of-rest-api", "constant-monitoring")
-        configuration("report.export.junit.enabled" to "true",
-            "report.export.junit.folder" to project.layout.buildDirectory.dir("test-results/my-new-scenario").get().asFile.path
+        configuration("report.export.html.enabled" to "true",
+            "report.export.html.folder" to project.layout.buildDirectory.dir("qalipsis/reports").get().asFile.path
         )
     }
 }
@@ -207,8 +209,8 @@ Groovy::
 ----
 tasks.create('executeRestApiSpikeTest', RunQalipsis) {
     scenarios 'spike-test-of-rest-api', 'constant-monitoring'
-    configuration 'report.export.junit.enabled': 'true',
-                  'report.export.junit.folder': layout.buildDirectory.dir('test-results/my-new-scenario').get().asFile.path
+    configuration 'report.export.html.enabled': 'true',
+                  'report.export.html.folder': layout.buildDirectory.dir('qalipsis/reports').get().asFile.path
 }
 ----
 

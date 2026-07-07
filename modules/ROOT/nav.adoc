@@ -59,8 +59,12 @@
 ** xref:plugins/sql.adoc[]
 ** xref:plugins/timescaledb.adoc[]
 
-// * xref:gui.adoc[]
-* https://qalipsis.io/docs/api[REST API specifications, window=_blank]
+* xref:gui/gui.adoc[GUI]
+** xref:gui/campaigns.adoc[]
+** xref:gui/series.adoc[]
+** xref:gui/reports.adoc[]
+
+// * https://qalipsis.io/docs/api[REST API specifications, window=_blank]
 * xref:glossary.adoc[]
 // * xref:faq.adoc[]
 // * xref:architecture.adoc[]
