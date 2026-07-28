@@ -17,5 +17,93 @@ Feedback on this release, including bugs and suggested enhancements, is welcome 
 
 All the public versions of QALIPSIS OSS are available on the https://mvnrepository.com/artifact/io.qalipsis/qalipsis-platform/versions[Maven central repository].
 
-* v0.18.a — May 2026: Initial release of QALIPSIS with support for distributed load testing, enhanced performance metrics and graphical user interface.
-* v0.18.e — July 2026: Improvement of the reporting capabilities as files (HTML and plain text) and in the web interface.
+=== v0.18.f — 2026-10-08
+
+==== Highlights
+
+- **JUnit report reworked** — a campaign is now reported like a test suite: one test case per step, skipped when the
+  step was not executed, failed or errored according to the severity of its messages, with the step status, executions,
+  messages and measurements attached as standard output. The whole campaign is written to a single file.
+- **Campaign configuration validated before submission** — the configuration rules, such as the maximum number of
+  zones, are now shown and enforced directly in the form instead of being discovered through a rejected submission.
+  Zone configuration is explicitly optional.
+- **Clearer zone configuration** — zones are sorted by label and fully described, with their flag and description, and
+  default to a 100% share.
+- **Campaigns no longer hang** — a campaign with no remaining factory to acknowledge its shutdown terminates
+  immediately, and a scenario that was never closed takes the final status of its campaign instead of being reported as
+  running forever.
+- **New extension point** — an additional campaign hook is triggered when the warm-up of the scenarios starts, the
+  point from which a campaign effectively consumes resources.
+- **TimescaleDB plugin** - The values of the timer meters were read as microseconds instead of the correct milliseconds.
+
+==== Fixes
+
+- Generating the report of a campaign configured with a zone failed with a template error; zone resolution was also
+  made significantly cheaper.
+- Requesting the abort of a campaign whose factory could not be created or could not start left the campaign stuck in a
+  non-terminal state. The abort is now honoured whatever the state of the factories, and the delay before the
+  cancellation is propagated is configurable.
+- The completion hook was not properly called when a campaign failed at start.
+- Clearer labels on the deletion buttons of the reports and series pages.
+- Refinements to the scenario report display, and web application dependencies upgraded.
+- Internal meters are now prefixed with an underscore.
+
+==== New configuration
+
+
+[cols="2,1,3", options="header"]
+|===
+| Property | Default | Description
+
+| `report.export.junit.folder`
+| `./results`
+| Output directory of the JUnit report; previously mandatory, with no default.
+|===
+
+=== v0.18.e — 2026-07-06
+
+==== Highlights
+
+- **HTML execution reports** — a campaign can now produce a self-contained, user-friendly HTML report, generated
+  automatically at the end of a run or downloaded from the campaign details page. It details the campaign summary and,
+  for each scenario, its own summary, the zones it ran on with the configured load distribution, and every visible step
+  in execution order with its measurements and messages.
+- **Textual report for standalone runs** — the same results are also available as a readable console/text report.
+- **Reports without an external time-series database** — campaign measurements are now collected and stored by the
+  Head, so standalone runs produce complete reports out of the box.
+- **Accurate meters** — meters are no longer aggregated when read for charts and reports: step measurements keep their
+  original granularity, and the campaign-level values are returned alongside for comparison. As a consequence, a
+  data-series built on meters no longer takes an aggregation operation.
+- **Scenario and step details in the web UI** — the campaign details page now shows the same breakdown as the report,
+  once the campaign has completed.
+- **Slack and Email plugins** - Graphical improvements to notifications and email notifications can now transport the textual, the HTML and the JUnit reports when enabled.
+
+==== Fixes
+
+- The timer step compared values using the wrong time unit.
+- The minion identifier was attached as a tag to the timeout failure meter, inflating its cardinality.
+- The campaign, data-series and report details screens could not be refreshed.
+- Steps that were not executed were not displayed as disabled.
+- Various report generation failures.
+
+==== New configuration
+
+[cols="2,1,3", options="header"]
+|===
+| Property | Default | Description
+
+| `report.export.html.enabled`
+| `false`
+| Enables the HTML report.
+
+| `report.export.html.folder`
+| `./results`
+| Output directory; file named after the campaign key.
+
+| `report.export.console.folder`
+| _(empty — prints to the console)_
+| Output directory for the textual report.
+|===
+
+=== v0.18.a — 2026-05-27
+Initial release of QALIPSIS with support for distributed load testing, enhanced performance metrics and graphical user interface.
