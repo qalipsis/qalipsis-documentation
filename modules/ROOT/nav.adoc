@@ -6,6 +6,7 @@
 ** xref:tutorials/quickstart-testing-rest-api.adoc[Try to test a REST API]
 ** xref:get-started/bootstrap.adoc[]
 ** xref:get-started/gradle-plugin.adoc[]
+** xref:get-started/cloud-quickstart.adoc[Quickstart with QALIPSIS Cloud]
 
 * xref:up-and-running/up-and-running.adoc[QALIPSIS up and running]
 ** xref:up-and-running/choose-deployment-mode.adoc[]

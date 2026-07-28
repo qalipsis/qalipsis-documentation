@@ -15,4 +15,7 @@ Feedback on this release, including bugs and suggested enhancements, is welcome 
 
 == Version history
 
-v0.18.a — May 2026: Initial release of QALIPSIS with support for distributed load testing, enhanced performance metrics and graphical user interface.
+All the public versions of QALIPSIS OSS are available on the https://mvnrepository.com/artifact/io.qalipsis/qalipsis-platform/versions[Maven central repository].
+
+* v0.18.a — May 2026: Initial release of QALIPSIS with support for distributed load testing, enhanced performance metrics and graphical user interface.
+* v0.18.e — July 2026: Improvement of the reporting capabilities as files (HTML and plain text) and in the web interface.

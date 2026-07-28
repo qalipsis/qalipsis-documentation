@@ -1,0 +1,100 @@
+= Quickstart with QALIPSIS Cloud [.badge.cloud]## ##
+
+This quickstart walks you through publishing your first scenarios to https://app.qalipsis.io[QALIPSIS Cloud, window=_blank], from an empty project to scenarios ready to run in your organization.
+
+You will:
+
+. Create an API token in QALIPSIS Cloud.
+. Download and configure the bootstrap project.
+. Develop and document your scenarios.
+. Publish them with a single Gradle task.
+. Manage the published scenarios from your project.
+
+== Prerequisites
+
+* A QALIPSIS Cloud account. Open https://qalipsis.io/pricing[https://qalipsis.io/pricing, window=_blank] to create a free account or subscribe.
+* Sign in at https://app.qalipsis.io[app.qalipsis.io, window=_blank].
+* Java 11 or later installed locally.
+* An IDE such as IntelliJ IDEA or https://code.visualstudio.com/download[Visual Studio Code, window=_blank] with extensions for https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack[Java, window=_blank], https://marketplace.visualstudio.com/items?itemName=mathiasfrohlich.Kotlin[Kotlin, window=_blank] and https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle[Gradle, window=_blank] (recommended).
+
+== Create an API key
+
+Publishing to the Cloud requires an API token that authenticates your Gradle build.
+
+. Sign in to https://app.qalipsis.io/tokens[https://app.qalipsis.io/tokens, window=_blank].
+. Select your organization in the bottom left corner of the screen.
+. Click **Generate new key** and grant the permissions `read:scenario` and `write:scenario`.
+. Copy the key immediately.
+
+image::get-started/cloud-api-key.png[Creating an API key,align=center]
+
+[WARNING]
+====
+The token is shown only once at creation. Store it safely, as documented in the xref:automation-ci-cd/rest-api.adoc#_authentication[Authentication section] of the REST API reference. If you lose it, revoke it and create a new one.
+====
+
+== Download and configure the bootstrap
+
+The bootstrap project ships preconfigured with the QALIPSIS Gradle plugins.
+
+. Download and initialize the project as described in the xref:get-started/bootstrap.adoc[bootstrap section].
+. Apply the xref:get-started/gradle-plugin.adoc#_with_the_cloud_plugin[cloud plugin] and set its properties, typically in `gradle.properties` at the root of your project or in your Gradle user home (`~/.gradle/gradle.properties` on Linux and macOS, `%USERPROFILE%\.gradle\gradle.properties` on Windows):
++
+[source,properties,linenumbers]
+----
+qalipsis.cloud.registry.token=<your-api-token>
+----
++
+Paste the token created above into `qalipsis.cloud.registry.token`.
+
+[NOTE]
+====
+Keep the token out of version control. Prefer a local `gradle.properties` in your Gradle user home or a Gradle execution option over committing it to your repository.
+====
+
+== Develop your scenarios
+
+Develop your scenarios as described in the xref:develop-scenarios/develop-scenarios.adoc[develop scenarios] section.
+
+Give each scenario a clear identity through the `@Scenario` annotation. Its `name`, `description` and `version` are what QALIPSIS Cloud displays in your organization, so document them accurately:
+
+[source,kotlin,linenumbers]
+----
+@Scenario(
+    name = "my-new-scenario",
+    description = "POSTs to httpbin.org and verifies the response",
+    version = "1.0"
+)
+----
+
+== Publish your scenarios
+
+Run the publication task from your project directory:
+
+[source,bash]
+----
+./gradlew qalipsisPublish
+----
+
+The task packages the scenarios found on the classpath and uploads them to your organization in QALIPSIS Cloud.
+
+A couple of seconds later, the scenarios are available in the Cloud. To confirm, start the xref:gui/campaigns.adoc#_creating_a_campaign[new-campaign wizard] and check that they appear in the scenario selection, with the name, description and version defined in their `@Scenario` annotation.
+
+== Manage published scenarios
+
+When the property `qalipsis.cloud.registry.list` is set to `true` (the default), each build lists the scenarios currently present in your organization and generates a dedicated deletion task per scenario, named `qalipsisCloudDeleteScenario<ScenarioName>` (the scenario name in camel case).
+
+To remove a scenario that is no longer relevant:
+
+[source,bash]
+----
+./gradlew qalipsisCloudDeleteScenarioMyNewScenario
+----
+
+Run `./gradlew tasks` to discover the exact task names generated for your scenarios.
+
+== Next steps
+
+* Run a campaign against your scenarios from the xref:gui/campaigns.adoc[Campaigns] screen.
+* Define xref:gui/series.adoc[series] and assemble xref:gui/reports.adoc[reports] to visualize the results.
+* Trigger campaigns programmatically through the xref:automation-ci-cd/rest-api.adoc[REST API] or the xref:get-started/gradle-plugin.adoc#_cloud_campaign_execution[cloud campaign task].
